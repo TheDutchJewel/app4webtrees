@@ -159,8 +159,8 @@ fun AppViewModel.loadChart() {
 }
 
 /**
- * Geschwister (mit Partnern und Kindern) der Mittelperson, ihrer Eltern und Grosseltern - wie in der Familienansicht
- * gaengiger Stammbaum-Apps. Das Modul hat dafuer keinen eigenen Aufruf; die Nachkommen eines Elternteils liefern sie mit.
+ * Geschwister (mit Partnern und Kindern) der Mittelperson, ihrer Eltern und Grosseltern - wie in einer
+ * Familienansicht ueblich. Das Modul hat dafuer keinen eigenen Aufruf; die Nachkommen eines Elternteils liefern sie mit.
  * Die oberste Reihe bleibt ohne: ihre Eltern sind nicht geladen. Kommen sie spaeter dazu ("nach oben aufklappen"),
  * holt ein weiterer Aufruf nur die noch fehlenden Gruppen nach.
  */
