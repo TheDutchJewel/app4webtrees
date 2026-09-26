@@ -249,3 +249,14 @@ internal fun openBrowser(url: String) {
     runCatching { java.awt.Desktop.getDesktop().browse(URI(url)) }
         .recoverCatching { ProcessBuilder("xdg-open", url).start() }
 }
+
+actual val zwischenablageLesbar: Boolean = true
+
+actual fun zwischenablageText(): String? = runCatching {
+    val ablage = java.awt.Toolkit.getDefaultToolkit().systemClipboard
+    if (ablage.isDataFlavorAvailable(java.awt.datatransfer.DataFlavor.stringFlavor)) {
+        ablage.getData(java.awt.datatransfer.DataFlavor.stringFlavor) as? String
+    } else {
+        null
+    }
+}.getOrNull()

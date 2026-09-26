@@ -18,6 +18,15 @@ import de.bgghome.webtrees.nativ.api.FactJson
  */
 val LocalAppName = staticCompositionLocalOf { "wtAnd" }
 
+/**
+ * Text aus der Zwischenablage, falls die Plattform ihn still lesen darf - sonst null. Nur der Desktop liest:
+ * Android meldet jedes Lesen mit einem Hinweis und bekommt die Adresse ohnehin per Tipp/QR-Code.
+ */
+expect fun zwischenablageText(): String?
+
+/** Liest [zwischenablageText] auf dieser Plattform ueberhaupt etwas? */
+expect val zwischenablageLesbar: Boolean
+
 /** Desktop-Aufbau aktiv: Handy-Bedienelemente (Titelleiste mit Drei-Punkte-Menue) bleiben weg. */
 val LocalDeskMode = staticCompositionLocalOf { false }
 

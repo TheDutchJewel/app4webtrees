@@ -80,3 +80,7 @@ actual fun rememberNotificationPermission(onGranted: () -> Unit): () -> Unit {
         if (Build.VERSION.SDK_INT >= 33) ask.launch(Manifest.permission.POST_NOTIFICATIONS) else onGranted()
     }
 }
+
+actual fun zwischenablageText(): String? = null
+
+actual val zwischenablageLesbar: Boolean = false

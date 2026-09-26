@@ -23,4 +23,17 @@ class BaseUrlTest {
         assertFalse(WtClient.isCleartext("example.org/webtrees"))
         assertFalse(WtClient.isCleartext("httpx.example.org"))
     }
+
+    @Test
+    fun adresseAusZwischenablage() {
+        assertEquals("http://192.168.178.109:8095", WtClient.adresseAusText("http://192.168.178.109:8095/"))
+        assertEquals("https://example.org/webtrees", WtClient.adresseAusText("  https://example.org/webtrees/index.php?route=%2Ftree%2Fx\n"))
+        assertEquals(null, WtClient.adresseAusText(null))
+        assertEquals(null, WtClient.adresseAusText(""))
+        assertEquals(null, WtClient.adresseAusText("example.org"))
+        assertEquals(null, WtClient.adresseAusText("Hallo https://example.org"))
+        assertEquals(null, WtClient.adresseAusText("https://example.org\nhttps://zwei.org"))
+        assertEquals(null, WtClient.adresseAusText("https://"))
+        assertEquals(null, WtClient.adresseAusText("ftp://example.org"))
+    }
 }

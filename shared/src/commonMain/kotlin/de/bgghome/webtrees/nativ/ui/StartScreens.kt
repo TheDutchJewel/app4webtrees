@@ -26,6 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,6 +38,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import de.bgghome.webtrees.nativ.api.WtClient
 import de.bgghome.webtrees.nativ.res.*
 
@@ -70,6 +74,24 @@ fun LoadingScreen() {
 @Composable
 fun SetupScreen(state: UiState, onSubmit: (String) -> Unit) {
     var url by rememberSaveable { mutableStateOf(state.baseUrl) }
+    var ausAblage by rememberSaveable { mutableStateOf(false) }
+    var getippt by rememberSaveable { mutableStateOf(false) }
+
+    // wtWin/wtTux: Steht in der Zwischenablage eine Adresse (Knopf "Adresse kopieren" auf der Seite "App"), kommt sie
+    // von selbst ins leere Feld - auch wenn sie erst kopiert wird, waehrend dieser Bildschirm schon offen ist.
+    if (zwischenablageLesbar) {
+        LaunchedEffect(Unit) {
+            while (url.isEmpty() && !getippt) {
+                val gefunden = withContext(Dispatchers.IO) { WtClient.adresseAusText(zwischenablageText()) }
+                if (gefunden != null && url.isEmpty() && !getippt) {
+                    url = gefunden
+                    ausAblage = true
+                    break
+                }
+                delay(1000)
+            }
+        }
+    }
 
     StartFrame(
         title = LocalAppName.current,
@@ -78,7 +100,7 @@ fun SetupScreen(state: UiState, onSubmit: (String) -> Unit) {
     ) {
         OutlinedTextField(
             value = url,
-            onValueChange = { url = it },
+            onValueChange = { url = it; getippt = true; ausAblage = false },
             label = { Text(stringResource(Res.string.setup_address)) },
             placeholder = { Text("https://example.org/webtrees") },
             singleLine = true,
@@ -89,8 +111,15 @@ fun SetupScreen(state: UiState, onSubmit: (String) -> Unit) {
         Button(onClick = { onSubmit(url) }, enabled = !state.busy && url.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
             Text(if (state.busy) stringResource(Res.string.setup_connecting) else stringResource(Res.string.setup_connect))
         }
+        if (ausAblage) {
+            Text(stringResource(Res.string.setup_from_clipboard), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+        }
         Text(stringResource(Res.string.setup_address_help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(stringResource(Res.string.setup_pair_hint), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 8.dp))
+        Text(
+            if (zwischenablageLesbar) stringResource(Res.string.setup_pair_hint_desk, LocalAppName.current) else stringResource(Res.string.setup_pair_hint),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(top = 8.dp),
+        )
     }
 }
 

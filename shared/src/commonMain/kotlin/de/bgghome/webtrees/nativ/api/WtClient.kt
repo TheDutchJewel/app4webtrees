@@ -472,6 +472,19 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         fun cleartextHome(input: String): Boolean =
             isCleartext(input) && normalizeBaseUrl(input).toHttpUrlOrNull()?.host?.let(Heimnetz::hostAufgeloest) == true
 
+        /**
+         * Sieht der Text aus der Zwischenablage wie eine webtrees-Adresse aus? Nur eine Zeile, die mit http:// oder
+         * https:// beginnt, ohne Leerzeichen und nicht ueberlang - sonst null. Fuer "Adresse kopieren" auf der Seite
+         * "App" (api4webtrees 1.9.3): wtWin/wtTux belegen damit das Adressfeld vor (26.09.2026).
+         */
+        fun adresseAusText(text: String?): String? {
+            val t = text?.trim() ?: return null
+            if (t.length > 300 || t.any { it.isWhitespace() }) return null
+            if (!t.startsWith("http://", ignoreCase = true) && !t.startsWith("https://", ignoreCase = true)) return null
+            val url = normalizeBaseUrl(t)
+            return url.takeIf { it.toHttpUrlOrNull()?.host?.isNotEmpty() == true }
+        }
+
         /** "example.org/webtrees/" -> "https://example.org/webtrees" */
         fun normalizeBaseUrl(input: String): String {
             var url = input.trim()
