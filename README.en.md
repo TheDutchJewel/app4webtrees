@@ -34,8 +34,8 @@
 | **Ancestor circle** – seven generations, the four grandparent lines in colour, pedigree collapse as “= 74” | **Fan chart** – the half circle, here six generations |
 
 <p align="center">
-  <img src="docs/screenshots/desktop-pruefung.jpg" alt="wtTux: plausibility check window with 21 findings in the demo tree" width="100%">
-  <br><b>Plausibility check</b> (from 1.22) – 47 rules check the whole tree: death before birth, mother too young, child after the father's death, siblings married, own ancestor … limits adjustable, a click opens the person, print and PDF.
+  <img src="docs/screenshots/desktop-pruefung.jpg" alt="wtTux: plausibility check window with preset and findings in the demo tree" width="100%">
+  <br><b>Plausibility check</b> (from 1.22, extended in 1.23) – 61 rules check the whole tree: death before birth, mother too young, godparent already dead, possible duplicates, place variants, own ancestor … presets from strict to lenient, adjustable limits; tick off checked findings, edit the event straight from the finding, print and PDF.
 </p>
 
 <p align="center"><sub>Charts, plausibility check and wtTux navigator: fictitious demo tree <a href="demo-tree/">Familie Falkenrath</a> (CC0), photos of unknown people from the Rijksmuseum Amsterdam (CC0). wtWin navigator and person sheet: historical tree of the Medici; portrait of Caterina Sforza: <a href="https://commons.wikimedia.org/wiki/File:Italia,_caterina_riario_di_forl%C3%AC,_riproduzione_della_medaglia_del_1488_ca..JPG">Sailko</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, all others public domain (Wikimedia Commons).</sub></p>

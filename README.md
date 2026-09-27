@@ -34,8 +34,8 @@
 | **Ahnenkreis** – sieben Generationen, die vier Großeltern-Linien in Farbe, Ahnenschwund als „= 74“ | **Fächertafel** – der Halbkreis, hier sechs Generationen |
 
 <p align="center">
-  <img src="docs/screenshots/desktop-pruefung.jpg" alt="wtTux: Fenster Plausibilitätsprüfung mit 21 Treffern im Demo-Stammbaum" width="100%">
-  <br><b>Plausibilitätsprüfung</b> (ab 1.22) – 47 Regeln prüfen den ganzen Stammbaum: Tod vor Geburt, Mutter zu jung, Kind nach dem Tod des Vaters, Ehe unter Geschwistern, eigener Vorfahr … Grenzen einstellbar, Klick öffnet die Person, Drucken und PDF.
+  <img src="docs/screenshots/desktop-pruefung.jpg" alt="wtTux: Fenster Plausibilitätsprüfung mit Voreinstellung und Treffern im Demo-Stammbaum" width="100%">
+  <br><b>Plausibilitätsprüfung</b> (ab 1.22, erweitert in 1.23) – 61 Regeln prüfen den ganzen Stammbaum: Tod vor Geburt, Mutter zu jung, Pate schon gestorben, mögliche Dubletten, Ortsvarianten, eigener Vorfahr … Voreinstellungen von streng bis großzügig, Grenzen einstellbar; geprüfte Treffer abhaken, das Ereignis direkt aus dem Treffer bearbeiten, Drucken und PDF.
 </p>
 
 <p align="center"><sub>Tafeln, Prüfung und wtTux-Navigator: frei erfundener Demo-Stammbaum <a href="demo-tree/">Familie Falkenrath</a> (CC0), Fotos unbekannter Personen aus dem Rijksmuseum Amsterdam (CC0). wtWin-Navigator und Personenblatt: historischer Stammbaum der Medici; Porträt Caterina Sforza: <a href="https://commons.wikimedia.org/wiki/File:Italia,_caterina_riario_di_forl%C3%AC,_riproduzione_della_medaglia_del_1488_ca..JPG">Sailko</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, alle anderen gemeinfrei (Wikimedia Commons).</sub></p>
