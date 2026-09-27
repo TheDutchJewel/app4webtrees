@@ -608,4 +608,27 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_pdf_pages">Als PDF speichern</string>
     <string name="desk_chart_loading_any">Wird geladen …</string>
     <string name="desk_chart_empty">Keine Vorfahren bekannt.</string>
+    <!-- Plausibilitaetspruefung (27.09.2026) -->
+    <string name="desk_check_window">Plausibilitätsprüfung</string>
+    <string name="desk_check_title">Plausibilitätsprüfung – %1$s</string>
+    <string name="desk_check_group_chrono">Chronologie</string>
+    <string name="desk_check_group_age">Altersgrenzen</string>
+    <string name="desk_check_group_structure">Struktur</string>
+    <string name="desk_check_all">Alle Treffer</string>
+    <string name="desk_check_summary">%1$d Treffer, davon %2$d Fehler</string>
+    <string name="desk_check_checked">%1$d Personen und %2$d Familien geprüft</string>
+    <string name="desk_check_none">Keine Treffer.</string>
+    <string name="desk_check_off">Diese Regel ist ausgeschaltet.</string>
+    <string name="desk_check_limit">Grenze</string>
+    <string name="desk_check_default">Vorgabe %1$s</string>
+    <string name="desk_check_unit_years">Jahre</string>
+    <string name="desk_check_unit_months">Monate</string>
+    <string name="desk_check_unit_month">Monat</string>
+    <string name="desk_check_unit_year">Jahr</string>
+    <string name="desk_check_error">Fehler</string>
+    <string name="desk_check_warning">Warnung</string>
+    <string name="desk_check_rerun">Neu prüfen</string>
+    <string name="desk_check_reset">Alle Regeln und Grenzen wie vorgegeben</string>
+    <string name="desk_check_loading">Lade den Stammbaum … %1$d von %2$d</string>
+    <string name="desk_check_hint">Prüft den ganzen Stammbaum, soweit du ihn sehen darfst. Fehler sind Widersprüche in den Daten, Warnungen sind ungewöhnlich, aber möglich. Klick auf einen Treffer zeigt die Person, Doppelklick öffnet das Personenblatt.</string>
 </resources>

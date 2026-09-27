@@ -127,6 +127,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     // Tafelfenster: null = zu, sonst die Tafelart, mit der es oeffnet
     var tafel by remember { mutableStateOf<TafelArt?>(null) }
     var buch by remember { mutableStateOf(false) }
+    var pruefung by remember { mutableStateOf(false) }
     val openSheet: (String) -> Unit = { xref -> viewModel.select(xref); sheetOpen = true }
 
     // Zurueck/Vor zwischen Zentralpersonen: das ViewModel kennt nur den Rueckweg, den Vorwaertsweg haelt der Desktop.
@@ -164,7 +165,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         nav = nav, drucke = drucke, onListe = { liste = it }, onHilfe = { hilfe = true },
         farbkodierung = farbkodierung, onFarbkodierung = { farbkodierung = it; DeskLayout.prefs.putBoolean("farbkodierung", it) },
         symboltexte = symboltexte, onSymboltexte = { symboltexte = it; DeskLayout.prefs.putBoolean("symboltexte", it) },
-        onMerkliste = { merkliste = true }, onTafel = { tafel = it }, onBuch = { buch = true },
+        onMerkliste = { merkliste = true }, onTafel = { tafel = it }, onBuch = { buch = true }, onPruefung = { pruefung = true },
     )
 
     // Noch nicht verbunden: auf den Verbinden-Link aus webtrees warten (Knopf "Mit wtWin verbinden" legt ihn in die
@@ -285,6 +286,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     if (merkliste) MerklisteFenster(state, viewModel, openSheet, onClose = { merkliste = false })
     tafel?.let { art -> if (state.root != null) TafelFenster(state, viewModel, art, onClose = { tafel = null }) }
     if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
+    if (pruefung && state.tree != null) PruefFenster(state, viewModel, openSheet, onClose = { pruefung = false })
 
     if (about) {
         AlertDialog(
@@ -317,7 +319,7 @@ private fun FrameWindowScope.DeskMenuBar(
     nav: DeskNav, drucke: DeskDruck, onListe: (ListenArt) -> Unit, onHilfe: () -> Unit,
     farbkodierung: Boolean, onFarbkodierung: (Boolean) -> Unit,
     symboltexte: Boolean, onSymboltexte: (Boolean) -> Unit,
-    onMerkliste: () -> Unit, onTafel: (TafelArt) -> Unit, onBuch: () -> Unit,
+    onMerkliste: () -> Unit, onTafel: (TafelArt) -> Unit, onBuch: () -> Unit, onPruefung: () -> Unit,
 ) {
     val main = state.screen == Screen.Main
     val loggedIn = state.info?.user?.loggedIn == true
@@ -371,6 +373,8 @@ private fun FrameWindowScope.DeskMenuBar(
             Item(stringResource(Res.string.desk_chart_open), enabled = state.root != null, shortcut = KeyShortcut(Key.T, ctrl = true), onClick = { onTafel(TafelArt.Stamm) })
             Separator()
             Item(stringResource(Res.string.desk_book_window) + " …", enabled = state.root != null, onClick = onBuch)
+            Separator()
+            Item(stringResource(Res.string.desk_check_window) + " …", enabled = state.tree != null, shortcut = KeyShortcut(Key.P, ctrl = true, shift = true), onClick = onPruefung)
         }
         Menu(stringResource(Res.string.desk_menu_webtrees), enabled = main && state.tree != null) {
             val t = state.tree?.name.orEmpty()

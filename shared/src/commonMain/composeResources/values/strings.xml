@@ -613,4 +613,27 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_chart_pdf_pages">Save as PDF</string>
     <string name="desk_chart_loading_any">Loading …</string>
     <string name="desk_chart_empty">No ancestors known.</string>
+    <!-- Plausibilitaetspruefung (27.09.2026) -->
+    <string name="desk_check_window">Plausibility check</string>
+    <string name="desk_check_title">Plausibility check – %1$s</string>
+    <string name="desk_check_group_chrono">Chronology</string>
+    <string name="desk_check_group_age">Age limits</string>
+    <string name="desk_check_group_structure">Structure</string>
+    <string name="desk_check_all">All findings</string>
+    <string name="desk_check_summary">%1$d findings, %2$d of them errors</string>
+    <string name="desk_check_checked">%1$d people and %2$d families checked</string>
+    <string name="desk_check_none">No findings.</string>
+    <string name="desk_check_off">This rule is switched off.</string>
+    <string name="desk_check_limit">Limit</string>
+    <string name="desk_check_default">default %1$s</string>
+    <string name="desk_check_unit_years">years</string>
+    <string name="desk_check_unit_months">months</string>
+    <string name="desk_check_unit_month">month</string>
+    <string name="desk_check_unit_year">year</string>
+    <string name="desk_check_error">error</string>
+    <string name="desk_check_warning">warning</string>
+    <string name="desk_check_rerun">Check again</string>
+    <string name="desk_check_reset">All rules and limits as default</string>
+    <string name="desk_check_loading">Loading the tree … %1$d of %2$d</string>
+    <string name="desk_check_hint">Checks the whole tree as far as you may see it. Errors are contradictions in the data; warnings are unusual but possible. Click a finding to show the person, double-click opens the person sheet.</string>
 </resources>
