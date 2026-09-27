@@ -44,7 +44,7 @@ jobs:
           out/php/php -v
           out/php/php -m
           for e in intl pdo_sqlite pdo_mysql gd zip curl mbstring; do out/php/php -m | grep -qx "$e" || { echo "FEHLT: $e"; exit 1; }; done
-          out/php/php -r 'var_dump(gd_info()["JPEG Support"], gd_info()["PNG Support"]);'
+          out/php/php -r "var_dump(function_exists('imagejpeg'), function_exists('imagepng'), function_exists('imagewebp'));"
           tar czf php-linux-x64.tar.gz -C out php
           ls -la php-linux-x64.tar.gz
       - uses: actions/upload-artifact@v4
@@ -77,7 +77,7 @@ jobs:
           $mods = out\php\php.exe -m
           $mods
           foreach ($e in 'intl','pdo_sqlite','pdo_mysql','gd','zip','curl','mbstring') { if (-not ($mods -contains $e)) { Write-Error "FEHLT: $e"; exit 1 } }
-          out\php\php.exe -r 'var_dump(gd_info()[\"JPEG Support\"], gd_info()[\"PNG Support\"]);'
+          out\php\php.exe -r "var_dump(function_exists('imagejpeg'), function_exists('imagepng'), function_exists('imagewebp'));"
           Compress-Archive -Path out\php -DestinationPath php-windows-x64.zip
           Get-Item php-windows-x64.zip
       - uses: actions/upload-artifact@v4
