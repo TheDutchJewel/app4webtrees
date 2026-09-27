@@ -53,7 +53,8 @@ jobs:
           path: php-linux-x64.tar.gz
 
   windows:
-    runs-on: windows-latest
+    # static-php-cli 2.8 erkennt nur Visual Studio 2019/2022 - windows-latest bringt ein neueres mit.
+    runs-on: windows-2022
     steps:
       - name: static-php-cli holen
         shell: pwsh
