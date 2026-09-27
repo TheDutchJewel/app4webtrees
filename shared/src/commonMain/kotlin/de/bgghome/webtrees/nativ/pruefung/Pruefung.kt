@@ -2,102 +2,50 @@ package de.bgghome.webtrees.nativ.pruefung
 
 import de.bgghome.webtrees.nativ.api.FactJson
 import de.bgghome.webtrees.nativ.api.TreeExport
+import java.security.MessageDigest
+import java.text.Normalizer
 
 /*
  * Plausibilitaetspruefung (27.09.2026) ueber den ganzen Baum aus dem Export von api4webtrees (ab Stufe 17).
- * Die Regeln und ihre Kennnummern stammen aus dem Pruefprogramm von db-blank (pruefungen/pruefregeln.txt,
- * plausibilitaet.py): 0xx Chronologie, 1xx Altersgrenzen, 2xx Struktur, dazu 319. Die OFB-eigenen Regeln
- * (Namensfelder, Atlanten, Rohtext) fehlen; 218 (Verweis ins Leere) auch - der Export laesst Personen weg, die der
- * Benutzer nicht sehen darf, und webtrees prueft Verweise selbst (Menue webtrees > Stammbaum pruefen).
+ * Stufe 1: die Regeln aus dem Pruefprogramm von db-blank (0xx, 1xx, 2xx, 319); 218 (Verweis ins Leere) fehlt, weil
+ * der Export unsichtbare Personen weglaesst und webtrees Verweise selbst prueft.
+ * Stufe 2: Taufe/Begraebnis als Schaetzung fuer fehlende Geburt/Tod, Paten und Zeugen, Lebende ohne Sterbeangabe,
+ * unscharfe Dubletten, Namen, einfache Quellenregeln, Orte; je Treffer die betroffenen Fakten (zum Bearbeiten) und ein
+ * Fingerabdruck der Daten (zum Abhaken: aendern sich die Daten, kommt der Treffer wieder).
  * Die Pruefung laeuft ohne Server-Anfrage; was der Benutzer nicht sehen darf, prueft sie nicht.
  */
 
-enum class Schwere { Fehler, Warnung }
+/** Ein Fakt, den ein Treffer betrifft: Datensatz (Person oder Familie) und Fakt-ID aus dem Export. */
+data class FaktRef(val record: String, val fakt: String)
 
-/** Einheit des Grenzwerts: Jahre, Monate oder Anzahl. */
-enum class Einheit { Jahre, Monate, Anzahl }
-
-enum class RegelGruppe { Chronologie, Alter, Struktur }
-
-class Regel(
-    val id: String,
-    val gruppe: RegelGruppe,
-    val schwere: Schwere,
-    /** Voreingestellter Grenzwert; null: Regel ohne Grenzwert. */
-    val grenzwert: Double?,
-    val einheit: Einheit?,
-    private val de: String,
-    private val en: String,
+/** Ein Treffer: Person und/oder Familie, kurze Begruendung, betroffene Fakten, Fingerabdruck (sprachunabhaengig). */
+data class Treffer(
+    val regel: String,
+    val person: String?,
+    val familie: String?,
+    val text: String,
+    val fakten: List<FaktRef> = emptyList(),
+    val fingerabdruck: String = "",
 ) {
-    fun frage(deutsch: Boolean) = if (deutsch) de else en
+    /** Schluessel fuers Abhaken: Regel, Person, Familie und der Stand der Daten. */
+    val schluessel: String get() = "$regel|${person.orEmpty()}|${familie.orEmpty()}|$fingerabdruck"
 }
 
-/** Ein Treffer: Person und/oder Familie, dazu eine kurze Begruendung mit den Daten. */
-data class Treffer(val regel: String, val person: String?, val familie: String?, val text: String)
+class PruefOptionen(
+    /** Abweichende Grenzwerte je Regel. */
+    val grenzwerte: Map<String, Double> = emptyMap(),
+    /** Ausgeschaltete Regeln. */
+    val aus: Set<String> = Regelkatalog.standardAus,
+    /** Fehlende Geburt aus der Taufe, fehlenden Tod aus dem Begraebnis schaetzen. */
+    val schaetzen: Boolean = true,
+    /** Das laufende Jahr (Regeln 019, 127). */
+    val jetzt: Int = java.time.Year.now().value,
+    /** Sprache der Begruendungen. */
+    val deutsch: Boolean = java.util.Locale.getDefault().language == "de",
+)
 
-object Regelkatalog {
-    private val C = RegelGruppe.Chronologie
-    private val A = RegelGruppe.Alter
-    private val S = RegelGruppe.Struktur
-    private val F = Schwere.Fehler
-    private val W = Schwere.Warnung
-    private val J = Einheit.Jahre
-    private val M = Einheit.Monate
-    private val N = Einheit.Anzahl
-
-    val alle: List<Regel> = listOf(
-        Regel("010", C, F, null, null, "Stirbt jemand vor seiner Geburt?", "Does someone die before being born?"),
-        Regel("011", C, F, null, null, "Heiratet jemand vor seiner Geburt?", "Does someone marry before being born?"),
-        Regel("012", C, F, null, null, "Heiratet jemand nach seinem Tod?", "Does someone marry after their death?"),
-        Regel("013", C, F, null, null, "Wird ein Kind vor seiner Mutter geboren?", "Is a child born before its mother?"),
-        Regel("014", C, F, null, null, "Wird ein Kind vor seinem Vater geboren?", "Is a child born before its father?"),
-        Regel("015", C, F, 0.0, M, "Wird ein Kind nach dem Tod der Mutter geboren?", "Is a child born after its mother's death?"),
-        Regel("016", C, F, 9.5, M, "Wird ein Kind später als die Grenze nach dem Tod des Vaters geboren?", "Is a child born later than the limit after its father's death?"),
-        Regel("017", C, W, 1.0, J, "Wird ein Kind mehr als die Grenze vor der Ehe der Eltern geboren?", "Is a child born more than the limit before its parents' marriage?"),
-        Regel("018", C, F, null, null, "Gibt es Daten, die es nicht gibt (31. April, 30. Februar …)?", "Are there dates that do not exist (31 April, 30 February …)?"),
-        Regel("019", C, F, null, null, "Liegt ein Datum in der Zukunft?", "Is a date in the future?"),
-        Regel("020", C, F, null, null, "Wird jemand vor seiner Geburt getauft?", "Is someone baptised before being born?"),
-        Regel("021", C, F, null, null, "Wird jemand vor seinem Tod begraben?", "Is someone buried before their death?"),
-        Regel("022", C, W, null, null, "Ist das Geburtsdatum gleich dem Heiratsdatum?", "Is the date of birth the same as the date of marriage?"),
-        Regel("023", C, W, null, null, "Stehen die Kinder einer Familie nicht in Geburtsreihenfolge?", "Are the children of a family out of birth order?"),
-
-        Regel("110", A, F, 110.0, J, "Wird jemand älter als die Grenze?", "Does someone live longer than the limit?"),
-        Regel("111", A, F, 14.0, J, "Ist eine Mutter bei der Geburt jünger als die Grenze?", "Is a mother younger than the limit at the birth?"),
-        Regel("112", A, F, 55.0, J, "Ist eine Mutter bei der Geburt älter als die Grenze?", "Is a mother older than the limit at the birth?"),
-        Regel("113", A, F, 14.0, J, "Ist ein Vater bei der Geburt jünger als die Grenze?", "Is a father younger than the limit at the birth?"),
-        Regel("114", A, W, 75.0, J, "Ist ein Vater bei der Geburt älter als die Grenze?", "Is a father older than the limit at the birth?"),
-        Regel("115", A, F, 15.0, J, "Heiratet jemand jünger als die Grenze?", "Does someone marry younger than the limit?"),
-        Regel("116", A, W, 90.0, J, "Heiratet jemand älter als die Grenze?", "Does someone marry older than the limit?"),
-        Regel("117", A, W, 40.0, J, "Liegen zwischen Ehepartnern mehr Jahre als die Grenze?", "Are spouses further apart in age than the limit?"),
-        Regel("118", A, W, 8.0, M, "Liegen zwei Geschwister näher beieinander als die Grenze (keine Zwillinge)?", "Are two siblings closer together than the limit (not twins)?"),
-        Regel("119", A, W, 30.0, J, "Liegen zwischen ältestem und jüngstem Kind mehr Jahre als die Grenze?", "Are the oldest and youngest child further apart than the limit?"),
-        Regel("120", A, W, 16.0, N, "Hat eine Ehe mehr Kinder als die Grenze?", "Does a marriage have more children than the limit?"),
-        Regel("121", A, W, 3.0, N, "Hat jemand mehr Ehen als die Grenze?", "Does someone have more marriages than the limit?"),
-        Regel("122", A, W, 2.0, M, "Heiratet jemand früher als die Grenze nach dem Tod des vorigen Partners wieder?", "Does someone remarry sooner than the limit after the previous spouse's death?"),
-        Regel("123", A, F, 20.0, N, "Hat eine Mutter über alle Ehen mehr Kinder als die Grenze?", "Does a mother have more children than the limit over all marriages?"),
-        Regel("124", A, W, 12.0, J, "Liegen zwischen zwei aufeinanderfolgenden Geschwistern mehr Jahre als die Grenze?", "Are two consecutive siblings further apart than the limit?"),
-        Regel("125", A, F, null, null, "Heiratet jemand nach seinem eigenen Sterbedatum?", "Does someone marry after their own date of death?"),
-
-        Regel("210", S, F, null, null, "Gibt es Personen ohne Namen, ohne Daten und ohne jede Verbindung?", "Are there people without name, dates or any link?"),
-        Regel("211", S, W, null, null, "Gibt es Personen, die in keiner Familie vorkommen?", "Are there people who belong to no family?"),
-        Regel("212", S, W, null, null, "Gibt es Partner ohne jede eigene Angabe in einer kinderlosen Ehe?", "Are there spouses without any details in a childless marriage?"),
-        Regel("213", S, W, null, null, "Ist dieselbe Person Kind in zwei Familien?", "Is the same person a child in two families?"),
-        Regel("214", S, F, null, null, "Ist jemand Kind in der Familie, in der er selbst Elternteil ist?", "Is someone a child in the family where they are a parent?"),
-        Regel("215", S, F, null, null, "Haben beide Ehepartner dasselbe Geschlecht?", "Do both spouses have the same sex?"),
-        Regel("216", S, F, null, null, "Steht eine Frau als Vater oder ein Mann als Mutter?", "Is a woman recorded as father or a man as mother?"),
-        Regel("217", S, F, null, null, "Gibt es Familien ohne Partner und ohne Kinder?", "Are there families without spouses and children?"),
-        Regel("219", S, W, null, null, "Gibt es zwei Personen mit gleichem Namen und gleichem vollen Geburtsdatum?", "Are there two people with the same name and the same full date of birth?"),
-        Regel("220", S, F, null, null, "Sind Ehepartner Geschwister?", "Are spouses siblings?"),
-        Regel("221", S, F, null, null, "Sind Ehepartner Elternteil und Kind?", "Are spouses parent and child?"),
-        Regel("222", S, F, null, null, "Heiratet jemand, während der vorige Partner noch lebt?", "Does someone marry while the previous spouse is still alive?"),
-        Regel("223", S, W, null, null, "Haben beide Ehepartner denselben Nachnamen?", "Do both spouses have the same surname?"),
-        Regel("224", S, W, null, null, "Haben zwei lebende Geschwister denselben Vornamen?", "Do two living siblings have the same given name?"),
-        Regel("225", S, F, null, null, "Ist jemand sein eigener Vorfahr?", "Is someone their own ancestor?"),
-        Regel("226", S, W, null, null, "Gibt es dasselbe Elternpaar als zwei Familien?", "Is the same couple recorded as two families?"),
-        Regel("319", S, W, null, null, "Hat ein Ehepartner unbekanntes Geschlecht?", "Does a spouse have an unknown sex?"),
-    )
-
-    val nachId: Map<String, Regel> = alle.associateBy { it.id }
+class PruefErgebnis(val treffer: Map<String, List<Treffer>>) {
+    val anzahl: Int get() = treffer.values.sumOf { it.size }
 }
 
 // ── Modell ──
@@ -111,17 +59,30 @@ internal class PPerson(
     val geschlecht: Char,
     val privat: Boolean,
     val leer: Boolean,
+    /** Wie webtrees die Person sieht (tot oder vermutlich lebend). */
+    val tot: Boolean,
     val geb: PruefDatum?,
     val taufe: PruefDatum?,
     val tod: PruefDatum?,
     val begr: PruefDatum?,
+    /** Die Fakten, aus denen geb/taufe/tod/begr stammen (bei Schaetzung Taufe bzw. Begraebnis). */
+    val gebF: FactJson?,
+    val taufeF: FactJson?,
+    val todF: FactJson?,
+    val begrF: FactJson?,
+    /** Irgendein Sterbe- oder Begraebnisfakt, auch ohne Datum. */
+    val hatTodesfakt: Boolean,
     val eltern: List<String>,
+    val fakten: List<FactJson>,
 ) {
     /** Partnerfamilien, nach Heirat geordnet (ohne Datum zuletzt). */
     var ehen: List<String> = emptyList()
 }
 
-internal class PFamilie(val xref: String, val vater: String?, val mutter: String?, val heirat: PruefDatum?, val kinder: List<String>)
+internal class PFamilie(
+    val xref: String, val vater: String?, val mutter: String?, val heirat: PruefDatum?, val heiratF: FactJson?,
+    val kinder: List<String>, val fakten: List<FactJson>,
+)
 
 internal class PModell(val p: Map<String, PPerson>, val f: Map<String, PFamilie>) {
     fun partner(f: PFamilie) = listOfNotNull(p[f.vater], p[f.mutter])
@@ -130,35 +91,45 @@ internal class PModell(val p: Map<String, PPerson>, val f: Map<String, PFamilie>
     fun mutter(f: PFamilie) = p[f.mutter]
 }
 
-private fun datumAus(f: FactJson?): PruefDatum? {
+internal fun datumAus(f: FactJson?): PruefDatum? {
     val d = f?.date ?: return null
     if (d.gedcom.isNotBlank()) return PruefDatum.aus(d.gedcom, d.text)
     // aeltere Server ohne GEDCOM-Form: nur das Jahr
     return if (d.year > 0) PruefDatum.aus(d.year.toString(), d.text) else null
 }
 
-private fun erstes(facts: List<FactJson>, vararg tags: String): PruefDatum? {
-    for (t in tags) facts.filter { it.tag == t }.firstNotNullOfOrNull(::datumAus)?.let { return it }
+/** Der erste Fakt der Tags (in dieser Reihenfolge), der ein lesbares Datum hat. */
+private fun erstes(facts: List<FactJson>, vararg tags: String): Pair<PruefDatum, FactJson>? {
+    for (t in tags) facts.filter { it.tag == t }.firstNotNullOfOrNull { f -> datumAus(f)?.let { it to f } }?.let { return it }
     return null
 }
 
-internal fun modellAus(b: TreeExport): PModell {
+internal fun modellAus(b: TreeExport, schaetzen: Boolean, deutsch: Boolean = true): PModell {
     val personen = b.individuals.mapValues { (x, i) ->
         val p = i.person
+        val geb = erstes(i.facts, "BIRT"); val taufe = erstes(i.facts, "CHR", "BAPM")
+        val tod = erstes(i.facts, "DEAT"); val begr = erstes(i.facts, "BURI", "CREM")
+        // Schaetzung: das Datum der Taufe bzw. des Begraebnisses, erkennbar an der Anzeige
+        val gebS = geb ?: taufe?.takeIf { schaetzen }?.let { (d, f) -> d.mitText("~ ${d.text}") to f }
+        val todS = tod ?: begr?.takeIf { schaetzen }?.let { (d, f) -> d.mitText("⚰ ${d.text}") to f }
         PPerson(
             xref = x, name = p.name, vn = p.given.trim(), fn = p.surname.trim(),
             geschlecht = when (p.sex) { "M" -> 'm'; "F" -> 'w'; else -> 'u' },
             privat = p.isPrivate,
             leer = !p.isPrivate && p.given.isBlank() && p.surname.isBlank() && i.facts.isEmpty(),
-            geb = erstes(i.facts, "BIRT"), taufe = erstes(i.facts, "CHR", "BAPM"),
-            tod = erstes(i.facts, "DEAT"), begr = erstes(i.facts, "BURI", "CREM"),
+            tot = p.isDead,
+            geb = gebS?.first, taufe = taufe?.first, tod = todS?.first, begr = begr?.first,
+            gebF = gebS?.second, taufeF = taufe?.second, todF = todS?.second, begrF = begr?.second,
+            hatTodesfakt = i.facts.any { it.tag in setOf("DEAT", "BURI", "CREM") },
             eltern = i.famc.filter { it in b.families },
+            fakten = i.facts,
         )
     }
     val familien = b.families.mapValues { (x, f) ->
+        val marr = erstes(f.facts, "MARR")
         PFamilie(x, f.husband?.takeIf { it in personen }, f.wife?.takeIf { it in personen },
-            erstes(f.facts, "MARR") ?: f.marriage?.date?.let { d -> PruefDatum.aus(d.gedcom.ifBlank { d.year.takeIf { it > 0 }?.toString().orEmpty() }, d.text) },
-            f.children.filter { it in personen })
+            marr?.first ?: f.marriage?.date?.let { d -> PruefDatum.aus(d.gedcom.ifBlank { d.year.takeIf { it > 0 }?.toString().orEmpty() }, d.text) },
+            marr?.second, f.children.filter { it in personen }, f.facts)
     }
     // Partnerfamilien aus Sicht der Familien (so sind sie vollstaendig), chronologisch
     val ehen = HashMap<String, MutableList<String>>()
@@ -171,44 +142,109 @@ internal fun modellAus(b: TreeExport): PModell {
 
 // ── Pruefung ──
 
-class PruefErgebnis(val treffer: Map<String, List<Treffer>>) {
-    val anzahl: Int get() = treffer.values.sumOf { it.size }
-}
-
 /**
- * Prueft den Baum. [grenzwerte]: abweichende Grenzwerte je Regel; [aus]: abgeschaltete Regeln;
- * [jetzt]: das laufende Jahr (Regel 019); [deutsch]: Sprache der Begruendungen.
+ * Prueft den Baum. Die Begruendungen entstehen einmal deutsch (daraus der Fingerabdruck, damit das Abhaken nicht an
+ * der Sprache haengt) und, falls noetig, noch einmal in der Sprache der Oberflaeche.
  */
-fun pruefen(
-    baum: TreeExport,
-    grenzwerte: Map<String, Double> = emptyMap(),
-    aus: Set<String> = emptySet(),
-    jetzt: Int = java.time.Year.now().value,
-    deutsch: Boolean = java.util.Locale.getDefault().language == "de",
-): PruefErgebnis {
-    val m = modellAus(baum)
-    val r = Regeln(m, jetzt, deutsch)
+fun pruefen(baum: TreeExport, o: PruefOptionen = PruefOptionen()): PruefErgebnis {
+    val m = modellAus(baum, o.schaetzen)
+    val de = Regeln(m, o.jetzt, true)
+    val en = if (o.deutsch) null else Regeln(m, o.jetzt, false)
     val ergebnis = LinkedHashMap<String, List<Treffer>>()
     for (regel in Regelkatalog.alle) {
-        if (regel.id in aus) continue
-        val g = grenzwerte[regel.id] ?: regel.grenzwert
-        ergebnis[regel.id] = r.laufen(regel.id, g).map { (p, f, t) -> Treffer(regel.id, p, f, t) }
+        if (regel.id in o.aus) continue
+        val g = o.grenzwerte[regel.id] ?: regel.grenzwert
+        val a = de.laufen(regel.id, g)
+        val b = en?.laufen(regel.id, g)
+        ergebnis[regel.id] = a.mapIndexed { i, t ->
+            Treffer(regel.id, t.p, t.f, b?.getOrNull(i)?.text ?: t.text, t.fakten.distinct(), fingerabdruck(t.text))
+        }
     }
     return PruefErgebnis(ergebnis)
 }
 
-private typealias T = Triple<String?, String?, String>
+/** Aeltere Form (Stufe 1). */
+fun pruefen(
+    baum: TreeExport, grenzwerte: Map<String, Double> = emptyMap(), aus: Set<String> = Regelkatalog.standardAus,
+    jetzt: Int = java.time.Year.now().value, deutsch: Boolean = java.util.Locale.getDefault().language == "de", schaetzen: Boolean = false,
+): PruefErgebnis = pruefen(baum, PruefOptionen(grenzwerte, aus, schaetzen, jetzt, deutsch))
+
+private fun fingerabdruck(s: String): String =
+    MessageDigest.getInstance("SHA-256").digest(s.toByteArray()).take(6).joinToString("") { "%02x".format(it) }
+
+/** Ein Treffer im Motor: Person, Familie, Text, Fakten. */
+private class T(val p: String?, val f: String?, val text: String, vararg fakten: FaktRef?) {
+    val fakten: List<FaktRef> = fakten.filterNotNull()
+}
+
+private fun ref(record: String?, f: FactJson?): FaktRef? = if (record == null || f == null || f.id.isEmpty()) null else FaktRef(record, f.id)
+
+/** Fuer den Namensvergleich: klein, ohne Akzente, gaengige Schreibvarianten zusammengelegt (Catharina = Katharina). */
+internal fun namensform(s: String): String {
+    var t = s.lowercase().replace("ß", "ss").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
+    t = Normalizer.normalize(t, Normalizer.Form.NFD).replace(Regex("\\p{M}+"), "")
+    t = t.replace("ae", "a").replace("oe", "o").replace("ue", "u")
+        .replace("ph", "f").replace("th", "t").replace("dt", "t").replace("tz", "z").replace("ck", "k")
+        .replace('c', 'k').replace('y', 'i').replace(Regex("[^a-z ]"), "")
+    return t.replace(Regex("(.)\\1+"), "$1").trim()
+}
+
+/** Editierabstand, bei dem zwei vertauschte Nachbarbuchstaben als ein Fehler zaehlen (Hermannsbrug = Hermannsburg). */
+private fun levenshtein(a: String, b: String): Int {
+    if (a == b) return 0
+    val d = Array(a.length + 1) { IntArray(b.length + 1) }
+    for (i in 0..a.length) d[i][0] = i
+    for (j in 0..b.length) d[0][j] = j
+    for (i in 1..a.length) for (j in 1..b.length) {
+        val k = if (a[i - 1] == b[j - 1]) 0 else 1
+        d[i][j] = minOf(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + k)
+        if (i > 1 && j > 1 && a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1]) d[i][j] = minOf(d[i][j], d[i - 2][j - 2] + 1)
+    }
+    return d[a.length][b.length]
+}
+
+private fun entfernungKm(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
+    val r = 6371.0
+    val dLat = Math.toRadians(lat2 - lat1); val dLng = Math.toRadians(lng2 - lng1)
+    val a = Math.sin(dLat / 2).let { it * it } + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2).let { it * it }
+    return 2 * r * Math.asin(Math.sqrt(a))
+}
+
+private val WEIBLICH = setOf(
+    "Walburga", "Walpurga", "Maria", "Marie", "Anna", "Anne", "Catharina", "Katharina", "Catharine", "Margaretha", "Margarethe", "Margarete",
+    "Barbara", "Elisabetha", "Elisabeth", "Magdalena", "Agnes", "Ursula", "Christina", "Christine", "Rosina", "Regina", "Dorothea",
+    "Sophia", "Sophie", "Johanna", "Eva", "Susanna", "Agatha", "Apollonia", "Veronica", "Sibylla", "Salome", "Judith", "Justina",
+    "Friederike", "Wilhelmine", "Louise", "Luise", "Caroline", "Karoline", "Charlotte", "Jacobina", "Philippina", "Christiane",
+    "Helena", "Helene", "Ottilia", "Sabina", "Sara", "Rebecca", "Esther", "Hanna", "Lydia", "Martha", "Emilie", "Pauline", "Mathilde",
+    "Auguste", "Ernestine", "Henriette", "Theresia", "Therese", "Frieda", "Emma", "Bertha", "Berta", "Gertrud", "Hedwig", "Ida", "Klara",
+    "Clara", "Minna", "Lina", "Elise", "Else", "Erna", "Ilse", "Irmgard", "Ingrid", "Ursel", "Renate", "Ruth", "Ursula", "Mary", "Elizabeth",
+    "Sarah", "Margaret", "Jane", "Ellen", "Alice", "Julia", "Amanda", "Lucy", "Nancy", "Emily", "Susan",
+)
+private val MAENNLICH = setOf(
+    "Johann", "Johannes", "Hans", "Georg", "Jacob", "Jakob", "Michael", "Conrad", "Konrad", "Caspar", "Kaspar", "Martin", "Christoph",
+    "Friedrich", "Ludwig", "Wilhelm", "Christian", "Gottlieb", "Andreas", "Philipp", "Heinrich", "Hermann", "Karl", "Carl", "Franz",
+    "Joseph", "Josef", "Anton", "Peter", "Paul", "Matthias", "Mathias", "Adam", "Ernst", "August", "Gustav", "Otto", "Albert", "Richard",
+    "Robert", "Walter", "Werner", "Kurt", "Fritz", "Heinz", "Klaus", "Jürgen", "Dieter", "Thomas", "Stefan", "Stephan", "Daniel",
+    "David", "Samuel", "Simon", "Jonas", "Diedrich", "Dietrich", "Bernhard", "Gerhard", "Hinrich", "Jürgen", "Lorenz", "Valentin",
+    "John", "William", "James", "Charles", "George", "Henry", "Edward", "Frederick", "Robert", "Joseph",
+)
+private val PLATZHALTER = Regex("(?i)^(unbekannt|unknown|n\\.?\\s?n\\.?|\\?+|keine angaben?|ohne namen|namenlos|xx+)$")
+private val PATEN = Regex("(?i)^\\s*(paten|pate|patin|taufpaten|taufzeugen|zeugen|trauzeugen|godparents?|sponsors?|witnesses?)\\s*:\\s*(.+)$")
 
 private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
     fun w(de: String, en: String) = if (deutsch) de else en
     fun d(x: PruefDatum?) = x?.text ?: "?"
     fun n(p: PPerson) = p.name.ifBlank { "?" }
-    fun jahreText(a: Double) = w("%.0f J", "%.0f y").format(a)
-    fun monateText(a: Double) = w("%.1f M", "%.1f mo").format(a)
+    fun jahreText(a: Double) = w("%.0f J", "%.0f y").format(java.util.Locale.ROOT, a)
 
     /** Personen mit Daten; private Platzhalter haben keine und bleiben aussen vor. */
     val personen = m.p.values.filter { !it.privat }
     val familien = m.f.values
+
+    fun geb(p: PPerson) = ref(p.xref, p.gebF)
+    fun tod(p: PPerson) = ref(p.xref, p.todF)
+    fun heirat(f: PFamilie) = ref(f.xref, f.heiratF)
+    fun nameF(p: PPerson) = ref(p.xref, p.fakten.firstOrNull { it.tag == "NAME" })
 
     fun elterKind(vater: Boolean) = sequence {
         for (f in familien) {
@@ -219,33 +255,43 @@ private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
 
     fun laufen(id: String, g: Double?): List<T> = when (id) {
         // ── 0xx Chronologie ──
-        "010" -> personen.filter { vor(it.tod, it.geb) == true }.map { T(it.xref, null, "* ${d(it.geb)}  † ${d(it.tod)}") }
-        "011" -> familien.flatMap { f -> m.partner(f).filter { vor(f.heirat, it.geb) == true }.map { T(it.xref, f.xref, "⚭ ${d(f.heirat)}  * ${d(it.geb)}") } }
-        "012" -> familien.flatMap { f -> m.partner(f).filter { vor(it.tod, f.heirat) == true }.map { T(it.xref, f.xref, "⚭ ${d(f.heirat)}  † ${d(it.tod)}") } }
-        "013" -> elterKind(false).filter { (k, e) -> vor(k.geb, e.geb) == true }.map { (k, e, f) -> T(k.xref, f.xref, w("Kind", "Child") + " * ${d(k.geb)}  " + w("Mutter", "Mother") + " * ${d(e.geb)}") }.toList()
-        "014" -> elterKind(true).filter { (k, e) -> vor(k.geb, e.geb) == true }.map { (k, e, f) -> T(k.xref, f.xref, w("Kind", "Child") + " * ${d(k.geb)}  " + w("Vater", "Father") + " * ${d(e.geb)}") }.toList()
+        "010" -> personen.filter { vor(it.tod, it.geb) == true }.map { T(it.xref, null, "* ${d(it.geb)}  † ${d(it.tod)}", tod(it), geb(it)) }
+        "011" -> familien.flatMap { f -> m.partner(f).filter { vor(f.heirat, it.geb) == true }.map { T(it.xref, f.xref, "⚭ ${d(f.heirat)}  * ${d(it.geb)}", heirat(f), geb(it)) } }
+        "012" -> familien.flatMap { f -> m.partner(f).filter { vor(it.tod, f.heirat) == true }.map { T(it.xref, f.xref, "⚭ ${d(f.heirat)}  † ${d(it.tod)}", heirat(f), tod(it)) } }
+        "013" -> elterKind(false).filter { (k, e) -> vor(k.geb, e.geb) == true }.map { (k, e, f) -> T(k.xref, f.xref, w("Kind", "Child") + " * ${d(k.geb)}  " + w("Mutter", "Mother") + " * ${d(e.geb)}", geb(k), geb(e)) }.toList()
+        "014" -> elterKind(true).filter { (k, e) -> vor(k.geb, e.geb) == true }.map { (k, e, f) -> T(k.xref, f.xref, w("Kind", "Child") + " * ${d(k.geb)}  " + w("Vater", "Father") + " * ${d(e.geb)}", geb(k), geb(e)) }.toList()
         "015" -> kindNachTod(false, g ?: 0.0)
         "016" -> kindNachTod(true, g ?: 9.5)
         "017" -> familien.filter { it.vater != null && it.mutter != null && it.heirat != null }.flatMap { f ->
-            m.kinder(f).mapNotNull { k -> jahre(k.geb, f.heirat)?.takeIf { it > (g ?: 1.0) }?.let { T(k.xref, f.xref, "* ${d(k.geb)}  ⚭ ${w("Eltern", "parents")} ${d(f.heirat)}") } }
+            m.kinder(f).mapNotNull { k -> jahre(k.geb, f.heirat)?.takeIf { it > (g ?: 1.0) }?.let { T(k.xref, f.xref, "* ${d(k.geb)}  ⚭ ${w("Eltern", "parents")} ${d(f.heirat)}", geb(k), heirat(f)) } }
         }
         "018" -> personen.flatMap { p ->
-            listOf("*" to p.geb, "~" to p.taufe, "†" to p.tod, "⚰" to p.begr).filter { it.second?.unmoeglich == true }.map { (z, x) -> T(p.xref, null, "$z ${x!!.text}") }
-        } + familien.filter { it.heirat?.unmoeglich == true }.map { T(null, it.xref, "⚭ ${it.heirat!!.text}") }
-        "019" -> personen.filter { p -> listOf(p.geb, p.taufe, p.tod, p.begr).any { (it?.jahr ?: 0) > jetzt } }.map { T(it.xref, null, "* ${d(it.geb)}  † ${d(it.tod)}") } +
-            familien.filter { (it.heirat?.jahr ?: 0) > jetzt }.map { T(null, it.xref, "⚭ ${d(it.heirat)}") }
-        "020" -> personen.filter { vor(it.taufe, it.geb) == true }.map { T(it.xref, null, "* ${d(it.geb)}  ~ ${d(it.taufe)}") }
-        "021" -> personen.filter { vor(it.begr, it.tod) == true }.map { T(it.xref, null, "† ${d(it.tod)}  ⚰ ${d(it.begr)}") }
-        "022" -> familien.flatMap { f -> m.partner(f).filter { it.geb?.gleich(f.heirat) == true }.map { T(it.xref, f.xref, "* = ⚭ ${d(it.geb)}") } }
+            p.fakten.mapNotNull { fa -> datumAus(fa)?.takeIf { it.unmoeglich }?.let { T(p.xref, null, "${fa.label.ifBlank { fa.tag }} ${it.text}", ref(p.xref, fa)) } }
+        } + familien.flatMap { f -> f.fakten.mapNotNull { fa -> datumAus(fa)?.takeIf { it.unmoeglich }?.let { T(null, f.xref, "${fa.label.ifBlank { fa.tag }} ${it.text}", ref(f.xref, fa)) } } }
+        "019" -> personen.flatMap { p ->
+            p.fakten.mapNotNull { fa -> datumAus(fa)?.takeIf { (it.jahr ?: 0) > jetzt || it.min > PruefDatum.aus("31 DEC $jetzt")!!.max }?.let { T(p.xref, null, "${fa.label.ifBlank { fa.tag }} ${it.text}", ref(p.xref, fa)) } }
+        } + familien.flatMap { f -> f.fakten.mapNotNull { fa -> datumAus(fa)?.takeIf { (it.jahr ?: 0) > jetzt }?.let { T(null, f.xref, "${fa.label.ifBlank { fa.tag }} ${it.text}", ref(f.xref, fa)) } } }
+        "020" -> personen.filter { vor(it.taufe, it.geb) == true }.map { T(it.xref, null, "* ${d(it.geb)}  ~ ${d(it.taufe)}", ref(it.xref, it.taufeF), geb(it)) }
+        "021" -> personen.filter { vor(it.begr, it.tod) == true }.map { T(it.xref, null, "† ${d(it.tod)}  ⚰ ${d(it.begr)}", ref(it.xref, it.begrF), tod(it)) }
+        "022" -> familien.flatMap { f -> m.partner(f).filter { it.geb?.gleich(f.heirat) == true }.map { T(it.xref, f.xref, "* = ⚭ ${d(it.geb)}", geb(it), heirat(f)) } }
         "023" -> familien.mapNotNull { f ->
             val ks = m.kinder(f).filter { it.geb?.voll == true }
             ks.zipWithNext().firstOrNull { (a, b) -> a.geb!!.tage > b.geb!!.tage }?.let { (a, b) ->
-                T(b.xref, f.xref, "* ${d(b.geb)}, " + w("steht nach", "listed after") + " ${n(a)} * ${d(a.geb)}")
+                T(b.xref, f.xref, "* ${d(b.geb)}, " + w("steht nach", "listed after") + " ${n(a)} * ${d(a.geb)}", geb(b))
+            }
+        }
+        "024" -> paten().mapNotNull { (ev, pate) ->
+            // als Kind Gestorbene sind fast immer Namensvettern (Name eines verstorbenen Kindes weitergegeben)
+            if ((jahre(pate.geb, pate.tod) ?: 99.0) < 14) return@mapNotNull null
+            when {
+                vor(pate.tod, ev.datum) == true -> T(ev.person, ev.familie, "${ev.art} ${d(ev.datum)}: ${n(pate)} † ${d(pate.tod)}", ref(ev.record, ev.fakt), tod(pate))
+                vor(ev.datum, pate.geb) == true -> T(ev.person, ev.familie, "${ev.art} ${d(ev.datum)}: ${n(pate)} * ${d(pate.geb)}", ref(ev.record, ev.fakt), geb(pate))
+                else -> null
             }
         }
 
         // ── 1xx Altersgrenzen ──
-        "110" -> personen.mapNotNull { p -> jahre(p.geb, p.tod)?.takeIf { it > (g ?: 110.0) }?.let { T(p.xref, null, "* ${d(p.geb)}  † ${d(p.tod)} = ${jahreText(it)}") } }
+        "110" -> personen.mapNotNull { p -> jahre(p.geb, p.tod)?.takeIf { it > (g ?: 110.0) }?.let { T(p.xref, null, "* ${d(p.geb)}  † ${d(p.tod)} = ${jahreText(it)}", geb(p), tod(p)) } }
         "111" -> elterAlter(false, unter = g ?: 14.0)
         "112" -> elterAlter(false, ueber = g ?: 55.0)
         "113" -> elterAlter(true, unter = g ?: 14.0)
@@ -254,14 +300,14 @@ private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
         "116" -> heiratAlter(ueber = g ?: 90.0)
         "117" -> familien.mapNotNull { f ->
             val v = m.vater(f) ?: return@mapNotNull null; val mu = m.mutter(f) ?: return@mapNotNull null
-            jahre(v.geb, mu.geb)?.takeIf { kotlin.math.abs(it) > (g ?: 40.0) }?.let { T(v.xref, f.xref, "${n(v)} * ${d(v.geb)}  ${n(mu)} * ${d(mu.geb)}") }
+            jahre(v.geb, mu.geb)?.takeIf { kotlin.math.abs(it) > (g ?: 40.0) }?.let { T(v.xref, f.xref, "* ${d(v.geb)}, ${n(mu)} * ${d(mu.geb)}", geb(v), geb(mu)) }
         }
         "118" -> familien.flatMap { f ->
             val ks = m.kinder(f).filter { it.geb?.voll == true }
             ks.flatMapIndexed { i, a ->
                 ks.drop(i + 1).mapNotNull { b ->
                     val x = kotlin.math.abs(monate(a.geb, b.geb)!!)
-                    if (x >= 0.1 && x <= (g ?: 8.0)) T(a.xref, f.xref, "* ${d(a.geb)}, ${n(b)} * ${d(b.geb)}") else null
+                    if (x >= 0.1 && x <= (g ?: 8.0)) T(a.xref, f.xref, "* ${d(a.geb)}, ${n(b)} * ${d(b.geb)}", geb(a), geb(b)) else null
                 }
             }
         }
@@ -277,7 +323,7 @@ private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
                 val neu = m.f.getValue(f2)
                 if (alt.tod?.voll != true || neu.heirat?.voll != true) return@mapNotNull null
                 val x = monate(alt.tod, neu.heirat)!!
-                if (x >= 0 && x <= (g ?: 2.0)) T(p.xref, f2, "† ${n(alt)} ${d(alt.tod)}  ⚭ ${d(neu.heirat)}") else null
+                if (x >= 0 && x <= (g ?: 2.0)) T(p.xref, f2, "† ${n(alt)} ${d(alt.tod)}  ⚭ ${d(neu.heirat)}", tod(alt), heirat(neu)) else null
             }
         }
         "123" -> personen.filter { it.geschlecht != 'm' }.mapNotNull { p ->
@@ -287,11 +333,19 @@ private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
         "124" -> familien.flatMap { f ->
             m.kinder(f).filter { it.geb?.jahr != null }.sortedBy { it.geb!!.jahr }.zipWithNext().mapNotNull { (a, b) ->
                 val x = b.geb!!.jahr!! - a.geb!!.jahr!!
-                if (x > (g ?: 12.0)) T(b.xref, f.xref, "* ${d(b.geb)}, $x " + w("J nach", "y after") + " ${n(a)} * ${d(a.geb)}") else null
+                if (x > (g ?: 12.0)) T(b.xref, f.xref, "* ${d(b.geb)}, $x " + w("J nach", "y after") + " ${n(a)} * ${d(a.geb)}", geb(b), geb(a)) else null
             }
         }
         "125" -> personen.filter { it.tod?.voll == true }.flatMap { p ->
-            p.ehen.map { m.f.getValue(it) }.filter { it.heirat?.voll == true && monate(p.tod, it.heirat)!! > 0 }.map { T(p.xref, it.xref, "† ${d(p.tod)}  ⚭ ${d(it.heirat)}") }
+            p.ehen.map { m.f.getValue(it) }.filter { it.heirat?.voll == true && monate(p.tod, it.heirat)!! > 0 }.map { T(p.xref, it.xref, "† ${d(p.tod)}  ⚭ ${d(it.heirat)}", tod(p), heirat(it)) }
+        }
+        "126" -> paten().mapNotNull { (ev, pate) ->
+            val a = jahre(pate.geb, ev.datum) ?: return@mapNotNull null
+            // unter 5 Jahren ist es kein Pate, sondern ein gleichnamiges Kind - keine Meldung
+            if (a >= 5 && a < (g ?: 12.0)) T(ev.person, ev.familie, "${ev.art} ${d(ev.datum)}: ${n(pate)} * ${d(pate.geb)} = ${jahreText(a)}", ref(ev.record, ev.fakt), geb(pate)) else null
+        }
+        "127" -> personen.filter { !it.hatTodesfakt && it.geb?.jahr != null && jetzt - it.geb.jahr > (g ?: 110.0) }.map { p ->
+            T(p.xref, null, "* ${d(p.geb)}, " + w("keine Sterbeangabe", "no death record") + if (!p.tot) w(" – webtrees hält die Person für lebend", " – webtrees treats the person as living") else "", geb(p))
         }
 
         // ── 2xx Struktur ──
@@ -313,7 +367,7 @@ private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
         "217" -> familien.filter { it.vater == null && it.mutter == null && it.kinder.isEmpty() }.map { T(null, it.xref, w("leere Familie", "empty family")) }
         "219" -> personen.filter { it.geb?.voll == true && it.fn.isNotEmpty() && it.vn.isNotEmpty() }
             .groupBy { Triple(it.vn, it.fn, it.geb!!.tage) }.values.flatMap { ps ->
-                ps.flatMapIndexed { i, a -> ps.drop(i + 1).map { b -> T(a.xref, null, "${n(a)} * ${d(a.geb)} = ${b.xref}") } }
+                ps.flatMapIndexed { i, a -> ps.drop(i + 1).map { b -> T(a.xref, null, "${n(a)} * ${d(a.geb)} = ${b.xref}", geb(a), geb(b)) } }
             }
         "220" -> familien.mapNotNull { f ->
             val v = m.vater(f) ?: return@mapNotNull null; val mu = m.mutter(f) ?: return@mapNotNull null
@@ -331,7 +385,7 @@ private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
             p.ehen.zipWithNext().mapNotNull { (f1, f2) ->
                 val alt = m.partner(m.f.getValue(f1)).firstOrNull { it.xref != p.xref } ?: return@mapNotNull null
                 val neu = m.f.getValue(f2)
-                if (vor(neu.heirat, alt.tod) == true) T(p.xref, f2, "⚭ ${d(neu.heirat)}  † ${n(alt)} ${d(alt.tod)}") else null
+                if (vor(neu.heirat, alt.tod) == true) T(p.xref, f2, "⚭ ${d(neu.heirat)}  † ${n(alt)} ${d(alt.tod)}", heirat(neu), tod(alt)) else null
             }
         }
         "223" -> familien.mapNotNull { f ->
@@ -345,7 +399,7 @@ private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
                     if (a.vn.isEmpty() || a.vn != b.vn || a.geb == null || b.geb == null) return@mapNotNull null
                     val (frueh, spaet) = if (vor(b.geb, a.geb) == true) b to a else a to b
                     if (frueh.tod == null || vor(spaet.geb, frueh.tod) == true)
-                        T(spaet.xref, f.xref, "${a.vn}: * ${d(frueh.geb)}" + (frueh.tod?.let { " († ${it.text})" } ?: "") + ", * ${d(spaet.geb)}")
+                        T(spaet.xref, f.xref, "${a.vn}: * ${d(frueh.geb)}" + (frueh.tod?.let { " († ${it.text})" } ?: "") + ", * ${d(spaet.geb)}", geb(spaet), tod(frueh))
                     else null
                 }
             }
@@ -360,31 +414,182 @@ private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
                     T(null, f.xref, w("wie Familie", "same as family") + " ${a.xref}") else null
             }
         }
+        "228" -> dubletten(g ?: 2.0)
         "319" -> familien.flatMap { f -> m.partner(f).filter { it.geschlecht == 'u' && !it.privat }.map { T(it.xref, f.xref, n(it)) } }
+
+        // ── 3xx Namen ──
+        "310" -> personen.filter { it.fn in WEIBLICH }.map { T(it.xref, null, w("Nachname", "Surname") + " „${it.fn}“", nameF(it)) }
+        "311" -> personen.filter { p -> p.vn.split(' ').any { PLATZHALTER.matches(it) } || PLATZHALTER.matches(p.fn) }.map { T(it.xref, null, "${it.vn} / ${it.fn}", nameF(it)) }
+        "315" -> personen.filter { it.vn.any(Char::isDigit) || it.fn.any(Char::isDigit) }.map { T(it.xref, null, "${it.vn} / ${it.fn}", nameF(it)) }
+        "330" -> personen.mapNotNull { p ->
+            val ruf = p.vn.split(' ', '-').firstOrNull().orEmpty()
+            when {
+                p.geschlecht == 'm' && ruf in WEIBLICH -> T(p.xref, null, "„$ruf“, " + w("männlich", "male"), nameF(p))
+                p.geschlecht == 'w' && ruf in MAENNLICH -> T(p.xref, null, "„$ruf“, " + w("weiblich", "female"), nameF(p))
+                else -> null
+            }
+        }
+
+        // ── 4xx Quellen ──
+        "420" -> {
+            val ereignisse = setOf("BIRT", "CHR", "BAPM", "DEAT", "BURI", "CREM")
+            personen.mapNotNull { p ->
+                val ohne = p.fakten.filter { it.tag in ereignisse && it.sources.isEmpty() && (it.date != null || it.place != null) }
+                if (ohne.isEmpty()) null else T(p.xref, null, ohne.joinToString(", ") { it.label.ifBlank { it.tag } }, *ohne.map { ref(p.xref, it) }.toTypedArray())
+            } + familien.mapNotNull { f ->
+                val ohne = f.fakten.filter { it.tag == "MARR" && it.sources.isEmpty() && (it.date != null || it.place != null) }
+                if (ohne.isEmpty()) null else T(f.vater ?: f.mutter, f.xref, ohne.joinToString(", ") { it.label.ifBlank { it.tag } }, *ohne.map { ref(f.xref, it) }.toTypedArray())
+            }
+        }
+        "421" -> personen.filter { p -> p.fakten.isNotEmpty() && p.fakten.none { it.sources.isNotEmpty() } }.map { T(it.xref, null, n(it)) }
+
+        // ── 5xx Orte ──
+        "510" -> ortsvarianten()
+        "511" -> orte().filter { it.value.lat == null }.map { (name, o) -> T(o.person, o.familie, "$name (${o.anzahl}×)", o.beispiel) }
+        "512" -> personen.flatMap { p ->
+            val mitOrt = p.fakten.mapNotNull { fa ->
+                val dd = datumAus(fa)?.takeIf { it.voll } ?: return@mapNotNull null
+                val ort = fa.place ?: return@mapNotNull null
+                val lat = ort.lat ?: return@mapNotNull null; val lng = ort.lng ?: return@mapNotNull null
+                Triple(fa, dd, lat to lng)
+            }
+            mitOrt.flatMapIndexed { i, (fa, da, pa) ->
+                mitOrt.drop(i + 1).mapNotNull { (fb, db, pb) ->
+                    if (kotlin.math.abs(da.min - db.min) > 1) return@mapNotNull null
+                    val km = entfernungKm(pa.first, pa.second, pb.first, pb.second)
+                    if (km > (g ?: 100.0)) T(p.xref, null, "${fa.label} ${fa.place?.short ?: ""} ${d(da)} · ${fb.label} ${fb.place?.short ?: ""} ${d(db)}: %.0f km".format(java.util.Locale.ROOT, km), ref(p.xref, fa), ref(p.xref, fb)) else null
+                }
+            }
+        }
+        "513" -> orte().filter { (name, _) -> name.split(',').let { t -> t.size > 1 && t.any { it.isBlank() } } }.map { (name, o) -> T(o.person, o.familie, "„$name“ (${o.anzahl}×)", o.beispiel) }
         else -> emptyList()
     }
 
     fun kindNachTod(vater: Boolean, grenzeMonate: Double): List<T> = elterKind(vater).mapNotNull { (k, e, f) ->
         if (k.geb == null || e.tod == null) return@mapNotNull null
         val treffer = if (k.geb.voll && e.tod.voll) monate(e.tod, k.geb)!! > grenzeMonate else (jahre(e.tod, k.geb) ?: return@mapNotNull null) > 1
-        if (treffer) T(k.xref, f.xref, "* ${d(k.geb)}  † " + (if (vater) w("Vater", "father") else w("Mutter", "mother")) + " ${d(e.tod)}") else null
+        if (treffer) T(k.xref, f.xref, "* ${d(k.geb)}  † " + (if (vater) w("Vater", "father") else w("Mutter", "mother")) + " ${d(e.tod)}", geb(k), tod(e)) else null
     }.toList()
 
     fun elterAlter(vater: Boolean, unter: Double? = null, ueber: Double? = null): List<T> = elterKind(vater).mapNotNull { (k, e, f) ->
         val a = jahre(e.geb, k.geb) ?: return@mapNotNull null
         if ((unter != null && a >= 0 && a < unter) || (ueber != null && a > ueber))
-            T(k.xref, f.xref, (if (vater) w("Vater", "Father") else w("Mutter", "Mother")) + " * ${d(e.geb)}, " + w("Kind", "child") + " * ${d(k.geb)} = ${jahreText(a)}")
+            T(k.xref, f.xref, (if (vater) w("Vater", "Father") else w("Mutter", "Mother")) + " * ${d(e.geb)}, " + w("Kind", "child") + " * ${d(k.geb)} = ${jahreText(a)}", geb(k), geb(e))
         else null
     }.toList()
 
     fun heiratAlter(unter: Double? = null, ueber: Double? = null): List<T> = familien.flatMap { f ->
         m.partner(f).mapNotNull { p ->
             val a = jahre(p.geb, f.heirat) ?: return@mapNotNull null
-            if ((unter != null && a >= 0 && a < unter) || (ueber != null && a > ueber)) T(p.xref, f.xref, "* ${d(p.geb)}  ⚭ ${d(f.heirat)} = ${jahreText(a)}") else null
+            if ((unter != null && a >= 0 && a < unter) || (ueber != null && a > ueber)) T(p.xref, f.xref, "* ${d(p.geb)}  ⚭ ${d(f.heirat)} = ${jahreText(a)}", geb(p), heirat(f)) else null
         }
     }
 
     fun geschwister(p: PPerson): Set<String> = p.eltern.flatMap { m.f.getValue(it).kinder }.toSet() - p.xref
+
+    // ── Paten und Zeugen: aus den Notizen an Taufe und Heirat ("Paten: Sophie Wulf, Ehefrau, Wilhelm Könecke, Tischler") ──
+
+    class Ereignis(val person: String?, val familie: String?, val record: String, val fakt: FactJson, val datum: PruefDatum, val art: String)
+
+    private val nachName: Map<String, List<PPerson>> by lazy {
+        personen.filter { it.vn.isNotEmpty() && it.fn.isNotEmpty() }.groupBy { "${it.vn} ${it.fn}".lowercase() }
+    }
+
+    private val patenListe: List<Pair<Ereignis, PPerson>> by lazy {
+        val out = ArrayList<Pair<Ereignis, PPerson>>()
+        fun auswerten(ev: Ereignis, selbst: Set<String>) {
+            ev.fakt.notes.forEach { note ->
+                note.lines().forEach { zeile ->
+                    val namen = PATEN.find(zeile)?.groupValues?.get(2) ?: return@forEach
+                    namen.split(',', ';', '/').flatMap { it.split(" und ", " and ") }.map { it.trim().trimEnd('.') }.filter { it.contains(' ') }.forEach { n ->
+                        val kandidaten = nachName[n.lowercase()].orEmpty().filter { it.xref !in selbst }
+                        // nur eindeutige Namen: bei zwei gleichnamigen Personen bleibt offen, wer gemeint ist
+                        if (kandidaten.size == 1) out += ev to kandidaten.single()
+                    }
+                }
+            }
+        }
+        personen.forEach { p ->
+            p.fakten.filter { it.tag in setOf("CHR", "BAPM") }.forEach { fa ->
+                val dd = datumAus(fa) ?: return@forEach
+                auswerten(Ereignis(p.xref, null, p.xref, fa, dd, w("Taufe", "Baptism")), setOf(p.xref))
+            }
+        }
+        familien.forEach { f ->
+            f.fakten.filter { it.tag == "MARR" }.forEach { fa ->
+                val dd = datumAus(fa) ?: return@forEach
+                auswerten(Ereignis(f.vater ?: f.mutter, f.xref, f.xref, fa, dd, w("Heirat", "Marriage")), setOfNotNull(f.vater, f.mutter))
+            }
+        }
+        out
+    }
+
+    fun paten() = patenListe
+
+    // ── Dubletten: aehnlicher Name, gleiches Geschlecht, Geburtsjahre nahe beieinander, keine Geschwister ──
+
+    fun dubletten(spanne: Double): List<T> {
+        val gruppen = personen.filter { it.vn.isNotEmpty() && it.fn.isNotEmpty() && it.geb?.jahr != null }
+            .groupBy { namensform(it.vn.split(' ').first()) + "|" + namensform(it.fn) }
+        val out = ArrayList<T>()
+        for (ps in gruppen.values) {
+            if (ps.size < 2) continue
+            for (i in ps.indices) for (j in i + 1 until ps.size) {
+                val a = ps[i]; val b = ps[j]
+                if (a.geschlecht != 'u' && b.geschlecht != 'u' && a.geschlecht != b.geschlecht) continue
+                if (kotlin.math.abs(a.geb!!.jahr!! - b.geb!!.jahr!!) > spanne) continue
+                if (a.eltern.any { it in b.eltern }) continue          // Geschwister mit Namen des verstorbenen Kindes
+                if (a.vn == b.vn && a.fn == b.fn && a.geb.gleich(b.geb)) continue   // das meldet schon 219
+                out += T(a.xref, null, "≈ ${n(b)} (${b.xref}) * ${d(b.geb)}, * ${d(a.geb)}", geb(a), geb(b))
+            }
+        }
+        return out
+    }
+
+    // ── Orte ──
+
+    class Ort(val anzahl: Int, val lat: Double?, val person: String?, val familie: String?, val beispiel: FaktRef?)
+
+    private val ortListe: Map<String, Ort> by lazy {
+        val zahl = HashMap<String, Int>(); val erst = HashMap<String, Triple<Double?, Pair<String?, String?>, FaktRef?>>()
+        personen.forEach { p -> p.fakten.forEach { fa -> fa.place?.name?.takeIf(String::isNotBlank)?.let { o ->
+            zahl.merge(o, 1, Int::plus); erst.putIfAbsent(o, Triple(fa.place.lat, p.xref to null, ref(p.xref, fa)))
+        } } }
+        familien.forEach { f -> f.fakten.forEach { fa -> fa.place?.name?.takeIf(String::isNotBlank)?.let { o ->
+            zahl.merge(o, 1, Int::plus); erst.putIfAbsent(o, Triple(fa.place.lat, (f.vater ?: f.mutter) to f.xref, ref(f.xref, fa)))
+        } } }
+        zahl.keys.sorted().associateWith { o -> val (lat, wer, bsp) = erst.getValue(o); Ort(zahl.getValue(o), lat, wer.first, wer.second, bsp) }
+    }
+
+    fun orte() = ortListe
+
+    /** Gleicher Ort, anders geschrieben: gleiche uebergeordnete Teile und fast gleicher erster Teil, oder derselbe Ort einmal ohne Gliederung. */
+    fun ortsvarianten(): List<T> {
+        val namen = ortListe.keys.toList()
+        fun teile(o: String) = o.split(',').map(String::trim)
+        val out = ArrayList<T>()
+        val nachRest = namen.groupBy { teile(it).drop(1).joinToString(",") { t -> namensform(t) } }
+        for (gruppe in nachRest.values) for (i in gruppe.indices) for (j in i + 1 until gruppe.size) {
+            val a = namensform(teile(gruppe[i]).first()); val b = namensform(teile(gruppe[j]).first())
+            if (a.isEmpty() || b.isEmpty()) continue
+            val gleich = a == b || (minOf(a.length, b.length) >= 5 && levenshtein(a, b) <= 1)
+            if (gleich) out += ortTreffer(gruppe[i], gruppe[j])
+        }
+        // "Hermannsburg" neben "Hermannsburg, Celle, Niedersachsen": der kurze ist wohl derselbe Ort ohne Gliederung
+        val nachErstem = namen.groupBy { namensform(teile(it).first()) }
+        for (gruppe in nachErstem.values) {
+            val kurz = gruppe.filter { teile(it).size == 1 }
+            val lang = gruppe.filter { teile(it).size > 1 }
+            if (lang.size == 1) kurz.forEach { out += ortTreffer(it, lang.single()) }
+        }
+        return out
+    }
+
+    private fun ortTreffer(a: String, b: String): T {
+        val oa = ortListe.getValue(a); val ob = ortListe.getValue(b)
+        val (selten, oft) = if (oa.anzahl <= ob.anzahl) (a to oa) to (b to ob) else (b to ob) to (a to oa)
+        return T(selten.second.person, selten.second.familie, "„${selten.first}“ (${selten.second.anzahl}×) ≈ „${oft.first}“ (${oft.second.anzahl}×)", selten.second.beispiel)
+    }
 
     /** Alle, die in einem Kreis der Abstammung liegen (starke Zusammenhangskomponenten, iterativ nach Tarjan). */
     fun eigeneVorfahren(): List<String> {

@@ -635,5 +635,19 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_check_rerun">Check again</string>
     <string name="desk_check_reset">All rules and limits as default</string>
     <string name="desk_check_loading">Loading the tree … %1$d of %2$d</string>
-    <string name="desk_check_hint">Checks the whole tree as far as you may see it. Errors are contradictions in the data; warnings are unusual but possible. Click a finding to show the person, double-click opens the person sheet.</string>
+    <string name="desk_check_hint">Checks the whole tree as far as you may see it. Errors are contradictions in the data; warnings are unusual but possible. Click shows the person, double-click opens the person sheet, the pencil edits the event, the tick marks a finding as checked – it comes back only if the data change.</string>
+    <string name="desk_check_group_names">Names</string>
+    <string name="desk_check_group_sources">Sources</string>
+    <string name="desk_check_group_places">Places</string>
+    <string name="desk_check_ticked_count">%1$d ticked off</string>
+    <string name="desk_check_preset">Preset</string>
+    <string name="desk_check_preset_own">Own settings</string>
+    <string name="desk_check_estimate">Estimate missing birth and death from baptism and burial</string>
+    <string name="desk_check_severity">Severity</string>
+    <string name="desk_check_ticks_export">Export ticks …</string>
+    <string name="desk_check_ticks_import">Import ticks …</string>
+    <string name="desk_check_show_ticked">Show ticked (%1$d)</string>
+    <string name="desk_check_edit">Edit event</string>
+    <string name="desk_check_tick">Tick off as checked</string>
+    <string name="desk_check_untick">Open again</string>
 </resources>

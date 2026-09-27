@@ -39,7 +39,7 @@ class PruefungErzeugen {
             val t0 = System.currentTimeMillis()
             val b = runBlocking { client.exportTree(baum) }
             val t1 = System.currentTimeMillis()
-            val e = pruefen(b)
+            val e = pruefen(b, de.bgghome.webtrees.nativ.pruefung.PruefOptionen(aus = emptySet()))
             val t2 = System.currentTimeMillis()
             println("$baum: ${b.individuals.size} Personen, ${b.families.size} Familien; Export ${t1 - t0} ms, Pruefung ${t2 - t1} ms, ${e.anzahl} Treffer")
             e.treffer.filterValues { it.isNotEmpty() }.forEach { (id, l) -> println("  $id  ${l.size}   z. B. ${l.first().person ?: l.first().familie}: ${l.first().text}") }

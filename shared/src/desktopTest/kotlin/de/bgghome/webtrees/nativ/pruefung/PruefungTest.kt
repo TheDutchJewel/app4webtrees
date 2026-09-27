@@ -5,6 +5,8 @@ import de.bgghome.webtrees.nativ.api.ExportFamily
 import de.bgghome.webtrees.nativ.api.ExportIndividual
 import de.bgghome.webtrees.nativ.api.FactJson
 import de.bgghome.webtrees.nativ.api.Person
+import de.bgghome.webtrees.nativ.api.PlaceJson
+import de.bgghome.webtrees.nativ.api.SourceRef
 import de.bgghome.webtrees.nativ.api.TreeExport
 import java.io.File
 import kotlin.test.Test
@@ -31,16 +33,21 @@ class PruefungTest {
         }
         fun fakten(zeilen: List<Triple<Int, String, String>>, tags: Set<String>): List<FactJson> {
             val out = mutableListOf<FactJson>()
-            var offen: String? = null; var datum: String? = null
-            fun schliessen() { offen?.let { out += FactJson(id = "${out.size}", tag = it, date = datum?.let { d -> DateJson(text = d, gedcom = d) }) } }
+            var offen: String? = null; var datum: String? = null; var ort: String? = null
+            val notizen = mutableListOf<String>(); val quellen = mutableListOf<SourceRef>()
+            fun schliessen() { offen?.let { out += FactJson(id = "f${out.size}", tag = it, label = it, date = datum?.let { d -> DateJson(text = d, gedcom = d) },
+                place = ort?.let { o -> PlaceJson(name = o, short = o.substringBefore(',')) }, notes = notizen.toList(), sources = quellen.toList()) } }
             for ((lvl, tag, wert) in zeilen) {
-                if (lvl == 1) { schliessen(); offen = tag.takeIf { it in tags }; datum = null }
+                if (lvl == 1) { schliessen(); offen = tag.takeIf { it in tags }; datum = null; ort = null; notizen.clear(); quellen.clear() }
                 else if (lvl == 2 && tag == "DATE" && offen != null && datum == null) datum = wert
+                else if (lvl == 2 && tag == "PLAC" && offen != null) ort = wert
+                else if (lvl == 2 && tag == "NOTE" && offen != null) notizen += wert
+                else if (lvl == 2 && tag == "SOUR" && offen != null) quellen += SourceRef(xref = wert.trim('@'))
             }
             schliessen()
             return out
         }
-        val ereignisse = setOf("BIRT", "CHR", "BAPM", "DEAT", "BURI", "CREM", "OCCU", "RELI", "NOTE")
+        val ereignisse = setOf("NAME", "BIRT", "CHR", "BAPM", "DEAT", "BURI", "CREM", "OCCU", "RELI", "NOTE")
         val personen = LinkedHashMap<String, ExportIndividual>()
         val familien = LinkedHashMap<String, ExportFamily>()
         for ((typ, id, zeilen) in saetze) when (typ) {
@@ -69,22 +76,25 @@ class PruefungTest {
 
     private val falkenrath = File("../demo-tree/falkenrath.ged")
 
+    /** Die Regeln aus Stufe 2 (nicht im Python-Programm). */
+    private val stufe2 = setOf("024", "126", "127", "228", "310", "311", "315", "330", "420", "421", "510", "511", "512", "513")
+
     @Test
     fun falkenrathWieDasPythonProgramm() {
-        val e = pruefen(gedcomAlsExport(falkenrath), jetzt = 2026, deutsch = true)
+        val e = pruefen(gedcomAlsExport(falkenrath), aus = stufe2, jetzt = 2026, deutsch = true)
         val zahlen = e.treffer.filterValues { it.isNotEmpty() }.mapValues { it.value.size }
         assertEquals(mapOf("010" to 7, "016" to 1, "124" to 3, "223" to 2, "224" to 8), zahlen, e.treffer.filterValues { it.isNotEmpty() }.toString())
         assertEquals(listOf("I307", "I319", "I321", "I340", "I342", "I370", "I376"), e.treffer.getValue("010").map { it.person }.sortedBy { it!!.drop(1).toInt() })
         assertEquals("I329", e.treffer.getValue("016").single().person)
         assertEquals("F75", e.treffer.getValue("016").single().familie)
-        assertEquals(47, Regelkatalog.alle.size)
+        assertEquals(61, Regelkatalog.alle.size)
     }
 
     @Test
     fun grenzwerteUndAbschalten() {
         val b = gedcomAlsExport(falkenrath)
         // Geschwisterluecke ab 10 statt 12 Jahren: mehr Treffer; Regel 224 abgeschaltet
-        val e = pruefen(b, grenzwerte = mapOf("124" to 10.0), aus = setOf("224"), jetzt = 2026)
+        val e = pruefen(b, grenzwerte = mapOf("124" to 10.0), aus = stufe2 + "224", jetzt = 2026)
         assertTrue(e.treffer.getValue("124").size > 3)
         assertNull(e.treffer["224"])
     }
@@ -121,5 +131,79 @@ class PruefungTest {
             mapOf("A" to p("A", listOf("F1"), listOf("F2")), "B" to p("B", listOf("F2"), listOf("F1")), "C" to p("C", listOf("F2"), emptyList())),
             mapOf("F1" to ExportFamily("F1", husband = "B", children = listOf("A")), "F2" to ExportFamily("F2", husband = "A", children = listOf("B", "C"))))
         assertEquals(setOf("A", "B"), pruefen(b, jetzt = 2026).treffer.getValue("225").map { it.person }.toSet())
+    }
+}
+
+class PruefungStufe2Test {
+    private fun p(x: String, vn: String, fn: String, sex: String, famc: List<String> = emptyList(), fams: List<String> = emptyList(), vararg facts: FactJson, dead: Boolean = true) =
+        ExportIndividual(Person(xref = x, name = "$vn $fn", given = vn, surname = fn, sex = sex, isDead = dead), famc, fams, facts.toList())
+    private fun f(id: String, tag: String, datum: String? = null, ort: String? = null, lat: Double? = null, lng: Double? = null, notiz: String? = null) =
+        FactJson(id = id, tag = tag, label = tag, date = datum?.let { DateJson(text = it, gedcom = it) },
+            place = ort?.let { PlaceJson(name = it, short = it.substringBefore(','), lat = lat, lng = lng) }, notes = listOfNotNull(notiz))
+
+    @Test
+    fun schaetzenAusTaufe() {
+        // Nur Taufe, keine Geburt: mit Schaetzen findet Regel 010 den Tod vor der Taufe, ohne nicht
+        val b = TreeExport(1, mapOf("I1" to p("I1", "Anna", "Test", "F", emptyList(), emptyList(), f("c", "CHR", "5 MAY 1850"), f("d", "DEAT", "1 MAY 1850"))), emptyMap())
+        val mit = pruefen(b, PruefOptionen(aus = emptySet(), schaetzen = true, jetzt = 2026, deutsch = true)).treffer.getValue("010")
+        assertEquals(1, mit.size)
+        assertTrue(mit.single().text.contains("~ 5 MAY 1850"))
+        assertEquals(listOf(FaktRef("I1", "d"), FaktRef("I1", "c")), mit.single().fakten)
+        assertTrue(pruefen(b, PruefOptionen(aus = emptySet(), schaetzen = false, jetzt = 2026)).treffer.getValue("010").isEmpty())
+    }
+
+    @Test
+    fun patenAusDerNotiz() {
+        val b = TreeExport(1, mapOf(
+            "I1" to p("I1", "Karl", "Kind", "M", emptyList(), emptyList(), f("c", "CHR", "10 JUN 1850", notiz = "Paten: Wilhelm Alt, Tischler, Sophie Jung, Ehefrau")),
+            "I2" to p("I2", "Wilhelm", "Alt", "M", emptyList(), emptyList(), f("b", "BIRT", "1790"), f("d", "DEAT", "3 MAR 1849")),
+            "I3" to p("I3", "Sophie", "Jung", "F", emptyList(), emptyList(), f("b", "BIRT", "1841")),
+        ), emptyMap())
+        val e = pruefen(b, PruefOptionen(aus = emptySet(), jetzt = 2026, deutsch = true))
+        assertEquals(listOf("I1"), e.treffer.getValue("024").map { it.person })   // Pate Wilhelm Alt schon tot
+        assertTrue(e.treffer.getValue("024").single().text.contains("Wilhelm Alt"))
+        assertEquals(1, e.treffer.getValue("126").size)                             // Sophie Jung 9 Jahre alt
+    }
+
+    @Test
+    fun dubletteOrteNamenLebende() {
+        val b = TreeExport(1, mapOf(
+            "I1" to p("I1", "Catharina", "Müller", "F", emptyList(), emptyList(), f("b", "BIRT", "1801", "Hermannsburg, Celle, Niedersachsen", 52.83, 10.08), f("d", "DEAT", "1860")),
+            "I2" to p("I2", "Katharina", "Mueller", "F", emptyList(), emptyList(), f("b", "BIRT", "1802", "Hermannsburg")),
+            "I3" to p("I3", "Johann", "Maria", "F", emptyList(), emptyList(), f("b", "BIRT", "1 JAN 1830", "Celle, Niedersachsen", 52.62, 10.08),
+                f("c", "CHR", "2 JAN 1830", "Hamburg, Hamburg", 53.55, 9.99), f("d", "DEAT", "1890", "Hermannsbrug, Celle, Niedersachsen")),
+        ), emptyMap())
+        val e = pruefen(b, PruefOptionen(aus = emptySet(), jetzt = 2026, deutsch = true))
+        assertEquals(1, e.treffer.getValue("228").size)          // Catharina Müller ≈ Katharina Mueller
+        assertEquals(1, e.treffer.getValue("310").size)          // Nachname Maria
+        assertEquals(1, e.treffer.getValue("330").size)          // Johann, weiblich
+        assertEquals(setOf("I2"), e.treffer.getValue("127").map { it.person }.toSet())   // 1802 ohne Sterbeangabe
+        assertEquals(2, e.treffer.getValue("510").size)          // Hermannsbrug ≈ Hermannsburg, Hermannsburg ohne Gliederung
+        assertEquals(1, e.treffer.getValue("512").size)          // Celle und Hamburg am Folgetag, ueber 100 km
+        assertEquals(setOf("I2"), e.treffer.getValue("421").map { it.person }.toSet().intersect(setOf("I2")))
+    }
+
+    @Test
+    fun abhakenUndFingerabdruck() {
+        fun baum(tod: String) = TreeExport(1, mapOf("I1" to p("I1", "Anna", "Test", "F", emptyList(), emptyList(), f("b", "BIRT", "5 MAY 1850"), f("d", "DEAT", tod))), emptyMap())
+        val t = pruefen(baum("1 MAY 1850"), PruefOptionen(jetzt = 2026)).treffer.getValue("010").single()
+        // Fingerabdruck haengt nicht an der Sprache
+        assertEquals(t.fingerabdruck, pruefen(baum("1 MAY 1850"), PruefOptionen(jetzt = 2026, deutsch = false)).treffer.getValue("010").single().fingerabdruck)
+        var liste = Abhakliste().umschalten("srv|t", t, "2026-09-27")
+        assertTrue(t.schluessel in liste.fuer("srv|t"))
+        liste = Abhakliste.ausJson(liste.alsJson())
+        assertTrue(t.schluessel in liste.fuer("srv|t"))
+        // Daten geaendert: anderer Fingerabdruck, der Treffer ist wieder offen
+        val t2 = pruefen(baum("2 MAY 1850"), PruefOptionen(jetzt = 2026)).treffer.getValue("010").single()
+        assertTrue(t2.schluessel !in liste.fuer("srv|t"))
+        assertEquals(0, liste.aufraeumen("srv|t", setOf(t2.schluessel)).anzahl("srv|t"))
+    }
+
+    @Test
+    fun voreinstellungenPassenZumKatalog() {
+        Voreinstellung.alle.forEach { v ->
+            (v.grenzwerte.keys + v.aus + v.schwere.keys).forEach { id -> assertNotNull(Regelkatalog.nachId[id], "${v.id}: $id") }
+            v.grenzwerte.keys.forEach { id -> assertNotNull(Regelkatalog.nachId.getValue(id).grenzwert, "${v.id}: $id ohne Grenzwert") }
+        }
     }
 }

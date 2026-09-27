@@ -630,5 +630,19 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_check_rerun">Neu prüfen</string>
     <string name="desk_check_reset">Alle Regeln und Grenzen wie vorgegeben</string>
     <string name="desk_check_loading">Lade den Stammbaum … %1$d von %2$d</string>
-    <string name="desk_check_hint">Prüft den ganzen Stammbaum, soweit du ihn sehen darfst. Fehler sind Widersprüche in den Daten, Warnungen sind ungewöhnlich, aber möglich. Klick auf einen Treffer zeigt die Person, Doppelklick öffnet das Personenblatt.</string>
+    <string name="desk_check_hint">Prüft den ganzen Stammbaum, soweit du ihn sehen darfst. Fehler sind Widersprüche in den Daten, Warnungen sind ungewöhnlich, aber möglich. Klick zeigt die Person, Doppelklick öffnet das Personenblatt, der Stift das Ereignis, der Haken hakt einen Treffer ab – er kommt nur wieder, wenn sich die Daten ändern.</string>
+    <string name="desk_check_group_names">Namen</string>
+    <string name="desk_check_group_sources">Quellen</string>
+    <string name="desk_check_group_places">Orte</string>
+    <string name="desk_check_ticked_count">%1$d abgehakt</string>
+    <string name="desk_check_preset">Voreinstellung</string>
+    <string name="desk_check_preset_own">Eigene Einstellung</string>
+    <string name="desk_check_estimate">Fehlende Geburt und fehlenden Tod aus Taufe und Begräbnis schätzen</string>
+    <string name="desk_check_severity">Schwere</string>
+    <string name="desk_check_ticks_export">Abgehakte sichern …</string>
+    <string name="desk_check_ticks_import">Abgehakte laden …</string>
+    <string name="desk_check_show_ticked">Abgehakte zeigen (%1$d)</string>
+    <string name="desk_check_edit">Ereignis bearbeiten</string>
+    <string name="desk_check_tick">Als geprüft abhaken</string>
+    <string name="desk_check_untick">Wieder öffnen</string>
 </resources>

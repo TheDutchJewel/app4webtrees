@@ -17,6 +17,9 @@ class PruefDatum(
     /** Anzeige, wie der Server sie liefert ("21. Juni 1844"), sonst die GEDCOM-Form. */
     val text: String,
 ) {
+    /** Dasselbe Datum mit anderer Anzeige (geschaetzt aus Taufe oder Begraebnis). */
+    fun mitText(t: String) = PruefDatum(jahr, monat, tag, min, max, t)
+
     /** Tagesgenaues Punktdatum. */
     val voll: Boolean get() = jahr != null && monat != null && tag != null
 
