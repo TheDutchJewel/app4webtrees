@@ -32,7 +32,12 @@
 | <img src="docs/screenshots/tafel-ahnenkreis.jpg" alt="Ancestor circle of Jonas Falkenrath over seven generations, coloured by grandparent lines" width="100%"> | <img src="docs/screenshots/tafel-faechertafel.jpg" alt="Fan chart of Jonas Falkenrath over six generations" width="100%"> |
 | **Ancestor circle** – seven generations, the four grandparent lines in colour, pedigree collapse as “= 74” | **Fan chart** – the half circle, here six generations |
 
-<p align="center"><sub>Charts and wtTux navigator: fictitious demo tree <a href="demo-tree/">Familie Falkenrath</a> (CC0), photos of unknown people from the Rijksmuseum Amsterdam (CC0). wtWin navigator and person sheet: historical tree of the Medici; portrait of Caterina Sforza: <a href="https://commons.wikimedia.org/wiki/File:Italia,_caterina_riario_di_forl%C3%AC,_riproduzione_della_medaglia_del_1488_ca..JPG">Sailko</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, all others public domain (Wikimedia Commons).</sub></p>
+<p align="center">
+  <img src="docs/screenshots/desktop-pruefung.jpg" alt="wtTux: plausibility check window with 21 findings in the demo tree" width="100%">
+  <br><b>Plausibility check</b> (from 1.22) – 47 rules check the whole tree: death before birth, mother too young, child after the father's death, siblings married, own ancestor … limits adjustable, a click opens the person, print and PDF.
+</p>
+
+<p align="center"><sub>Charts, plausibility check and wtTux navigator: fictitious demo tree <a href="demo-tree/">Familie Falkenrath</a> (CC0), photos of unknown people from the Rijksmuseum Amsterdam (CC0). wtWin navigator and person sheet: historical tree of the Medici; portrait of Caterina Sforza: <a href="https://commons.wikimedia.org/wiki/File:Italia,_caterina_riario_di_forl%C3%AC,_riproduzione_della_medaglia_del_1488_ca..JPG">Sailko</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, all others public domain (Wikimedia Commons).</sub></p>
 
 **Android:** the APK is signed. To install outside the Play Store, Android asks once to allow your browser to install apps.  
 **Linux:** install the package with `sudo apt install ./wttux_…_amd64.deb`.  
