@@ -11,8 +11,14 @@ import java.io.File
  * Keine Erinnerung im Hintergrund (kannErinnern bleibt false, das Menue bietet sie nicht an).
  */
 class DesktopPlattform : Plattform {
-    /** wtWin unter Windows, wtTux unter Linux. */
-    val appName: String = if (System.getProperty("os.name").orEmpty().startsWith("Windows")) "wtWin" else "wtTux"
+    /** wtWin unter Windows, wtTux unter Linux, wtMac unter macOS (27.09.2026). */
+    val appName: String = System.getProperty("os.name").orEmpty().let {
+        when {
+            it.startsWith("Windows") -> "wtWin"
+            it.startsWith("Mac") -> "wtMac"
+            else -> "wtTux"
+        }
+    }
     /** Kommt als -Dwtand.versionName aus desktop/build.gradle.kts (dieselbe Nummer wie die APK). */
     override val versionName: String = System.getProperty("wtand.versionName") ?: "dev"
     /** http:// fuer den lokalen Testserver nur mit WTAND_DEBUG=1 - wie der Debug-Build auf Android. */

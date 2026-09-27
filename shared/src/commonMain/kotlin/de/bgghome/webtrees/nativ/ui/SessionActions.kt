@@ -94,13 +94,13 @@ fun AppViewModel.cancelConnect() = uiState.update { it.copy(pendingConnect = nul
 
 /**
  * Verbinden-Link aus webtrees (api4webtrees, Seite "App"): `wtwin://connect?url=…&tree=…&code=…&user=…`, am Desktop
- * auch `wttux://` und `webtreesand://`. Kommt per Zwischenablage (Knopf "Mit wtWin verbinden") oder als
+ * auch `wttux://`, `wtmac://` und `webtreesand://`. Kommt per Zwischenablage (Knopf "Mit wtWin verbinden") oder als
  * Startargument (das Programm ist fuer sein Schema angemeldet). Alles andere: null.
  */
 fun verbindungAusText(text: String?): ConnectRequest? {
     val t = text?.trim() ?: return null
     if (t.length > 1000 || t.any { it.isWhitespace() }) return null
-    if (t.substringBefore("://", "").lowercase() !in setOf("wtwin", "wttux", "webtreesand")) return null
+    if (t.substringBefore("://", "").lowercase() !in setOf("wtwin", "wttux", "wtmac", "webtreesand")) return null
     val rest = t.substringAfter("://")
     if (!rest.startsWith("connect?")) return null
     val q = rest.substringAfter('?').split('&').mapNotNull { teil ->

@@ -38,6 +38,14 @@ fun main(args: Array<String>) {
     startLink?.let { nachrichten.trySend(it) }
     instanz.lauschen { nachrichten.trySend(it) }
     schemaAnmelden(plattform.appName)
+    // macOS startet kein zweites Programm fuer einen Link, sondern schickt ihn dem laufenden als Apple-Event
+    // (Schemata in Info.plist, desktop/build.gradle.kts). Menueleiste oben am Bildschirm wie bei Mac-Programmen.
+    if (plattform.appName == "wtMac") {
+        System.setProperty("apple.laf.useScreenMenuBar", "true")
+        runCatching {
+            java.awt.Desktop.getDesktop().setOpenURIHandler { e -> nachrichten.trySend(e.uri.toString()) }
+        }
+    }
 
     // Die Menueleiste ist Swing: ohne diese Zeile erscheint sie im Java-eigenen Stil statt wie unter Windows.
     runCatching { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()) }
