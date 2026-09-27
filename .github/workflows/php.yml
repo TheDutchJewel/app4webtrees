@@ -17,7 +17,8 @@ env:
   # webtrees 2.2 (composer.json): Pflicht ctype curl gd iconv intl json mbstring pcre pdo session xml,
   # dazu pdo_sqlite (Datenbank), zip (Upgrade-Assistent), zlib; dom/simplexml/xmlreader/xmlwriter fuer GEDCOM-Import
   # und Pakete, openssl fuer https (Update-Pruefung), fileinfo/filter fuer Medien und Formulare.
-  PHP_EXT: "ctype,curl,dom,fileinfo,filter,gd,iconv,intl,mbstring,openssl,pdo,pdo_sqlite,session,simplexml,sqlite3,tokenizer,xml,xmlreader,xmlwriter,zip,zlib"
+  # pdo_mysql auch bei SQLite: der Einrichtungsassistent liest pdo_mysql.default_socket und bricht sonst ab.
+  PHP_EXT: "ctype,curl,dom,fileinfo,filter,gd,iconv,intl,mbstring,mysqlnd,openssl,pdo,pdo_mysql,pdo_sqlite,session,simplexml,sqlite3,tokenizer,xml,xmlreader,xmlwriter,zip,zlib"
   PHP_LIBS: "libjpeg,libpng,libwebp,freetype"
   GITHUB_TOKEN: ${{ github.token }}
 
@@ -42,7 +43,7 @@ jobs:
           strip out/php/php || true
           out/php/php -v
           out/php/php -m
-          for e in intl pdo_sqlite gd zip curl mbstring; do out/php/php -m | grep -qx "$e" || { echo "FEHLT: $e"; exit 1; }; done
+          for e in intl pdo_sqlite pdo_mysql gd zip curl mbstring; do out/php/php -m | grep -qx "$e" || { echo "FEHLT: $e"; exit 1; }; done
           out/php/php -r 'var_dump(gd_info()["JPEG Support"], gd_info()["PNG Support"]);'
           tar czf php-linux-x64.tar.gz -C out php
           ls -la php-linux-x64.tar.gz
@@ -74,7 +75,7 @@ jobs:
           out\php\php.exe -v
           $mods = out\php\php.exe -m
           $mods
-          foreach ($e in 'intl','pdo_sqlite','gd','zip','curl','mbstring') { if (-not ($mods -contains $e)) { Write-Error "FEHLT: $e"; exit 1 } }
+          foreach ($e in 'intl','pdo_sqlite','pdo_mysql','gd','zip','curl','mbstring') { if (-not ($mods -contains $e)) { Write-Error "FEHLT: $e"; exit 1 } }
           out\php\php.exe -r 'var_dump(gd_info()[\"JPEG Support\"], gd_info()[\"PNG Support\"]);'
           Compress-Archive -Path out\php -DestinationPath php-windows-x64.zip
           Get-Item php-windows-x64.zip
