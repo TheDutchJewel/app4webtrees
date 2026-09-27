@@ -16,6 +16,7 @@ import de.bgghome.webtrees.nativ.DesktopPlattform
 import de.bgghome.webtrees.nativ.data.DesktopAblage
 import de.bgghome.webtrees.nativ.desk.DeskRoot
 import de.bgghome.webtrees.nativ.desk.DeskTheme
+import de.bgghome.webtrees.nativ.lokal.LokalBetrieb
 import de.bgghome.webtrees.nativ.ui.AppViewModel
 import de.bgghome.webtrees.nativ.ui.LocalAppName
 import de.bgghome.webtrees.nativ.ui.connectLink
@@ -50,6 +51,9 @@ fun main(args: Array<String>) {
     // Die Menueleiste ist Swing: ohne diese Zeile erscheint sie im Java-eigenen Stil statt wie unter Windows.
     runCatching { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()) }
 
+    // Stammbaum auf diesem PC (Stufe 4): PHP starten und anmelden, bevor das Programm den Server fragt.
+    LokalBetrieb.beimStart(plattform)
+
     SingletonImageLoader.setSafe { context -> wtImageLoader(context, plattform.client) }
     val fenster = FensterAblage()
 
@@ -57,7 +61,7 @@ fun main(args: Array<String>) {
         val viewModel = remember { AppViewModel(plattform) }
         val state = remember { fenster.laden() }
         Window(
-            onCloseRequest = { fenster.sichern(state); exitApplication() },
+            onCloseRequest = { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() },
             title = plattform.appName,
             state = state,
         ) {
@@ -71,7 +75,7 @@ fun main(args: Array<String>) {
                 }
             }
             CompositionLocalProvider(LocalAppName provides plattform.appName) {
-                DeskTheme { DeskRoot(viewModel, onQuit = { fenster.sichern(state); exitApplication() }) }
+                DeskTheme { DeskRoot(viewModel, onQuit = { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() }) }
             }
         }
     }

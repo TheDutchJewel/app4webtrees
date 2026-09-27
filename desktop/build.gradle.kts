@@ -3,6 +3,8 @@
 // es laeuft: deb hier, msi/exe auf dem Windows-Laptop (WiX noetig), dmg
 // auf GitHub (.github/workflows/mac.yml, noch unsigniert).
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.net.URI
+import java.security.MessageDigest
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -50,6 +52,57 @@ val appName = when {
     else -> "wtTux"
 }
 
+// Stufe 4: was "Neuen Stammbaum auf diesem PC anlegen" braucht, liegt im Paket (mitliefern,
+// damit das Anlegen auch ohne Internet klappt). Landet unter resources/ (compose.application.resources.dir):
+// common/webtrees/*.zip fuer alle, <system>/php/php(.exe) nur fuer das System, auf dem gebaut wird.
+// Fuer macOS gibt es noch kein PHP - dort fehlt der Weg dann einfach (LokalBetrieb.verfuegbar).
+val lokalOrdner = layout.buildDirectory.dir("lokal")
+val phpSystem = when {
+    osName.startsWith("Windows") -> "windows-x64"
+    osName.startsWith("Mac") -> null
+    else -> "linux-x64"
+}
+val lokalPaket by tasks.registering {
+    val props = listOf("lokal.webtrees", "lokal.webtreesSha256", "lokal.api4webtrees", "lokal.api4webtreesSha256") +
+        listOfNotNull(phpSystem?.let { "lokal.phpSha256.$it" })
+    props.forEach { inputs.property(it, property(it) as String) }
+    outputs.dir(lokalOrdner)
+    doLast {
+        val basis = lokalOrdner.get().asFile
+        val cache = layout.buildDirectory.dir("lokal-cache").get().asFile.apply { mkdirs() }
+        fun sha256(f: File) = MessageDigest.getInstance("SHA-256").digest(f.readBytes())
+            .joinToString("") { "%02x".format(it) }
+        fun laden(url: String, name: String, sha: String): File {
+            val f = File(cache, name)
+            if (f.isFile && sha256(f) == sha) return f
+            logger.lifecycle("Lade $url")
+            URI(url).toURL().openStream().use { i -> f.outputStream().use { i.copyTo(it) } }
+            val ist = sha256(f)
+            check(sha.isNotBlank() && ist == sha) { "Pruefsumme passt nicht: $name ist $ist, erwartet '$sha' (gradle.properties)" }
+            return f
+        }
+        basis.deleteRecursively()
+        val wt = property("lokal.webtrees") as String
+        val api = property("lokal.api4webtrees") as String
+        val web = File(basis, "common/webtrees").apply { mkdirs() }
+        laden("https://github.com/fisharebest/webtrees/releases/download/$wt/webtrees-$wt.zip", "webtrees-$wt.zip",
+            property("lokal.webtreesSha256") as String).copyTo(File(web, "webtrees-$wt.zip"))
+        laden("https://github.com/thobgg/api4webtrees/releases/download/v$api/api4webtrees-v$api.zip", "api4webtrees-v$api.zip",
+            property("lokal.api4webtreesSha256") as String).copyTo(File(web, "api4webtrees-v$api.zip"))
+        if (phpSystem != null) {
+            val endung = if (phpSystem.startsWith("windows")) "zip" else "tar.gz"
+            val archiv = laden("https://github.com/thobgg/app4webtrees/releases/download/php-8.4/php-$phpSystem.$endung",
+                "php-$phpSystem.$endung", property("lokal.phpSha256.$phpSystem") as String)
+            project.copy {
+                from(if (endung == "zip") zipTree(archiv) else tarTree(resources.gzip(archiv)))
+                into(File(basis, phpSystem))
+            }
+            File(basis, "$phpSystem/php/php").takeIf { it.isFile }?.setExecutable(true)
+        }
+    }
+}
+tasks.matching { it.name == "prepareAppResources" }.configureEach { dependsOn(lokalPaket) }
+
 compose.desktop {
     application {
         mainClass = "de.bgghome.webtrees.nativ.desktop.MainKt"
@@ -57,6 +110,7 @@ compose.desktop {
         jvmArgs += "-Dwtand.versionName=$versionName"
 
         nativeDistributions {
+            appResourcesRootDir.set(lokalOrdner)
             targetFormats(TargetFormat.Deb, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Dmg)
             // NIE mehr aendern, sobald das erste Paket verteilt ist: Installationsordner und
             // Startmenue haengen daran (wie upgradeUuid unten).

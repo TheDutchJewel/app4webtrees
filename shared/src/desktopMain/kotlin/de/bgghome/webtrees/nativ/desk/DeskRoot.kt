@@ -98,6 +98,7 @@ import de.bgghome.webtrees.nativ.res.*
 import de.bgghome.webtrees.nativ.ui.*
 import de.bgghome.webtrees.nativ.ui.tree.FamilyTreeView
 import de.bgghome.webtrees.nativ.ui.tree.TreeLayout
+import de.bgghome.webtrees.nativ.lokal.LokalBetrieb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -185,7 +186,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
 
     // Vor der Anmeldung und bei der Baumwahl: die Startbildschirme der App, mittig im Fenster.
     if (state.screen != Screen.Main) {
-        AppRoot(viewModel)
+        // Erster Start (noch keine Adresse): daneben der Weg "Neuen Stammbaum auf diesem PC anlegen" (Stufe 4).
+        if (state.screen == Screen.Setup && LokalBetrieb.verfuegbar) DeskStart(viewModel) else AppRoot(viewModel)
         return
     }
 
