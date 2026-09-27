@@ -7,6 +7,7 @@ import de.bgghome.webtrees.nativ.api.KlartextException
 import de.bgghome.webtrees.nativ.api.LoginWallException
 import de.bgghome.webtrees.nativ.api.NotJsonException
 import de.bgghome.webtrees.nativ.api.WriteInterruptedException
+import de.bgghome.webtrees.nativ.api.WriteUnclearException
 import java.io.IOException
 
 /** Ein Fehler, dessen Text schon fuer den Benutzer formuliert ist (z. B. "Bild liess sich nicht verkleinern"). */
@@ -48,6 +49,7 @@ fun explain(e: Exception): String = when (e) {
     is LoginWallException -> Texte.t(Res.string.err_login_wall)
     is UserMessageException -> e.message.orEmpty()
     is WriteInterruptedException -> Texte.t(Res.string.err_write_interrupted)
+    is WriteUnclearException -> Texte.t(Res.string.err_write_unclear)
     is KlartextException -> Texte.t(Res.string.err_http_only)
     is IOException -> Texte.t(Res.string.err_no_connection, e.message ?: Texte.t(Res.string.err_unreachable))
     else -> e.message ?: e.javaClass.simpleName

@@ -291,6 +291,7 @@
     <string name="connect_confirm_text">Server: %1$s\nKonto: %2$s\nStammbaum: %3$s\n\nDie App meldet sich mit diesem Konto an; eine bestehende Anmeldung wird ersetzt. Verbinde nur, wenn du diesen Link selbst in webtrees ausgelöst hast.</string>
     <string name="connect_confirm_action">Verbinden</string>
     <string name="err_write_interrupted">Die Verbindung brach ab, bevor der Server geantwortet hat. Bitte prüfe, ob die Änderung angekommen ist, bevor du sie wiederholst.</string>
+    <string name="err_write_unclear">Der Server hat mit einer Fehlerseite geantwortet. Bitte prüfe, ob die Änderung gespeichert wurde, bevor du sie wiederholst.</string>
     <string name="err_pair">Der Verbinden-Code ist abgelaufen oder wurde schon benutzt. Öffne in webtrees die Seite „App“ erneut und tippe auf „Jetzt verbinden“.</string>
     <string name="err_tree_disabled">Dieser Stammbaum ist vom Verwalter nicht für die App freigegeben.</string>
     <!-- Desktop (wtWin/wtTux): Menueleiste und Statuszeile -->

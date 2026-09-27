@@ -35,12 +35,12 @@ class ApiException(val code: String, val status: Int?) : Exception("API: $code")
  * Die Antwort war kein JSON. Bei webtrees heisst das: nicht (mehr) angemeldet, Baum nicht
  * sichtbar, CSRF-Token abgelaufen - oder das Modul ist nicht installiert (404).
  */
-class NotJsonException(val httpStatus: Int) : Exception("Keine JSON-Antwort (HTTP $httpStatus)")
+class NotJsonException(
+    val httpStatus: Int,
+    /** Kam die Antwort erst nach einer Umleitung? So lehnt webtrees ab, BEVOR es etwas ausfuehrt (CSRF, Anmeldung). */
+    val umgeleitet: Boolean = false,
+) : Exception("Keine JSON-Antwort (HTTP $httpStatus)")
 
-/**
- * Ein Schreibzugriff wurde gesendet, aber die Verbindung brach ab, bevor eine Antwort kam. Ob der Server
- * die Aenderung verarbeitet hat, ist unbekannt - der Nutzer muss nachsehen, bevor er sie wiederholt.
- */
 /**
  * Vor webtrees sitzt eine fremde Anmeldung (SSO wie Authelia, Authentik, oauth2-proxy, Cloudflare Access):
  * 401/407, eine Umleitung auf einen anderen Host oder JSON, das nicht von api4webtrees stammt. Frueher las
@@ -48,7 +48,18 @@ class NotJsonException(val httpStatus: Int) : Exception("Keine JSON-Antwort (HTT
  */
 class LoginWallException(val httpStatus: Int, val host: String = "") : Exception("Anmeldung vor webtrees (HTTP $httpStatus $host)")
 
+/**
+ * Ein Schreibzugriff wurde gesendet, aber die Verbindung brach ab, bevor eine Antwort kam. Ob der Server
+ * die Aenderung verarbeitet hat, ist unbekannt - der Nutzer muss nachsehen, bevor er sie wiederholt.
+ */
 class WriteInterruptedException(cause: IOException) : IOException(cause.message, cause)
+
+/**
+ * Ein Schreibzugriff kam an, aber statt JSON kam eine Fehlerseite ohne Umleitung zurueck (z. B. PHP-Fehler nach dem
+ * Speichern). Ob die Aenderung gespeichert ist, ist unbekannt - darum KEINE Wiederholung (Gutachten 27.09.2026:
+ * sonst entstuende die Aenderung doppelt). Der Nutzer muss nachsehen.
+ */
+class WriteUnclearException(val httpStatus: Int) : Exception("Schreibzugriff ohne JSON-Antwort (HTTP $httpStatus)")
 
 /** http:// zu einem Server ausserhalb des Heimnetzes (auch per Weiterleitung) - abgebrochen, bevor etwas gesendet wurde. */
 class KlartextException(val host: String) : IOException("cleartext outside home network: $host")
@@ -412,13 +423,19 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
             return decode(response, deserializer)
         }
 
+        if (csrf.isEmpty()) info()
         return try {
-            if (csrf.isEmpty()) info()
             attempt()
         } catch (e: NotJsonException) {
-            // Abgelaufenes CSRF-Token: webtrees leitet um statt JSON zu liefern. Token erneuern, einmal wiederholen.
+            // Abgelaufenes CSRF-Token: webtrees leitet um, ohne die Aenderung auszufuehren (CheckCsrf) - Token
+            // erneuern, einmal wiederholen. Ohne Umleitung lief die Anfrage dagegen bis zum Modul durch: nicht wiederholen.
+            if (!e.umgeleitet) throw WriteUnclearException(e.httpStatus)
             info()
-            attempt()
+            try {
+                attempt()
+            } catch (e2: NotJsonException) {
+                if (e2.umgeleitet) throw e2 else throw WriteUnclearException(e2.httpStatus)
+            }
         }
     }
 
@@ -435,7 +452,7 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
                 // (example.org -> www.example.org mit JSON-Antwort ist dagegen in Ordnung und kommt hier nicht an.)
                 val finalHost = response.request.url.host
                 if (!finalHost.equals(request.url.host, ignoreCase = true)) throw LoginWallException(response.code, finalHost)
-                throw NotJsonException(response.code)
+                throw NotJsonException(response.code, umgeleitet = response.priorResponse != null)
             }
 
             response.code to text

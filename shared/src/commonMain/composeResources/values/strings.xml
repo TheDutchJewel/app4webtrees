@@ -296,6 +296,7 @@
     <string name="connect_confirm_text">Server: %1$s\nAccount: %2$s\nFamily tree: %3$s\n\nThe app will sign in with this account; an existing sign-in will be replaced. Only connect if you triggered this link yourself in webtrees.</string>
     <string name="connect_confirm_action">Connect</string>
     <string name="err_write_interrupted">The connection was lost before the server answered. Please check whether the change arrived before you repeat it.</string>
+    <string name="err_write_unclear">The server answered with an error page. Please check whether the change was saved before you repeat it.</string>
     <string name="err_pair">The connect code has expired or was already used. Open the “App” page in webtrees again and tap “Connect now”.</string>
     <string name="err_tree_disabled">The manager has not enabled this family tree for the app.</string>
     <!-- Desktop (wtWin/wtTux): Menueleiste und Statuszeile -->
