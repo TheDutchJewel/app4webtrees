@@ -104,6 +104,18 @@ webtrees server (2.2.x). The webtrees core stays untouched.
 Optional: with the **[Sammlungen](https://github.com/thobgg/webtrees-sammlungen)** module, version 1.6 or newer, the
 app also shows the archive. Without it, only that tab is missing.
 
+## Connecting without typing
+
+On the **“App”** page in webtrees (api4webtrees 1.9.4 or later, included in [nas4webtrees](https://github.com/thobgg/nas4webtrees))
+one click connects the program to your own account – nobody has to type the address or password:
+
+- **wtWin/wtTux (1.21 or later):** install and start the program, then click **“Connect with wtWin”** in the browser.
+  The program takes the connect link from the clipboard or gets it straight from the browser (`wtwin://`, `wttux://` –
+  it registers itself for this at first start, without admin rights), asks once and opens the tree.
+- **wtAnd:** tap “Connect now” on the phone, or scan the QR code with the phone camera at the PC.
+
+The link carries a one-time code that is valid for 10 minutes and exactly once; the password never reaches the device.
+
 ## Privacy
 
 - The app signs in with your normal webtrees account. Every request runs as that user – the same privacy rules apply as

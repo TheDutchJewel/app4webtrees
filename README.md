@@ -103,6 +103,19 @@ nach `modules_v4/` kopiert wird. Der webtrees-Kern bleibt unverändert.
 Optional: Mit dem Modul **[Sammlungen](https://github.com/thobgg/webtrees-sammlungen)** ab Version 1.6 zeigt die App
 zusätzlich das Archiv. Fehlt es, fehlt nur der Reiter.
 
+## Verbinden ohne Tippen
+
+Auf der Seite **„App“** in webtrees (api4webtrees ab 1.9.4, im Paket [nas4webtrees](https://github.com/thobgg/nas4webtrees)
+schon dabei) verbindet ein Klick das Programm mit dem eigenen Konto – Adresse und Passwort muss niemand eintippen:
+
+- **wtWin/wtTux (ab 1.21):** Programm installieren und starten, dann im Browser auf **„Mit wtWin verbinden“** klicken.
+  Das Programm übernimmt den Verbinden-Link aus der Zwischenablage oder bekommt ihn direkt vom Browser
+  (`wtwin://`, `wttux://` – es meldet sich dafür beim ersten Start selbst an, ohne Adminrechte), fragt einmal nach und
+  öffnet den Baum.
+- **wtAnd:** am Handy auf „Jetzt verbinden“ tippen, oder am PC den QR-Code mit der Handy-Kamera scannen.
+
+Der Link trägt einen Einmal-Code, der 10 Minuten und genau einmal gilt; das Passwort erreicht das Gerät nie.
+
 ## Datenschutz
 
 - Die App meldet sich mit dem normalen webtrees-Konto an. Jede Anfrage läuft als dieser Benutzer – es gelten dieselben
