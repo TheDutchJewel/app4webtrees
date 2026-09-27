@@ -1,6 +1,7 @@
 package de.bgghome.webtrees.nativ.desktop
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -17,18 +18,30 @@ import de.bgghome.webtrees.nativ.desk.DeskRoot
 import de.bgghome.webtrees.nativ.desk.DeskTheme
 import de.bgghome.webtrees.nativ.ui.AppViewModel
 import de.bgghome.webtrees.nativ.ui.LocalAppName
+import de.bgghome.webtrees.nativ.ui.connectLink
 import de.bgghome.webtrees.nativ.ui.wtImageLoader
+import kotlinx.coroutines.channels.Channel
 import javax.swing.UIManager
 
 /**
  * wtWin / wtTux: derselbe Kern wie wtAnd, am Schreibtisch in eigenen Aufbauten (desk/). Menueleiste und
  * Dateidialog im Aussehen des Systems, Fenstergroesse und -lage bleiben ueber einen Neustart erhalten.
  */
-fun main() {
+fun main(args: Array<String>) {
+    val plattform = DesktopPlattform().also { Desktop.plattform = it }
+
+    // Verbinden-Link aus webtrees als Startargument (wtwin://connect?…). Laeuft schon ein Fenster, bekommt es den Link.
+    val startLink = args.firstOrNull { it.contains("://connect?") }
+    val instanz = Einzelinstanz(plattform.cacheOrdner)
+    if (!instanz.erste(startLink)) return
+    val nachrichten = Channel<String>(Channel.UNLIMITED)
+    startLink?.let { nachrichten.trySend(it) }
+    instanz.lauschen { nachrichten.trySend(it) }
+    schemaAnmelden(plattform.appName)
+
     // Die Menueleiste ist Swing: ohne diese Zeile erscheint sie im Java-eigenen Stil statt wie unter Windows.
     runCatching { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()) }
 
-    val plattform = DesktopPlattform().also { Desktop.plattform = it }
     SingletonImageLoader.setSafe { context -> wtImageLoader(context, plattform.client) }
     val fenster = FensterAblage()
 
@@ -40,6 +53,15 @@ fun main() {
             title = plattform.appName,
             state = state,
         ) {
+            // Link oder zweiter Start: Fenster nach vorn, einen Link wie beim Handy mit Rueckfrage uebernehmen.
+            LaunchedEffect(Unit) {
+                for (nachricht in nachrichten) {
+                    state.isMinimized = false
+                    window.toFront()
+                    window.requestFocus()
+                    if (nachricht.isNotEmpty()) viewModel.connectLink(nachricht)
+                }
+            }
             CompositionLocalProvider(LocalAppName provides plattform.appName) {
                 DeskTheme { DeskRoot(viewModel, onQuit = { fenster.sichern(state); exitApplication() }) }
             }

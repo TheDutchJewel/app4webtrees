@@ -98,6 +98,9 @@ import de.bgghome.webtrees.nativ.res.*
 import de.bgghome.webtrees.nativ.ui.*
 import de.bgghome.webtrees.nativ.ui.tree.FamilyTreeView
 import de.bgghome.webtrees.nativ.ui.tree.TreeLayout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.jetbrains.compose.resources.stringResource
 
@@ -164,10 +167,36 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onMerkliste = { merkliste = true }, onTafel = { tafel = it }, onBuch = { buch = true },
     )
 
+    // Noch nicht verbunden: auf den Verbinden-Link aus webtrees warten (Knopf "Mit wtWin verbinden" legt ihn in die
+    // Zwischenablage). Uebernommen wird er erst nach der Rueckfrage; der Einmal-Code bleibt nicht in der Ablage liegen.
+    val wartet = (state.screen == Screen.Setup || state.screen == Screen.Login) && state.pendingConnect == null
+    LaunchedEffect(wartet) {
+        while (wartet) {
+            val link = withContext(Dispatchers.IO) { zwischenablageText() }
+            if (verbindungAusText(link) != null) {
+                zwischenablageLeeren()
+                viewModel.connectLink(link!!)
+                break
+            }
+            delay(1000)
+        }
+    }
+
     // Vor der Anmeldung und bei der Baumwahl: die Startbildschirme der App, mittig im Fenster.
     if (state.screen != Screen.Main) {
         AppRoot(viewModel)
         return
+    }
+
+    // Verbinden-Link bei laufender Sitzung (wtwin:// aus dem Browser): wie vor der Anmeldung erst nachfragen.
+    state.pendingConnect?.let { request ->
+        ConfirmDialog(
+            title = stringResource(Res.string.connect_confirm_title),
+            text = stringResource(Res.string.connect_confirm_text, request.url, request.user.ifEmpty { "–" }, request.tree.ifEmpty { "–" }),
+            confirm = stringResource(Res.string.connect_confirm_action),
+            onDismiss = viewModel::cancelConnect,
+            onConfirm = viewModel::confirmConnect,
+        )
     }
 
     LaunchedEffect(Unit) { viewModel.setWide(true) }

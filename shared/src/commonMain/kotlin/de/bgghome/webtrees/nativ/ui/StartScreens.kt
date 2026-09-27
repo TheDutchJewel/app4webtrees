@@ -98,6 +98,15 @@ fun SetupScreen(state: UiState, onSubmit: (String) -> Unit) {
         subtitle = stringResource(Res.string.setup_subtitle),
         error = state.error,
     ) {
+        // Am PC zuerst der Weg ohne Tippen (Knopf "Mit wtWin verbinden" in webtrees), das Feld darunter ist der Rueckfall.
+        if (zwischenablageLesbar) {
+            Text(
+                stringResource(Res.string.setup_pair_hint_desk, LocalAppName.current),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
         OutlinedTextField(
             value = url,
             onValueChange = { url = it; getippt = true; ausAblage = false },
@@ -115,11 +124,9 @@ fun SetupScreen(state: UiState, onSubmit: (String) -> Unit) {
             Text(stringResource(Res.string.setup_from_clipboard), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
         }
         Text(stringResource(Res.string.setup_address_help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(
-            if (zwischenablageLesbar) stringResource(Res.string.setup_pair_hint_desk, LocalAppName.current) else stringResource(Res.string.setup_pair_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 8.dp),
-        )
+        if (!zwischenablageLesbar) {
+            Text(stringResource(Res.string.setup_pair_hint), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 8.dp))
+        }
     }
 }
 

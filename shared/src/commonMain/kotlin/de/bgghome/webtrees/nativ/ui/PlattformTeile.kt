@@ -27,6 +27,9 @@ expect fun zwischenablageText(): String?
 /** Liest [zwischenablageText] auf dieser Plattform ueberhaupt etwas? */
 expect val zwischenablageLesbar: Boolean
 
+/** Zwischenablage leeren - nach dem Uebernehmen eines Verbinden-Links, damit der Einmal-Code dort nicht liegen bleibt. */
+expect fun zwischenablageLeeren()
+
 /** Desktop-Aufbau aktiv: Handy-Bedienelemente (Titelleiste mit Drei-Punkte-Menue) bleiben weg. */
 val LocalDeskMode = staticCompositionLocalOf { false }
 

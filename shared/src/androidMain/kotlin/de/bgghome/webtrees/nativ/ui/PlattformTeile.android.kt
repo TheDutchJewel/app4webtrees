@@ -84,3 +84,5 @@ actual fun rememberNotificationPermission(onGranted: () -> Unit): () -> Unit {
 actual fun zwischenablageText(): String? = null
 
 actual val zwischenablageLesbar: Boolean = false
+
+actual fun zwischenablageLeeren() = Unit

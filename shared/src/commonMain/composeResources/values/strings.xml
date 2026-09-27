@@ -290,7 +290,7 @@
     <!-- Koppeln -->
     <string name="setup_address_help">You find the address in your browser: open your family site and copy the address at the top – the app trims the rest.</string>
     <string name="setup_from_clipboard">Address taken from the clipboard – check it and click “Connect”.</string>
-    <string name="setup_pair_hint_desk">Where is the address? In webtrees, open the “App” menu and click “Copy address” – %1$s fills it in here by itself. Then sign in with your webtrees username and password.</string>
+    <string name="setup_pair_hint_desk">Easiest: in webtrees, open the “App” menu and click “Connect with %1$s” – %1$s then takes care of everything, there is nothing to type here. By hand: click “Copy address” there, %1$s fills the address in here; then sign in with your webtrees username and password.</string>
     <string name="setup_pair_hint">Even easier: in webtrees, open the “App” menu and tap “Connect now” – then there is nothing to type here.</string>
     <string name="connect_confirm_title">Connect to this server?</string>
     <string name="connect_confirm_text">Server: %1$s\nAccount: %2$s\nFamily tree: %3$s\n\nThe app will sign in with this account; an existing sign-in will be replaced. Only connect if you triggered this link yourself in webtrees.</string>

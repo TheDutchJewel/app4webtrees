@@ -93,6 +93,34 @@ fun AppViewModel.connect(url: String, tree: String, code: String, user: String) 
 fun AppViewModel.cancelConnect() = uiState.update { it.copy(pendingConnect = null) }
 
 /**
+ * Verbinden-Link aus webtrees (api4webtrees, Seite "App"): `wtwin://connect?url=…&tree=…&code=…&user=…`, am Desktop
+ * auch `wttux://` und `webtreesand://`. Kommt per Zwischenablage (Knopf "Mit wtWin verbinden") oder als
+ * Startargument (das Programm ist fuer sein Schema angemeldet). Alles andere: null.
+ */
+fun verbindungAusText(text: String?): ConnectRequest? {
+    val t = text?.trim() ?: return null
+    if (t.length > 1000 || t.any { it.isWhitespace() }) return null
+    if (t.substringBefore("://", "").lowercase() !in setOf("wtwin", "wttux", "webtreesand")) return null
+    val rest = t.substringAfter("://")
+    if (!rest.startsWith("connect?")) return null
+    val q = rest.substringAfter('?').split('&').mapNotNull { teil ->
+        val kv = teil.split('=', limit = 2)
+        if (kv.size != 2) null else runCatching { java.net.URLDecoder.decode(kv[0], "UTF-8") to java.net.URLDecoder.decode(kv[1], "UTF-8") }.getOrNull()
+    }.toMap()
+    val url = q["url"].orEmpty()
+    val code = q["code"].orEmpty()
+    if (code.isEmpty() || !(url.startsWith("http://", ignoreCase = true) || url.startsWith("https://", ignoreCase = true))) return null
+    return ConnectRequest(url = url, tree = q["tree"].orEmpty(), code = code, user = q["user"].orEmpty())
+}
+
+/** Verbinden-Link (siehe [verbindungAusText]) - fragt wie beim Handy erst nach. */
+fun AppViewModel.connectLink(link: String): Boolean {
+    val r = verbindungAusText(link) ?: return false
+    connect(r.url, r.tree, r.code, r.user)
+    return true
+}
+
+/**
  * http:// nur im Heimnetz (nas4webtrees: NAS ohne Zertifikat) - ausser im Debug-Build, der jeden Server erlaubt.
  * Die eigentliche Sperre sitzt im Client vor jeder Anfrage; dies hier gibt beim Eingeben eine verstaendliche Meldung.
  */

@@ -252,6 +252,10 @@ internal fun openBrowser(url: String) {
 
 actual val zwischenablageLesbar: Boolean = true
 
+actual fun zwischenablageLeeren() {
+    runCatching { java.awt.Toolkit.getDefaultToolkit().systemClipboard.setContents(java.awt.datatransfer.StringSelection(""), null) }
+}
+
 actual fun zwischenablageText(): String? = runCatching {
     val ablage = java.awt.Toolkit.getDefaultToolkit().systemClipboard
     if (ablage.isDataFlavorAvailable(java.awt.datatransfer.DataFlavor.stringFlavor)) {
