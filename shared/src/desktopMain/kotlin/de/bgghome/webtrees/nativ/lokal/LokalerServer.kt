@@ -40,7 +40,17 @@ fun mitgeliefertesPhp(): File? {
     System.getenv("WTAND_PHP")?.takeIf { it.isNotBlank() }?.let { return File(it).takeIf(File::canExecute) }
     val res = System.getProperty("compose.application.resources.dir") ?: return null
     val exe = if (System.getProperty("os.name").orEmpty().startsWith("Windows")) "php.exe" else "php"
-    return File(res, "php/$exe").takeIf { it.isFile }
+    val paket = File(res, "php/$exe").takeIf { it.isFile } ?: return null
+    if (paket.canExecute()) return paket
+    // Beim Paketbau (Compose-Ressourcen, .deb unter /opt) geht das Ausfuehrungsrecht verloren und liesse sich dort
+    // nicht nachsetzen: dann einmalig in den eigenen Datenordner kopieren und dort ausfuehrbar machen.
+    val kopie = File(LokalOrte.basis, "php/$exe")
+    if (!kopie.isFile || kopie.length() != paket.length() || kopie.lastModified() < paket.lastModified()) {
+        kopie.parentFile.mkdirs()
+        paket.copyTo(kopie, overwrite = true)
+    }
+    kopie.setExecutable(true, true)
+    return kopie.takeIf { it.canExecute() }
 }
 
 class LokalerServer(private val php: File, private val webtrees: File = LokalOrte.webtrees) {

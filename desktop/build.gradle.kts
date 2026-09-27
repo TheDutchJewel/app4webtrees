@@ -65,7 +65,7 @@ val phpSystem = when {
 val lokalPaket by tasks.registering {
     val props = listOf("lokal.webtrees", "lokal.webtreesSha256", "lokal.api4webtrees", "lokal.api4webtreesSha256") +
         listOfNotNull(phpSystem?.let { "lokal.phpSha256.$it" })
-    props.forEach { inputs.property(it, property(it) as String) }
+    props.forEach { inputs.property(it, project.property(it) as String) }
     outputs.dir(lokalOrdner)
     doLast {
         val basis = lokalOrdner.get().asFile
@@ -82,17 +82,17 @@ val lokalPaket by tasks.registering {
             return f
         }
         basis.deleteRecursively()
-        val wt = property("lokal.webtrees") as String
-        val api = property("lokal.api4webtrees") as String
+        val wt = project.property("lokal.webtrees") as String
+        val api = project.property("lokal.api4webtrees") as String
         val web = File(basis, "common/webtrees").apply { mkdirs() }
         laden("https://github.com/fisharebest/webtrees/releases/download/$wt/webtrees-$wt.zip", "webtrees-$wt.zip",
-            property("lokal.webtreesSha256") as String).copyTo(File(web, "webtrees-$wt.zip"))
+            project.property("lokal.webtreesSha256") as String).copyTo(File(web, "webtrees-$wt.zip"))
         laden("https://github.com/thobgg/api4webtrees/releases/download/v$api/api4webtrees-v$api.zip", "api4webtrees-v$api.zip",
-            property("lokal.api4webtreesSha256") as String).copyTo(File(web, "api4webtrees-v$api.zip"))
+            project.property("lokal.api4webtreesSha256") as String).copyTo(File(web, "api4webtrees-v$api.zip"))
         if (phpSystem != null) {
             val endung = if (phpSystem.startsWith("windows")) "zip" else "tar.gz"
             val archiv = laden("https://github.com/thobgg/app4webtrees/releases/download/php-8.4/php-$phpSystem.$endung",
-                "php-$phpSystem.$endung", property("lokal.phpSha256.$phpSystem") as String)
+                "php-$phpSystem.$endung", project.property("lokal.phpSha256.$phpSystem") as String)
             project.copy {
                 from(if (endung == "zip") zipTree(archiv) else tarTree(resources.gzip(archiv)))
                 into(File(basis, phpSystem))
