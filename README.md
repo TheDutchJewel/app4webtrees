@@ -42,7 +42,8 @@
 
 **Android:** Die APK ist signiert. Außerhalb des Play Store muss Android einmalig erlauben, dass der Browser Apps installiert.  
 **Linux:** Das Paket mit `sudo apt install ./wttux_…_amd64.deb` installieren.  
-**Windows:** `wtWin-….exe` starten, installiert pro Benutzer ohne Adminrechte. Die Datei ist nicht signiert, darum warnt Windows beim ersten Start vor einem unbekannten Herausgeber: „Weitere Informationen" und dann „Trotzdem ausführen".
+**Windows:** `wtWin-….exe` starten, installiert pro Benutzer ohne Adminrechte. Die Datei ist nicht signiert, darum warnt Windows beim ersten Start vor einem unbekannten Herausgeber: „Weitere Informationen" und dann „Trotzdem ausführen".  
+**macOS (zum Testen):** `wtMac-…-arm64.dmg` für Macs mit Apple-Chip, `…-x64.dmg` für Intel-Macs; öffnen und wtMac in „Programme“ ziehen. Die Datei ist nicht signiert: beim ersten Start unter Systemeinstellungen › Datenschutz & Sicherheit „Trotzdem öffnen“. Noch nicht auf einem echten Mac getestet – Rückmeldungen gern als Issue.
 
 Auf dem webtrees-Server muss das Modul [api4webtrees](https://github.com/thobgg/api4webtrees) installiert sein.
 
