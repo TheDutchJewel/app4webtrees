@@ -53,10 +53,12 @@ fun verwandtWald(d: TafelDaten, o: TafelOptionen): List<TafelPerson> {
     fun knoten(k: DescendantNode, rest: Int): TafelPerson {
         val x = k.person.xref
         val neu = x.isEmpty() || gesehen.add(x)
+        val kinder = k.families.flatMap { it.children }
         return TafelPerson(
             k.person,
-            if (!neu || rest <= 1) emptyList() else k.families.flatMap { it.children }.map { knoten(it, rest - 1) },
+            if (!neu || rest <= 1) emptyList() else kinder.map { knoten(it, rest - 1) },
             nummer = nummerVon[x], partner = if (o.partner) k.families.mapNotNull { it.spouse } else emptyList(),
+            hinweis = if (o.mehrHinweise && neu && rest <= 1) mehrKinder(kinder.size) else null,
         )
     }
     return d.stammpaare.filter { it.wurzel.xref !in o.ohneStamm }.map { knoten(it.baum, reihe(it.nummer) + 1 + o.nachfahren) }

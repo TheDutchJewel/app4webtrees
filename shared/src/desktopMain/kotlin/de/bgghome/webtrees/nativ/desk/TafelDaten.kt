@@ -75,14 +75,20 @@ suspend fun nachfahrenLaden(client: WtClient, tree: String, xref: String, genera
  * Aus dem Nachkommenbaum der API die Personen der Tafel, hoechstens [generationen] Ebenen. [namenstraeger]: die
  * Kinder von Toechtern erscheinen nicht (die Ausgangsperson zaehlt immer). [partner]: Ehepartner in den Kasten.
  */
-fun tafelBaum(k: DescendantNode, generationen: Int, namenstraeger: Boolean = false, partner: Boolean = false, tiefe: Int = 1): TafelPerson {
+fun tafelBaum(k: DescendantNode, generationen: Int, namenstraeger: Boolean = false, partner: Boolean = false, tiefe: Int = 1, mehr: Boolean = false): TafelPerson {
     val weiter = tiefe < generationen && !(namenstraeger && tiefe > 1 && k.person.sex == "F")
+    val kinder = k.families.flatMap { it.children }
     return TafelPerson(
         k.person,
-        if (!weiter) emptyList() else k.families.flatMap { it.children }.map { tafelBaum(it, generationen, namenstraeger, partner, tiefe + 1) },
+        if (!weiter) emptyList() else kinder.map { tafelBaum(it, generationen, namenstraeger, partner, tiefe + 1, mehr) },
         partner = if (partner) k.families.mapNotNull { it.spouse } else emptyList(),
+        // B6: wo die Tafel endet, obwohl es Kinder gibt
+        hinweis = if (mehr && !weiter) mehrKinder(kinder.size) else null,
     )
 }
+
+/** "+3 Kinder" (B6); null ohne Kinder. */
+internal fun mehrKinder(n: Int): String? = when (n) { 0 -> null; 1 -> Texte.t(Res.string.desk_chart_more_child); else -> Texte.t(Res.string.desk_chart_more_children, n) }
 
 /**
  * Nachfahren der Grosseltern aus der Ahnentafel (1-7) und den Nachkommenbaeumen beider Seiten. [generationen] zaehlt
@@ -107,6 +113,7 @@ fun cousinBaum(d: TafelDaten, o: TafelOptionen): CousinTafel? {
             k.person,
             if (tiefe >= o.generationen) emptyList() else familien.flatMap { it.children }.map { baum(it, tiefe + 1) },
             nummer = nummer, partner = if (o.partner) k.families.mapNotNull { it.spouse } else emptyList(),
+            hinweis = if (o.mehrHinweise && tiefe >= o.generationen) mehrKinder(familien.sumOf { it.children.size }) else null,
         ).also { if (x == vx && x.isNotEmpty()) vater = it; if (x == mx && x.isNotEmpty()) mutter = it }
     }
     // Die Wurzel einer Seite: Grossvater, sonst Grossmutter (Reihe 1), sonst der Elternteil selbst (Reihe 2)
@@ -133,14 +140,16 @@ fun cousinBaum(d: TafelDaten, o: TafelOptionen): CousinTafel? {
  */
 fun ahnenBaum(
     ahnen: Map<Long, AhnenEintrag>, generationen: Int, verweise: Boolean = false, start: Long = 1L, hinweise: Map<Long, String> = emptyMap(),
-    geschwister: Map<Long, List<Person>> = emptyMap(),
+    geschwister: Map<Long, List<Person>> = emptyMap(), mehr: Boolean = false,
 ): TafelPerson? {
     val erste = if (verweise) ahnen.entries.filter { it.value.person.xref.isNotEmpty() }.groupBy { it.value.person.xref }.mapValues { e -> e.value.minOf { it.key } } else emptyMap()
     val obersteReihe = reihe(start) + generationen - 1
     fun knoten(n: Long): TafelPerson? = ahnen[n]?.let { a ->
         val v = erste[a.person.xref]?.takeIf { it != n }
         val eltern = if (v != null || reihe(n) >= obersteReihe) emptyList() else listOfNotNull(knoten(2 * n), knoten(2 * n + 1))
-        TafelPerson(a.person, eltern, n, verweis = v, hinweis = hinweise[n],
+        // B6: in der obersten Reihe ein Hinweis, wenn der Baum noch Eltern kennt
+        val weitere = if (mehr && v == null && reihe(n) >= obersteReihe && a.hatEltern) Texte.t(Res.string.desk_chart_more_parents) else null
+        TafelPerson(a.person, eltern, n, verweis = v, hinweis = hinweise[n] ?: weitere,
             geschwister = if (eltern.isEmpty()) emptyList() else geschwister[n].orEmpty(), geschwisterLinks = n > 1 && n % 2 == 0L)
     }
     return knoten(start)
@@ -217,9 +226,9 @@ suspend fun geschwisterLaden(client: WtClient, tree: String, ahnen: Map<Long, Ah
  */
 fun paarBaum(d: TafelDaten, o: TafelOptionen): PaarTafel? {
     val familie = d.nachfahren?.families?.getOrNull(d.paarFamilie) ?: return null
-    val selbst = ahnenBaum(d.ahnen, o.generationen, o.nummern) ?: return null
-    val partner = ahnenBaum(d.partnerAhnen, o.generationen, o.nummern) ?: TafelPerson(familie.spouse ?: Person(xref = ""), emptyList(), 1L)
-    val kinder = familie.children.map { tafelBaum(it, o.nachfahren, partner = o.partner) }
+    val selbst = ahnenBaum(d.ahnen, o.generationen, o.nummern, mehr = o.mehrHinweise) ?: return null
+    val partner = ahnenBaum(d.partnerAhnen, o.generationen, o.nummern, mehr = o.mehrHinweise) ?: TafelPerson(familie.spouse ?: Person(xref = ""), emptyList(), 1L)
+    val kinder = familie.children.map { tafelBaum(it, o.nachfahren, partner = o.partner, mehr = o.mehrHinweise) }
     return if (selbst.person.sex == "F") PaarTafel(partner, selbst, kinder) else PaarTafel(selbst, partner, kinder)
 }
 
@@ -271,14 +280,14 @@ suspend fun tafelDatenLaden(client: WtClient, tree: String, xref: String, art: T
 
 /** Der Inhalt einer Tafel aus den geladenen Daten und den Einstellungen. */
 fun tafelInhalt(art: TafelArt, d: TafelDaten, o: TafelOptionen): TafelInhalt? = when (art) {
-    TafelArt.Stamm, TafelArt.StammSeiten -> d.nachfahren?.let { TafelInhalt(nachfahren = tafelBaum(it, o.generationen, o.namenstraeger, o.partner)) }
+    TafelArt.Stamm, TafelArt.StammSeiten -> d.nachfahren?.let { TafelInhalt(nachfahren = tafelBaum(it, o.generationen, o.namenstraeger, o.partner, mehr = o.mehrHinweise)) }
     TafelArt.Cousins -> cousinBaum(d, o)?.let { TafelInhalt(cousins = it) }
     TafelArt.Paar -> paarBaum(d, o)?.let { TafelInhalt(paar = it) }
     TafelArt.Verwandt -> verwandtWald(d, o).takeIf { it.isNotEmpty() }?.let { TafelInhalt(wald = it) }
     // Senkrecht steht der Proband klassisch unten, waagerecht links; [ausgangOben] kehrt das um ("oben" bzw. "rechts")
-    TafelArt.Ahnen -> ahnenBaum(d.ahnen, o.generationen, o.nummern, geschwister = if (o.geschwister > 0) d.geschwister else emptyMap())?.let { if (o.ausgangOben != o.waagerecht) TafelInhalt(nachfahren = it) else TafelInhalt(vorfahren = it) }
+    TafelArt.Ahnen -> ahnenBaum(d.ahnen, o.generationen, o.nummern, geschwister = if (o.geschwister > 0) d.geschwister else emptyMap(), mehr = o.mehrHinweise)?.let { if (o.ausgangOben != o.waagerecht) TafelInhalt(nachfahren = it) else TafelInhalt(vorfahren = it) }
     TafelArt.Sanduhr -> d.nachfahren?.let { n ->
-        TafelInhalt(vorfahren = ahnenBaum(d.ahnen, o.generationen, o.nummern), nachfahren = tafelBaum(n, o.nachfahren + 1, o.namenstraeger, o.partner))
+        TafelInhalt(vorfahren = ahnenBaum(d.ahnen, o.generationen, o.nummern, mehr = o.mehrHinweise), nachfahren = tafelBaum(n, o.nachfahren + 1, o.namenstraeger, o.partner, mehr = o.mehrHinweise))
     }
     TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester ->
         linienBaum(art, d.ahnen, o.generationen, o.partner)?.let { TafelInhalt(vorfahren = it, linie = true) }

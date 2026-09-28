@@ -108,6 +108,8 @@ data class TafelOptionen(
      * Ortsteile 1 nur Ort, 2 Ort und naechste Ebene, 0 voll; Taufe/Begraebnis statt fehlender Geburt/Tod; Alter beim
      * Tod; Beruf; Rufname unterstrichen (weitere Vornamen gekuerzt, wenn es eng wird). */
     val datumsArt: Int = 0,
+    /** Hinweise (B6): "+3 Kinder", wo die Tafel endet, "weitere Vorfahren" in der obersten Reihe. */
+    val mehrHinweise: Boolean = false,
     val ortTeile: Int = 1,
     val ersatz: Boolean = false,
     val alter: Boolean = false,

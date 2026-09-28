@@ -701,6 +701,10 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_age">Alter beim Tod</string>
     <string name="desk_chart_occupation">Beruf</string>
     <string name="desk_chart_call_name">Rufname unterstrichen</string>
+    <string name="desk_chart_more_child">+1 Kind</string>
+    <string name="desk_chart_more_children">+%1$d Kinder</string>
+    <string name="desk_chart_more_parents">↑ weitere Vorfahren</string>
+    <string name="desk_chart_more_hints">Hinweis, wo die Tafel endet (+3 Kinder)</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

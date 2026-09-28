@@ -196,6 +196,7 @@ private object TafelWahl {
         datumsArt = (prefs.getString(k(art, "datum"), null)?.toIntOrNull() ?: 0).coerceIn(0, 2),
         ortTeile = (prefs.getString(k(art, "ortteile"), null)?.toIntOrNull() ?: 1).coerceIn(0, 2),
         ersatz = prefs.getBoolean(k(art, "ersatz"), false), alter = prefs.getBoolean(k(art, "alter"), false),
+        mehrHinweise = prefs.getBoolean(k(art, "mehr"), true),
         beruf = prefs.getBoolean(k(art, "beruf"), false), rufname = prefs.getBoolean(k(art, "rufname"), false),
         geschwungen = prefs.getBoolean(k(art, "geschwungen"), false), lebendeNurNamen = prefs.getBoolean(k(art, "lebende"), false),
         ersteller = prefs.getString("tafel_ersteller", null).orEmpty(),
@@ -215,7 +216,7 @@ private object TafelWahl {
         prefs.putBoolean(k(art, "karten"), o.karteikarten); prefs.putBoolean(k(art, "legende"), o.legende)
         prefs.putString(k(art, "hg"), o.hintergrund.name); prefs.putString("tafel_hg_bild", o.hintergrundBild); prefs.putString(k(art, "schmuck"), o.schmuck.name)
         prefs.putString(k(art, "datum"), o.datumsArt.toString()); prefs.putString(k(art, "ortteile"), o.ortTeile.toString())
-        prefs.putBoolean(k(art, "ersatz"), o.ersatz); prefs.putBoolean(k(art, "alter"), o.alter); prefs.putBoolean(k(art, "beruf"), o.beruf); prefs.putBoolean(k(art, "rufname"), o.rufname)
+        prefs.putBoolean(k(art, "mehr"), o.mehrHinweise); prefs.putBoolean(k(art, "ersatz"), o.ersatz); prefs.putBoolean(k(art, "alter"), o.alter); prefs.putBoolean(k(art, "beruf"), o.beruf); prefs.putBoolean(k(art, "rufname"), o.rufname)
         prefs.putString(k(art, "buendig"), o.buendig.toString()); prefs.putBoolean(k(art, "geschwungen"), o.geschwungen); prefs.putBoolean(k(art, "lebende"), o.lebendeNurNamen)
         prefs.putString(k(art, "form"), o.form.name); prefs.putBoolean(k(art, "schatten"), o.schatten); prefs.putBoolean(k(art, "fotolinks"), o.fotoLinks)
         prefs.putString("tafel_ersteller", o.ersteller)
@@ -446,6 +447,8 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         Haken(stringResource(Res.string.desk_chart_age), o.alter) { o = o.copy(alter = it) }
                         Haken(stringResource(Res.string.desk_chart_occupation), o.beruf) { o = o.copy(beruf = it) }
                         Haken(stringResource(Res.string.desk_chart_call_name), o.rufname) { o = o.copy(rufname = it) }
+                        if (art !in setOf(TafelArt.AhnenSeiten, TafelArt.StammSeiten, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester))
+                            Haken(stringResource(Res.string.desk_chart_more_hints), o.mehrHinweise) { o = o.copy(mehrHinweise = it) }
                     }
                     if (art in farbArten) FarbEinstellungen(
                         o, art in linienArten, art in zweigArten, { o = o.copy(farbe = it) },
