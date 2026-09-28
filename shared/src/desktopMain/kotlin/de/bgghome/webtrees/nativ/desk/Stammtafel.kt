@@ -81,6 +81,8 @@ data class TafelOptionen(
     val gitter: Boolean = false,
     val verzeichnis: Boolean = false,
     val kurven: Boolean = false,
+    /** Karteikarten je Person hinter der Tafel (Karteikarten.kt). */
+    val karteikarten: Boolean = false,
     /** Verwandtschaftstafel: Stammpaare (xref der Wurzel), die nicht auf die Tafel sollen. */
     val ohneStamm: Set<String> = emptySet(),
     /** Nur seitenweise Stammtafel: Generationen je Seite, Seitenuebersicht vorn. */

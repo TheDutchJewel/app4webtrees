@@ -635,6 +635,16 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_gen_nth">%1$d. Urgroßeltern</string>
     <string name="desk_chart_below_root">Generationen unter dem Probanden</string>
     <string name="desk_chart_roots">Stammpaare auf der Tafel</string>
+    <string name="desk_chart_cards">Karteikarten anhängen (Klick auf Kasten)</string>
+    <string name="desk_chart_cards_loading">Personendaten für die Karteikarten werden geladen …</string>
+    <string name="desk_card_facts">Lebensdaten und Fakten</string>
+    <string name="desk_card_parents">Eltern</string>
+    <string name="desk_card_father">Vater</string>
+    <string name="desk_card_mother">Mutter</string>
+    <string name="desk_card_families">Ehen und Kinder</string>
+    <string name="desk_card_notes">Notizen</string>
+    <string name="desk_card_sources">Quellen</string>
+    <string name="desk_card_back">← zurück zur Tafel</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

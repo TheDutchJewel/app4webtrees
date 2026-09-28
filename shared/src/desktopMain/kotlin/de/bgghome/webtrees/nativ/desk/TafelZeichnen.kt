@@ -2,6 +2,7 @@ package de.bgghome.webtrees.nativ.desk
 
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.EventJson
+import de.bgghome.webtrees.nativ.api.IndividualDetail
 import de.bgghome.webtrees.nativ.api.Person
 import de.bgghome.webtrees.nativ.res.*
 import org.apache.pdfbox.pdmodel.PDDocument
@@ -450,6 +451,7 @@ private class TafelZeichner(
  */
 fun tafelPdf(
     inhalt: TafelInhalt, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
+    details: Map<String, IndividualDetail>? = null,
 ): Pair<PDDocument, TafelInfo> {
     val a = TafelAnordnung(inhalt, o)
     val doc = PDDocument()
@@ -475,6 +477,13 @@ fun tafelPdf(
         seiteB = bl.b * bl.skala, seiteH = bl.h * bl.skala, einheit = 1f / bl.skala, karten = karten,
         // Unten bleibt die Fusszeile (sie steht bei 0,6 Rand)
         bereich = Bereich(bl.rand * bl.skala, bl.rand * 0.4f * bl.skala, (bl.b - 2 * bl.rand) * bl.skala, (bl.h - 1.4f * bl.rand) * bl.skala))
+    // Karteikarten hinter Tafel und Verzeichnis, nach Namen; zurueck fuehrt an die erste Stelle der Person
+    if (details != null) {
+        val personen = karten.map { it.person }.filter { it.xref.isNotEmpty() && !it.isPrivate }.distinctBy { it.xref }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { registerName(it) })
+        val zurueck = karten.groupBy { it.person.xref }.mapValues { (_, k) -> k.first().x to info.seiteH - k.first().y }
+        kartenLinks(doc, info, karteikartenAnhaengen(doc, personen, details, bilder, zurueck, fuss))
+    }
     return doc to info
 }
 

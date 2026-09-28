@@ -76,7 +76,11 @@ class TafelBilderErzeugen {
             val daten = runBlocking { tafelDatenLaden(client, baumName, xref, art, if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Cousins) maxGen(art) else o0.generationen, o0.geschwister, ehe, if (art == TafelArt.Verwandt) o0.nachfahren else 0) }
             val name0 = daten.ahnen[1L]?.person?.name ?: daten.nachfahren?.person?.name.orEmpty()
             val o = o0.copy(titel = tafelTitel(art, name0, daten.partnerNamen.getOrNull(daten.paarFamilie).orEmpty()))
-            val (doc, groesse) = tafelErzeugen(art, daten, o, ::bild, "Privat", fusszeile("wtTux", baumTitel))!!
+            // Schalter "karten": Karteikarten mit den Daten aller geladenen Personen
+            val details = if ("karten" in schalter) runBlocking {
+                kartenLaden(client, baumName, (daten.ahnen.values.map { it.person.xref } + (daten.nachfahren?.let { n -> generateSequence(listOf(n)) { e -> e.flatMap { it.families.flatMap { f -> f.children } }.takeIf { it.isNotEmpty() } }.flatten().map { it.person.xref }.toList() } ?: emptyList())))
+            } else null
+            val (doc, groesse) = tafelErzeugen(art, daten, o, ::bild, "Privat", fusszeile("wtTux", baumTitel), details)!!
             // Schalter "blatt": zusaetzlich der Druckweg "auf ein Blatt" (A4), um die Uebernahme der Schriften zu pruefen
             val blatt = if ("blatt" in schalter) ByteArrayOutputStream().also { out -> aufEinBlatt(doc).use { it.save(out) } }.toByteArray() else null
             val bytes = ByteArrayOutputStream().also { out -> doc.use { it.save(out) } }.toByteArray()

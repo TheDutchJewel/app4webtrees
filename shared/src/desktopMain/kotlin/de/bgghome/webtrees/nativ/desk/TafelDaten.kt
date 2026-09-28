@@ -346,8 +346,9 @@ fun tafelTitel(art: TafelArt, name: String, partner: String = ""): String = if (
 /** Die fertige Tafel als PDF: ein Blatt, bei der seitenweisen Ahnentafel A4-Seiten. */
 fun tafelErzeugen(
     art: TafelArt, d: TafelDaten, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
+    details: Map<String, de.bgghome.webtrees.nativ.api.IndividualDetail>? = null,
 ): Pair<PDDocument, TafelInfo>? =
     if (art == TafelArt.AhnenSeiten) ahnenSeitenPdf(d, o, bilder, privat, fuss)
     else if (art == TafelArt.StammSeiten) stammSeitenPdf(d, o, bilder, privat, fuss)
     else if (art == TafelArt.Faecher || art == TafelArt.Kreis) ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { faecherPdf(it, o.generationen, art == TafelArt.Kreis, o, bilder, privat, fuss) }
-    else tafelInhalt(art, d, o)?.let { tafelPdf(it, o, bilder, privat, fuss) }
+    else tafelInhalt(art, d, o)?.let { tafelPdf(it, o, bilder, privat, fuss, details) }

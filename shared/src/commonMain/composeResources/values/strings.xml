@@ -640,6 +640,16 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_chart_gen_nth">%1$d× great-grandparents</string>
     <string name="desk_chart_below_root">Generations below the starting person</string>
     <string name="desk_chart_roots">Root couples on the chart</string>
+    <string name="desk_chart_cards">Add person cards (click a box)</string>
+    <string name="desk_chart_cards_loading">Loading person data for the cards …</string>
+    <string name="desk_card_facts">Life events and facts</string>
+    <string name="desk_card_parents">Parents</string>
+    <string name="desk_card_father">Father</string>
+    <string name="desk_card_mother">Mother</string>
+    <string name="desk_card_families">Marriages and children</string>
+    <string name="desk_card_notes">Notes</string>
+    <string name="desk_card_sources">Sources</string>
+    <string name="desk_card_back">← back to the chart</string>
     <string name="desk_chart_ancestors_pages">Ancestor chart (pages)</string>
     <string name="desk_chart_ancestors_pages_hint">Four generations per A4 page in landscape. Above each person of the top row it says on which page their ancestors continue – for a binder or a book.</string>
     <string name="desk_chart_paternal">Paternal line</string>

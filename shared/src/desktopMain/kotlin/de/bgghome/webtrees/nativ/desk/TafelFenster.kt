@@ -97,6 +97,11 @@ private object TafelBilder {
 
 private fun nachfahrenPersonen(k: DescendantNode): List<Person> = listOf(k.person) + k.families.flatMap { it.children }.flatMap(::nachfahrenPersonen)
 
+/** Alle geladenen Personen einer Tafel (fuer Bilder und Karteikarten). */
+private fun datenPersonen(d: TafelDaten): List<Person> =
+    d.ahnen.values.map { it.person } + (d.nachfahren?.let(::nachfahrenPersonen) ?: emptyList()) + (d.mutterseite?.let(::nachfahrenPersonen) ?: emptyList()) +
+        d.partnerAhnen.values.map { it.person } + d.stammpaare.flatMap { nachfahrenPersonen(it.baum) } + d.geschwister.values.flatten()
+
 private val stilNamen: Map<TafelStil, StringResource> = mapOf(
     TafelStil.Pergament to Res.string.desk_style_parchment, TafelStil.Klassisch to Res.string.desk_style_classic,
     TafelStil.Farbig to Res.string.desk_style_colour, TafelStil.Schwarzweiss to Res.string.desk_style_bw,
@@ -132,6 +137,9 @@ private val farbArten = mitGitterArten + TafelArt.AhnenSeiten + TafelArt.StammSe
 private val linienArten = setOf(TafelArt.Verwandt, TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester)
 private val zweigArten = setOf(TafelArt.Verwandt, TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar)
 
+/** Einblattige Tafeln aus dem Zeichenkern: sie koennen Karteikarten tragen. */
+private val kartenArten = mitGitterArten + TafelArt.Paar
+
 /** Tafeln, die auch waagerecht gehen (Linien bleiben senkrecht). */
 private val waagerechtMoeglich = setOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar)
 
@@ -165,6 +173,7 @@ private object TafelWahl {
         gitter = prefs.getBoolean(k(art, "gitter"), art == TafelArt.Verwandt), verzeichnis = prefs.getBoolean(k(art, "verz"), art == TafelArt.StammSeiten), kurven = prefs.getBoolean(k(art, "kurven"), false),
         farbe = FarbSchema.entries.firstOrNull { it.name == prefs.getString(k(art, "farbe"), null) } ?: FarbSchema.Geschlecht,
         jeSeite = (prefs.getString(k(art, "jeseite"), null)?.toIntOrNull() ?: 3).coerceIn(2, 5),
+        karteikarten = prefs.getBoolean(k(art, "karten"), false),
         uebersicht = prefs.getBoolean(k(art, "uebersicht"), true),
     )
     fun sichern(art: TafelArt, o: TafelOptionen) {
@@ -178,6 +187,7 @@ private object TafelWahl {
         prefs.putBoolean(k(art, "gitter"), o.gitter); prefs.putBoolean(k(art, "verz"), o.verzeichnis); prefs.putBoolean(k(art, "kurven"), o.kurven)
         prefs.putString(k(art, "farbe"), o.farbe.name)
         prefs.putString(k(art, "jeseite"), o.jeSeite.toString()); prefs.putBoolean(k(art, "uebersicht"), o.uebersicht)
+        prefs.putBoolean(k(art, "karten"), o.karteikarten)
     }
 }
 
@@ -227,14 +237,23 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
     LaunchedEffect(daten, o.bilder) {
         val d = daten?.getOrNull() ?: return@LaunchedEffect
         if (!o.bilder) return@LaunchedEffect
-        val personen = d.ahnen.values.map { it.person } + (d.nachfahren?.let(::nachfahrenPersonen) ?: emptyList()) + (d.mutterseite?.let(::nachfahrenPersonen) ?: emptyList()) + d.partnerAhnen.values.map { it.person } + d.stammpaare.flatMap { nachfahrenPersonen(it.baum) } + d.geschwister.values.flatten()
-        val urls = personen.mapNotNull { it.thumb }.distinct().filter { TafelBilder.bekannt(it) == null }
+        val urls = datenPersonen(d).mapNotNull { it.thumb }.distinct().filter { TafelBilder.bekannt(it) == null }
         urls.chunked(8).forEach { gruppe ->
             withContext(Dispatchers.IO) { gruppe.forEach { TafelBilder.laden(it) } }
             bilderStand++
         }
     }
-    fun erzeugen() = daten?.getOrNull()?.let { d -> tafelErzeugen(art, d, oVoll, { p -> p.thumb?.let(TafelBilder::bekannt) }, privat, fuss) }
+    // Karteikarten: die ausfuehrlichen Daten aller geladenen Personen, im Hintergrund; nur fuer Druck und PDF, nicht fuer die Vorschau
+    val mitKarten = o.karteikarten && art in kartenArten
+    val details by produceState<Map<String, de.bgghome.webtrees.nativ.api.IndividualDetail>?>(null, daten, mitKarten) {
+        value = null
+        val d = daten?.getOrNull() ?: return@produceState
+        if (!mitKarten || tree == null) return@produceState
+        value = withContext(Dispatchers.IO) { runCatching { kartenLaden(viewModel.client, tree.name, datenPersonen(d).filter { !it.isPrivate }.map { it.xref }) }.getOrElse { emptyMap() } }
+    }
+    fun erzeugen(ausgabe: Boolean = false) = daten?.getOrNull()?.let { d ->
+        tafelErzeugen(art, d, oVoll, { p -> p.thumb?.let(TafelBilder::bekannt) }, privat, fuss, if (ausgabe && mitKarten) details else null)
+    }
 
     // Vorschau: das Blatt als Bild, kurz verzoegert, damit schnelles Umstellen nicht jedes Mal rendert. Das PDF wird
     // dafuer einmal gespeichert und neu geladen - erst beim Speichern bettet PDFBox die Schriften ein, vorher zeichnet
@@ -352,6 +371,10 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         o, art in linienArten, art in zweigArten, { o = o.copy(farbe = it) },
                         regeln, { regeln = it }, zweige.size, { zweige = emptyMap() },
                     )
+                    if (art in kartenArten) {
+                        Haken(stringResource(Res.string.desk_chart_cards), o.karteikarten) { o = o.copy(karteikarten = it) }
+                        if (mitKarten && details == null) Text(stringResource(Res.string.desk_chart_cards_loading), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     OutlinedTextField(o.titel, { o = o.copy(titel = it) }, label = { Text(stringResource(Res.string.desk_chart_heading)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     val info = vorschau?.getOrNull()?.second
                     info?.let {
@@ -360,19 +383,19 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         Text(stringResource(Res.string.desk_chart_zoom_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    val bereit = info != null
+                    val bereit = info != null && (!mitKarten || details != null)
                     val titel = o.titel.ifBlank { titelVorgabe }
                     // Beim Drucken bleibt das Blatt offen: der Druck laeuft im Hintergrund und greift auf seine Inhalte zu.
                     if (art == TafelArt.AhnenSeiten || art == TafelArt.StammSeiten) {
                         Knopf(stringResource(Res.string.desk_chart_print_pages), bereit) { erzeugen()?.first?.let { drucken(it, titel) } }
                         Knopf(stringResource(Res.string.desk_chart_pdf_pages), bereit) { erzeugen()?.first?.let { alsPdf(it, titel) } }
                     } else {
-                        Knopf(stringResource(Res.string.desk_chart_print_one), bereit) { erzeugen()?.first?.let { drucken(aufEinBlatt(it), titel) } }
-                        Knopf(stringResource(Res.string.desk_chart_pdf_poster), bereit) { erzeugen()?.first?.let { alsPdf(it, titel) } }
+                        Knopf(stringResource(Res.string.desk_chart_print_one), bereit) { erzeugen(true)?.first?.let { drucken(aufEinBlatt(it), titel) } }
+                        Knopf(stringResource(Res.string.desk_chart_pdf_poster), bereit) { erzeugen(true)?.first?.let { alsPdf(it, titel) } }
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         GrossdruckWahl(druck, { druck = it }, info, bereit,
-                            onBlaetterDrucken = { erzeugen()?.let { (p, i) -> p.use { drucken(aufBlaetter(it, druck.groesse(), i.bereich), titel) } } },
-                            onBlaetterPdf = { erzeugen()?.let { (p, i) -> p.use { alsPdf(aufBlaetter(it, druck.groesse(), i.bereich), "$titel A4") } } },
+                            onBlaetterDrucken = { erzeugen(true)?.let { (p, i) -> p.use { drucken(aufBlaetter(it, druck.groesse(), i.bereich), titel) } } },
+                            onBlaetterPdf = { erzeugen(true)?.let { (p, i) -> p.use { alsPdf(aufBlaetter(it, druck.groesse(), i.bereich), "$titel A4") } } },
                             onPlotter = {
                                 val rolle = druck.rolleCm() ?: return@GrossdruckWahl
                                 erzeugen()?.let { (p, i) -> p.use {
