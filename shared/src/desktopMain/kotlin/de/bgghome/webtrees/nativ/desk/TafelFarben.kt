@@ -124,6 +124,10 @@ object TafelFarbSpeicher {
         f.toIntOrNull()?.let { x to it }
     }.toMap()
 
+    /** Per Rechtsklick ausgeblendete Zweige (D2). */
+    fun ausgeblendet(baum: String): Set<String> = prefs.getString("tafel_aus_$baum", null).orEmpty().split(';').filter(String::isNotBlank).toSet()
+    fun ausgeblendetSichern(baum: String, x: Set<String>) = prefs.putString("tafel_aus_$baum", x.joinToString(";"))
+
     fun sichern(baum: String, regeln: List<FarbRegel>, zweige: Map<String, Int>) {
         prefs.putString("tafel_regeln_$baum", regeln.joinToString("\n") { r -> listOf(r.feld.name, if (r.enthaelt) "1" else "0", r.text.replace('\t', ' ').replace('\n', ' '), r.farbe).joinToString("\t") })
         prefs.putString("tafel_zweige_$baum", zweige.entries.joinToString(";") { "${it.key}=${it.value}" })

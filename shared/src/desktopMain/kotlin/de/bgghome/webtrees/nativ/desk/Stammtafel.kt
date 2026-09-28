@@ -42,6 +42,8 @@ class TafelPerson(
     val partner: List<Person> = emptyList(), val verweis: Long? = null, val hinweis: String? = null, val aufLinie: Boolean = false,
     /** Ahnentafel: Geschwister neben der Person, an derselben Elternlinie - beim Vater links, sonst rechts. */
     val geschwister: List<Person> = emptyList(), val geschwisterLinks: Boolean = false,
+    /** Hat einen Ehepartner (fuer den Filter "nur Verheiratete oder mit Kindern", auch wenn Partner nicht gedruckt werden). */
+    val verheiratet: Boolean = false,
 )
 
 /**
@@ -117,6 +119,11 @@ data class TafelOptionen(
     val alter: Boolean = false,
     val beruf: Boolean = false,
     val rufname: Boolean = false,
+    /** Filter (D2, TafelFilter.kt): ausgeblendete Zweige (xref) des Stammbaums, bei Nachfahren nur Verheiratete oder
+     * Eltern, frueh Verstorbene (unter [mindestalter] Jahren, 0 = alle) weglassen. */
+    val ausgeblendet: Set<String> = emptySet(),
+    val nurMitPartner: Boolean = false,
+    val mindestalter: Int = 0,
     /** Verwandtschaftstafel: Stammpaare (xref der Wurzel), die nicht auf die Tafel sollen. */
     val ohneStamm: Set<String> = emptySet(),
     /** Nur seitenweise Stammtafel: Generationen je Seite, Seitenuebersicht vorn. */

@@ -59,6 +59,7 @@ fun verwandtWald(d: TafelDaten, o: TafelOptionen): List<TafelPerson> {
             if (!neu || rest <= 1) emptyList() else kinder.map { knoten(it, rest - 1) },
             nummer = nummerVon[x], partner = if (o.partner) k.families.mapNotNull { it.spouse } else emptyList(),
             hinweis = if (o.mehrHinweise && neu && rest <= 1) mehrKinder(kinder.size) else null,
+            verheiratet = k.families.any { it.spouse != null },
         )
     }
     return d.stammpaare.filter { it.wurzel.xref !in o.ohneStamm }.map { knoten(it.baum, reihe(it.nummer) + 1 + o.nachfahren) }

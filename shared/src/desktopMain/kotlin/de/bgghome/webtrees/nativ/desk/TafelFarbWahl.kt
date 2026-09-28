@@ -150,12 +150,14 @@ internal fun Modifier.rechtsklick(onKlick: (Offset) -> Unit): Modifier = onPoint
 
 /** Menue zum Kasten unter dem Rechtsklick: Name, Farben, "Farbe entfernen". [stelle]: Anker in dp. */
 @Composable
-internal fun ZweigMenue(karte: KartenOrt?, stelle: DpOffset, markiert: Boolean, onWahl: (Int?) -> Unit, onZu: () -> Unit) {
+internal fun ZweigMenue(karte: KartenOrt?, stelle: DpOffset, markiert: Boolean, onWahl: (Int?) -> Unit, onZu: () -> Unit, onAusblenden: () -> Unit) {
     DropdownMenu(expanded = karte != null, onDismissRequest = onZu, offset = stelle) {
         karte ?: return@DropdownMenu
         Text(karte.person.name.ifBlank { "?" }, Modifier.padding(horizontal = 12.dp, vertical = 4.dp).width(240.dp), fontWeight = FontWeight.SemiBold)
         Text(stringResource(Res.string.desk_chart_branch_menu), Modifier.padding(horizontal = 12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         FarbReihe { onWahl(it) }
         if (markiert) TextButton(onClick = { onWahl(null) }, Modifier.padding(horizontal = 4.dp)) { Text(stringResource(Res.string.desk_chart_branch_remove)) }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        TextButton(onClick = onAusblenden, Modifier.padding(horizontal = 4.dp)) { Text(stringResource(Res.string.desk_chart_branch_hide)) }
     }
 }

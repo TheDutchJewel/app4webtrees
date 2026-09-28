@@ -197,6 +197,8 @@ private object TafelWahl {
         ortTeile = (prefs.getString(k(art, "ortteile"), null)?.toIntOrNull() ?: 1).coerceIn(0, 2),
         ersatz = prefs.getBoolean(k(art, "ersatz"), false), alter = prefs.getBoolean(k(art, "alter"), false),
         mehrHinweise = prefs.getBoolean(k(art, "mehr"), true),
+        nurMitPartner = prefs.getBoolean(k(art, "nurpartner"), false),
+        mindestalter = (prefs.getString(k(art, "mindestalter"), null)?.toIntOrNull() ?: 0).coerceIn(0, 99),
         nummernArt = (prefs.getString(k(art, "nrart"), null)?.toIntOrNull() ?: 0).coerceIn(0, 2),
         beruf = prefs.getBoolean(k(art, "beruf"), false), rufname = prefs.getBoolean(k(art, "rufname"), false),
         geschwungen = prefs.getBoolean(k(art, "geschwungen"), false), lebendeNurNamen = prefs.getBoolean(k(art, "lebende"), false),
@@ -217,7 +219,7 @@ private object TafelWahl {
         prefs.putBoolean(k(art, "karten"), o.karteikarten); prefs.putBoolean(k(art, "legende"), o.legende)
         prefs.putString(k(art, "hg"), o.hintergrund.name); prefs.putString("tafel_hg_bild", o.hintergrundBild); prefs.putString(k(art, "schmuck"), o.schmuck.name)
         prefs.putString(k(art, "datum"), o.datumsArt.toString()); prefs.putString(k(art, "ortteile"), o.ortTeile.toString())
-        prefs.putBoolean(k(art, "mehr"), o.mehrHinweise); prefs.putString(k(art, "nrart"), o.nummernArt.toString()); prefs.putBoolean(k(art, "ersatz"), o.ersatz); prefs.putBoolean(k(art, "alter"), o.alter); prefs.putBoolean(k(art, "beruf"), o.beruf); prefs.putBoolean(k(art, "rufname"), o.rufname)
+        prefs.putBoolean(k(art, "mehr"), o.mehrHinweise); prefs.putBoolean(k(art, "nurpartner"), o.nurMitPartner); prefs.putString(k(art, "mindestalter"), o.mindestalter.toString()); prefs.putString(k(art, "nrart"), o.nummernArt.toString()); prefs.putBoolean(k(art, "ersatz"), o.ersatz); prefs.putBoolean(k(art, "alter"), o.alter); prefs.putBoolean(k(art, "beruf"), o.beruf); prefs.putBoolean(k(art, "rufname"), o.rufname)
         prefs.putString(k(art, "buendig"), o.buendig.toString()); prefs.putBoolean(k(art, "geschwungen"), o.geschwungen); prefs.putBoolean(k(art, "lebende"), o.lebendeNurNamen)
         prefs.putString(k(art, "form"), o.form.name); prefs.putBoolean(k(art, "schatten"), o.schatten); prefs.putBoolean(k(art, "fotolinks"), o.fotoLinks)
         prefs.putString("tafel_ersteller", o.ersteller)
@@ -246,7 +248,10 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
     LaunchedEffect(baumName, regeln, zweige) { if (baumName.isNotEmpty()) TafelFarbSpeicher.sichern(baumName, regeln, zweige) }
     // Verwandtschaftstafel: abgewaehlte Stammpaare (nur fuer diesen Aufruf)
     var ohneStamm by remember(root) { mutableStateOf(emptySet<String>()) }
-    val oVoll = o.copy(regeln = regeln, zweige = zweige, ohneStamm = ohneStamm)
+    // Ausgeblendete Zweige (Rechtsklick) gelten je Stammbaum
+    var ausgeblendet by remember(baumName) { mutableStateOf(TafelFarbSpeicher.ausgeblendet(baumName)) }
+    LaunchedEffect(baumName, ausgeblendet) { if (baumName.isNotEmpty()) TafelFarbSpeicher.ausgeblendetSichern(baumName, ausgeblendet) }
+    val oVoll = o.copy(regeln = regeln, zweige = zweige, ohneStamm = ohneStamm, ausgeblendet = ausgeblendet)
     var druck by remember { mutableStateOf(DruckWahl.laden()) }
     LaunchedEffect(druck) { DruckWahl.sichern(druck) }
     val privat = stringResource(Res.string.person_private)
@@ -454,6 +459,18 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         Haken(stringResource(Res.string.desk_chart_age), o.alter) { o = o.copy(alter = it) }
                         Haken(stringResource(Res.string.desk_chart_occupation), o.beruf) { o = o.copy(beruf = it) }
                         Haken(stringResource(Res.string.desk_chart_call_name), o.rufname) { o = o.copy(rufname = it) }
+                        if (art in setOf(TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Verwandt)) {
+                            Haken(stringResource(Res.string.desk_chart_only_married), o.nurMitPartner) { o = o.copy(nurMitPartner = it) }
+                            Einstellung(stringResource(Res.string.desk_chart_early_dead)) {
+                                val werte = listOf(0, 1, 5, 15)
+                                val namen = werte.map { if (it == 0) stringResource(Res.string.desk_chart_early_show) else stringResource(Res.string.desk_chart_early_under, it) }
+                                Auswahl(namen[werte.indexOf(o.mindestalter).coerceAtLeast(0)], namen) { w -> o = o.copy(mindestalter = werte[namen.indexOf(w)]) }
+                            }
+                        }
+                        if (ausgeblendet.isNotEmpty()) Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(Res.string.desk_chart_hidden, ausgeblendet.size), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                            androidx.compose.material3.TextButton(onClick = { ausgeblendet = emptySet() }) { Text(stringResource(Res.string.desk_chart_hidden_clear)) }
+                        }
                         if (art !in setOf(TafelArt.AhnenSeiten, TafelArt.StammSeiten, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester))
                             Haken(stringResource(Res.string.desk_chart_more_hints), o.mehrHinweise) { o = o.copy(mehrHinweise = it) }
                     }
@@ -523,7 +540,8 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     Box(Modifier.align(Alignment.TopStart)) {
                         ZweigMenue(menue?.first, menue?.second ?: androidx.compose.ui.unit.DpOffset.Zero, menue?.first?.person?.xref in zweige,
                             onWahl = { f -> menue?.first?.person?.xref?.let { x -> zweige = if (f == null) zweige - x else zweige + (x to f) }; menue = null },
-                            onZu = { menue = null })
+                            onZu = { menue = null },
+                            onAusblenden = { menue?.first?.person?.xref?.let { x -> ausgeblendet = ausgeblendet + x }; menue = null })
                     }
                     when {
                         fehler != null -> Text(fehler.message ?: "?", color = androidx.compose.ui.graphics.Color.White)

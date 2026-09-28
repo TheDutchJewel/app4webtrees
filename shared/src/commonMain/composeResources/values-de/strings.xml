@@ -712,6 +712,13 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_num_aboville">d’Aboville (1.2.3)</string>
     <string name="desk_legend_chronik">Generation und laufende Nummer</string>
     <string name="desk_legend_aboville">Nachfahrennummer (d’Aboville)</string>
+    <string name="desk_chart_branch_hide">Zweig ausblenden</string>
+    <string name="desk_chart_only_married">Nur Verheiratete oder mit Kindern</string>
+    <string name="desk_chart_early_dead">Früh Verstorbene</string>
+    <string name="desk_chart_early_show">zeigen</string>
+    <string name="desk_chart_early_under">ausblenden unter %1$d J.</string>
+    <string name="desk_chart_hidden">Ausgeblendete Zweige: %1$d</string>
+    <string name="desk_chart_hidden_clear">Alle einblenden</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

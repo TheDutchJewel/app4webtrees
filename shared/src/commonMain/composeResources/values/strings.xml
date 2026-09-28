@@ -717,6 +717,13 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_chart_num_aboville">d’Aboville (1.2.3)</string>
     <string name="desk_legend_chronik">generation and running number</string>
     <string name="desk_legend_aboville">descendant number (d’Aboville)</string>
+    <string name="desk_chart_branch_hide">Hide branch</string>
+    <string name="desk_chart_only_married">Only married or with children</string>
+    <string name="desk_chart_early_dead">Died young</string>
+    <string name="desk_chart_early_show">show</string>
+    <string name="desk_chart_early_under">hide under %1$d y.</string>
+    <string name="desk_chart_hidden">Hidden branches: %1$d</string>
+    <string name="desk_chart_hidden_clear">Show all</string>
     <string name="desk_chart_ancestors_pages">Ancestor chart (pages)</string>
     <string name="desk_chart_ancestors_pages_hint">Four generations per A4 page in landscape. Above each person of the top row it says on which page their ancestors continue – for a binder or a book.</string>
     <string name="desk_chart_paternal">Paternal line</string>

@@ -76,6 +76,10 @@ class TafelBilderErzeugen {
                 datumsArt = schalter.firstOrNull { it.startsWith("datum") }?.drop(5)?.toInt() ?: 0,
                 ortTeile = schalter.firstOrNull { it.matches(Regex("ort\\d")) }?.drop(3)?.toInt() ?: 1,
                 mehrHinweise = "mehr" in schalter,
+                // Filter: "nurpartner", "frueh5", "aus=I60"
+                nurMitPartner = "nurpartner" in schalter,
+                mindestalter = schalter.firstOrNull { it.startsWith("frueh") }?.drop(5)?.toInt() ?: 0,
+                ausgeblendet = schalter.filter { it.startsWith("aus=") }.map { it.drop(4) }.toSet(),
                 nummernArt = schalter.firstOrNull { it.matches(Regex("nr\\d")) }?.drop(2)?.toInt() ?: 0,
                 ersatz = "ersatz" in schalter, alter = "alter" in schalter, beruf = "beruf" in schalter, rufname = "rufname" in schalter,
                 // Hintergrund und Rahmen: "hg=Papier", "hgbild" (WT_HGBILD), "schmuck=Ranken"

@@ -84,6 +84,7 @@ fun tafelBaum(k: DescendantNode, generationen: Int, namenstraeger: Boolean = fal
         partner = if (partner) k.families.mapNotNull { it.spouse } else emptyList(),
         // B6: wo die Tafel endet, obwohl es Kinder gibt
         hinweis = if (mehr && !weiter) mehrKinder(kinder.size) else null,
+        verheiratet = k.families.any { it.spouse != null },
     )
 }
 
@@ -280,14 +281,15 @@ suspend fun tafelDatenLaden(client: WtClient, tree: String, xref: String, art: T
 
 /** Der Inhalt einer Tafel aus den geladenen Daten und den Einstellungen. */
 fun tafelInhalt(art: TafelArt, d: TafelDaten, o: TafelOptionen): TafelInhalt? = when (art) {
-    TafelArt.Stamm, TafelArt.StammSeiten -> d.nachfahren?.let { TafelInhalt(nachfahren = tafelBaum(it, o.generationen, o.namenstraeger, o.partner, mehr = o.mehrHinweise)) }
+    TafelArt.Stamm, TafelArt.StammSeiten -> d.nachfahren?.let { TafelInhalt(nachfahren = gefiltert(tafelBaum(it, o.generationen, o.namenstraeger, o.partner, mehr = o.mehrHinweise), o, true)) }
     TafelArt.Cousins -> cousinBaum(d, o)?.let { TafelInhalt(cousins = it) }
-    TafelArt.Paar -> paarBaum(d, o)?.let { TafelInhalt(paar = it) }
-    TafelArt.Verwandt -> verwandtWald(d, o).takeIf { it.isNotEmpty() }?.let { TafelInhalt(wald = it) }
+    TafelArt.Paar -> paarBaum(d, o)?.let { p -> TafelInhalt(paar = PaarTafel(gefiltert(p.mann, o, false), gefiltert(p.frau, o, false), p.kinder.filter { it.person.xref !in o.ausgeblendet }.map { gefiltert(it, o, true) })) }
+    TafelArt.Verwandt -> verwandtWald(d, o).filter { it.person.xref !in o.ausgeblendet }.map { gefiltert(it, o, true) }.takeIf { it.isNotEmpty() }?.let { TafelInhalt(wald = it) }
     // Senkrecht steht der Proband klassisch unten, waagerecht links; [ausgangOben] kehrt das um ("oben" bzw. "rechts")
-    TafelArt.Ahnen -> ahnenBaum(d.ahnen, o.generationen, o.nummern, geschwister = if (o.geschwister > 0) d.geschwister else emptyMap(), mehr = o.mehrHinweise)?.let { if (o.ausgangOben != o.waagerecht) TafelInhalt(nachfahren = it) else TafelInhalt(vorfahren = it) }
+    TafelArt.Ahnen -> ahnenBaum(d.ahnen, o.generationen, o.nummern, geschwister = if (o.geschwister > 0) d.geschwister else emptyMap(), mehr = o.mehrHinweise)?.let { gefiltert(it, o, false) }?.let { if (o.ausgangOben != o.waagerecht) TafelInhalt(nachfahren = it) else TafelInhalt(vorfahren = it) }
     TafelArt.Sanduhr -> d.nachfahren?.let { n ->
-        TafelInhalt(vorfahren = ahnenBaum(d.ahnen, o.generationen, o.nummern, mehr = o.mehrHinweise), nachfahren = tafelBaum(n, o.nachfahren + 1, o.namenstraeger, o.partner, mehr = o.mehrHinweise))
+        TafelInhalt(vorfahren = ahnenBaum(d.ahnen, o.generationen, o.nummern, mehr = o.mehrHinweise)?.let { gefiltert(it, o, false) },
+            nachfahren = gefiltert(tafelBaum(n, o.nachfahren + 1, o.namenstraeger, o.partner, mehr = o.mehrHinweise), o, true))
     }
     TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester ->
         linienBaum(art, d.ahnen, o.generationen, o.partner)?.let { TafelInhalt(vorfahren = it, linie = true) }
