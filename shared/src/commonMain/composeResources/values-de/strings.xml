@@ -724,7 +724,7 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_book_foldout">Tafel als Ausklappseite (A3, nur PDF)</string>
     <string name="desk_chart_timeline">Zeitleiste</string>
     <string name="desk_chart_timeline_hint">Die Vorfahren als Lebensbalken über einer Jahresachse – wer lebte wann, wer gleichzeitig. Älteste Generation oben; unbekannte Enden gestrichelt geschätzt, auf Wunsch mit Zeitereignissen.</string>
-    <string name="desk_chart_title_timeline">Zeitleiste der Vorfahren von %1$s</string>
+    <string name="desk_chart_title_timeline">Zeitleiste – %1$s</string>
     <string name="desk_chart_events">Zeitereignisse zeigen</string>
     <string name="desk_legend_estimated">geschätzt (Datum fehlt)</string>
     <string name="desk_timeline_events">1618|1648|Dreißigjähriger Krieg;1683|1699|Türkenkriege;1756|1763|Siebenjähriger Krieg;1806|1815|Napoleonische Kriege;1816|1817|Jahr ohne Sommer, Hunger;1845|1855|Auswanderungswelle;1848|1849|Revolution;1866|1866|Deutscher Krieg;1870|1871|Deutsch-Französischer Krieg;1880|1893|Auswanderungswelle;1914|1918|Erster Weltkrieg;1918|1920|Spanische Grippe;1923|1923|Inflation;1939|1945|Zweiter Weltkrieg;1945|1950|Flucht und Vertreibung;1961|1989|Berliner Mauer</string>
@@ -754,6 +754,7 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_group_title">Titel und Legende</string>
     <string name="desk_group_bigprint">Großdruck und Plotter</string>
     <string name="desk_group_templates">Vorlagen</string>
+    <string name="desk_chart_timeline_of">Zeitleiste von</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

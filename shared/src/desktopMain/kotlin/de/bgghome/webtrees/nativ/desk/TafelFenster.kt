@@ -244,7 +244,7 @@ private object TafelWahl {
         nurMitPartner = prefs.getBoolean(k(art, "nurpartner"), false),
         mindestalter = (prefs.getString(k(art, "mindestalter"), null)?.toIntOrNull() ?: 0).coerceIn(0, 99),
         nummernArt = (prefs.getString(k(art, "nrart"), null)?.toIntOrNull() ?: 0).coerceIn(0, 2),
-        zeitereignisse = prefs.getBoolean(k(art, "ereignisse"), true),
+        zeitereignisse = prefs.getBoolean(k(art, "ereignisse"), true), zeitNachfahren = prefs.getBoolean(k(art, "zeitnach"), false),
         beruf = prefs.getBoolean(k(art, "beruf"), false), rufname = prefs.getBoolean(k(art, "rufname"), false),
         geschwungen = prefs.getBoolean(k(art, "geschwungen"), false), lebendeNurNamen = prefs.getBoolean(k(art, "lebende"), false),
         ersteller = prefs.getString("tafel_ersteller", null).orEmpty(),
@@ -264,7 +264,7 @@ private object TafelWahl {
         prefs.putBoolean(k(art, "karten"), o.karteikarten); prefs.putBoolean(k(art, "legende"), o.legende)
         prefs.putString(k(art, "hg"), o.hintergrund.name); prefs.putString("tafel_hg_bild", o.hintergrundBild); prefs.putString(k(art, "schmuck"), o.schmuck.name)
         prefs.putString(k(art, "datum"), o.datumsArt.toString()); prefs.putString(k(art, "ortteile"), o.ortTeile.toString())
-        prefs.putBoolean(k(art, "mehr"), o.mehrHinweise); prefs.putBoolean(k(art, "nurpartner"), o.nurMitPartner); prefs.putString(k(art, "mindestalter"), o.mindestalter.toString()); prefs.putString(k(art, "nrart"), o.nummernArt.toString()); prefs.putBoolean(k(art, "ereignisse"), o.zeitereignisse); prefs.putBoolean(k(art, "ersatz"), o.ersatz); prefs.putBoolean(k(art, "alter"), o.alter); prefs.putBoolean(k(art, "beruf"), o.beruf); prefs.putBoolean(k(art, "rufname"), o.rufname)
+        prefs.putBoolean(k(art, "mehr"), o.mehrHinweise); prefs.putBoolean(k(art, "nurpartner"), o.nurMitPartner); prefs.putString(k(art, "mindestalter"), o.mindestalter.toString()); prefs.putString(k(art, "nrart"), o.nummernArt.toString()); prefs.putBoolean(k(art, "ereignisse"), o.zeitereignisse); prefs.putBoolean(k(art, "zeitnach"), o.zeitNachfahren); prefs.putBoolean(k(art, "ersatz"), o.ersatz); prefs.putBoolean(k(art, "alter"), o.alter); prefs.putBoolean(k(art, "beruf"), o.beruf); prefs.putBoolean(k(art, "rufname"), o.rufname)
         prefs.putString(k(art, "buendig"), o.buendig.toString()); prefs.putBoolean(k(art, "geschwungen"), o.geschwungen); prefs.putBoolean(k(art, "lebende"), o.lebendeNurNamen)
         prefs.putString(k(art, "form"), o.form.name); prefs.putBoolean(k(art, "schatten"), o.schatten); prefs.putBoolean(k(art, "fotolinks"), o.fotoLinks)
         prefs.putString("tafel_ersteller", o.ersteller)
@@ -406,7 +406,13 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     if (art == TafelArt.Weg) Einstellung(stringResource(Res.string.desk_chart_way_second)) {
                         PersonSuche(zweiter, { zweiter = it }) { q -> tree?.let { t -> runCatching { viewModel.client.individuals(t.name, q, 1).data }.getOrNull() }.orEmpty() }
                     }
-                    if (art == TafelArt.Zeitleiste) Haken(stringResource(Res.string.desk_chart_events), o.zeitereignisse) { o = o.copy(zeitereignisse = it) }
+                    if (art == TafelArt.Zeitleiste) {
+                        Einstellung(stringResource(Res.string.desk_chart_timeline_of)) {
+                            val namen = listOf(stringResource(Res.string.desk_chart_group_ancestors), stringResource(Res.string.desk_chart_group_descendants))
+                            Auswahl(namen[if (o.zeitNachfahren) 1 else 0], namen) { w -> o = o.copy(zeitNachfahren = namen.indexOf(w) == 1) }
+                        }
+                        Haken(stringResource(Res.string.desk_chart_events), o.zeitereignisse) { o = o.copy(zeitereignisse = it) }
+                    }
                     if (art == TafelArt.Verwandt) {
                         // Stammpaare aus Generation 1 (Eltern), 2 (Grosseltern) ...; die Namen helfen beim Waehlen
                         Einstellung(stringResource(Res.string.desk_chart_roots_generation)) {

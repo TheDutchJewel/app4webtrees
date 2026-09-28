@@ -18,6 +18,26 @@ import java.time.LocalDate
  * bis heute. Auf Wunsch Zeitereignisse als blasse Baender (Texte in den Sprachdateien: desk_timeline_events).
  */
 
+/** Eine Zeile der Zeitleiste: Person, Generation (fuer die Trennstriche), Farbe (Platz in KASTEN_FARBEN oder null). */
+class ZeitEintrag(val person: Person, val generation: Int, val farbe: Int?)
+
+/** Vorfahren: aelteste Generation oben, darin nach Kekule; Farbe nach Grosseltern-Linie. */
+fun zeitVorfahren(ahnen: Map<Long, AhnenEintrag>, generationen: Int): List<ZeitEintrag> =
+    ahnen.filterKeys { reihe(it) < generationen }.entries.sortedWith(compareBy({ -reihe(it.key) }, { it.key }))
+        .map { (n, a) -> ZeitEintrag(a.person, reihe(n), if (n >= 4) ((n shr (reihe(n) - 2)) - 4).toInt().coerceIn(0, 3) else null) }
+
+/** Nachfahren: der Stammvater oben, dann Generation fuer Generation in Baumfolge; Farbe je Zweig (Kind des Stammvaters). */
+fun zeitNachfahren(wurzel: de.bgghome.webtrees.nativ.api.DescendantNode, generationen: Int): List<ZeitEintrag> {
+    val ebenen = HashMap<Int, MutableList<ZeitEintrag>>()
+    fun gehen(k: de.bgghome.webtrees.nativ.api.DescendantNode, tiefe: Int, zweig: Int?) {
+        if (tiefe >= generationen) return
+        ebenen.getOrPut(tiefe) { mutableListOf() } += ZeitEintrag(k.person, tiefe, zweig)
+        k.families.flatMap { it.children }.forEachIndexed { i, c -> gehen(c, tiefe + 1, zweig ?: (i % KASTEN_FARBEN.size)) }
+    }
+    gehen(wurzel, 0, null)
+    return ebenen.keys.sorted().flatMap { ebenen.getValue(it) }
+}
+
 private class Balken(val n: Long, val p: Person, val von: Int, val bis: Int, val vonGeschaetzt: Boolean, val bisGeschaetzt: Boolean, val lebt: Boolean)
 
 /** Lebensspanne einer Person; null, wenn weder Geburt noch Tod ein Jahr haben. */
@@ -38,12 +58,11 @@ private fun ereignisse(): List<Triple<Int, Int, String>> = Texte.t(Res.string.de
     val t = e.split('|'); if (t.size < 3) null else Triple(t[0].trim().toIntOrNull() ?: return@mapNotNull null, t[1].trim().toIntOrNull() ?: return@mapNotNull null, t[2].trim())
 }
 
-fun zeitleistePdf(ahnen: Map<Long, AhnenEintrag>, o: TafelOptionen, fuss: String): Pair<PDDocument, TafelInfo>? {
+fun zeitleistePdf(eintraege: List<ZeitEintrag>, o: TafelOptionen, fuss: String, legendeFarben: List<Pair<Int, String>>): Pair<PDDocument, TafelInfo>? {
     val heute = LocalDate.now().year
-    // Aelteste Generation oben, in der Generation nach Kekule-Nummer
-    val alle = ahnen.filterKeys { reihe(it) < o.generationen }.entries.sortedWith(compareBy({ -reihe(it.key) }, { it.key }))
-        .filter { it.value.person.xref !in o.ausgeblendet }
-        .mapNotNull { (n, a) -> if (a.person.isPrivate) null else balken(n, a.person, heute) }
+    val farbeVon = HashMap<Long, Int?>()
+    val alle = eintraege.filter { it.person.xref !in o.ausgeblendet && !it.person.isPrivate }.withIndex()
+        .mapNotNull { (i, e) -> balken(e.generation.toLong() * 100000 + i, e.person, heute)?.also { farbeVon[it.n] = e.farbe } }
     if (alle.isEmpty()) return null
     val doc = PDDocument()
     val f = farben(o.stil)
@@ -66,7 +85,7 @@ fun zeitleistePdf(ahnen: Map<Long, AhnenEintrag>, o: TafelOptionen, fuss: String
     val titelH = (if (o.titel.isBlank()) 0f else titelGroesse * 1.9f) + (if (untertitel.isEmpty()) 0f else if (o.titel.isBlank()) ug * 2f else ug * 1.3f)
     val ereig = if (o.zeitereignisse) ereignisse().filter { it.second >= von && it.first <= bis } else emptyList()
     val legende = if (!o.legende) emptyList() else buildList {
-        if (o.stil == TafelStil.Farbig) (4L..7L).forEach { n -> ahnen[n]?.let { add(LegendenEintrag(LegendenArt.Farbe, "", Texte.t(Res.string.desk_legend_line, it.person.name), (n - 4).toInt())) } }
+        if (o.stil == TafelStil.Farbig) legendeFarben.forEach { (f, t) -> add(LegendenEintrag(LegendenArt.Farbe, "", t, f)) }
         add(LegendenEintrag(LegendenArt.Zeichen, "- - -", Texte.t(Res.string.desk_legend_estimated)))
     }
     val kopfH = g * 2.5f   // Jahreszahlen oben
@@ -125,11 +144,11 @@ fun zeitleistePdf(ahnen: Map<Long, AhnenEintrag>, o: TafelOptionen, fuss: String
         var vorher = -1
         alle.forEachIndexed { i, z ->
             val yt = oben + i * zeileH
-            val gen = reihe(z.n)
+            val gen = (z.n / 100000).toInt()
             if (vorher >= 0 && gen != vorher) { cs.setStrokingColor(f.linie); cs.setLineWidth(0.4f); cs.moveTo(x0, py(yt)); cs.lineTo(x0 + grafikB, py(yt)); cs.stroke() }
             vorher = gen
-            val linie = z.n >= 4 && o.stil == TafelStil.Farbig
-            val farbe = if (linie) KASTEN_FARBEN[((z.n shr (gen - 2)) - 4).toInt().coerceIn(0, 3)] else KastenFarbe(f.fuellung(z.p.sex).let { if (it == Color.WHITE) Color(0xE8, 0xE2, 0xD6) else it }, f.rahmen(z.p.sex))
+            val eigene = farbeVon[z.n]?.takeIf { o.stil == TafelStil.Farbig }
+            val farbe = if (eigene != null) KASTEN_FARBEN[eigene.coerceIn(0, KASTEN_FARBEN.size - 1)] else KastenFarbe(f.fuellung(z.p.sex).let { if (it == Color.WHITE) Color(0xE8, 0xE2, 0xD6) else it }, f.rahmen(z.p.sex))
             val xa = xJahr(z.von); val xe = xJahr(z.bis)
             val bh = zeileH * 0.62f; val by = py(yt + (zeileH + bh) / 2)
             cs.setNonStrokingColor(farbe.fuellung); cs.setStrokingColor(farbe.rahmen); cs.setLineWidth(0.7f)

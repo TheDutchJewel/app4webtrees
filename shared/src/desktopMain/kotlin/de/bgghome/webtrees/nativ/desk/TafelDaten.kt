@@ -280,7 +280,13 @@ suspend fun tafelDatenLaden(client: WtClient, tree: String, xref: String, art: T
     TafelArt.Ahnen -> ahnenLaden(client, tree, xref, generationen, geschwister = geschwister > 0).let { a ->
         TafelDaten(a, null, if (geschwister > 0) geschwisterLaden(client, tree, a, generationen, geschwister == 1) else emptyMap())
     }
-    TafelArt.AhnenSeiten, TafelArt.Aeltester, TafelArt.Faecher, TafelArt.Kreis, TafelArt.Zeitleiste -> TafelDaten(ahnenLaden(client, tree, xref, generationen), null)
+    TafelArt.AhnenSeiten, TafelArt.Aeltester, TafelArt.Faecher, TafelArt.Kreis -> TafelDaten(ahnenLaden(client, tree, xref, generationen), null)
+    // Zeitleiste: Vor- und Nachfahren gleichzeitig, umgeschaltet wird ohne neues Laden
+    TafelArt.Zeitleiste -> coroutineScope {
+        val a = async { ahnenLaden(client, tree, xref, generationen) }
+        val n = async { runCatching { nachfahrenLaden(client, tree, xref, generationen) }.getOrNull() }
+        TafelDaten(a.await(), n.await())
+    }
 }
 
 /** Der Inhalt einer Tafel aus den geladenen Daten und den Einstellungen. */
@@ -372,7 +378,13 @@ fun tafelErzeugen(
     details: Map<String, de.bgghome.webtrees.nativ.api.IndividualDetail>? = null,
 ): Pair<PDDocument, TafelInfo>? =
     if (art == TafelArt.AhnenSeiten) ahnenSeitenPdf(d, o, bilder, privat, fuss, details)
-    else if (art == TafelArt.Zeitleiste) zeitleistePdf(d.ahnen, o, fuss)
+    else if (art == TafelArt.Zeitleiste) {
+        if (o.zeitNachfahren) d.nachfahren?.let { n ->
+            val zweige = n.families.flatMap { it.children }.mapIndexed { i, c -> i % KASTEN_FARBEN.size to Texte.t(Res.string.desk_legend_branch, c.person.name) }.distinctBy { it.first }
+            zeitleistePdf(zeitNachfahren(n, o.generationen), o, fuss, zweige)
+        } else zeitleistePdf(zeitVorfahren(d.ahnen, o.generationen), o, fuss,
+            (4L..7L).mapNotNull { n -> d.ahnen[n]?.let { (n - 4).toInt() to Texte.t(Res.string.desk_legend_line, it.person.name) } })
+    }
     else if (art == TafelArt.StammSeiten) stammSeitenPdf(d, o, bilder, privat, fuss, details)
     else if (art == TafelArt.Faecher || art == TafelArt.Kreis) ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { faecherPdf(it, o.generationen, art == TafelArt.Kreis, o, bilder, privat, fuss, details) }
     else tafelInhalt(art, d, o)?.let { tafelPdf(it, o, bilder, privat, fuss, details) }

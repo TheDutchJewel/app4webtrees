@@ -116,6 +116,8 @@ data class TafelOptionen(
     val nummernArt: Int = 0,
     /** Zeitleiste: Zeitereignisse als blasse Baender. */
     val zeitereignisse: Boolean = true,
+    /** Zeitleiste der Nachfahren statt der Vorfahren. */
+    val zeitNachfahren: Boolean = false,
     val ortTeile: Int = 1,
     val ersatz: Boolean = false,
     val alter: Boolean = false,

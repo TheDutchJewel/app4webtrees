@@ -75,7 +75,7 @@ class TafelBilderErzeugen {
                 // Kasteninhalt: "datum1"/"datum2", "ort0"/"ort2", "ersatz", "alter", "beruf", "rufname"
                 datumsArt = schalter.firstOrNull { it.startsWith("datum") }?.drop(5)?.toInt() ?: 0,
                 ortTeile = schalter.firstOrNull { it.matches(Regex("ort\\d")) }?.drop(3)?.toInt() ?: 1,
-                mehrHinweise = "mehr" in schalter,
+                mehrHinweise = "mehr" in schalter, zeitNachfahren = "zeitnach" in schalter,
                 // Filter: "nurpartner", "frueh5", "aus=I60"
                 nurMitPartner = "nurpartner" in schalter,
                 mindestalter = schalter.firstOrNull { it.startsWith("frueh") }?.drop(5)?.toInt() ?: 0,
