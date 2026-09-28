@@ -944,8 +944,13 @@ private fun UeberDialog(state: UiState, viewModel: AppViewModel, appName: String
                 state.archive?.modul?.takeIf { it.isNotEmpty() }?.let {
                     Text(stringResource(Res.string.menu_about_module, "Sammlungen $it"), style = MaterialTheme.typography.bodySmall)
                 }
-                // Stammbaum auf diesem PC (Stufe 4): ob PHP und webtrees im Paket gefunden wurden
-                Text(LokalBetrieb.zustand(), style = MaterialTheme.typography.bodySmall)
+                // Stammbaum auf diesem PC (Stufe 4): mitgeliefertes webtrees nennen, sonst was im Paket fehlt
+                val wt = LokalBetrieb.webtreesVersion()
+                Text(
+                    if (wt != null) stringResource(Res.string.desk_about_local, wt) else stringResource(Res.string.desk_about_local_missing, LokalBetrieb.fehlt()),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Text(stringResource(Res.string.desk_about_unofficial, appName), style = MaterialTheme.typography.bodySmall)
             }
         },
         confirmButton = { TextButton(onClick = { onClose() }) { Text(stringResource(Res.string.action_close)) } },

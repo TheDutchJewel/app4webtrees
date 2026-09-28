@@ -304,7 +304,7 @@
     <string name="desk_about">Über %1$s</string>
     <string name="desk_people">Personen</string>
     <string name="desk_open_browser">webtrees im Browser öffnen</string>
-    <string name="desk_about_text">%1$s %2$s – ein Programm für webtrees. Braucht auf dem Server das Modul api4webtrees.</string>
+    <string name="desk_about_text">%1$s %2$s – ein Programm für webtrees. Mit einem eigenen webtrees-Server braucht es dort das Modul api4webtrees.</string>
     <string name="desk_guest">Gast</string>
     <string name="desk_age">%1$d Jahre</string>
     <string name="desk_col_event">Ereignis</string>
@@ -844,5 +844,9 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="lokal_gedcom">Aus GEDCOM-Datei übernehmen …</string>
     <string name="lokal_gedcom_choose">GEDCOM-Datei wählen</string>
     <string name="lokal_gedcom_hint">Umstieg von einem anderen Programm: dort als GEDCOM (.ged) exportieren und hier übernehmen – Personen, Familien, Quellen und Notizen. Die Datei selbst bleibt unverändert.</string>
+    <string name="lokal_error">Der Stammbaum konnte nicht angelegt werden. Bitte melde das unter github.com/thobgg/app4webtrees/issues und hänge die Datei %1$s an. Die Angaben darunter helfen bei der Suche.</string>
+    <string name="desk_about_local">Stammbaum auf diesem PC: enthält webtrees %1$s (webtrees.net, GPL-3) unverändert aus dem offiziellen Release.</string>
+    <string name="desk_about_local_missing">Stammbaum auf diesem PC: nicht verfügbar, es fehlt %1$s</string>
+    <string name="desk_about_unofficial">%1$s ist kein offizielles webtrees-Produkt. Fragen und Fehler bitte unter github.com/thobgg/app4webtrees/issues.</string>
     <string name="lokal_hint">Im Hintergrund arbeitet webtrees: Alles, was die webtrees-Seite kann, erreichst du über „webtrees im Browser öffnen“.</string>
 </resources>
