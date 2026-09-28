@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import org.apache.pdfbox.pdmodel.PDDocument
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.IndividualDetail
 import de.bgghome.webtrees.nativ.api.Person
@@ -175,5 +176,15 @@ fun nachfahrenbuch(d: NachfahrenDaten, o: BuchOptionen, baum: String, app: Strin
         liste.forEach { bloecke += eintrag(it) }
     }
     bloecke += reg.bloecke(o, etiketten)
-    return Buch(titel, titel, bloecke, fusszeile(app, baum))
+    // Ausklappseite: die Stammtafel ueber hoechstens fuenf Generationen aus denselben Daten
+    val tafel: (() -> PDDocument)? = if (!o.tafel) null else { {
+        val g = minOf(o.generationen, 5)
+        fun knoten(x: String, tiefe: Int): TafelPerson? = d.details[x]?.let { det ->
+            TafelPerson(det.person, if (tiefe >= g) emptyList() else det.spouseFamilies.flatMap { it.children }.mapNotNull { knoten(it.xref, tiefe + 1) },
+                partner = if (o.partner) det.spouseFamilies.mapNotNull { it.spouse } else emptyList())
+        }
+        tafelPdf(TafelInhalt(nachfahren = knoten(d.wurzel, 1)), TafelOptionen(generationen = g, titel = titel, bilder = o.bilder, partner = o.partner, legende = true),
+            { p -> p.thumb?.let { d.bilder[it] } }, Texte.t(Res.string.person_private), fusszeile(app, baum)).first
+    } }
+    return Buch(titel, titel, bloecke, fusszeile(app, baum), tafel)
 }

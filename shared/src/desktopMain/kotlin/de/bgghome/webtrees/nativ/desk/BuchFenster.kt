@@ -68,6 +68,7 @@ private object BuchWahl {
         bilder = prefs.getBoolean("buch_bilder", true), farbkodierung = prefs.getBoolean("buch_farbe", true),
         notizen = prefs.getBoolean("buch_notizen", true), quellen = prefs.getBoolean("buch_quellen", true),
         orteKuerzen = prefs.getBoolean("buch_orte_kurz", true), doppelteZeigen = prefs.getBoolean("buch_doppelt", false),
+        tafel = prefs.getBoolean("buch_tafel", false),
         namen = prefs.getBoolean("buch_reg_namen", true), orte = prefs.getBoolean("buch_reg_orte", true),
         berufe = prefs.getBoolean("buch_reg_berufe", true), quellenVerzeichnis = prefs.getBoolean("buch_reg_quellen", true),
         vorwort = prefs.getString("buch_vorwort", null).orEmpty(),
@@ -79,7 +80,7 @@ private object BuchWahl {
     fun sichern(o: BuchOptionen) {
         prefs.putString("buch_gen", o.generationen.toString()); prefs.putBoolean("buch_bilder", o.bilder); prefs.putBoolean("buch_farbe", o.farbkodierung)
         prefs.putBoolean("buch_notizen", o.notizen); prefs.putBoolean("buch_quellen", o.quellen); prefs.putBoolean("buch_orte_kurz", o.orteKuerzen)
-        prefs.putBoolean("buch_doppelt", o.doppelteZeigen); prefs.putBoolean("buch_reg_namen", o.namen); prefs.putBoolean("buch_reg_orte", o.orte)
+        prefs.putBoolean("buch_doppelt", o.doppelteZeigen); prefs.putBoolean("buch_tafel", o.tafel); prefs.putBoolean("buch_reg_namen", o.namen); prefs.putBoolean("buch_reg_orte", o.orte)
         prefs.putBoolean("buch_reg_berufe", o.berufe); prefs.putBoolean("buch_reg_quellen", o.quellenVerzeichnis); prefs.putString("buch_vorwort", o.vorwort)
         prefs.putString("buch_nr", o.nummerierung.name); prefs.putBoolean("buch_partner", o.partner); prefs.putBoolean("buch_namen", o.namenstraeger)
         prefs.putBoolean("buch_chrono", o.familienChronologisch); prefs.putString("buch_ort", o.ortFilter)
@@ -184,6 +185,7 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                     if (art == BuchArt.Vorfahren) Haken(stringResource(Res.string.desk_book_duplicates), o.doppelteZeigen) { o = o.copy(doppelteZeigen = it) }
                     Text(stringResource(Res.string.desk_book_section_look), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))
                     Haken(stringResource(Res.string.desk_chart_photos), o.bilder) { o = o.copy(bilder = it) }
+                    if (!familien) Haken(stringResource(Res.string.desk_book_foldout), o.tafel) { o = o.copy(tafel = it) }
                     if (!familien) Haken(stringResource(if (nachfahren) Res.string.desk_book_branch_colors else Res.string.desk_book_color), o.farbkodierung) { o = o.copy(farbkodierung = it) }
                     Text(stringResource(Res.string.desk_book_section_indexes), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))
                     Haken(stringResource(Res.string.desk_book_index_names), o.namen) { o = o.copy(namen = it) }

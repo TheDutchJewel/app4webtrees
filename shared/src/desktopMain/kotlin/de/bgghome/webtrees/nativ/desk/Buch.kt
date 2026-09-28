@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import org.apache.pdfbox.pdmodel.PDDocument
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.DateJson
 import de.bgghome.webtrees.nativ.api.FactJson
@@ -57,7 +58,8 @@ data class Verzeichnis(
     fun etikett(n: Long): String = etiketten?.get(n) ?: "$n"
 }
 
-class Buch(val titel: String, val kopfzeile: String, val bloecke: List<Block>, val fuss: String)
+/** [ausklapp]: Tafel als Ausklappseite am Ende des PDF (E5), erst beim Setzen erzeugt. */
+class Buch(val titel: String, val kopfzeile: String, val bloecke: List<Block>, val fuss: String, val ausklapp: (() -> PDDocument)? = null)
 
 data class BuchOptionen(
     val generationen: Int = 7,
@@ -74,6 +76,8 @@ data class BuchOptionen(
     val orte: Boolean = true,
     val berufe: Boolean = true,
     val quellenVerzeichnis: Boolean = true,
+    /** Vorfahren- und Nachfahrenbuch: die Tafel dazu als Ausklappseite (A3 quer) am Ende, nur im PDF. */
+    val tafel: Boolean = false,
     /** Nachfahrenbuch: Nummerierung, Ehepartner mit Kurzdaten, nur Kinder der Soehne weiterverfolgen. */
     val nummerierung: Nummerierung = Nummerierung.Saragossa,
     val partner: Boolean = true,
@@ -318,7 +322,13 @@ fun vorfahrenbuch(d: BuchDaten, o: BuchOptionen, baum: String, app: String): Buc
         liste.forEach { bloecke += eintrag(it) }
     }
     bloecke += reg.bloecke(o)
-    return Buch(titel, titel, bloecke, fusszeile(app, baum))
+    // Ausklappseite: die Ahnentafel ueber hoechstens sechs Generationen, mit Kekule-Nummern und Ahnenschwund
+    val tafel: (() -> PDDocument)? = if (!o.tafel) null else { {
+        val g = minOf(o.generationen, 6)
+        tafelPdf(TafelInhalt(vorfahren = ahnenBaum(d.ahnen, g, true)), TafelOptionen(generationen = g, titel = titel, bilder = o.bilder, legende = true),
+            { p -> p.thumb?.let { d.bilder[it] } }, Texte.t(Res.string.person_private), fusszeile(app, baum)).first
+    } }
+    return Buch(titel, titel, bloecke, fusszeile(app, baum), tafel)
 }
 
 /** Nummern zusammenfassen: 3, 4, 5, 9 -> "3–5, 9". */

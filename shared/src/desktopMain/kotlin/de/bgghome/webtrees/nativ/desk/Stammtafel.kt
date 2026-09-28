@@ -480,6 +480,30 @@ internal fun alleKnoten(k: TafelPerson): List<TafelPerson> = listOf(k) + k.kinde
 internal fun eingebettet(poster: PDDocument): PDDocument =
     org.apache.pdfbox.Loader.loadPDF(java.io.ByteArrayOutputStream().also { poster.save(it) }.toByteArray())
 
+/**
+ * Ausklappseite fuer ein A4-Buch (E5): die Tafel auf A3 quer, eingepasst; eine Falzmarke zeigt, wo die Seite auf A4
+ * gefaltet wird (210 mm vom rechten Rand, damit sie buendig im Buch liegt).
+ */
+fun ausklappSeite(original: PDDocument, ziel: PDDocument) {
+    val poster = eingebettet(original)
+    val quelle = poster.getPage(0).mediaBox
+    val format = PDRectangle(PDRectangle.A3.height, PDRectangle.A3.width)
+    val rand = 28f
+    val form = LayerUtility(ziel).importPageAsForm(poster, 0)
+    val page = PDPage(format); ziel.addPage(page)
+    val f = minOf((format.width - 2 * rand) / quelle.width, (format.height - 2 * rand) / quelle.height)
+    PDPageContentStream(ziel, page).use { cs ->
+        cs.saveGraphicsState()
+        cs.transform(Matrix.getTranslateInstance((format.width - quelle.width * f) / 2, (format.height - quelle.height * f) / 2))
+        cs.transform(Matrix.getScaleInstance(f, f))
+        cs.drawForm(form); cs.restoreGraphicsState()
+        val falz = format.width - PDRectangle.A4.width
+        cs.setStrokingColor(Color(0xAA, 0xAA, 0xAA)); cs.setLineWidth(0.4f)
+        cs.moveTo(falz, 0f); cs.lineTo(falz, 12f); cs.moveTo(falz, format.height - 12f); cs.lineTo(falz, format.height); cs.stroke()
+    }
+    poster.close()
+}
+
 /** Das Blatt verkleinert auf eine A4-Seite (hoch oder quer, was besser passt). */
 fun aufEinBlatt(poster: PDDocument): PDDocument = PDDocument().also { aufEinBlatt(poster, it) }
 

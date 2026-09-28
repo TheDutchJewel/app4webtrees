@@ -40,7 +40,7 @@ class BuchErzeugen {
         }
         val nach = t[0] == "Nachfahren"
         val (xref, gen) = if (nach) t[1] to t[2].toInt() else t[0] to t[1].toInt()
-        val o = BuchOptionen(generationen = gen, vorwort = "Alle Angaben dieses Buches sind erfunden.",
+        val o = BuchOptionen(generationen = gen, vorwort = "Alle Angaben dieses Buches sind erfunden.", tafel = System.getenv("WT_BUCH_TAFEL") != null,
             nummerierung = t.getOrNull(3)?.let { Nummerierung.valueOf(it) } ?: Nummerierung.Saragossa)
         val name = if (nach) "nachfahrenbuch" else "vorfahrenbuch"
         val buch = if (nach) nachfahrenbuch(runBlocking { nachfahrenbuchLaden(client, baum, xref, gen, true) { println(it) } }, o, titel, "wtTux")

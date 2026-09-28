@@ -62,7 +62,9 @@ fun buchPdf(buch: Buch): PDDocument {
     val probe = BuchSatz(buch, null).setzen()
     val seiten = probe.second
     probe.first.close()
-    return BuchSatz(buch, seiten).setzen().first
+    val doc = BuchSatz(buch, seiten).setzen().first
+    buch.ausklapp?.let { erzeugen -> erzeugen().use { ausklappSeite(it, doc) } }
+    return doc
 }
 
 private class BuchSatz(val buch: Buch, val tocSeiten: Map<String, Int>?) {
