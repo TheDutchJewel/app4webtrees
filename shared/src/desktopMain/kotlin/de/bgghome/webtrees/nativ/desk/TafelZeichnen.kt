@@ -26,8 +26,19 @@ import java.awt.image.BufferedImage
  * Die Reihenfolge der Schritte ist die Stapelfolge auf dem Blatt (Kurven unter den Linien, Karten obenauf).
  */
 
-/** Ein Teil der Tafel: Layout, Richtung (Vorfahren wachsen nach oben) und waagerechter Versatz auf dem Blatt. */
-internal class TafelTeil(val layout: TafelLayout, val aufwaerts: Boolean, var dx: Float = 0f)
+/**
+ * Ein Teil der Tafel: Layout, Richtung (Vorfahren wachsen nach oben) und waagerechter Versatz auf dem Blatt.
+ * [ohneWurzel]: die Wurzel haelt nur mehrere Kinder zusammen und wird weder gezeichnet noch verbunden.
+ */
+internal class TafelTeil(val layout: TafelLayout, val aufwaerts: Boolean, var dx: Float = 0f, val ohneWurzel: Boolean = false) {
+    fun istHalter(pl: TafelPlatz) = ohneWurzel && pl === layout.plaetze.first()
+}
+
+/** Ein Paar auf der Tafel; Vater, Mutter und Kinder koennen in verschiedenen Teilen stehen. */
+internal class PaarLage(
+    val vaterTeil: TafelTeil, val vater: TafelPlatz, val mutterTeil: TafelTeil, val mutter: TafelPlatz,
+    val kinderTeil: TafelTeil?, val kinder: List<TafelPlatz>,
+)
 
 /**
  * Wo was auf der Tafel steht, in Punkt entlang zweier Achsen: g (Generationen, Reihe fuer Reihe) und q (quer dazu,
@@ -47,14 +58,22 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
     val gezeichnet: List<Pair<TafelTeil, TafelPlatz>>
     /** Nummern fuer Personen, die mehrfach vorkommen. */
     val nummern: Map<String, Int>
+    /** Paare mit Heiratslinie, gemeinsame Kinder an einer Linie aus ihrer Mitte. */
+    val paare: List<PaarLage>
+    /** Vor- und Nachfahren auf einem Blatt: die Generationen werden von oben durchgezaehlt. */
+    private val beideRichtungen: Boolean
 
     init {
-        val knoten = listOfNotNull(inhalt.vorfahren, inhalt.nachfahren).flatMap(::alleKnoten) + inhalt.cousins?.knoten().orEmpty()
+        val knoten = listOfNotNull(inhalt.vorfahren, inhalt.nachfahren).flatMap(::alleKnoten) + inhalt.cousins?.knoten().orEmpty() + inhalt.paar?.knoten().orEmpty()
         masse = TafelMasse(o.rahmenMm * 72f / 25.4f, o.bilder, zusatzZeilen(knoten, o), o.waagerecht)
         teile = buildList {
             inhalt.vorfahren?.let { add(TafelTeil(if (inhalt.linie) linienLayout(it, masse) else stammtafelLayout(it, masse), true)) }
             inhalt.nachfahren?.let { add(TafelTeil(stammtafelLayout(it, masse), false)) }
             inhalt.cousins?.let { add(TafelTeil(cousinLayout(it, masse), false)) }
+            inhalt.paar?.let { p ->
+                add(TafelTeil(stammtafelLayout(p.mann, masse), true)); add(TafelTeil(stammtafelLayout(p.frau, masse), true))
+                p.kinder.firstOrNull()?.let { add(TafelTeil(stammtafelLayout(TafelPerson(it.person, p.kinder), masse), false, ohneWurzel = true)) }
+            }
         }
         teile.forEach { t ->
             t.layout.plaetze.filter { it.knoten.geschwister.isNotEmpty() && it.knoten.kinder.isNotEmpty() }.forEach { pl ->
@@ -64,19 +83,28 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
                 }
             }
         }
-        // Ausgangspersonen uebereinander, dann alles an den linken Rand
-        if (teile.size == 2) teile[0].dx = teile[1].layout.plaetze.first().mitteX - teile[0].layout.plaetze.first().mitteX
+        // Ausgangspersonen uebereinander (Paar: nebeneinander, die Kinder mittig darunter), dann alles an den linken Rand
+        if (inhalt.paar != null) paarRuecken(teile, masse)
+        else if (teile.size == 2) teile[0].dx = teile[1].layout.plaetze.first().mitteX - teile[0].layout.plaetze.first().mitteX
         val minX = teile.minOf { t -> t.alle().minOf { it.mitteX } + t.dx } - masse.slot / 2
         teile.forEach { it.dx -= minX }
         breite = teile.maxOf { t -> t.alle().maxOf { it.mitteX } + t.dx } + masse.slot / 2
-        oben = teile.firstOrNull { it.aufwaerts }?.layout?.plaetze?.maxOf { it.ebene } ?: 0
-        unten = teile.firstOrNull { !it.aufwaerts }?.layout?.plaetze?.maxOf { it.ebene } ?: 0
+        oben = teile.filter { it.aufwaerts }.maxOfOrNull { t -> t.layout.plaetze.maxOf { it.ebene } } ?: 0
+        unten = teile.filter { !it.aufwaerts }.maxOfOrNull { t -> t.layout.plaetze.maxOf { it.ebene } } ?: 0
+        beideRichtungen = teile.any { it.aufwaerts } && teile.any { !it.aufwaerts }
         hoehe = (oben + unten + 1) * masse.ebeneH - masse.verbinder
+        // Sanduhr: die Ausgangsperson steht in beiden Teilen und wird nur unten gezeichnet
+        val doppelteWurzel = teile.any { !it.aufwaerts && !it.ohneWurzel } && teile.any { it.aufwaerts }
         gezeichnet = teile.flatMap { t ->
-            t.layout.plaetze.filter { !(teile.size == 2 && t.aufwaerts && it.ebene == 0) }
+            t.layout.plaetze.filter { !(doppelteWurzel && t.aufwaerts && it.ebene == 0) && !t.istHalter(it) }
                 .flatMap { pl -> listOf(t to pl) + geschwisterVon[pl].orEmpty().map { t to it } }
         }
         nummern = doppelteNummern(gezeichnet.map { it.second })
+        paare = teile.flatMap { t -> t.layout.paare.map { PaarLage(t, it.vater, t, it.mutter, t, it.kinder) } } +
+            (if (inhalt.paar == null) emptyList() else {
+                val k = teile.getOrNull(2)
+                listOf(PaarLage(teile[0], teile[0].layout.plaetze.first(), teile[1], teile[1].layout.plaetze.first(), k, k?.layout?.plaetze?.filter { it.eltern === k.layout.plaetze.first() }.orEmpty()))
+            })
     }
 
     fun TafelTeil.alle() = layout.plaetze + layout.plaetze.flatMap { geschwisterVon[it].orEmpty() }
@@ -90,11 +118,26 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
     val zelle = masse.slot * 3
     val zeilenZahl = oben + unten + 1
     val zeilenName = HashMap<Int, String>().also { m ->
-        gezeichnet.forEach { (t, pl) -> m.putIfAbsent(t.reihe(pl), roemisch(if (teile.size == 2) t.reihe(pl) + 1 else pl.ebene + 1)) }
+        gezeichnet.forEach { (t, pl) -> m.putIfAbsent(t.reihe(pl), roemisch(if (beideRichtungen) t.reihe(pl) + 1 else pl.ebene + 1)) }
     }
     fun position(t: TafelTeil, pl: TafelPlatz) = "${spalteName((t.x(pl) / zelle).toInt())} ${zeilenName[t.reihe(pl)].orEmpty()}"
     /** Alle Gitterpositionen je Person. */
     val positionen = gezeichnet.filter { it.second.knoten.person.xref.isNotEmpty() }.groupBy({ it.second.knoten.person.xref }, { position(it.first, it.second) })
+}
+
+/**
+ * Paar: die Ahnentafel der Frau so weit rechts neben die des Mannes, dass sich in keiner Reihe Kaesten beruehren und
+ * zwischen den Partnern Platz fuer die Heiratslinie bleibt; die Kinder mittig unter dem Paar.
+ */
+private fun paarRuecken(teile: List<TafelTeil>, masse: TafelMasse) {
+    val (mann, frau) = teile
+    fun umriss(t: TafelTeil, rechts: Boolean) = t.layout.plaetze.groupBy { it.ebene }.mapValues { e -> if (rechts) e.value.maxOf { it.mitteX } else e.value.minOf { it.mitteX } }
+    val r = umriss(mann, true); val l = umriss(frau, false)
+    val xm = mann.layout.plaetze.first().mitteX; val xf = frau.layout.plaetze.first().mitteX
+    var d = xm + masse.slot * 1.3f - xf
+    r.forEach { (e, x) -> l[e]?.let { d = maxOf(d, x + masse.slot - it) } }
+    frau.dx = d
+    teile.getOrNull(2)?.let { k -> k.dx = (xm + xf + d) / 2 - k.layout.plaetze.first().mitteX }
 }
 
 internal fun spalteName(i: Int): String = if (i < 26) "${'A' + i}" else spalteName(i / 26 - 1) + ('A' + i % 26)
@@ -241,7 +284,7 @@ private class TafelZeichner(
         cs.setStrokingColor(f.linie); cs.setLineWidth(maxOf(0.6f, m.rahmen * 0.009f))
         teile.forEach { t ->
             t.layout.plaetze.groupBy { it.eltern }.forEach { (eltern, kinder) ->
-                if (eltern == null) return@forEach
+                if (eltern == null || t.istHalter(eltern)) return@forEach
                 val start = if (t.aufwaerts) t.oberkante(eltern) else t.oberkante(eltern) + m.laengeG
                 val mitte = if (t.aufwaerts) start - m.verbinder / 2 else start + m.verbinder / 2
                 val ex = t.x(eltern)
@@ -258,22 +301,24 @@ private class TafelZeichner(
                 }
                 cs.stroke()
             }
-            t.layout.paare.forEach { paare(t, it) }
         }
+        paare.forEach { paar(it) }
     }
 
     /** Heiratslinie zwischen den Kaesten eines Paares, aus ihrer Mitte hinunter zu den gemeinsamen Kindern. */
-    private fun paare(t: TafelTeil, paar: TafelPaar) = with(a) {
-        val g = t.oberkante(paar.vater) + if (w) m.laengeG / 2 else m.bild + m.bildAbstand + m.kastenH / 2
-        val q1 = t.x(paar.vater) + m.laengeQ / 2; val q2 = t.x(paar.mutter) - m.laengeQ / 2
+    private fun paar(p: PaarLage) = with(a) {
+        val oberkante = p.vaterTeil.oberkante(p.vater)
+        val g = oberkante + if (w) m.laengeG / 2 else m.bild + m.bildAbstand + m.kastenH / 2
+        val q1 = p.vaterTeil.x(p.vater) + m.laengeQ / 2; val q2 = p.mutterTeil.x(p.mutter) - m.laengeQ / 2
         linie(g, q1, g, q2)
-        if (paar.kinder.isNotEmpty()) {
+        val kt = p.kinderTeil
+        if (kt != null && p.kinder.isNotEmpty()) {
             val qm = (q1 + q2) / 2
-            val mitte = t.oberkante(paar.vater) + m.laengeG + m.verbinder / 2
+            val mitte = oberkante + m.laengeG + m.verbinder / 2
             linie(g, qm, mitte, qm)
-            val xs = paar.kinder.map { t.x(it) }
+            val xs = p.kinder.map { kt.x(it) }
             linie(mitte, minOf(xs.min(), qm), mitte, maxOf(xs.max(), qm))
-            paar.kinder.forEach { kind -> linie(mitte, t.x(kind), t.oberkante(kind), t.x(kind)) }
+            p.kinder.forEach { kind -> linie(mitte, kt.x(kind), kt.oberkante(kind), kt.x(kind)) }
         }
         cs.stroke()
     }

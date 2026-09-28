@@ -113,6 +113,7 @@ private val artTexte: Map<TafelArt, Pair<StringResource, StringResource>> = mapO
     TafelArt.Stamm to (Res.string.desk_chart_descendants to Res.string.desk_chart_descendants_hint),
     TafelArt.Cousins to (Res.string.desk_chart_cousins to Res.string.desk_chart_cousins_hint),
     TafelArt.Sanduhr to (Res.string.desk_chart_hourglass to Res.string.desk_chart_hourglass_hint),
+    TafelArt.Paar to (Res.string.desk_chart_couple to Res.string.desk_chart_couple_hint),
 )
 
 private val linien = setOf(TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester)
@@ -121,10 +122,10 @@ private val linien = setOf(TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.A
 private val kreise = setOf(TafelArt.Faecher, TafelArt.Kreis)
 
 /** Tafeln mit Gitter, Personenverzeichnis und Kurven fuer Doppelte (nicht Kreise und die seitenweise Ahnentafel). */
-private val mitGitterArten = setOf(TafelArt.Ahnen, TafelArt.Stamm, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester)
+private val mitGitterArten = setOf(TafelArt.Ahnen, TafelArt.Stamm, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester)
 
 /** Tafeln, die auch waagerecht gehen (Linien bleiben senkrecht). */
-private val waagerechtMoeglich = setOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Stamm, TafelArt.Cousins, TafelArt.Sanduhr)
+private val waagerechtMoeglich = setOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Stamm, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar)
 
 /** Die Einstellungen bleiben je Tafelart zwischen den Aufrufen erhalten (Desktop-Einstellungen). */
 private object TafelWahl {
@@ -135,7 +136,7 @@ private object TafelWahl {
         else -> "tafel_${art.name.lowercase()}_$name"
     }
     private fun vorgabe(art: TafelArt) = when (art) {
-        TafelArt.Stamm -> 6; TafelArt.Cousins -> 4; TafelArt.Ahnen, TafelArt.Faecher -> 5; TafelArt.Kreis -> 6; TafelArt.Sanduhr -> 3; TafelArt.AhnenSeiten -> 7; else -> 13
+        TafelArt.Stamm -> 6; TafelArt.Cousins -> 4; TafelArt.Ahnen, TafelArt.Faecher -> 5; TafelArt.Kreis -> 6; TafelArt.Sanduhr -> 3; TafelArt.Paar -> 4; TafelArt.AhnenSeiten -> 7; else -> 13
     }
     fun letzte(): TafelArt = TafelArt.entries.firstOrNull { it.name == prefs.getString("tafel_art", null) } ?: TafelArt.Stamm
     fun laden(art: TafelArt) = TafelOptionen(
@@ -147,7 +148,7 @@ private object TafelWahl {
         ausgangOben = prefs.getBoolean(k(art, "oben"), false),
         nachfahren = (prefs.getString(k(art, "nach"), null)?.toIntOrNull() ?: 3).coerceIn(1, 9),
         namenstraeger = prefs.getBoolean(k(art, "namen"), false),
-        partner = prefs.getBoolean(k(art, "partner"), art in linien || art == TafelArt.Cousins),
+        partner = prefs.getBoolean(k(art, "partner"), art in linien || art == TafelArt.Cousins || art == TafelArt.Paar),
         orte = prefs.getBoolean(k(art, "orte"), false),
         volleDaten = prefs.getBoolean(k(art, "voll"), false),
         waagerecht = art in waagerechtMoeglich && prefs.getBoolean(k(art, "waagerecht"), art == TafelArt.Sanduhr),
@@ -173,8 +174,13 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
     val root = state.root
     val wurzelName = state.detail?.takeIf { it.person.xref == root }?.person?.name ?: state.people.firstOrNull { it.xref == root }?.name.orEmpty()
     var art by remember { mutableStateOf(start ?: TafelWahl.letzte()) }
-    val titelVorgabe = remember(art, wurzelName) { tafelTitel(art, wurzelName) }
+    // Paar: welcher Ehepartner (Familie der Ausgangsperson in Folge), gilt nur fuer diesen Aufruf
+    var paarFamilie by remember(root) { mutableStateOf(0) }
+    var partnerName by remember(root) { mutableStateOf("") }
+    val titelVorgabe = remember(art, wurzelName, partnerName) { tafelTitel(art, wurzelName, partnerName) }
     var o by remember(art) { mutableStateOf(TafelWahl.laden(art).copy(titel = titelVorgabe)) }
+    // Der Titel nennt beim Paar beide Namen - er steht erst fest, wenn der Partner geladen ist
+    LaunchedEffect(titelVorgabe) { if (art == TafelArt.Paar) o = o.copy(titel = titelVorgabe) }
     LaunchedEffect(art, o) { TafelWahl.sichern(art, o) }
     val privat = stringResource(Res.string.person_private)
     val fuss = remember(tree) { fusszeile(appName, tree?.title.orEmpty()) }
@@ -183,18 +189,20 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
     // eingestellt, weil jede Generation ueber sieben weitere Anfragen kostet.
     val ladeTiefe = if (art == TafelArt.Stamm || art == TafelArt.Cousins) maxGen(art) else o.generationen
     val geschwisterLaden = if (art == TafelArt.Ahnen) o.geschwister else 0
-    val daten by produceState<Result<TafelDaten>?>(null, tree?.name, root, art, ladeTiefe, geschwisterLaden) {
+    val paarLaden = if (art == TafelArt.Paar) paarFamilie else 0
+    val daten by produceState<Result<TafelDaten>?>(null, tree?.name, root, art, ladeTiefe, geschwisterLaden, paarLaden) {
         value = null
         value = if (tree == null || root == null) null else withContext(Dispatchers.IO) {
-            runCatching { tafelDatenLaden(viewModel.client, tree.name, root, art, ladeTiefe, geschwisterLaden) }
+            runCatching { tafelDatenLaden(viewModel.client, tree.name, root, art, ladeTiefe, geschwisterLaden, paarLaden) }
         }
     }
+    LaunchedEffect(daten) { daten?.getOrNull()?.takeIf { art == TafelArt.Paar }?.let { d -> partnerName = d.partnerNamen.getOrNull(d.paarFamilie).orEmpty() } }
     // Bilder im Hintergrund laden; jedes fertige Buendel zaehlt hoch und zeichnet die Vorschau neu.
     var bilderStand by remember { mutableStateOf(0) }
     LaunchedEffect(daten, o.bilder) {
         val d = daten?.getOrNull() ?: return@LaunchedEffect
         if (!o.bilder) return@LaunchedEffect
-        val personen = d.ahnen.values.map { it.person } + (d.nachfahren?.let(::nachfahrenPersonen) ?: emptyList()) + (d.mutterseite?.let(::nachfahrenPersonen) ?: emptyList()) + d.geschwister.values.flatten()
+        val personen = d.ahnen.values.map { it.person } + (d.nachfahren?.let(::nachfahrenPersonen) ?: emptyList()) + (d.mutterseite?.let(::nachfahrenPersonen) ?: emptyList()) + d.partnerAhnen.values.map { it.person } + d.geschwister.values.flatten()
         val urls = personen.mapNotNull { it.thumb }.distinct().filter { TafelBilder.bekannt(it) == null }
         urls.chunked(8).forEach { gruppe ->
             withContext(Dispatchers.IO) { gruppe.forEach { TafelBilder.laden(it) } }
@@ -238,7 +246,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     listOf(
                         Res.string.desk_chart_group_ancestors to listOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Faecher, TafelArt.Kreis, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester),
                         Res.string.desk_chart_group_descendants to listOf(TafelArt.Stamm, TafelArt.Cousins),
-                        Res.string.desk_chart_group_both to listOf(TafelArt.Sanduhr),
+                        Res.string.desk_chart_group_both to listOf(TafelArt.Sanduhr, TafelArt.Paar),
                     ).forEachIndexed { i, (gruppe, arten) ->
                         if (i > 0) Spacer(Modifier.height(8.dp))
                         ArtGruppe(stringResource(gruppe))
@@ -252,10 +260,16 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     Text(stringResource(artTexte.getValue(art).second), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Einstellung(stringResource(Res.string.desk_chart_person)) { Text(wurzelName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold) }
-                    Einstellung(stringResource(if (art == TafelArt.Sanduhr) Res.string.desk_chart_generations_anc else Res.string.desk_chart_generations)) {
+                    // Paar: mit mehreren Ehen waehlbar, welcher Partner neben der Person steht
+                    val partnerNamen = daten?.getOrNull()?.takeIf { art == TafelArt.Paar }?.partnerNamen.orEmpty()
+                    if (partnerNamen.size > 1) Einstellung(stringResource(Res.string.desk_chart_couple_partner)) {
+                        val werte = partnerNamen.mapIndexed { i, n -> "${i + 1}. $n" }
+                        Auswahl(werte[paarFamilie.coerceIn(0, werte.size - 1)], werte) { w -> paarFamilie = werte.indexOf(w) }
+                    }
+                    Einstellung(stringResource(if (art == TafelArt.Sanduhr || art == TafelArt.Paar) Res.string.desk_chart_generations_anc else Res.string.desk_chart_generations)) {
                         Auswahl(o.generationen.toString(), (minGen(art)..maxGen(art)).map { it.toString() }) { o = o.copy(generationen = it.toInt()) }
                     }
-                    if (art == TafelArt.Sanduhr) Einstellung(stringResource(Res.string.desk_chart_generations_desc)) {
+                    if (art == TafelArt.Sanduhr || art == TafelArt.Paar) Einstellung(stringResource(Res.string.desk_chart_generations_desc)) {
                         Auswahl(o.nachfahren.toString(), (1..9).map { it.toString() }) { o = o.copy(nachfahren = it.toInt()) }
                     }
                     Einstellung(stringResource(Res.string.desk_chart_style)) {
@@ -279,7 +293,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         Auswahl(werte[o.geschwister], werte) { w -> o = o.copy(geschwister = werte.indexOf(w)) }
                     }
                     if (art == TafelArt.Stamm || art == TafelArt.Sanduhr) Haken(stringResource(Res.string.desk_chart_name_bearers), o.namenstraeger) { o = o.copy(namenstraeger = it) }
-                    if (art == TafelArt.Stamm || art == TafelArt.Sanduhr || art == TafelArt.Cousins) Haken(stringResource(Res.string.desk_chart_spouses), o.partner) { o = o.copy(partner = it) }
+                    if (art == TafelArt.Stamm || art == TafelArt.Sanduhr || art == TafelArt.Cousins || art == TafelArt.Paar) Haken(stringResource(Res.string.desk_chart_spouses), o.partner) { o = o.copy(partner = it) }
                     if (art in linien) Haken(stringResource(Res.string.desk_chart_both_parents), o.partner) { o = o.copy(partner = it) }
                     if (art !in kreise) {
                         Haken(stringResource(Res.string.desk_chart_places), o.orte) { o = o.copy(orte = it) }

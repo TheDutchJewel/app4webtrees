@@ -46,11 +46,11 @@ class TafelPerson(
 
 /**
  * Stammtafel: Ausgangsperson oben, Nachfahren darunter. Ahnentafel: Ausgangsperson unten, Vorfahren darueber.
- * Sanduhr: beides. Linien (Stammlinie, Mutterstamm, aeltester Vorfahr): eine Folge von Elternpaaren.
+ * Sanduhr: beides. Paar: die Vorfahren beider Partner oben nebeneinander, die gemeinsamen Nachfahren darunter. Linien (Stammlinie, Mutterstamm, aeltester Vorfahr): eine Folge von Elternpaaren.
  * AhnenSeiten: die Ahnentafel in Stuecken zu vier Generationen je A4-Seite. Faecher und Kreis: Ringe um den
  * Probanden (Faechertafel.kt).
  */
-enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, Cousins, Sanduhr }
+enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, Cousins, Sanduhr, Paar }
 
 enum class TafelStil { Pergament, Klassisch, Farbig, Schwarzweiss }
 
@@ -64,7 +64,7 @@ data class TafelOptionen(
     val titel: String = "",
     /** Nur Ahnentafel: Ausgangsperson oben, die Vorfahren darunter. */
     val ausgangOben: Boolean = false,
-    /** Nur Sanduhr: Generationen der Nachfahren ([generationen] zaehlt dort die Vorfahren). */
+    /** Nur Sanduhr und Paar: Generationen der Nachfahren ([generationen] zaehlt dort die Vorfahren). */
     val nachfahren: Int = 3,
     /** Stammtafel, Sanduhr: nur die Kinder der Soehne weiterverfolgen. */
     val namenstraeger: Boolean = false,
@@ -84,7 +84,18 @@ data class TafelOptionen(
 )
 
 /** Was eine Tafel zeichnet: Vorfahren nach oben, Nachfahren nach unten (je nach Art einer oder beide Teile). */
-class TafelInhalt(val vorfahren: TafelPerson? = null, val nachfahren: TafelPerson? = null, val linie: Boolean = false, val cousins: CousinTafel? = null)
+class TafelInhalt(
+    val vorfahren: TafelPerson? = null, val nachfahren: TafelPerson? = null, val linie: Boolean = false, val cousins: CousinTafel? = null,
+    val paar: PaarTafel? = null,
+)
+
+/**
+ * Sanduhr eines Paares (A4, 28.09.2026): die Ahnentafeln von [mann] und [frau] (Kekule-Nummern je Partner ab 1)
+ * nach oben, nebeneinander; das Paar in einer Reihe mit Heiratslinie, darunter die gemeinsamen [kinder].
+ */
+class PaarTafel(val mann: TafelPerson, val frau: TafelPerson, val kinder: List<TafelPerson>) {
+    fun knoten(): List<TafelPerson> = alleKnoten(mann) + alleKnoten(frau) + kinder.flatMap(::alleKnoten)
+}
 
 /**
  * Nachfahren der Grosseltern (A1, 28.09.2026): links die Grosseltern vaeterlicherseits mit ihren Nachfahren, rechts

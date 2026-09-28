@@ -575,6 +575,10 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_chart_hourglass">Hourglass chart</string>
     <string name="desk_chart_hourglass_hint">Ancestors above and descendants below the starting person, on one sheet.</string>
     <string name="desk_chart_title_hourglass">Hourglass chart %1$s</string>
+    <string name="desk_chart_couple">Couple hourglass</string>
+    <string name="desk_chart_couple_hint">The ancestors of both partners side by side, the couple in the middle, their common descendants below. Kekulé numbers count from 1 for each partner.</string>
+    <string name="desk_chart_couple_partner">Spouse</string>
+    <string name="desk_chart_title_couple">%1$s and %2$s</string>
     <string name="desk_chart_ancestors_pages">Ancestor chart (pages)</string>
     <string name="desk_chart_ancestors_pages_hint">Four generations per A4 page in landscape. Above each person of the top row it says on which page their ancestors continue – for a binder or a book.</string>
     <string name="desk_chart_paternal">Paternal line</string>

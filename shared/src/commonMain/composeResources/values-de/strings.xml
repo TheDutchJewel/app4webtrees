@@ -570,6 +570,10 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_hourglass">Sanduhr</string>
     <string name="desk_chart_hourglass_hint">Vorfahren über und Nachfahren unter dem Probanden, auf einem Blatt.</string>
     <string name="desk_chart_title_hourglass">Sanduhr %1$s</string>
+    <string name="desk_chart_couple">Sanduhr eines Paares</string>
+    <string name="desk_chart_couple_hint">Die Vorfahren beider Partner nebeneinander, das Paar in der Mitte, darunter die gemeinsamen Nachfahren. Die Kekule-Nummern zählen je Partner ab 1.</string>
+    <string name="desk_chart_couple_partner">Ehepartner</string>
+    <string name="desk_chart_title_couple">%1$s und %2$s</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

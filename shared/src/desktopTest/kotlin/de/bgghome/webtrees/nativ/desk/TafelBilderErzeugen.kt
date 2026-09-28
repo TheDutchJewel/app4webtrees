@@ -64,9 +64,11 @@ class TafelBilderErzeugen {
                 ausgangOben = "oben" in schalter, waagerecht = "quer" in schalter, bilder = "ohnebild" !in schalter, gitter = "gitter" in schalter, verzeichnis = "verz" in schalter, kurven = "kurven" in schalter, geschwister = if ("geschwalle" in schalter) 2 else if ("geschw" in schalter) 1 else 0, namenstraeger = "namen" in schalter, nummern = "ohnenr" !in schalter,
                 nachfahren = schalter.firstOrNull { it.startsWith("nach") }?.drop(4)?.toInt() ?: 3,
             )
-            val daten = runBlocking { tafelDatenLaden(client, baumName, xref, art, if (art == TafelArt.Stamm || art == TafelArt.Cousins) maxGen(art) else o0.generationen, o0.geschwister) }
+            // Schalter "ehe2": beim Paar die zweite Familie der Person
+            val ehe = schalter.firstOrNull { it.startsWith("ehe") }?.drop(3)?.toInt()?.minus(1) ?: 0
+            val daten = runBlocking { tafelDatenLaden(client, baumName, xref, art, if (art == TafelArt.Stamm || art == TafelArt.Cousins) maxGen(art) else o0.generationen, o0.geschwister, ehe) }
             val name0 = daten.ahnen[1L]?.person?.name ?: daten.nachfahren?.person?.name.orEmpty()
-            val o = o0.copy(titel = tafelTitel(art, name0))
+            val o = o0.copy(titel = tafelTitel(art, name0, daten.partnerNamen.getOrNull(daten.paarFamilie).orEmpty()))
             val (doc, groesse) = tafelErzeugen(art, daten, o, ::bild, "Privat", fusszeile("wtTux", baumTitel))!!
             // Schalter "blatt": zusaetzlich der Druckweg "auf ein Blatt" (A4), um die Uebernahme der Schriften zu pruefen
             val blatt = if ("blatt" in schalter) ByteArrayOutputStream().also { out -> aufEinBlatt(doc).use { it.save(out) } }.toByteArray() else null
