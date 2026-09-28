@@ -24,20 +24,18 @@
 
 <p align="center">
   <img src="docs/screenshots/desktop-tafel-fenster.jpg" alt="wtTux: chart window with ancestor circle over seven generations" width="100%">
-  <br><b>Charts</b> – chart type, generations, style (parchment, classic, colour, black and white), pictures and Kekule numbers; the preview is the finished sheet, ready to print or save as PDF. From 1.24 with colour rules and a legend, large prints on A4 sheets with an assembly plan or as a PDF for the plotter, and a card for every person; from 1.25 with box shapes, decorative frames and backgrounds, selectable box content, filters, templates and zoom in the preview.
+  <br><b>Charts</b> – choose a chart type, style it (style, box shape, background, frame, colours, legend), set its content; the preview is the finished sheet, to print, as PDF, on A4 sheets to glue, for the plotter or as a picture.
 </p>
 
-| <img src="docs/screenshots/tafel-stammtafel.jpg" alt="Descendant chart of Johann Heinrich Falkenrath over four generations" width="100%"> | <img src="docs/screenshots/tafel-ahnentafel.jpg" alt="Ancestor chart of Jonas Falkenrath over five generations with Kekule numbers" width="100%"> |
+| <img src="docs/screenshots/tafel-ahnentafel.jpg" alt="Ancestor chart of Jonas Falkenrath coloured by grandparent lines with legend" width="100%"> | <img src="docs/screenshots/tafel-stammtafel.jpg" alt="Descendant chart of Johann Heinrich Falkenrath with oval boxes" width="100%"> |
 | :-: | :-: |
-| **Descendant chart** – all descendants on one sheet | **Ancestor chart** – root person at the bottom, Kekule numbers |
-| <img src="docs/screenshots/tafel-ahnenkreis.jpg" alt="Ancestor circle of Jonas Falkenrath over seven generations, coloured by grandparent lines" width="100%"> | <img src="docs/screenshots/tafel-faechertafel.jpg" alt="Fan chart of Jonas Falkenrath over six generations" width="100%"> |
-| **Ancestor circle** – seven generations, the four grandparent lines in colour, pedigree collapse as “= 74” | **Fan chart** – the half circle, here six generations |
-| <img src="docs/screenshots/tafel-cousins.jpg" alt="Descendants of the grandparents of Jonas Falkenrath, coloured by branch, with legend" width="100%"> | <img src="docs/screenshots/tafel-paar.jpg" alt="Hourglass of the couple Bernd Falkenrath and Karin Ilgner with the ancestors of both and their common descendants" width="100%"> |
-| **Descendants of the grandparents** – uncles, aunts, cousins; the parents side by side in the middle | **Couple hourglass** – the ancestors of both, their common descendants below |
-| <img src="docs/screenshots/tafel-verwandt.jpg" alt="Relationship chart of Jonas Falkenrath: the descendants of the four great-grandparent couples side by side" width="100%"> | <img src="docs/screenshots/tafel-montageplan.jpg" alt="Assembly plan of an ancestor chart on six A4 sheets" width="100%"> |
-| **Relationship chart** – all blood relatives from the great-grandparents, duplicates as grid references | **Large print** – assembly plan for the sheets to glue together |
-| <img src="docs/screenshots/tafel-zeitleiste.jpg" alt="Timeline of the ancestors of Jonas Falkenrath with life bars, grandparent lines in colour and historical events" width="100%"> | <img src="docs/screenshots/tafel-verwandtschaftsweg.jpg" alt="Relationship path between Jonas Falkenrath and Florian Ahlers: first cousins via Friedrich Ilgner" width="100%"> |
-| **Timeline** – who lived when, with historical events (from 1.25) | **Relationship path** – how two people are related (from 1.25) |
+| **Ancestor chart** – ancestors, Kekulé numbers, colours by line | **Descendant chart** – all descendants on one sheet |
+| <img src="docs/screenshots/tafel-ahnenkreis.jpg" alt="Ancestor circle of Jonas Falkenrath over seven generations" width="100%"> | <img src="docs/screenshots/tafel-zeitleiste.jpg" alt="Timeline of the ancestors of Jonas Falkenrath with historical events" width="100%"> |
+| **Ancestor circle** – seven generations in a circle | **Timeline** – who lived when |
+| <img src="docs/screenshots/tafel-verwandtschaftsweg.jpg" alt="Relationship path between Jonas Falkenrath and Florian Ahlers" width="100%"> | <img src="docs/screenshots/tafel-montageplan.jpg" alt="Assembly plan of an ancestor chart on six A4 sheets" width="100%"> |
+| **Relationship path** – how two people are related | **Large print** – sheets to glue or plotter |
+
+**[All 15 chart types with examples →](docs/TAFELN.en.md)** Ancestor chart (also on pages), fan chart, ancestor circle, timeline, paternal line, maternal line, oldest ancestor, descendant chart (also on pages), descendants of the grandparents, hourglass, couple hourglass, relationship chart, relationship path.
 
 <p align="center">
   <img src="docs/screenshots/desktop-pruefung.jpg" alt="wtTux: plausibility check window with preset and findings in the demo tree" width="100%">
