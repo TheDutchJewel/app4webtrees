@@ -120,6 +120,9 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
     val zeilenName = HashMap<Int, String>().also { m ->
         gezeichnet.forEach { (t, pl) -> m.putIfAbsent(t.reihe(pl), roemisch(if (beideRichtungen) t.reihe(pl) + 1 else pl.ebene + 1)) }
     }
+    /** Farbe je Platz (TafelFarben.kt); fehlt ein Platz, gilt die Farbe des Stils. */
+    val farben: Map<TafelPlatz, Int> = kastenFarben(this)
+
     fun position(t: TafelTeil, pl: TafelPlatz) = "${spalteName((t.x(pl) / zelle).toInt())} ${zeilenName[t.reihe(pl)].orEmpty()}"
     /** Alle Gitterpositionen je Person. */
     val positionen = gezeichnet.filter { it.second.knoten.person.xref.isNotEmpty() }.groupBy({ it.second.knoten.person.xref }, { position(it.first, it.second) })
@@ -172,6 +175,10 @@ internal class TafelBlatt(a: TafelAnordnung, titelSchrift: PDFont) {
     val y0 = rand + titelH + gitterRand
     /** PDF zaehlt y von unten. */
     fun py(y: Float) = h - y
+    /** Linke obere Ecke einer Karte, y von oben (vor der Verkleinerung). */
+    fun karteEcke(a: TafelAnordnung, t: TafelTeil, pl: TafelPlatz): Pair<Float, Float> = with(a) {
+        if (w) (x0 + t.oberkante(pl)) to (y0 + t.x(pl) - masse.karteH / 2) else (x0 + t.x(pl) - masse.karteB / 2) to (y0 + t.oberkante(pl))
+    }
     /** Punkt aus Generations- und Querachse in PDF-Koordinaten (vor der Verkleinerung). */
     fun px(g: Float, q: Float) = x0 + if (w) g else q
     fun pyv(g: Float, q: Float) = py(y0 + if (w) q else g)
@@ -365,9 +372,7 @@ private class TafelZeichner(
     fun karte(t: TafelTeil, platz: TafelPlatz) = with(a) {
         val k = platz.knoten
         val p = k.person
-        // Karte: linke obere Ecke auf dem Blatt (y von oben)
-        val karteL = if (w) bl.x0 + t.oberkante(platz) else bl.x0 + t.x(platz) - m.karteB / 2
-        val karteO = if (w) bl.y0 + t.x(platz) - m.karteH / 2 else bl.y0 + t.oberkante(platz)
+        val (karteL, karteO) = bl.karteEcke(a, t, platz)
         // Senkrecht: Bild oben mittig, Kasten darunter. Waagerecht: Bild links, Kasten rechts daneben, beide mittig.
         val bildL = if (w) karteL else karteL + (m.karteB - m.bild) / 2
         val oben = if (w) karteO + (m.karteH - m.bild) / 2 else karteO
@@ -404,7 +409,8 @@ private class TafelZeichner(
         }
         // Kasten
         val ky = if (w) karteO + (m.karteH - m.kastenH) / 2 else oben + m.bild + m.bildAbstand
-        cs.setNonStrokingColor(f.fuellung(p.sex)); cs.setStrokingColor(f.rahmen(p.sex)); cs.setLineWidth(f.rahmenBreite)
+        val eigen = farben[platz]?.let { KASTEN_FARBEN[it.coerceIn(0, KASTEN_FARBEN.size - 1)] }
+        cs.setNonStrokingColor(eigen?.fuellung ?: f.fuellung(p.sex)); cs.setStrokingColor(eigen?.rahmen ?: f.rahmen(p.sex)); cs.setLineWidth(f.rahmenBreite)
         cs.rechteck(links + f.rahmenBreite / 2, bl.py(ky + m.kastenH), m.rahmen - f.rahmenBreite, m.kastenH, if (f.rund) m.rahmen * 0.05f else 0f); cs.fillAndStroke()
         if (!o.bilder) schildText?.let { schild(it, links + m.rahmen, bl.py(ky)) }
         // Kekule-Nummer klein oben links im Kasten; die erste Zeile weicht ihr beidseitig aus
@@ -456,7 +462,12 @@ fun tafelPdf(
         }
     }
     if (o.verzeichnis) tafelVerzeichnis(doc, o.titel, verzeichnisEintraege(a, bl))
-    val info = TafelInfo(a.gezeichnet.map { it.second.knoten.person.xref }.distinct().size, (bl.b * bl.skala / 72f * 2.54f).toInt(), (bl.h * bl.skala / 72f * 2.54f).toInt())
+    val karten = a.gezeichnet.map { (t, pl) ->
+        val (l, oben) = bl.karteEcke(a, t, pl)
+        KartenOrt(pl.knoten.person, l * bl.skala, oben * bl.skala, a.masse.karteB * bl.skala, a.masse.karteH * bl.skala)
+    }
+    val info = TafelInfo(a.gezeichnet.map { it.second.knoten.person.xref }.distinct().size, (bl.b * bl.skala / 72f * 2.54f).toInt(), (bl.h * bl.skala / 72f * 2.54f).toInt(),
+        seiteB = bl.b * bl.skala, seiteH = bl.h * bl.skala, karten = karten)
     return doc to info
 }
 

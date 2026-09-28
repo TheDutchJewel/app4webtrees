@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -124,6 +125,11 @@ private val kreise = setOf(TafelArt.Faecher, TafelArt.Kreis)
 /** Tafeln mit Gitter, Personenverzeichnis und Kurven fuer Doppelte (nicht Kreise und die seitenweise Ahnentafel). */
 private val mitGitterArten = setOf(TafelArt.Ahnen, TafelArt.Stamm, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester)
 
+/** Tafeln mit Kastenfarben (Regeln, Zweige); [linienArten] kennen Kekule-Nummern, [zweigArten] Nachfahren. */
+private val farbArten = mitGitterArten + TafelArt.AhnenSeiten + TafelArt.Paar
+private val linienArten = setOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester)
+private val zweigArten = setOf(TafelArt.Stamm, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar)
+
 /** Tafeln, die auch waagerecht gehen (Linien bleiben senkrecht). */
 private val waagerechtMoeglich = setOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Stamm, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar)
 
@@ -154,6 +160,7 @@ private object TafelWahl {
         waagerecht = art in waagerechtMoeglich && prefs.getBoolean(k(art, "waagerecht"), art == TafelArt.Sanduhr),
         geschwister = (prefs.getString(k(art, "geschw"), null)?.toIntOrNull() ?: 0).coerceIn(0, 2),
         gitter = prefs.getBoolean(k(art, "gitter"), false), verzeichnis = prefs.getBoolean(k(art, "verz"), false), kurven = prefs.getBoolean(k(art, "kurven"), false),
+        farbe = FarbSchema.entries.firstOrNull { it.name == prefs.getString(k(art, "farbe"), null) } ?: FarbSchema.Geschlecht,
     )
     fun sichern(art: TafelArt, o: TafelOptionen) {
         prefs.putString("tafel_art", art.name)
@@ -164,6 +171,7 @@ private object TafelWahl {
         prefs.putBoolean(k(art, "partner"), o.partner); prefs.putBoolean(k(art, "orte"), o.orte); prefs.putBoolean(k(art, "voll"), o.volleDaten)
         prefs.putBoolean(k(art, "waagerecht"), o.waagerecht); prefs.putString(k(art, "geschw"), o.geschwister.toString())
         prefs.putBoolean(k(art, "gitter"), o.gitter); prefs.putBoolean(k(art, "verz"), o.verzeichnis); prefs.putBoolean(k(art, "kurven"), o.kurven)
+        prefs.putString(k(art, "farbe"), o.farbe.name)
     }
 }
 
@@ -182,6 +190,12 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
     // Der Titel nennt beim Paar beide Namen - er steht erst fest, wenn der Partner geladen ist
     LaunchedEffect(titelVorgabe) { if (art == TafelArt.Paar) o = o.copy(titel = titelVorgabe) }
     LaunchedEffect(art, o) { TafelWahl.sichern(art, o) }
+    // Farbregeln und gefaerbte Zweige gelten fuer alle Tafeln des Stammbaums
+    val baumName = tree?.name.orEmpty()
+    var regeln by remember(baumName) { mutableStateOf(TafelFarbSpeicher.regeln(baumName)) }
+    var zweige by remember(baumName) { mutableStateOf(TafelFarbSpeicher.zweige(baumName)) }
+    LaunchedEffect(baumName, regeln, zweige) { if (baumName.isNotEmpty()) TafelFarbSpeicher.sichern(baumName, regeln, zweige) }
+    val oVoll = o.copy(regeln = regeln, zweige = zweige)
     val privat = stringResource(Res.string.person_private)
     val fuss = remember(tree) { fusszeile(appName, tree?.title.orEmpty()) }
 
@@ -209,14 +223,14 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
             bilderStand++
         }
     }
-    fun erzeugen() = daten?.getOrNull()?.let { d -> tafelErzeugen(art, d, o, { p -> p.thumb?.let(TafelBilder::bekannt) }, privat, fuss) }
+    fun erzeugen() = daten?.getOrNull()?.let { d -> tafelErzeugen(art, d, oVoll, { p -> p.thumb?.let(TafelBilder::bekannt) }, privat, fuss) }
 
     // Vorschau: das Blatt als Bild, kurz verzoegert, damit schnelles Umstellen nicht jedes Mal rendert. Das PDF wird
     // dafuer einmal gespeichert und neu geladen - erst beim Speichern bettet PDFBox die Schriften ein, vorher zeichnet
     // der Renderer den Titel in einer Ersatzschrift. [gross]: Blatt in Lesegroesse, rollbar.
     var vorschauPx by remember { mutableStateOf(1000 to 800) }
     var gross by remember { mutableStateOf(false) }
-    val vorschau by produceState<Result<Pair<ImageBitmap, TafelInfo>?>?>(null, daten, o, art, bilderStand, vorschauPx, gross) {
+    val vorschau by produceState<Result<Pair<ImageBitmap, TafelInfo>?>?>(null, daten, oVoll, art, bilderStand, vorschauPx, gross) {
         delay(150)
         if (daten?.getOrNull() == null) { value = null; return@produceState }
         value = withContext(Dispatchers.Default) {
@@ -299,6 +313,10 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         Haken(stringResource(Res.string.desk_chart_places), o.orte) { o = o.copy(orte = it) }
                         Haken(stringResource(Res.string.desk_chart_full_dates), o.volleDaten) { o = o.copy(volleDaten = it) }
                     }
+                    if (art in farbArten) FarbEinstellungen(
+                        o, art in linienArten, art in zweigArten, { o = o.copy(farbe = it) },
+                        regeln, { regeln = it }, zweige.size, { zweige = emptyMap() },
+                    )
                     OutlinedTextField(o.titel, { o = o.copy(titel = it) }, label = { Text(stringResource(Res.string.desk_chart_heading)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     val info = vorschau?.getOrNull()?.second
                     info?.let {
@@ -330,6 +348,20 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     LaunchedEffect(px) { vorschauPx = px }
                     val fehler = daten?.exceptionOrNull() ?: vorschau?.exceptionOrNull()
                     val bild = vorschau?.getOrNull()?.first
+                    val info = vorschau?.getOrNull()?.second
+                    // Rechtsklick auf einen Kasten: Stelle im Bild (Pixel) -> Punkt auf der Seite -> Karte darunter
+                    var menue by remember { mutableStateOf<Pair<KartenOrt, androidx.compose.ui.unit.DpOffset>?>(null) }
+                    fun klick(imBild: androidx.compose.ui.geometry.Offset, anker: androidx.compose.ui.geometry.Offset) {
+                        if (bild == null || info == null || info.karten.isEmpty() || art !in farbArten) return
+                        val x = imBild.x / bild.width * info.seiteB; val y = imBild.y / bild.height * info.seiteH
+                        val karte = info.karten.firstOrNull { it.enthaelt(x, y) && it.person.xref.isNotEmpty() && !it.person.isPrivate } ?: return
+                        menue = karte to with(dichte) { androidx.compose.ui.unit.DpOffset(anker.x.toDp(), anker.y.toDp()) }
+                    }
+                    Box(Modifier.align(Alignment.TopStart)) {
+                        ZweigMenue(menue?.first, menue?.second ?: androidx.compose.ui.unit.DpOffset.Zero, menue?.first?.person?.xref in zweige,
+                            onWahl = { f -> menue?.first?.person?.xref?.let { x -> zweige = if (f == null) zweige - x else zweige + (x to f) }; menue = null },
+                            onZu = { menue = null })
+                    }
                     when {
                         fehler != null -> Text(fehler.message ?: "?", color = androidx.compose.ui.graphics.Color.White)
                         vorschau != null && bild == null -> Text(stringResource(Res.string.desk_chart_empty), color = androidx.compose.ui.graphics.Color.White)
@@ -343,12 +375,23 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                             // Beginnt mittig oben - dort steht die Ausgangsperson
                             LaunchedEffect(bild.width, quer.maxValue) { if (quer.value == 0) quer.scrollTo(quer.maxValue / 2) }
                             Box(Modifier.fillMaxSize().horizontalScroll(quer).verticalScroll(hoch)) {
-                                Image(bild, contentDescription = null, modifier = Modifier.size(dp.first, dp.second).clickable { gross = false })
+                                Image(bild, contentDescription = null, modifier = Modifier.size(dp.first, dp.second).clickable { gross = false }
+                                    .rechtsklick { p -> klick(p, androidx.compose.ui.geometry.Offset(p.x - quer.value, p.y - hoch.value)) })
                             }
                             SenkrechteLeiste(hoch)
                             WaagerechteLeiste(quer)
                         }
-                        else -> Image(bild, contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().clickable { gross = true })
+                        else -> {
+                            // Eingepasst: das Bild steht verkleinert und mittig im Element
+                            var groesse by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+                            Image(bild, contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize()
+                                .onSizeChanged { groesse = it }.clickable { gross = true }
+                                .rechtsklick { p ->
+                                    val s = minOf(groesse.width.toFloat() / bild.width, groesse.height.toFloat() / bild.height)
+                                    val links = (groesse.width - bild.width * s) / 2; val oben = (groesse.height - bild.height * s) / 2
+                                    klick(androidx.compose.ui.geometry.Offset((p.x - links) / s, (p.y - oben) / s), p)
+                                })
+                        }
                     }
                 }
             }

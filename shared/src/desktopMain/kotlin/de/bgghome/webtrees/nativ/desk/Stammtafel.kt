@@ -81,6 +81,10 @@ data class TafelOptionen(
     val gitter: Boolean = false,
     val verzeichnis: Boolean = false,
     val kurven: Boolean = false,
+    /** Farben (TafelFarben.kt): Schema beim Stil "Farbig", Regeln und gefaerbte Zweige (xref -> Farbe) des Stammbaums. */
+    val farbe: FarbSchema = FarbSchema.Geschlecht,
+    val regeln: List<FarbRegel> = emptyList(),
+    val zweige: Map<String, Int> = emptyMap(),
 )
 
 /** Was eine Tafel zeichnet: Vorfahren nach oben, Nachfahren nach unten (je nach Art einer oder beide Teile). */
@@ -361,7 +365,16 @@ internal fun passend(schrift: PDFont, text: String, groesse: Float, breite: Floa
 internal const val PDF_MAX = 14400f
 
 /** Masse des Blatts in Zentimetern und die Personenzahl, fuer die Anzeige im Fenster. [seiten] > 0: A4-Seiten. */
-class TafelInfo(val personen: Int, val breiteCm: Int, val hoeheCm: Int, val seiten: Int = 0)
+class TafelInfo(
+    val personen: Int, val breiteCm: Int, val hoeheCm: Int, val seiten: Int = 0,
+    /** Einblattige Tafeln: Groesse der Seite und die Karten darauf in Punkt (y von oben), fuer Klicks in der Vorschau. */
+    val seiteB: Float = 0f, val seiteH: Float = 0f, val karten: List<KartenOrt> = emptyList(),
+)
+
+/** Wo die Karte einer Person auf der Seite steht (Punkt, y von oben). */
+class KartenOrt(val person: Person, val x: Float, val y: Float, val b: Float, val h: Float) {
+    fun enthaelt(px: Float, py: Float) = px in x..(x + b) && py in y..(y + h)
+}
 
 internal fun alleKnoten(k: TafelPerson): List<TafelPerson> = listOf(k) + k.kinder.flatMap(::alleKnoten)
 

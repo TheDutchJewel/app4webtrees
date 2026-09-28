@@ -63,6 +63,10 @@ class TafelBilderErzeugen {
                 partner = "partner" in schalter || (art in setOf(TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester) && "allein" !in schalter),
                 ausgangOben = "oben" in schalter, waagerecht = "quer" in schalter, bilder = "ohnebild" !in schalter, gitter = "gitter" in schalter, verzeichnis = "verz" in schalter, kurven = "kurven" in schalter, geschwister = if ("geschwalle" in schalter) 2 else if ("geschw" in schalter) 1 else 0, namenstraeger = "namen" in schalter, nummern = "ohnenr" !in schalter,
                 nachfahren = schalter.firstOrNull { it.startsWith("nach") }?.drop(4)?.toInt() ?: 3,
+                // Farben: "linie"/"zweig" als Schema, "regel=Feld/enthaelt|gleich/Text/Farbe", "markiert=I8/4"
+                farbe = if ("linie" in schalter) FarbSchema.Linie else if ("zweig" in schalter) FarbSchema.Zweig else FarbSchema.Geschlecht,
+                regeln = schalter.filter { it.startsWith("regel=") }.map { r -> r.drop(6).split('/').let { (fe, v, t, c) -> FarbRegel(RegelFeld.valueOf(fe), v == "enthaelt", t, c.toInt()) } },
+                zweige = schalter.filter { it.startsWith("markiert=") }.associate { m -> m.drop(9).split('/').let { (x, c) -> x to c.toInt() } },
             )
             // Schalter "ehe2": beim Paar die zweite Familie der Person
             val ehe = schalter.firstOrNull { it.startsWith("ehe") }?.drop(3)?.toInt()?.minus(1) ?: 0
@@ -73,7 +77,7 @@ class TafelBilderErzeugen {
             // Schalter "blatt": zusaetzlich der Druckweg "auf ein Blatt" (A4), um die Uebernahme der Schriften zu pruefen
             val blatt = if ("blatt" in schalter) ByteArrayOutputStream().also { out -> aufEinBlatt(doc).use { it.save(out) } }.toByteArray() else null
             val bytes = ByteArrayOutputStream().also { out -> doc.use { it.save(out) } }.toByteArray()
-            val name = "tafel-${art.name.lowercase()}-$xref-$gen-${stilName.lowercase()}" + (teile.getOrNull(4)?.let { "-" + it.replace(',', '-') } ?: "")
+            val name = "tafel-${art.name.lowercase()}-$xref-$gen-${stilName.lowercase()}" + (teile.getOrNull(4)?.let { "-" + it.replace(',', '-').replace('/', '_').replace("=", "") } ?: "")
             File(ziel, "$name.pdf").writeBytes(bytes)
             // Druckweg "auf ein Blatt" (mit angehaengten Verzeichnisseiten) zur Kontrolle
             if ("blatt" in schalter) ByteArrayOutputStream().also { out -> aufEinBlatt(Loader.loadPDF(bytes)).use { it.save(out) } }.toByteArray().let { File(ziel, "$name-blatt.pdf").writeBytes(it) }
