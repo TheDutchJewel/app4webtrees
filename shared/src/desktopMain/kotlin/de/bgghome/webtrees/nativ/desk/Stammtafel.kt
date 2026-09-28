@@ -510,9 +510,9 @@ fun ausklappSeite(original: PDDocument, ziel: PDDocument) {
 fun aufEinBlatt(poster: PDDocument): PDDocument = PDDocument().also { aufEinBlatt(poster, it) }
 
 /** Wie [aufEinBlatt], haengt die Seite aber an [ziel] an (fuer mehrseitige Tafeln). */
-fun aufEinBlatt(original: PDDocument, ziel: PDDocument, querErzwingen: Boolean = false) {
+fun aufEinBlatt(original: PDDocument, ziel: PDDocument, querErzwingen: Boolean = false, karten: List<KartenOrt> = emptyList()): List<KartenOrt> {
     val poster = eingebettet(original)
-    try { aufEinBlattSeite(poster, ziel, querErzwingen) } finally { anhangSeiten(poster, ziel) }
+    try { return aufEinBlattSeite(poster, ziel, querErzwingen, karten) } finally { anhangSeiten(poster, ziel) }
 }
 
 /** Seiten hinter dem Blatt (Personenverzeichnis) unveraendert anhaengen, ohne Links auf das Poster. */
@@ -520,7 +520,8 @@ internal fun anhangSeiten(poster: PDDocument, ziel: PDDocument) {
     for (i in 1 until poster.numberOfPages) ziel.importPage(poster.getPage(i)).annotations = emptyList()
 }
 
-private fun aufEinBlattSeite(poster: PDDocument, ziel: PDDocument, querErzwingen: Boolean) {
+/** Das Blatt eingepasst auf eine neue Seite; [karten] (y von oben) kommen umgerechnet auf diese Seite zurueck. */
+private fun aufEinBlattSeite(poster: PDDocument, ziel: PDDocument, querErzwingen: Boolean, karten: List<KartenOrt> = emptyList()): List<KartenOrt> {
     val quelle = poster.getPage(0).mediaBox
     val a4 = PDRectangle.A4
     val quer = querErzwingen || quelle.width > quelle.height
@@ -529,10 +530,13 @@ private fun aufEinBlattSeite(poster: PDDocument, ziel: PDDocument, querErzwingen
     val form = LayerUtility(ziel).importPageAsForm(poster, 0)
     val page = PDPage(format); ziel.addPage(page)
     val f = minOf((format.width - 2 * rand) / quelle.width, (format.height - 2 * rand) / quelle.height, 1f)
+    val tx = (format.width - quelle.width * f) / 2; val ty = (format.height - quelle.height * f) / 2
     PDPageContentStream(ziel, page).use { cs ->
         cs.saveGraphicsState()
-        cs.transform(Matrix.getTranslateInstance((format.width - quelle.width * f) / 2, (format.height - quelle.height * f) / 2))
+        cs.transform(Matrix.getTranslateInstance(tx, ty))
         cs.transform(Matrix.getScaleInstance(f, f))
         cs.drawForm(form); cs.restoreGraphicsState()
     }
+    // Karte (y von oben im Poster) -> Seite: x = tx + x*f, Oberkante von unten = ty + (H - y)*f
+    return karten.map { k -> KartenOrt(k.person, tx + k.x * f, format.height - (ty + (quelle.height - k.y) * f), k.b * f, k.h * f) }
 }

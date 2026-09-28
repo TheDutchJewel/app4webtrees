@@ -623,7 +623,7 @@ fun tafelPdf(
     if (details != null) {
         val personen = karten.map { it.person }.filter { it.xref.isNotEmpty() && !it.isPrivate }.distinctBy { it.xref }
             .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { registerName(it) })
-        val zurueck = karten.groupBy { it.person.xref }.mapValues { (_, k) -> k.first().x to info.seiteH - k.first().y }
+        val zurueck = karten.groupBy { it.person.xref }.mapValues { (_, k) -> Triple(0, k.first().x, info.seiteH - k.first().y) }
         kartenLinks(doc, info, karteikartenAnhaengen(doc, personen, details, bilder, zurueck, fuss))
     }
     return doc to info

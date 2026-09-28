@@ -309,8 +309,10 @@ fun tafelInhalt(art: TafelArt, d: TafelDaten, o: TafelOptionen): TafelInhalt? = 
  */
 fun ahnenSeitenPdf(
     d: TafelDaten, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
+    details: Map<String, de.bgghome.webtrees.nativ.api.IndividualDetail>? = null,
 ): Pair<PDDocument, TafelInfo>? {
     if (1L !in d.ahnen) return null
+    val orte = ArrayList<Pair<Int, List<KartenOrt>>>()
     val proSeite = if (o.waagerecht) 5 else 4
     // Seitenwurzeln: Nummer 1, dann alle, die in der obersten Reihe einer Seite stehen und selbst Eltern haben
     val wurzeln = ArrayList<Long>()
@@ -337,9 +339,11 @@ fun ahnenSeitenPdf(
             Texte.t(Res.string.desk_chart_page_title, d.ahnen.getValue(w).person.name, w, seiteVon.getValue(zurueck))
         }
         val inhalt = if (o.waagerecht) TafelInhalt(nachfahren = baum) else TafelInhalt(vorfahren = baum)
-        val (poster, _) = tafelPdf(inhalt, o.copy(titel = titel), bilder, privat, "$fuss · ${i + 1}/${wurzeln.size}")
-        aufEinBlatt(poster, ziel, querErzwingen = true)
+        val (poster, pInfo) = tafelPdf(inhalt, o.copy(titel = titel, verzeichnis = false), bilder, privat, "$fuss · ${i + 1}/${wurzeln.size}")
+        val nr = ziel.numberOfPages
+        orte += nr to aufEinBlatt(poster, ziel, querErzwingen = true, karten = pInfo.karten)
     }
+    details?.let { karteikartenFuerSeiten(ziel, orte, it, bilder, fuss) }
     return ziel to TafelInfo(personen.size, 30, 21, ziel.numberOfPages)
 }
 
@@ -367,8 +371,8 @@ fun tafelErzeugen(
     art: TafelArt, d: TafelDaten, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
     details: Map<String, de.bgghome.webtrees.nativ.api.IndividualDetail>? = null,
 ): Pair<PDDocument, TafelInfo>? =
-    if (art == TafelArt.AhnenSeiten) ahnenSeitenPdf(d, o, bilder, privat, fuss)
+    if (art == TafelArt.AhnenSeiten) ahnenSeitenPdf(d, o, bilder, privat, fuss, details)
     else if (art == TafelArt.Zeitleiste) zeitleistePdf(d.ahnen, o, fuss)
-    else if (art == TafelArt.StammSeiten) stammSeitenPdf(d, o, bilder, privat, fuss)
-    else if (art == TafelArt.Faecher || art == TafelArt.Kreis) ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { faecherPdf(it, o.generationen, art == TafelArt.Kreis, o, bilder, privat, fuss) }
+    else if (art == TafelArt.StammSeiten) stammSeitenPdf(d, o, bilder, privat, fuss, details)
+    else if (art == TafelArt.Faecher || art == TafelArt.Kreis) ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { faecherPdf(it, o.generationen, art == TafelArt.Kreis, o, bilder, privat, fuss, details) }
     else tafelInhalt(art, d, o)?.let { tafelPdf(it, o, bilder, privat, fuss, details) }

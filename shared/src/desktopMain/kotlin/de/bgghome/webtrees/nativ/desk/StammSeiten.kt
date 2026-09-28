@@ -41,6 +41,7 @@ private fun fortsetzungen(k: TafelPerson, tiefe: Int, anhaengen: Boolean) =
 
 fun stammSeitenPdf(
     d: TafelDaten, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
+    details: Map<String, de.bgghome.webtrees.nativ.api.IndividualDetail>? = null,
 ): Pair<PDDocument, TafelInfo>? {
     val baum = d.nachfahren?.let { tafelBaum(it, o.generationen, o.namenstraeger, o.partner) } ?: return null
     val masse = TafelMasse(o.rahmenMm * 72f / 25.4f, o.bilder, 0, o.waagerecht, o.fotoLinks, o.form == KastenForm.Schild)
@@ -72,6 +73,8 @@ fun stammSeitenPdf(
         aufEinBlatt(poster, ziel)
     }
     val stellen = LinkedHashMap<String, MutableList<Int>>()
+    // Wo jede Karte auf den fertigen Seiten steht (fuer die Links zu den Karteikarten)
+    val orte = ArrayList<Pair<Int, List<KartenOrt>>>()
     val personen = HashMap<String, Person>()
     seiten.forEachIndexed { i, s ->
         val inhalt = gekuerzt(s.wurzel, s.tiefe, s.anhaengen) { k -> seiteVon[k]?.takeIf { k !== s.wurzel }?.let { Texte.t(Res.string.desk_chart_page_ref, it) } }
@@ -80,8 +83,9 @@ fun stammSeitenPdf(
             personen[it.person.xref] = it.person
         }
         val titel = if (s.von == null) o.titel else Texte.t(Res.string.desk_chart_desc_page_title, s.wurzel.person.name, s.von + 1 + vorn)
-        val (poster, _) = tafelPdf(TafelInhalt(nachfahren = inhalt), einzeln.copy(titel = titel), bilder, privat, "$fuss · ${i + 1 + vorn}/${seiten.size + vorn}")
-        aufEinBlatt(poster, ziel, querErzwingen = !o.waagerecht)
+        val (poster, pInfo) = tafelPdf(TafelInhalt(nachfahren = inhalt), einzeln.copy(titel = titel), bilder, privat, "$fuss · ${i + 1 + vorn}/${seiten.size + vorn}")
+        val nr = ziel.numberOfPages
+        orte += nr to aufEinBlatt(poster, ziel, querErzwingen = !o.waagerecht, karten = pInfo.karten)
     }
     if (o.verzeichnis) {
         val eintraege = stellen.map { (x, s) ->
@@ -90,5 +94,6 @@ fun stammSeitenPdf(
         }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { registerName(it.person) })
         tafelVerzeichnis(ziel, o.titel, eintraege)
     }
+    details?.let { karteikartenFuerSeiten(ziel, orte, it, bilder, fuss) }
     return ziel to TafelInfo(personen.size, 30, 21, ziel.numberOfPages)
 }

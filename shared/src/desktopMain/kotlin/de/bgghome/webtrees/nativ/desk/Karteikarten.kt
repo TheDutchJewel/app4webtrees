@@ -118,11 +118,11 @@ private fun ereignisZeile(f: FactJson): String {
 
 /**
  * Haengt je Person eine Karte an [doc] an und gibt die Seite (Index) je xref zurueck. [personen]: in dieser Folge.
- * [zurueck]: Ziel "zurueck zur Tafel" je xref (Seite 0, Punkt oben links der Karte in PDF-Koordinaten).
+ * [zurueck]: Ziel "zurueck zur Tafel" je xref (Seite, Punkt oben links der Karte in PDF-Koordinaten).
  */
 internal fun karteikartenAnhaengen(
     doc: PDDocument, personen: List<Person>, details: Map<String, IndividualDetail>, bilder: (Person) -> BufferedImage?,
-    zurueck: Map<String, Pair<Float, Float>>, fuss: String,
+    zurueck: Map<String, Triple<Int, Float, Float>>, fuss: String,
 ): Map<String, Int> {
     val s = Schriften(doc)
     val w = KartenSchreiber(doc, s, fuss)
@@ -189,13 +189,13 @@ internal fun karteikartenAnhaengen(
             quellen.forEach { w.text("• $it", g = 9f) }
         }
         // Zurueck zur Tafel: Link oben rechts unter dem Foto bzw. am Kopf
-        zurueck[p.xref]?.let { (zx, zy) ->
+        zurueck[p.xref]?.let { (zs, zx, zy) ->
             val t = Texte.t(Res.string.desk_card_back)
             val g = 8.5f; val tb = s.normal.breite(t, g)
             val x = w.rand + w.breite - tb; val y0 = w.rand * 0.5f
             val c = w.stream()
             c.setNonStrokingColor(Color(0x1F, 0x3A, 0x6B)); c.beginText(); c.setFont(s.normal, g); c.newLineAtOffset(x, y0); c.showText(s.normal.sicher(t)); c.endText()
-            erste.annotations.add(link(PDRectangle(x, y0 - 2f, tb, g + 4f), PDPageXYZDestination().apply { page = doc.getPage(0); left = zx.toInt(); top = zy.toInt() }))
+            erste.annotations.add(link(PDRectangle(x, y0 - 2f, tb, g + 4f), PDPageXYZDestination().apply { page = doc.getPage(zs); left = zx.toInt(); top = zy.toInt() }))
         }
     }
     w.schliessen()
@@ -209,10 +209,28 @@ internal fun link(rect: PDRectangle, ziel: PDPageDestination) = PDAnnotationLink
 }
 
 /** Auf der Tafelseite (Index 0) ueber jeder Karte einen Link zu ihrer Karteikarte. */
-internal fun kartenLinks(doc: PDDocument, info: TafelInfo, seiten: Map<String, Int>) {
-    val tafel = doc.getPage(0)
-    info.karten.forEach { k ->
+internal fun kartenLinks(doc: PDDocument, info: TafelInfo, seiten: Map<String, Int>) = kartenLinksAuf(doc, 0, info.karten, info.seiteH, seiten)
+
+/** Links auf Seite [seite]: [karten] (y von oben, Seitenhoehe [hoehe]) fuehren zu ihren Karteikarten. */
+internal fun kartenLinksAuf(doc: PDDocument, seite: Int, karten: List<KartenOrt>, hoehe: Float, seiten: Map<String, Int>) {
+    val tafel = doc.getPage(seite)
+    karten.forEach { k ->
         val nr = seiten[k.person.xref] ?: return@forEach
-        tafel.annotations.add(link(PDRectangle(k.x, info.seiteH - k.y - k.h, k.b, k.h), PDPageFitDestination().apply { page = doc.getPage(nr) }))
+        tafel.annotations.add(link(PDRectangle(k.x, hoehe - k.y - k.h, k.b, k.h), PDPageFitDestination().apply { page = doc.getPage(nr) }))
     }
+}
+
+/**
+ * Karteikarten fuer mehrseitige Tafeln: [orte] je Seite (Index, Karten mit y von oben). Karten nach Namen hinten an,
+ * Links von jeder Stelle zur Karte, "zurueck" an die erste Stelle der Person.
+ */
+internal fun karteikartenFuerSeiten(doc: PDDocument, orte: List<Pair<Int, List<KartenOrt>>>, details: Map<String, IndividualDetail>,
+                                    bilder: (Person) -> BufferedImage?, fuss: String) {
+    val alle = orte.flatMap { (s, k) -> k.map { s to it } }.filter { it.second.person.xref.isNotEmpty() && !it.second.person.isPrivate }
+    val personen = alle.map { it.second.person }.distinctBy { it.xref }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { registerName(it) })
+    val zurueck = alle.groupBy { it.second.person.xref }.mapValues { (_, v) ->
+        val (s, k) = v.first(); Triple(s, k.x, doc.getPage(s).mediaBox.height - k.y)
+    }
+    val seiten = karteikartenAnhaengen(doc, personen, details, bilder, zurueck, fuss)
+    orte.forEach { (s, k) -> kartenLinksAuf(doc, s, k, doc.getPage(s).mediaBox.height, seiten) }
 }

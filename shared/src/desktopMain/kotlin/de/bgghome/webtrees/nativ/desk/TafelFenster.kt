@@ -166,7 +166,7 @@ private val zweigArten = setOf(TafelArt.Verwandt, TafelArt.Stamm, TafelArt.Stamm
 private val buendigArten = setOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Sanduhr)
 
 /** Einblattige Tafeln aus dem Zeichenkern: sie koennen Karteikarten tragen. */
-private val kartenArten = mitGitterArten + TafelArt.Paar
+private val kartenArten = mitGitterArten + TafelArt.Paar + TafelArt.AhnenSeiten + TafelArt.StammSeiten + TafelArt.Faecher + TafelArt.Kreis
 
 /** Tafeln, die auch waagerecht gehen (Linien bleiben senkrecht). */
 private val waagerechtMoeglich = setOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar)
@@ -568,8 +568,8 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     val titel = o.titel.ifBlank { titelVorgabe }
                     // Beim Drucken bleibt das Blatt offen: der Druck laeuft im Hintergrund und greift auf seine Inhalte zu.
                     if (art == TafelArt.AhnenSeiten || art == TafelArt.StammSeiten) {
-                        Knopf(stringResource(Res.string.desk_chart_print_pages), bereit) { erzeugen()?.first?.let { drucken(it, titel) } }
-                        Knopf(stringResource(Res.string.desk_chart_pdf_pages), bereit) { erzeugen()?.first?.let { alsPdf(it, titel) } }
+                        Knopf(stringResource(Res.string.desk_chart_print_pages), bereit) { erzeugen(true)?.first?.let { drucken(it, titel) } }
+                        Knopf(stringResource(Res.string.desk_chart_pdf_pages), bereit) { erzeugen(true)?.first?.let { alsPdf(it, titel) } }
                     } else {
                         Knopf(stringResource(Res.string.desk_chart_print_one), bereit) { erzeugen(true)?.first?.let { drucken(aufEinBlatt(it), titel) } }
                         Knopf(stringResource(Res.string.desk_chart_pdf_poster), bereit) { erzeugen(true)?.first?.let { alsPdf(it, titel) } }

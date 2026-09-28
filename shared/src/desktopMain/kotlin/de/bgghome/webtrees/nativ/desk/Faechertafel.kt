@@ -103,7 +103,10 @@ private fun faecherJahre(p: Person): String {
  */
 fun faecherPdf(
     wurzel: TafelPerson, generationen: Int, vollkreis: Boolean, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
+    details: Map<String, de.bgghome.webtrees.nativ.api.IndividualDetail>? = null,
 ): Pair<PDDocument, TafelInfo> {
+    // Klickflaechen je Segment (Mitte, y von oben, in Seiteneinheiten) fuer die Links zu den Karteikarten
+    val orte = ArrayList<KartenOrt>()
     // Lebende auf Wunsch ohne Jahre
     fun jahre(p: Person) = if (o.lebendeNurNamen && !p.isDead) "" else faecherJahre(p)
     val knoten = HashMap<Long, TafelPerson>()
@@ -224,6 +227,10 @@ fun faecherPdf(
                 else -> if (cos(am) >= 0) am else am + PI
             }
             val x = (cx + rm * cos(am)).toFloat(); val y = (cy + rm * sin(am)).toFloat()
+            run {
+                val seite = minOf(bogenLaenge, tiefe) * 0.8f
+                orte += KartenOrt(p, (x - seite / 2) * skala, (h - y - seite / 2) * skala, seite * skala, seite * skala)
+            }
             cs.setNonStrokingColor(f.text)
             val zh = groesse * 1.2f
             zeilen.forEachIndexed { i, (t, schrift) ->
@@ -276,7 +283,10 @@ fun faecherPdf(
         val fx = if (o.schmuck == Schmuckrahmen.Keiner) rand else (b - s.normal.breite(fuss, 7f)) / 2
         cs.beginText(); cs.setFont(s.normal, 7f); cs.newLineAtOffset(fx, rand * if (o.schmuck == Schmuckrahmen.Keiner) 0.6f else 0.85f); cs.showText(s.normal.sicher(fuss)); cs.endText()
     }
+    // Der Proband in der Mitte ist auch anklickbar
+    orte += KartenOrt(wurzel.person, (cx - r0 * 0.7f) * skala, (h - cy - r0 * 0.7f) * skala, r0 * 1.4f * skala, r0 * 1.4f * skala)
     val info = TafelInfo(knoten.values.map { it.person.xref }.distinct().size, (b / 72f * 2.54f).toInt(), (h / 72f * 2.54f).toInt(),
-        seiteB = b * skala, seiteH = h * skala, einheit = 1f / skala)
+        seiteB = b * skala, seiteH = h * skala, einheit = 1f / skala, karten = orte)
+    details?.let { karteikartenFuerSeiten(doc, listOf(0 to orte), it, bilder, fuss) }
     return doc to info
 }
