@@ -226,7 +226,7 @@ fun minGen(art: TafelArt) = if (art == TafelArt.Cousins) 3 else 2
 
 /** Groesste Tiefe je Tafelart (Vorfahren; bei der Stammtafel die Nachfahren). */
 fun maxGen(art: TafelArt) = when (art) {
-    TafelArt.Stamm -> 10
+    TafelArt.Stamm, TafelArt.StammSeiten -> 10
     TafelArt.Cousins -> 7
     TafelArt.Ahnen -> 10
     TafelArt.Faecher, TafelArt.Kreis -> 8
@@ -236,7 +236,7 @@ fun maxGen(art: TafelArt) = when (art) {
 }
 
 suspend fun tafelDatenLaden(client: WtClient, tree: String, xref: String, art: TafelArt, generationen: Int, geschwister: Int = 0, paarFamilie: Int = 0): TafelDaten = when (art) {
-    TafelArt.Stamm -> TafelDaten(emptyMap(), nachfahrenLaden(client, tree, xref, maxGen(art)))
+    TafelArt.Stamm, TafelArt.StammSeiten -> TafelDaten(emptyMap(), nachfahrenLaden(client, tree, xref, maxGen(art)))
     // Beide Seiten ab dem Grossvater (sonst der Grossmutter, sonst dem Elternteil) in voller Tiefe, gleichzeitig
     TafelArt.Cousins -> ahnenLaden(client, tree, xref, 3).let { a ->
         fun wurzel(vararg n: Long) = n.toList().firstNotNullOfOrNull { a[it]?.person?.takeIf { p -> p.xref.isNotEmpty() && !p.isPrivate } }
@@ -267,7 +267,7 @@ suspend fun tafelDatenLaden(client: WtClient, tree: String, xref: String, art: T
 
 /** Der Inhalt einer Tafel aus den geladenen Daten und den Einstellungen. */
 fun tafelInhalt(art: TafelArt, d: TafelDaten, o: TafelOptionen): TafelInhalt? = when (art) {
-    TafelArt.Stamm -> d.nachfahren?.let { TafelInhalt(nachfahren = tafelBaum(it, o.generationen, o.namenstraeger, o.partner)) }
+    TafelArt.Stamm, TafelArt.StammSeiten -> d.nachfahren?.let { TafelInhalt(nachfahren = tafelBaum(it, o.generationen, o.namenstraeger, o.partner)) }
     TafelArt.Cousins -> cousinBaum(d, o)?.let { TafelInhalt(cousins = it) }
     TafelArt.Paar -> paarBaum(d, o)?.let { TafelInhalt(paar = it) }
     // Senkrecht steht der Proband klassisch unten, waagerecht links; [ausgangOben] kehrt das um ("oben" bzw. "rechts")
@@ -325,7 +325,7 @@ fun ahnenSeitenPdf(
 fun tafelTitel(art: TafelArt, name: String, partner: String = ""): String = if (art == TafelArt.Paar && partner.isNotBlank())
     Texte.t(Res.string.desk_chart_title_couple, name, partner) else Texte.t(
     when (art) {
-        TafelArt.Stamm -> Res.string.desk_chart_title_default
+        TafelArt.Stamm, TafelArt.StammSeiten -> Res.string.desk_chart_title_default
         TafelArt.Cousins -> Res.string.desk_chart_title_cousins
         TafelArt.Ahnen, TafelArt.AhnenSeiten -> Res.string.desk_chart_title_ancestors
         TafelArt.Sanduhr, TafelArt.Paar -> Res.string.desk_chart_title_hourglass
@@ -342,5 +342,6 @@ fun tafelErzeugen(
     art: TafelArt, d: TafelDaten, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
 ): Pair<PDDocument, TafelInfo>? =
     if (art == TafelArt.AhnenSeiten) ahnenSeitenPdf(d, o, bilder, privat, fuss)
+    else if (art == TafelArt.StammSeiten) stammSeitenPdf(d, o, bilder, privat, fuss)
     else if (art == TafelArt.Faecher || art == TafelArt.Kreis) ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { faecherPdf(it, o.generationen, art == TafelArt.Kreis, o, bilder, privat, fuss) }
     else tafelInhalt(art, d, o)?.let { tafelPdf(it, o, bilder, privat, fuss) }

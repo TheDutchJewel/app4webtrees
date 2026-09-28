@@ -618,6 +618,13 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_print_strip">Bahn %1$d/%2$d</string>
     <string name="desk_print_plan_title">Montageplan: %1$d Blätter A4 (%2$d Spalten × %3$d Zeilen), Endmaß %4$d × %5$d cm</string>
     <string name="desk_print_plan_hint">Blätter nach den Kennungen auslegen (A1 oben links). Jedes Blatt überlappt das Nachbarblatt um 1 cm – an den Schnittmarken beschneiden und kleben.</string>
+    <string name="desk_chart_descendants_pages">Stammtafel (seitenweise)</string>
+    <string name="desk_chart_descendants_pages_hint">Die Nachfahren auf A4-Seiten zu wenigen Generationen. Unter jeder Person der untersten Reihe steht, auf welcher Seite ihre Nachfahren weitergehen; vorn eine Seitenübersicht, hinten das Personenverzeichnis mit Seitenzahlen – zum Abheften oder Binden.</string>
+    <string name="desk_chart_per_page">Generationen je Seite</string>
+    <string name="desk_chart_overview">Seitenübersicht vorn</string>
+    <string name="desk_chart_overview_title">Seitenübersicht · %1$s</string>
+    <string name="desk_chart_desc_page_title">%1$s · Fortsetzung von S. %2$d</string>
+    <string name="desk_chart_page_short">S. %1$d</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

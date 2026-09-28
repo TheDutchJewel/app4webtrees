@@ -476,7 +476,7 @@ fun tafelPdf(
 }
 
 /** Personenverzeichnis: je Person ihre Gitterpositionen und das Linkziel auf ihre erste Karte, nach Namen sortiert. */
-private fun verzeichnisEintraege(a: TafelAnordnung, bl: TafelBlatt): List<Triple<Person, List<String>, Pair<Float, Float>>> = with(a) {
+private fun verzeichnisEintraege(a: TafelAnordnung, bl: TafelBlatt): List<VerzeichnisEintrag> = with(a) {
     val m = masse; val w = o.waagerecht
     gezeichnet.filter { it.second.knoten.person.xref.isNotEmpty() && !it.second.knoten.person.isPrivate }
         .groupBy { it.second.knoten.person.xref }.map { (_, v) ->
@@ -485,18 +485,20 @@ private fun verzeichnisEintraege(a: TafelAnordnung, bl: TafelBlatt): List<Triple
             // Ziel im Blatt (PDF-Koordinaten, schon mit der Verkleinerung)
             val zx = (bl.x0 + if (w) gm else q - m.karteB / 2) * bl.skala
             val zy = (bl.h - (bl.y0 + if (w) q - m.karteH / 2 else gm)) * bl.skala
-            Triple(pl.knoten.person, v.map { (tt, p2) -> position(tt, p2) }.distinct(), zx to zy)
-        }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { registerName(it.first) })
+            VerzeichnisEintrag(pl.knoten.person, v.map { (tt, p2) -> position(tt, p2) }.distinct(), 0, zx, zy)
+        }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { registerName(it.person) })
 }
 
-/** Personenverzeichnis zur Tafel: zweispaltig auf A4, "Name (Lebensdaten) ..... C III", Links auf die erste Seite. */
-private fun tafelVerzeichnis(doc: PDDocument, titel: String, eintraege: List<Triple<Person, List<String>, Pair<Float, Float>>>) {
+/** Ein Eintrag im Personenverzeichnis: wo die Person steht (Gitterpositionen oder Seiten) und wohin der Link fuehrt. */
+internal class VerzeichnisEintrag(val person: Person, val stellen: List<String>, val seite: Int, val x: Float, val y: Float)
+
+/** Personenverzeichnis zur Tafel: zweispaltig auf A4, "Name (Lebensdaten) ..... C III", jede Zeile ein Link. */
+internal fun tafelVerzeichnis(doc: PDDocument, titel: String, eintraege: List<VerzeichnisEintrag>) {
     val schrift = Schriften(doc)
     val a4 = PDRectangle.A4
     val rand = 50f; val abstand = 20f
     val sw = (a4.width - 2 * rand - abstand) / 2
     val g = 8.5f; val zh = g * 1.4f
-    val ziel = doc.getPage(0)
     var cs: PDPageContentStream? = null
     var seite: PDPage? = null
     var y = 0f; var spalte = 2
@@ -513,7 +515,9 @@ private fun tafelVerzeichnis(doc: PDDocument, titel: String, eintraege: List<Tri
         y = a4.height - rand - 26f
     }
     neueSpalte()
-    eintraege.forEach { (p, pos, zielPunkt) ->
+    val ziele = eintraege.map { it.seite }.distinct().associateWith { doc.getPage(it) }
+    eintraege.forEach { e ->
+        val p = e.person; val pos = e.stellen
         if (y < rand) neueSpalte()
         val x = rand + spalte * (sw + abstand)
         val name = registerName(p) + p.lifespan.takeIf(String::isNotBlank)?.let { " ($it)" }.orEmpty()
@@ -533,7 +537,7 @@ private fun tafelVerzeichnis(doc: PDDocument, titel: String, eintraege: List<Tri
             borderStyle = org.apache.pdfbox.pdmodel.interactive.annotation.PDBorderStyleDictionary().apply { width = 0f }
             action = org.apache.pdfbox.pdmodel.interactive.action.PDActionGoTo().apply {
                 destination = org.apache.pdfbox.pdmodel.interactive.documentnavigation.destination.PDPageXYZDestination().apply {
-                    page = ziel; left = zielPunkt.first.toInt(); top = zielPunkt.second.toInt()
+                    page = ziele.getValue(e.seite); left = e.x.toInt(); top = e.y.toInt()
                 }
             }
         })

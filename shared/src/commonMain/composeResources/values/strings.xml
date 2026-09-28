@@ -623,6 +623,13 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_print_strip">Strip %1$d/%2$d</string>
     <string name="desk_print_plan_title">Assembly plan: %1$d A4 sheets (%2$d columns × %3$d rows), final size %4$d × %5$d cm</string>
     <string name="desk_print_plan_hint">Lay out the sheets by their labels (A1 top left). Each sheet overlaps its neighbour by 1 cm – trim at the crop marks and glue.</string>
+    <string name="desk_chart_descendants_pages">Descendant chart (pages)</string>
+    <string name="desk_chart_descendants_pages_hint">The descendants on A4 pages of a few generations each. Below each person of the bottom row it says on which page their descendants continue; a page overview in front and an index of persons with page numbers at the back – for a binder or a book.</string>
+    <string name="desk_chart_per_page">Generations per page</string>
+    <string name="desk_chart_overview">Page overview in front</string>
+    <string name="desk_chart_overview_title">Page overview · %1$s</string>
+    <string name="desk_chart_desc_page_title">%1$s · continued from p. %2$d</string>
+    <string name="desk_chart_page_short">p. %1$d</string>
     <string name="desk_chart_ancestors_pages">Ancestor chart (pages)</string>
     <string name="desk_chart_ancestors_pages_hint">Four generations per A4 page in landscape. Above each person of the top row it says on which page their ancestors continue – for a binder or a book.</string>
     <string name="desk_chart_paternal">Paternal line</string>
