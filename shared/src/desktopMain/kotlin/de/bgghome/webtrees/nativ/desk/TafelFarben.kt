@@ -1,6 +1,8 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.Person
+import de.bgghome.webtrees.nativ.res.*
 import java.awt.Color
 
 /*
@@ -46,18 +48,31 @@ val KASTEN_FARBEN: List<KastenFarbe> = listOf(
     Color(0xC9, 0xB3, 0xE6), Color(0x9E, 0xD9, 0xD6), Color(0xF5, 0xC0, 0x8A), Color(0xD0, 0xD4, 0xD4),
 ).map { KastenFarbe(it, dunkler(it)) }
 
+/** Farbe je Platz und was jede benutzte Farbe bedeutet (fuer die Legende, in der Folge des ersten Auftretens). */
+internal class FarbErgebnis(val farben: Map<TafelPlatz, Int>, val bedeutung: List<Pair<Int, String>>)
+
+/** Eine Regel in Worten: "Geburtsort enthaelt Paderborn", "Geschlecht: weiblich". */
+internal fun FarbRegel.beschreibung(): String {
+    val feldName = Texte.t(FELD_NAMEN.getValue(feld))
+    FESTE_WERTE[feld]?.let { werte -> return "$feldName: " + (werte.firstOrNull { it.first == text }?.let { Texte.t(it.second) } ?: text) }
+    return "$feldName " + Texte.t(if (enthaelt) Res.string.desk_chart_rule_contains else Res.string.desk_chart_rule_equals) + " " + text.trim()
+}
+
 /**
  * Farbe je Platz der Anordnung (null: die Farbe des Stils). Die Plaetze eines Teils stehen in Layoutfolge - wer auf
  * der Tafel weitergeht, kommt nach seinem [TafelPlatz.eltern]; so erben Zweigfarben in einem Durchgang.
  */
-internal fun kastenFarben(a: TafelAnordnung): Map<TafelPlatz, Int> {
+internal fun kastenFarben(a: TafelAnordnung): FarbErgebnis {
     val o = a.o
-    if (o.stil == TafelStil.Schwarzweiss) return emptyMap()
+    if (o.stil == TafelStil.Schwarzweiss) return FarbErgebnis(emptyMap(), emptyList())
     val farbe = HashMap<TafelPlatz, Int>()
-    fun eigene(p: Person) = o.zweige[p.xref] ?: o.regeln.firstOrNull { it.passt(p) }?.farbe
+    val bedeutung = LinkedHashMap<String, Int>()
+    fun regel(p: Person) = o.regeln.firstOrNull { it.passt(p) }
     // Kinder eines Paares ohne Elternverweis im Layout (Cousin-Tafel) erben vom Vater
     val paarElternteil = a.paare.flatMap { p -> p.kinder.filter { it.eltern == null }.map { it to p.vater } }.toMap()
     fun elternVon(pl: TafelPlatz) = pl.eltern ?: paarElternteil[pl]
+    // Grosseltern-Linien heissen nach dem Grosselternteil (Kekule 4 bis 7)
+    val grosseltern = a.teile.flatMap { it.layout.plaetze }.mapNotNull { pl -> pl.knoten.nummer?.takeIf { it in 4L..7L }?.let { it to pl.knoten.person.name } }.toMap()
     var zweigNr = 0
     a.teile.forEach { t ->
         // Zweig-Schema: die Kinder der Wurzel (in einem Teil nach unten) beginnen je einen Zweig
@@ -67,19 +82,32 @@ internal fun kastenFarben(a: TafelAnordnung): Map<TafelPlatz, Int> {
             if (t.istHalter(pl)) return@forEach
             val p = pl.knoten.person
             val eltern = elternVon(pl)
-            o.zweige[p.xref]?.let { markiert[pl] = it } ?: eltern?.let { markiert[it] }?.let { markiert[pl] = it }
+            o.zweige[p.xref]?.let { markiert[pl] = it; bedeutung.putIfAbsent(Texte.t(Res.string.desk_legend_branch, p.name), it) }
+                ?: eltern?.let { markiert[it] }?.let { markiert[pl] = it }
             if (!t.aufwaerts && eltern != null) (if (elternVon(eltern) == null) zweigNr++ % KASTEN_FARBEN.size else zweigVon[eltern])?.let { zweigVon[pl] = it }
+            val r = regel(p)
             val schema = if (o.stil != TafelStil.Farbig) null else when (o.farbe) {
                 FarbSchema.Geschlecht -> null
                 FarbSchema.Linie -> pl.knoten.nummer?.takeIf { it >= 4 }?.let { n -> ((n shr (reihe(n) - 2)) - 4).toInt().coerceIn(0, 3) }
                 FarbSchema.Zweig -> zweigVon[pl]
             }
-            (markiert[pl] ?: o.regeln.firstOrNull { it.passt(p) }?.farbe ?: schema)?.let { farbe[pl] = it }
+            val f = markiert[pl] ?: r?.farbe ?: schema ?: return@forEach
+            farbe[pl] = f
+            when {
+                markiert[pl] != null -> {}
+                r != null -> bedeutung.putIfAbsent(r.beschreibung(), f)
+                o.farbe == FarbSchema.Linie -> bedeutung.putIfAbsent(Texte.t(Res.string.desk_legend_line, grosseltern[4L + f] ?: "${4 + f}"), f)
+                // Zweig-Schema: benannt nach der Person, mit der der Zweig beginnt
+                zweigVon[pl] != null && eltern != null && elternVon(eltern) == null -> bedeutung.putIfAbsent(Texte.t(Res.string.desk_legend_branch, p.name), f)
+            }
         }
     }
     // Geschwister neben den Vorfahren: nur eigene Markierung oder Regel
-    a.geschwisterVon.values.flatten().forEach { pl -> eigene(pl.knoten.person)?.let { farbe[pl] = it } }
-    return farbe
+    a.geschwisterVon.values.flatten().forEach { pl ->
+        val p = pl.knoten.person
+        (o.zweige[p.xref] ?: regel(p)?.also { bedeutung.putIfAbsent(it.beschreibung(), it.farbe) }?.farbe)?.let { farbe[pl] = it }
+    }
+    return FarbErgebnis(farbe, bedeutung.map { it.value to it.key })
 }
 
 /** Farbregeln und gefaerbte Zweige gelten je Stammbaum fuer alle Tafeln (Desktop-Einstellungen). */

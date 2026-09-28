@@ -125,7 +125,10 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
         gezeichnet.forEach { (t, pl) -> m.putIfAbsent(t.reihe(pl), roemisch(if (beideRichtungen || !t.aufwaerts) t.reihe(pl) + 1 else pl.ebene + 1)) }
     }
     /** Farbe je Platz (TafelFarben.kt); fehlt ein Platz, gilt die Farbe des Stils. */
-    val farben: Map<TafelPlatz, Int> = kastenFarben(this)
+    private val farbErgebnis = kastenFarben(this)
+    val farben: Map<TafelPlatz, Int> get() = farbErgebnis.farben
+    /** Was die benutzten Farben bedeuten (Legende). */
+    val farbBedeutung: List<Pair<Int, String>> get() = farbErgebnis.bedeutung
 
     fun position(t: TafelTeil, pl: TafelPlatz) = "${spalteName((t.x(pl) / zelle).toInt())} ${zeilenName[t.reihe(pl)].orEmpty()}"
     /** Alle Gitterpositionen je Person. */
@@ -160,19 +163,27 @@ internal fun roemisch(n: Int): String {
  * Masse des Blatts um die Anordnung: Rand, Titel oben, Gitterrand, Fusszeile. Senkrecht liegen die Geschwister
  * nebeneinander, waagerecht die Generationen. [skala] < 1: das Blatt waere groesser als PDF_MAX.
  */
-internal class TafelBlatt(a: TafelAnordnung, titelSchrift: PDFont) {
+internal class TafelBlatt(a: TafelAnordnung, s: TafelSchriften, val legende: List<LegendenEintrag>) {
     private val w = a.o.waagerecht
     val rand = maxOf(a.masse.rahmen * 0.5f, 28f)
     val titelGroesse = (a.masse.rahmen * 0.55f).coerceIn(22f, 72f)
-    val titelBreite = if (a.o.titel.isBlank()) 0f else titelSchrift.breite(a.o.titel, titelGroesse)
-    val titelH = if (a.o.titel.isBlank()) 0f else titelGroesse * 1.9f
+    val titelBreite = if (a.o.titel.isBlank()) 0f else s.titel.breite(a.o.titel, titelGroesse)
+    /** Zeile unter dem Titel: freier Text und "zusammengestellt von". */
+    val untertitel = listOfNotNull(a.o.untertitel.trim().takeIf(String::isNotBlank),
+        a.o.ersteller.trim().takeIf(String::isNotBlank)?.let { Texte.t(Res.string.desk_legend_by, it) }).joinToString("  ·  ")
+    val untertitelGroesse = (titelGroesse * 0.36f).coerceIn(10f, 26f)
+    val untertitelBreite = if (untertitel.isEmpty()) 0f else s.normal.breite(untertitel, untertitelGroesse)
+    val titelH = (if (a.o.titel.isBlank()) 0f else titelGroesse * 1.9f) +
+        (if (untertitel.isEmpty()) 0f else if (a.o.titel.isBlank()) untertitelGroesse * 2f else untertitelGroesse * 1.3f)
     val fussH = 18f
     val gitterRand = if (a.mitGitter) maxOf(18f, a.masse.rahmen * 0.2f) else 0f
     val blattB = if (w) a.hoehe else a.breite
     val blattH = if (w) a.breite else a.hoehe
-    val inhaltB = maxOf(blattB, titelBreite)
+    val lm = LegendenMass(legende, s.normal, s.fett, a.masse.rahmen, maxOf(blattB, titelBreite, untertitelBreite))
+    val legendeH = if (lm.h > 0f) lm.h + lm.g else 0f
+    val inhaltB = maxOf(blattB, titelBreite, untertitelBreite, lm.b)
     val b = inhaltB + 2 * rand + 2 * gitterRand
-    val h = rand + titelH + blattH + fussH + rand + 2 * gitterRand
+    val h = rand + titelH + blattH + legendeH + fussH + rand + 2 * gitterRand
     val skala = minOf(1f, PDF_MAX / b, PDF_MAX / h)
     /** Oben links des Inhalts, y von oben gezaehlt. */
     val x0 = rand + gitterRand + (inhaltB - blattB) / 2
@@ -230,9 +241,48 @@ private class TafelZeichner(
     }
 
     fun titel() {
-        if (o.titel.isBlank()) return
-        cs.setNonStrokingColor(f.titel)
-        text(o.titel, s.titel, bl.titelGroesse, (bl.b - bl.titelBreite) / 2, bl.py(bl.rand + bl.titelGroesse * 1.05f))
+        if (o.titel.isNotBlank()) {
+            cs.setNonStrokingColor(f.titel)
+            text(o.titel, s.titel, bl.titelGroesse, (bl.b - bl.titelBreite) / 2, bl.py(bl.rand + bl.titelGroesse * 1.05f))
+        }
+        if (bl.untertitel.isNotEmpty()) {
+            val g = bl.untertitelGroesse
+            val y = if (o.titel.isBlank()) bl.rand + g * 1.1f else bl.rand + bl.titelGroesse * 1.05f + g * 1.9f
+            cs.setNonStrokingColor(f.linie)
+            text(bl.untertitel, s.normal, g, (bl.b - bl.untertitelBreite) / 2, bl.py(y))
+        }
+    }
+
+    /** Legende unten rechts unter der Tafel, spaltenweise von oben nach unten. */
+    fun legende() {
+        val lm = bl.lm
+        if (bl.legende.isEmpty()) return
+        val g = lm.g
+        val lx = bl.b - bl.rand - bl.gitterRand - lm.b
+        val ly = bl.y0 + bl.blattH + bl.gitterRand + g
+        cs.setNonStrokingColor(f.text)
+        text(Texte.t(Res.string.desk_legend_title), s.fett, g * 1.1f, lx, bl.py(ly + g * 1.2f))
+        bl.legende.forEachIndexed { i, e ->
+            val x = lx + (i / lm.zeilen) * lm.spaltenB
+            val cy = ly + lm.kopfH + (i % lm.zeilen) * lm.zeileH + lm.zeileH / 2
+            when (e.art) {
+                LegendenArt.Farbe -> {
+                    val k = KASTEN_FARBEN[e.farbe.coerceIn(0, KASTEN_FARBEN.size - 1)]
+                    cs.setNonStrokingColor(k.fuellung); cs.setStrokingColor(k.rahmen); cs.setLineWidth(0.8f)
+                    cs.rechteck(x, bl.py(cy + g * 0.6f), lm.feldB * 0.75f, g * 1.2f, g * 0.2f); cs.fillAndStroke()
+                }
+                LegendenArt.Schild -> schild(e.zeichen, x + lm.feldB * 0.35f, bl.py(cy))
+                LegendenArt.Nummer -> { cs.setNonStrokingColor(f.linie); text(e.zeichen, s.normal, g * 0.85f, x + lm.feldB * 0.3f, bl.py(cy + g * 0.3f)) }
+                LegendenArt.Zeichen -> {
+                    // Heiratszeichen wie in den Kaesten (ohne ⚭ in der Schrift "oo")
+                    val zeichen = if (e.zeichen == "⚭") heirat else e.zeichen
+                    val zg = if (zeichen.length > 2) g * 0.9f else g * 1.2f
+                    cs.setNonStrokingColor(f.text); text(zeichen, s.normal, zg, x + (lm.feldB * 0.75f - s.normal.breite(zeichen, zg)) / 2, bl.py(cy + zg * 0.35f))
+                }
+            }
+            cs.setNonStrokingColor(f.text)
+            text(e.text, s.normal, g, x + lm.feldB, bl.py(cy + g * 0.35f))
+        }
     }
 
     /** Gitter am Rand: Buchstaben fuer die Spalten, roemische Zahlen fuer die Generationen, dazwischen kleine Striche. */
@@ -456,7 +506,7 @@ fun tafelPdf(
     val a = TafelAnordnung(inhalt, o)
     val doc = PDDocument()
     val s = TafelSchriften(doc, o.stil)
-    val bl = TafelBlatt(a, s.titel)
+    val bl = TafelBlatt(a, s, if (o.legende) legendenEintraege(a) else emptyList())
     val page = PDPage(PDRectangle(bl.b * bl.skala, bl.h * bl.skala))
     // Groesser als PDF_MAX: die Seite ist verkleinert gezeichnet, die UserUnit nennt das echte Mass
     if (bl.skala < 1f) page.userUnit = 1f / bl.skala
@@ -465,6 +515,7 @@ fun tafelPdf(
         TafelZeichner(a, bl, cs, doc, s, bilder, privat).apply {
             hintergrund(); titel(); gitter(); kurven(); linien()
             a.gezeichnet.forEach { (t, platz) -> karte(t, platz) }
+            legende()
             fuss(fuss)
         }
     }

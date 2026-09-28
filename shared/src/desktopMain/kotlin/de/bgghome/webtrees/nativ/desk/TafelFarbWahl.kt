@@ -47,7 +47,7 @@ private val schemaNamen: Map<FarbSchema, StringResource> = mapOf(
     FarbSchema.Zweig to Res.string.desk_chart_colour_branch,
 )
 
-private val feldNamen: Map<RegelFeld, StringResource> = mapOf(
+internal val FELD_NAMEN: Map<RegelFeld, StringResource> = mapOf(
     RegelFeld.Nachname to Res.string.desk_chart_field_surname, RegelFeld.Vorname to Res.string.desk_chart_field_given,
     RegelFeld.Geburtsort to Res.string.desk_chart_field_birthplace, RegelFeld.Sterbeort to Res.string.desk_chart_field_deathplace,
     RegelFeld.Beruf to Res.string.desk_chart_field_occupation, RegelFeld.Geschlecht to Res.string.desk_chart_field_sex,
@@ -55,7 +55,7 @@ private val feldNamen: Map<RegelFeld, StringResource> = mapOf(
 )
 
 /** Feste Werte der Felder Geschlecht und Lebend: gespeicherter Wert -> Anzeige. */
-private val festeWerte: Map<RegelFeld, List<Pair<String, StringResource>>> = mapOf(
+internal val FESTE_WERTE: Map<RegelFeld, List<Pair<String, StringResource>>> = mapOf(
     RegelFeld.Geschlecht to listOf("M" to Res.string.desk_chart_value_male, "F" to Res.string.desk_chart_value_female, "U" to Res.string.desk_chart_value_unknown),
     RegelFeld.Lebend to listOf("1" to Res.string.desk_chart_value_alive, "0" to Res.string.desk_chart_value_dead),
 )
@@ -107,15 +107,15 @@ internal fun FarbEinstellungen(
         fun aendern(neu: FarbRegel) = onRegeln(regeln.toMutableList().also { it[i] = neu })
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                val felder = RegelFeld.entries.associateWith { stringResource(feldNamen.getValue(it)) }
+                val felder = RegelFeld.entries.associateWith { stringResource(FELD_NAMEN.getValue(it)) }
                 Box(Modifier.weight(1f)) {
                     Auswahl(felder.getValue(r.feld), felder.values.toList()) { w ->
                         val feld = felder.entries.first { it.value == w }.key
-                        aendern(r.copy(feld = feld, text = festeWerte[feld]?.first()?.first ?: if (r.festerWert) "" else r.text))
+                        aendern(r.copy(feld = feld, text = FESTE_WERTE[feld]?.first()?.first ?: if (r.festerWert) "" else r.text))
                     }
                 }
                 Box(Modifier.weight(1f)) {
-                    val werte = festeWerte[r.feld]
+                    val werte = FESTE_WERTE[r.feld]
                     if (werte != null) {
                         val namen = werte.map { it.first to stringResource(it.second) }
                         Auswahl(namen.firstOrNull { it.first == r.text }?.second ?: namen.first().second, namen.map { it.second }) { w -> aendern(r.copy(text = namen.first { it.second == w }.first)) }

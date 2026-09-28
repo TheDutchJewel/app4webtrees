@@ -81,6 +81,10 @@ data class TafelOptionen(
     val gitter: Boolean = false,
     val verzeichnis: Boolean = false,
     val kurven: Boolean = false,
+    /** Titelblock und Legende (TafelLegende.kt): Zeile unter dem Titel, Ersteller ("zusammengestellt von"), Legende. */
+    val untertitel: String = "",
+    val ersteller: String = "",
+    val legende: Boolean = false,
     /** Karteikarten je Person hinter der Tafel (Karteikarten.kt). */
     val karteikarten: Boolean = false,
     /** Verwandtschaftstafel: Stammpaare (xref der Wurzel), die nicht auf die Tafel sollen. */

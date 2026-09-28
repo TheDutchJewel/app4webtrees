@@ -174,6 +174,8 @@ private object TafelWahl {
         farbe = FarbSchema.entries.firstOrNull { it.name == prefs.getString(k(art, "farbe"), null) } ?: FarbSchema.Geschlecht,
         jeSeite = (prefs.getString(k(art, "jeseite"), null)?.toIntOrNull() ?: 3).coerceIn(2, 5),
         karteikarten = prefs.getBoolean(k(art, "karten"), false),
+        legende = art !in kreise && prefs.getBoolean(k(art, "legende"), true),
+        ersteller = prefs.getString("tafel_ersteller", null).orEmpty(),
         uebersicht = prefs.getBoolean(k(art, "uebersicht"), true),
     )
     fun sichern(art: TafelArt, o: TafelOptionen) {
@@ -187,7 +189,8 @@ private object TafelWahl {
         prefs.putBoolean(k(art, "gitter"), o.gitter); prefs.putBoolean(k(art, "verz"), o.verzeichnis); prefs.putBoolean(k(art, "kurven"), o.kurven)
         prefs.putString(k(art, "farbe"), o.farbe.name)
         prefs.putString(k(art, "jeseite"), o.jeSeite.toString()); prefs.putBoolean(k(art, "uebersicht"), o.uebersicht)
-        prefs.putBoolean(k(art, "karten"), o.karteikarten)
+        prefs.putBoolean(k(art, "karten"), o.karteikarten); prefs.putBoolean(k(art, "legende"), o.legende)
+        prefs.putString("tafel_ersteller", o.ersteller)
     }
 }
 
@@ -202,7 +205,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
     var paarFamilie by remember(root) { mutableStateOf(0) }
     var partnerName by remember(root) { mutableStateOf("") }
     val titelVorgabe = remember(art, wurzelName, partnerName) { tafelTitel(art, wurzelName, partnerName) }
-    var o by remember(art) { mutableStateOf(TafelWahl.laden(art).copy(titel = titelVorgabe)) }
+    var o by remember(art) { mutableStateOf(TafelWahl.laden(art).copy(titel = titelVorgabe, untertitel = tree?.title.orEmpty())) }
     // Der Titel nennt beim Paar beide Namen - er steht erst fest, wenn der Partner geladen ist
     LaunchedEffect(titelVorgabe) { if (art == TafelArt.Paar) o = o.copy(titel = titelVorgabe) }
     LaunchedEffect(art, o) { TafelWahl.sichern(art, o) }
@@ -376,6 +379,11 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         if (mitKarten && details == null) Text(stringResource(Res.string.desk_chart_cards_loading), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     OutlinedTextField(o.titel, { o = o.copy(titel = it) }, label = { Text(stringResource(Res.string.desk_chart_heading)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    if (art !in kreise) {
+                        OutlinedTextField(o.untertitel, { o = o.copy(untertitel = it) }, label = { Text(stringResource(Res.string.desk_chart_subtitle)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                        OutlinedTextField(o.ersteller, { o = o.copy(ersteller = it) }, label = { Text(stringResource(Res.string.desk_chart_author)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                        Haken(stringResource(Res.string.desk_chart_legend), o.legende) { o = o.copy(legende = it) }
+                    }
                     val info = vorschau?.getOrNull()?.second
                     info?.let {
                         Text(if (it.seiten > 0) stringResource(Res.string.desk_chart_size_pages, it.personen, it.seiten) else stringResource(Res.string.desk_chart_size, it.personen, it.breiteCm, it.hoeheCm),

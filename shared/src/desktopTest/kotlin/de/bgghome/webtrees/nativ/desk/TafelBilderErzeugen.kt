@@ -64,6 +64,10 @@ class TafelBilderErzeugen {
                 ausgangOben = "oben" in schalter, waagerecht = "quer" in schalter, bilder = "ohnebild" !in schalter, gitter = "gitter" in schalter, verzeichnis = "verz" in schalter, kurven = "kurven" in schalter, geschwister = if ("geschwalle" in schalter) 2 else if ("geschw" in schalter) 1 else 0, namenstraeger = "namen" in schalter, nummern = "ohnenr" !in schalter,
                 nachfahren = schalter.firstOrNull { it.startsWith("nach") }?.drop(4)?.toInt() ?: 3,
                 rahmenMm = schalter.firstOrNull { it.startsWith("rahmen") }?.drop(6)?.toInt() ?: 30,
+                // Titelblock: "legende", "unter=Familie_Falkenrath", "von=Anna_Falkenrath" (Unterstrich = Leerzeichen)
+                legende = "legende" in schalter,
+                untertitel = schalter.firstOrNull { it.startsWith("unter=") }?.drop(6)?.replace('_', ' ').orEmpty(),
+                ersteller = schalter.firstOrNull { it.startsWith("von=") }?.drop(4)?.replace('_', ' ').orEmpty(),
                 ohneStamm = schalter.filter { it.startsWith("ohne=") }.map { it.drop(5) }.toSet(),
                 jeSeite = schalter.firstOrNull { it.startsWith("je") }?.drop(2)?.toInt() ?: 3, uebersicht = "ohneuebersicht" !in schalter,
                 // Farben: "linie"/"zweig" als Schema, "regel=Feld/enthaelt|gleich/Text/Farbe", "markiert=I8/4"
