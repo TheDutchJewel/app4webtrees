@@ -561,7 +561,7 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_chart_pdf_poster">Save as PDF (poster)</string>
     <string name="desk_chart_pdf_tiles">Save sheets as PDF (with assembly plan)</string>
     <string name="desk_chart_loading">Loading descendants…</string>
-    <string name="desk_chart_zoom_hint">Click the preview to enlarge it or to see the whole sheet.</string>
+    <string name="desk_chart_zoom_hint">The mouse wheel zooms around the pointer, dragging moves, a click switches between the whole sheet and reading size. Right-click a box to colour its branch.</string>
     <string name="desk_chart_group_ancestors">Ancestors</string>
     <string name="desk_chart_ancestors">Ancestor chart</string>
     <string name="desk_chart_ancestors_hint">All ancestors of a person on one sheet, the starting person at the bottom, each generation one row above.</string>

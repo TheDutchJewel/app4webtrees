@@ -260,10 +260,12 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
 
     // Vorschau: das Blatt als Bild, kurz verzoegert, damit schnelles Umstellen nicht jedes Mal rendert. Das PDF wird
     // dafuer einmal gespeichert und neu geladen - erst beim Speichern bettet PDFBox die Schriften ein, vorher zeichnet
-    // der Renderer den Titel in einer Ersatzschrift. [gross]: Blatt in Lesegroesse, rollbar.
+    // der Renderer den Titel in einer Ersatzschrift. Zoom (TafelVorschau.kt): die Aufloesung waechst in Stufen mit.
     var vorschauPx by remember { mutableStateOf(1000 to 800) }
-    var gross by remember { mutableStateOf(false) }
-    val vorschau by produceState<Result<Pair<ImageBitmap, TafelInfo>?>?>(null, daten, oVoll, art, bilderStand, vorschauPx, gross) {
+    var zoom by remember(art) { mutableStateOf(1f) }
+    var versatz by remember(art) { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+    val stufe = zoomStufe(zoom)
+    val vorschau by produceState<Result<VorschauBild?>?>(null, daten, oVoll, art, bilderStand, vorschauPx, stufe) {
         delay(150)
         if (daten?.getOrNull() == null) { value = null; return@produceState }
         value = withContext(Dispatchers.Default) {
@@ -273,9 +275,9 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                 org.apache.pdfbox.Loader.loadPDF(bytes).use {
                     val box = it.getPage(0).mediaBox
                     val passend = minOf(vorschauPx.first / box.width, vorschauPx.second / box.height)
-                    // Gross: Personenrahmen etwa 180 Pixel breit, das Bild aber hoechstens 9000 Pixel an der langen Seite
-                    val skala = if (gross && info.seiten == 0) minOf(180f / (o.rahmenMm * 72f / 25.4f), 9000f / maxOf(box.width, box.height)) else if (gross) passend * 3f else passend * 1.5f
-                    PDFRenderer(it).renderImage(0, skala.coerceIn(0.05f, 4f)).toComposeImageBitmap() to info
+                    // Je Zoomstufe doppelt so fein, das Bild aber hoechstens 9000 Pixel an der langen Seite
+                    val skala = minOf(passend * 1.5f * (1 shl stufe), 9000f / maxOf(box.width, box.height)).coerceIn(0.05f, 4f)
+                    VorschauBild(PDFRenderer(it).renderImage(0, skala).toComposeImageBitmap(), skala, info)
                 }
             }
         }
@@ -297,7 +299,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     ).forEachIndexed { i, (gruppe, arten) ->
                         if (i > 0) Spacer(Modifier.height(8.dp))
                         ArtGruppe(stringResource(gruppe))
-                        arten.forEach { a -> ArtEintrag(stringResource(artTexte.getValue(a).first), art == a) { art = a; gross = false } }
+                        arten.forEach { a -> ArtEintrag(stringResource(artTexte.getValue(a).first), art == a) { art = a } }
                     }
                 }
                 VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -384,7 +386,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         OutlinedTextField(o.ersteller, { o = o.copy(ersteller = it) }, label = { Text(stringResource(Res.string.desk_chart_author)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                         Haken(stringResource(Res.string.desk_chart_legend), o.legende) { o = o.copy(legende = it) }
                     }
-                    val info = vorschau?.getOrNull()?.second
+                    val info = vorschau?.getOrNull()?.info
                     info?.let {
                         Text(if (it.seiten > 0) stringResource(Res.string.desk_chart_size_pages, it.personen, it.seiten) else stringResource(Res.string.desk_chart_size, it.personen, it.breiteCm, it.hoeheCm),
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -422,14 +424,14 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     val px = with(dichte) { maxWidth.roundToPx() to maxHeight.roundToPx() }
                     LaunchedEffect(px) { vorschauPx = px }
                     val fehler = daten?.exceptionOrNull() ?: vorschau?.exceptionOrNull()
-                    val bild = vorschau?.getOrNull()?.first
-                    val info = vorschau?.getOrNull()?.second
-                    // Rechtsklick auf einen Kasten: Stelle im Bild (Pixel) -> Punkt auf der Seite -> Karte darunter
+                    val vb = vorschau?.getOrNull()
+                    val bild = vb?.bild
+                    val info = vb?.info
+                    // Rechtsklick auf einen Kasten: Punkt auf der Seite (in ihren Einheiten) -> Karte darunter
                     var menue by remember { mutableStateOf<Pair<KartenOrt, androidx.compose.ui.unit.DpOffset>?>(null) }
-                    fun klick(imBild: androidx.compose.ui.geometry.Offset, anker: androidx.compose.ui.geometry.Offset) {
-                        if (bild == null || info == null || info.karten.isEmpty() || art !in farbArten) return
-                        val x = imBild.x / bild.width * info.seiteB; val y = imBild.y / bild.height * info.seiteH
-                        val karte = info.karten.firstOrNull { it.enthaelt(x, y) && it.person.xref.isNotEmpty() && !it.person.isPrivate } ?: return
+                    fun klick(seite: androidx.compose.ui.geometry.Offset, anker: androidx.compose.ui.geometry.Offset) {
+                        if (info == null || info.karten.isEmpty() || art !in farbArten) return
+                        val karte = info.karten.firstOrNull { it.enthaelt(seite.x, seite.y) && it.person.xref.isNotEmpty() && !it.person.isPrivate } ?: return
                         menue = karte to with(dichte) { androidx.compose.ui.unit.DpOffset(anker.x.toDp(), anker.y.toDp()) }
                     }
                     Box(Modifier.align(Alignment.TopStart)) {
@@ -444,29 +446,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                             CircularProgressIndicator(color = androidx.compose.ui.graphics.Color.White)
                             Text(stringResource(Res.string.desk_chart_loading_any), Modifier.padding(top = 8.dp), color = androidx.compose.ui.graphics.Color.White)
                         }
-                        gross -> Box(Modifier.fillMaxSize()) {
-                            val quer = rememberScrollState(); val hoch = rememberScrollState()
-                            val dp = with(dichte) { bild.width.toDp() to bild.height.toDp() }
-                            // Beginnt mittig oben - dort steht die Ausgangsperson
-                            LaunchedEffect(bild.width, quer.maxValue) { if (quer.value == 0) quer.scrollTo(quer.maxValue / 2) }
-                            Box(Modifier.fillMaxSize().horizontalScroll(quer).verticalScroll(hoch)) {
-                                Image(bild, contentDescription = null, modifier = Modifier.size(dp.first, dp.second).clickable { gross = false }
-                                    .rechtsklick { p -> klick(p, androidx.compose.ui.geometry.Offset(p.x - quer.value, p.y - hoch.value)) })
-                            }
-                            SenkrechteLeiste(hoch)
-                            WaagerechteLeiste(quer)
-                        }
-                        else -> {
-                            // Eingepasst: das Bild steht verkleinert und mittig im Element
-                            var groesse by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
-                            Image(bild, contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize()
-                                .onSizeChanged { groesse = it }.clickable { gross = true }
-                                .rechtsklick { p ->
-                                    val s = minOf(groesse.width.toFloat() / bild.width, groesse.height.toFloat() / bild.height)
-                                    val links = (groesse.width - bild.width * s) / 2; val oben = (groesse.height - bild.height * s) / 2
-                                    klick(androidx.compose.ui.geometry.Offset((p.x - links) / s, (p.y - oben) / s), p)
-                                })
-                        }
+                        else -> ZoomVorschau(vb!!, zoom, versatz, { z, v -> zoom = z; versatz = v }, ::klick)
                     }
                 }
             }

@@ -556,7 +556,7 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_pdf_poster">Als PDF speichern (Poster)</string>
     <string name="desk_chart_pdf_tiles">Blätter als PDF (mit Montageplan)</string>
     <string name="desk_chart_loading">Nachfahren werden geladen …</string>
-    <string name="desk_chart_zoom_hint">Klick auf die Vorschau vergrößert sie oder zeigt wieder das ganze Blatt.</string>
+    <string name="desk_chart_zoom_hint">Mausrad zoomt um die Stelle unter dem Zeiger, Ziehen verschiebt, ein Klick wechselt zwischen ganzem Blatt und Lesegröße. Rechtsklick auf einen Kasten färbt seinen Zweig.</string>
     <string name="desk_chart_group_ancestors">Vorfahren</string>
     <string name="desk_chart_ancestors">Ahnentafel</string>
     <string name="desk_chart_ancestors_hint">Alle Vorfahren einer Person auf einem Blatt, der Proband unten, jede Generation eine Reihe darüber.</string>
