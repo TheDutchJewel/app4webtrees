@@ -97,6 +97,17 @@ private object TafelBilder {
 
 private fun nachfahrenPersonen(k: DescendantNode): List<Person> = listOf(k.person) + k.families.flatMap { it.children }.flatMap(::nachfahrenPersonen)
 
+/** Datei fuer eine Tafel-Vorlage waehlen: [speichern] mit Vorschlag [name], sonst oeffnen; null bei Abbruch. */
+private fun vorlageDatei(speichern: Boolean, name: String): java.io.File? {
+    val d = java.awt.FileDialog(null as java.awt.Frame?, de.bgghome.webtrees.nativ.Texte.t(if (speichern) Res.string.desk_chart_template_save else Res.string.desk_chart_template_load),
+        if (speichern) java.awt.FileDialog.SAVE else java.awt.FileDialog.LOAD).apply {
+        if (speichern) file = name.replace(Regex("[\\\\/:*?\"<>|]"), "_") else setFilenameFilter { _, n -> n.endsWith(".wtvorlage", true) }
+        isVisible = true
+    }
+    val f = d.file ?: return null
+    return java.io.File(d.directory, if (speichern && !f.endsWith(".wtvorlage", true)) "$f.wtvorlage" else f)
+}
+
 /** Bilddatei fuer den Tafelhintergrund waehlen (Wappen, Karte ...); null bei Abbruch. */
 private fun bildWaehlen(): String? {
     val d = java.awt.FileDialog(null as java.awt.Frame?, de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_chart_bg_choose), java.awt.FileDialog.LOAD).apply {
@@ -157,7 +168,35 @@ private val waagerechtMoeglich = setOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, Taf
 
 /** Die Einstellungen bleiben je Tafelart zwischen den Aufrufen erhalten (Desktop-Einstellungen). */
 private object TafelWahl {
-    private val prefs get() = DeskLayout.prefs
+    /** Beim Speichern und Laden einer Vorlage (E4) schreibt und liest TafelWahl kurz in eine Textablage statt in die Einstellungen. */
+    private var andere: de.bgghome.webtrees.nativ.data.Ablage? = null
+    private val prefs get() = andere ?: DeskLayout.prefs
+
+    /** Einfache Ablage im Speicher fuer Vorlagen; Wahrheitswerte als "true"/"false". */
+    private class TextAblage(val m: MutableMap<String, String> = sortedMapOf()) : de.bgghome.webtrees.nativ.data.Ablage {
+        override fun getString(key: String, default: String?) = m[key] ?: default
+        override fun putString(key: String, value: String?) { if (value == null) m.remove(key) else m[key] = value }
+        override fun getBoolean(key: String, default: Boolean) = m[key]?.toBooleanStrictOrNull() ?: default
+        override fun putBoolean(key: String, value: Boolean) { m[key] = value.toString() }
+        override fun alle(): Map<String, String> = m
+        override fun leeren() = m.clear()
+    }
+
+    /** Alle Einstellungen dieser Tafelart als Text (Schluessel=Wert, wie eine .properties-Datei). */
+    fun vorlageText(art: TafelArt, o: TafelOptionen): String {
+        val t = TextAblage(); andere = t
+        try { sichern(art, o) } finally { andere = null }
+        return "# app4webtrees Tafel-Vorlage\n" + t.m.entries.joinToString("\n") { "${it.key}=${it.value.replace("\n", " ")}" } + "\n"
+    }
+
+    /** Eine Vorlage lesen: ihre Tafelart und Einstellungen - oder null, wenn der Text keine Vorlage ist. */
+    fun vorlageLesen(text: String): Pair<TafelArt, TafelOptionen>? {
+        val t = TextAblage()
+        text.lines().filter { '=' in it && !it.startsWith("#") }.forEach { t.m[it.substringBefore('=').trim()] = it.substringAfter('=').trim() }
+        val art = TafelArt.entries.firstOrNull { it.name == t.m["tafel_art"] } ?: return null
+        andere = t
+        try { return art to laden(art) } finally { andere = null }
+    }
     private fun k(art: TafelArt, name: String) = when (art) {
         TafelArt.Stamm -> "tafel_$name"
         TafelArt.Ahnen -> "tafel_ahnen_$name"
@@ -518,6 +557,19 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                             })
                     }
                     Spacer(Modifier.height(4.dp))
+                    // Vorlagen (E4): alle Einstellungen dieser Tafel als Datei, zum Wiederverwenden und Weitergeben
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Box(Modifier.weight(1f)) { Knopf(stringResource(Res.string.desk_chart_template_save), true) {
+                            vorlageDatei(true, "$titel.wtvorlage")?.writeText(TafelWahl.vorlageText(art, o))
+                        } }
+                        Box(Modifier.weight(1f)) { Knopf(stringResource(Res.string.desk_chart_template_load), true) {
+                            vorlageDatei(false, "")?.let { f -> runCatching { f.readText() }.getOrNull() }?.let(TafelWahl::vorlageLesen)?.let { (neueArt, neu) ->
+                                // Titel und Zeile unter dem Titel gehoeren zur Person, nicht zur Vorlage
+                                TafelWahl.sichern(neueArt, neu)
+                                if (neueArt == art) o = neu.copy(titel = o.titel, untertitel = o.untertitel) else art = neueArt
+                            }
+                        } }
+                    }
                     Knopf(stringResource(Res.string.action_close), true, onClose)
                 }
                 VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
