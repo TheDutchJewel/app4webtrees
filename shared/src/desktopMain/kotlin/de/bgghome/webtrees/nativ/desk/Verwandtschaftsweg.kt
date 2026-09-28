@@ -53,7 +53,12 @@ suspend fun wegLaden(client: WtClient, tree: String, a: String, b: String, gener
 }
 
 /** Alle Verwandtschaften in Worten: die naechste, dann "ausserdem ..." fuer die weiteren. */
-fun wegeText(wege: List<Weg>): String = wege.mapIndexed { i, w -> if (i == 0) wegText(w) else Texte.t(Res.string.desk_way_also, wegText(w)) }.joinToString("  ·  ")
+fun wegeText(wege: List<Weg>): String {
+    if (wege.isEmpty()) return ""
+    // Gleiche weitere Verwandtschaften zusammen ("ausserdem 2× Cousins 5. Grades")
+    val weitere = wege.drop(1).groupBy(::wegText).map { (t, l) -> Texte.t(Res.string.desk_way_also, if (l.size > 1) "${l.size}× $t" else t) }
+    return (listOf(wegText(wege[0])) + weitere).joinToString("  ·  ")
+}
 
 /** Die Verwandtschaft in Worten ("Cousins 2. Grades, eine Generation versetzt"). */
 fun wegText(w: Weg): String {
