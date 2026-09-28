@@ -208,10 +208,13 @@ fun alsPdf(doc: PDDocument, vorschlag: String) {
 
 /**
  * Datei mit dem Standardprogramm oeffnen. Desktop.open tut unter Linux auf vielen Systemen still nichts (ohne
- * GNOME-Bibliotheken), darum dort zuerst xdg-open (28.09.2026); sonst und als Ersatz Desktop.open.
+ * GNOME-Bibliotheken), darum dort zuerst xdg-open (28.09.2026); sonst Desktop.open, unter Windows mit dem Weg des
+ * Explorers als Ersatz.
  */
 internal fun dateiOeffnen(datei: File) {
-    val linux = System.getProperty("os.name").orEmpty().lowercase().contains("linux")
-    if (linux && runCatching { ProcessBuilder("xdg-open", datei.absolutePath).start() }.isSuccess) return
+    val os = System.getProperty("os.name").orEmpty().lowercase()
+    if (os.contains("linux") && runCatching { ProcessBuilder("xdg-open", datei.absolutePath).start() }.isSuccess) return
+    // Windows: wie ein Doppelklick im Explorer (ShellExecute ueber rundll32), falls Desktop.open scheitert
     runCatching { java.awt.Desktop.getDesktop().open(datei) }
+        .recoverCatching { if (os.contains("windows")) ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", datei.absolutePath).start() else throw it }
 }
