@@ -20,24 +20,40 @@ class Weg(val ahnenA: Map<Long, AhnenEintrag>, val ahnenB: Map<Long, AhnenEintra
 }
 
 /** Den naechsten gemeinsamen Vorfahren suchen (auch eine der beiden Personen selbst, wenn sie Vorfahr der anderen ist). */
-fun wegFinden(ahnenA: Map<Long, AhnenEintrag>, ahnenB: Map<Long, AhnenEintrag>): Weg? {
-    fun erste(m: Map<Long, AhnenEintrag>) = m.entries.filter { it.value.person.xref.isNotEmpty() }.groupBy { it.value.person.xref }.mapValues { e -> e.value.minOf { it.key } }
-    val a = erste(ahnenA); val b = erste(ahnenB)
-    val bestes = a.keys.intersect(b.keys).minWithOrNull(compareBy({ reihe(a.getValue(it)) + reihe(b.getValue(it)) }, { a.getValue(it) })) ?: return null
-    val na = a.getValue(bestes); val nb = b.getValue(bestes)
-    // Gemeinsames Paar: der Partner steht in beiden Tafeln an der Nachbarnummer
-    val pa = ahnenA[na xor 1L]?.person?.xref; val pb = ahnenB[nb xor 1L]?.person?.xref
-    val paar = na > 1 && nb > 1 && pa != null && pa.isNotEmpty() && pa == pb
-    // Beim Paar steht der Mann (gerade Nummer) als Wurzel, die Frau im Kasten
-    return if (paar && na % 2 == 1L) Weg(ahnenA, ahnenB, na xor 1L, nb xor 1L, true) else Weg(ahnenA, ahnenB, na, nb, paar)
+fun wegFinden(ahnenA: Map<Long, AhnenEintrag>, ahnenB: Map<Long, AhnenEintrag>): Weg? = wegeFinden(ahnenA, ahnenB, 1).firstOrNull()
+
+/**
+ * Alle Verwandtschaftswege, der naechste zuerst, hoechstens [hoechstens]: jeder gemeinsame Vorfahr, unter dem auf
+ * beiden Linien kein weiterer gemeinsamer Vorfahr liegt; ein gemeinsames Paar zaehlt als ein Weg.
+ */
+fun wegeFinden(ahnenA: Map<Long, AhnenEintrag>, ahnenB: Map<Long, AhnenEintrag>, hoechstens: Int = 4): List<Weg> {
+    fun alle(m: Map<Long, AhnenEintrag>) = m.entries.filter { it.value.person.xref.isNotEmpty() }.groupBy({ it.value.person.xref }, { it.key })
+    val a = alle(ahnenA); val b = alle(ahnenB)
+    // Jedes Vorkommen eines gemeinsamen Vorfahren (bei Ahnenschwund mehrere) ist ein Kandidat
+    val kandidaten = a.keys.intersect(b.keys).flatMap { x -> a.getValue(x).flatMap { na -> b.getValue(x).map { nb -> na to nb } } }
+    // n liegt auf der Linie ueber m, wenn m durch Halbieren aus n entsteht
+    fun ueber(n: Long, m: Long) = n > m && (n shr (reihe(n) - reihe(m))) == m
+    val naechste = kandidaten.filter { (na, nb) -> kandidaten.none { (ma, mb) -> ueber(na, ma) && ueber(nb, mb) } }
+    val wege = ArrayList<Weg>()
+    naechste.sortedWith(compareBy({ reihe(it.first) + reihe(it.second) }, { it.first })).forEach { (na, nb) ->
+        // Gemeinsames Paar: der Partner steht in beiden Tafeln an der Nachbarnummer - dann nur einmal, mit dem Mann als Wurzel
+        val pa = ahnenA[na xor 1L]?.person?.xref; val pb = ahnenB[nb xor 1L]?.person?.xref
+        val paar = na > 1 && nb > 1 && pa != null && pa.isNotEmpty() && pa == pb
+        val w = if (paar && na % 2 == 1L) Weg(ahnenA, ahnenB, na xor 1L, nb xor 1L, true) else Weg(ahnenA, ahnenB, na, nb, paar)
+        if (wege.none { it.na == w.na && it.nb == w.nb } && wege.size < hoechstens) wege += w
+    }
+    return wege
 }
 
-suspend fun wegLaden(client: WtClient, tree: String, a: String, b: String, generationen: Int): Weg? = coroutineScope {
+suspend fun wegLaden(client: WtClient, tree: String, a: String, b: String, generationen: Int): List<Weg> = coroutineScope {
     val x = async { ahnenLaden(client, tree, a, generationen) }
     val y = async { ahnenLaden(client, tree, b, generationen) }
     val ax = x.await(); val by = y.await()
-    if (1L !in ax || 1L !in by) null else wegFinden(ax, by)
+    if (1L !in ax || 1L !in by) emptyList() else wegeFinden(ax, by)
 }
+
+/** Alle Verwandtschaften in Worten: die naechste, dann "ausserdem ..." fuer die weiteren. */
+fun wegeText(wege: List<Weg>): String = wege.mapIndexed { i, w -> if (i == 0) wegText(w) else Texte.t(Res.string.desk_way_also, wegText(w)) }.joinToString("  ·  ")
 
 /** Die Verwandtschaft in Worten ("Cousins 2. Grades, eine Generation versetzt"). */
 fun wegText(w: Weg): String {

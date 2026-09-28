@@ -320,7 +320,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
     // Titel des Wegs: beide Namen und die Verwandtschaft, sobald gerechnet
     LaunchedEffect(daten) {
         val w = daten?.getOrNull()?.weg ?: return@LaunchedEffect
-        if (art == TafelArt.Weg) { if (zweiter?.name.isNullOrBlank()) zweiter = w.personB; o = o.copy(titel = "${w.personA.name} und ${w.personB.name}", untertitel = wegText(w)) }
+        if (art == TafelArt.Weg) { if (zweiter?.name.isNullOrBlank()) zweiter = w.personB; o = o.copy(titel = "${w.personA.name} und ${w.personB.name}", untertitel = wegeText(daten?.getOrNull()?.wege.orEmpty())) }
     }
     LaunchedEffect(daten) { daten?.getOrNull()?.takeIf { art == TafelArt.Paar }?.let { d -> partnerName = d.partnerNamen.getOrNull(d.paarFamilie).orEmpty() } }
     // Bilder im Hintergrund laden; jedes fertige Buendel zaehlt hoch und zeichnet die Vorschau neu.
