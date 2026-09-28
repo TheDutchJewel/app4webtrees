@@ -936,7 +936,9 @@ private fun UeberDialog(state: UiState, viewModel: AppViewModel, appName: String
         title = { Text(stringResource(Res.string.desk_about, appName)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(stringResource(Res.string.desk_about_text, appName, viewModel.versionName))
+                // Mit Build-Nummer wie im Namen der exe ("1.26.157"), damit man sieht, welches Paket laeuft
+                val version = viewModel.versionName + (System.getProperty("wtand.build")?.let { ".$it" } ?: "")
+                Text(stringResource(Res.string.desk_about_text, appName, version))
                 Text(stringResource(Res.string.app_author), style = MaterialTheme.typography.bodySmall)
                 state.info?.module?.takeIf { it.isNotEmpty() }?.let {
                     Text(stringResource(Res.string.menu_about_module, "api4webtrees $it"), style = MaterialTheme.typography.bodySmall)

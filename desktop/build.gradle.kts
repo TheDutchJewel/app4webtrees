@@ -108,6 +108,8 @@ compose.desktop {
         mainClass = "de.bgghome.webtrees.nativ.desktop.MainKt"
         jvmArgs += "-Dwtand.desktopBuild=${property("wtand.desktopBuild")}"
         jvmArgs += "-Dwtand.versionName=$versionName"
+        // Build-Nummer wie im exe-Namen (wtWin-1.26.157.exe), damit "Ueber" zeigt, welche exe laeuft
+        jvmArgs += "-Dwtand.build=$commitZahl"
 
         nativeDistributions {
             appResourcesRootDir.set(lokalOrdner)
