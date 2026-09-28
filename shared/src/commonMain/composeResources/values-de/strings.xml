@@ -563,6 +563,9 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_ancestors_open">Ahnentafel …</string>
     <string name="desk_chart_title_ancestors">Ahnentafel %1$s</string>
     <string name="desk_chart_numbers">Kekule-Nummern zeigen</string>
+    <string name="desk_chart_cousins">Nachfahren der Großeltern</string>
+    <string name="desk_chart_cousins_hint">Die Großeltern väterlicher- und mütterlicherseits mit allen Nachfahren: Onkel, Tanten, Cousins und Cousinen. Vater und Mutter stehen in der Mitte nebeneinander, darunter der Proband mit seinen Geschwistern.</string>
+    <string name="desk_chart_title_cousins">Die Familie von %1$s</string>
     <string name="desk_chart_group_both">Vor- und Nachfahren</string>
     <string name="desk_chart_hourglass">Sanduhr</string>
     <string name="desk_chart_hourglass_hint">Vorfahren über und Nachfahren unter dem Probanden, auf einem Blatt.</string>

@@ -55,7 +55,7 @@ class TafelPerson(
  * AhnenSeiten: die Ahnentafel in Stuecken zu vier Generationen je A4-Seite. Faecher und Kreis: Ringe um den
  * Probanden (Faechertafel.kt).
  */
-enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, Sanduhr }
+enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, Cousins, Sanduhr }
 
 enum class TafelStil { Pergament, Klassisch, Farbig, Schwarzweiss }
 
@@ -89,7 +89,21 @@ data class TafelOptionen(
 )
 
 /** Was eine Tafel zeichnet: Vorfahren nach oben, Nachfahren nach unten (je nach Art einer oder beide Teile). */
-class TafelInhalt(val vorfahren: TafelPerson? = null, val nachfahren: TafelPerson? = null, val linie: Boolean = false)
+class TafelInhalt(val vorfahren: TafelPerson? = null, val nachfahren: TafelPerson? = null, val linie: Boolean = false, val cousins: CousinTafel? = null)
+
+/**
+ * Nachfahren der Grosseltern (A1, 28.09.2026): links die Grosseltern vaeterlicherseits mit ihren Nachfahren, rechts
+ * die muetterlicherseits. [vater] steht als letztes Kind links, [mutter] als erstes rechts - beide innen nebeneinander,
+ * ihre gemeinsamen [kinder] (Proband und Geschwister) haengen mittig unter dem Paar. Fehlen die Grosseltern einer
+ * Seite, ist der Elternteil selbst die Wurzel ([links] === [vater]); fehlt ein Elternteil, haengen die Kinder in
+ * dessen Baum und [vater]/[mutter] sind null.
+ */
+class CousinTafel(val links: TafelPerson?, val rechts: TafelPerson?, val vater: TafelPerson?, val mutter: TafelPerson?, val kinder: List<TafelPerson>) {
+    fun knoten(): List<TafelPerson> = listOfNotNull(links, rechts).flatMap(::alleKnoten) + kinder.flatMap(::alleKnoten)
+}
+
+/** Ein Paar nebeneinander in einer Reihe, dessen gemeinsame Kinder an einer Linie aus der Mitte haengen. */
+class TafelPaar(val vater: TafelPlatz, val mutter: TafelPlatz, val kinder: List<TafelPlatz>)
 
 /** Ein platzierter Kasten: Mitte waagerecht, Oberkante des Bildes, Ebene (0 = Ausgangsperson). */
 class TafelPlatz(val knoten: TafelPerson, val mitteX: Float, val obenY: Float, val ebene: Int, val eltern: TafelPlatz?)
@@ -117,7 +131,7 @@ class TafelMasse(val rahmen: Float, val bilder: Boolean, zusatz: Int = 0, val wa
     val slot = laengeQ + spalt
 }
 
-class TafelLayout(val plaetze: List<TafelPlatz>, val breite: Float, val hoehe: Float, val masse: TafelMasse)
+class TafelLayout(val plaetze: List<TafelPlatz>, val breite: Float, val hoehe: Float, val masse: TafelMasse, val paare: List<TafelPaar> = emptyList())
 
 /**
  * Baumlayout nach Konturen (Art Reingold-Tilford): Geschwister-Teilbaeume ruecken so eng zusammen, wie es ihre
@@ -194,6 +208,66 @@ fun linienLayout(wurzel: TafelPerson, masse: TafelMasse): TafelLayout {
     roh.forEach { r -> plaetze += TafelPlatz(r.k, r.x - links + masse.slot / 2, r.ebene * masse.ebeneH, r.ebene, r.eltern?.let { plaetze[it] }) }
     val breite = roh.maxOf { it.x } - links + masse.slot
     return TafelLayout(plaetze, breite, (roh.maxOf { it.ebene } + 1) * masse.ebeneH - masse.verbinder, masse)
+}
+
+/**
+ * Nachfahren der Grosseltern: die beiden Seiten und die Kinder des Paares je fuer sich nach Konturen gelegt, dann
+ * nebeneinander gerueckt. Die Kinder stehen mittig unter Vater und Mutter; die rechte Seite rueckt so weit ab, dass
+ * sich in keiner Reihe etwas beruehrt - weder die Seiten untereinander noch mit den Kindern dazwischen.
+ * Reihe 0 sind die Grosseltern, Reihe 1 die Eltern mit Onkeln und Tanten.
+ */
+fun cousinLayout(c: CousinTafel, masse: TafelMasse): TafelLayout {
+    // Teil-Layout mit Reihenversatz; [ohneWurzel]: die Wurzel ist nur ein Halter fuer mehrere Kinder
+    class Stueck(val layout: TafelLayout, val versatz: Int, ohneWurzel: Boolean) {
+        val plaetze = if (ohneWurzel) layout.plaetze.drop(1) else layout.plaetze
+        fun ebene(p: TafelPlatz) = p.ebene + versatz
+        val links = plaetze.groupBy(::ebene).mapValues { e -> e.value.minOf { it.mitteX } }
+        val rechts = plaetze.groupBy(::ebene).mapValues { e -> e.value.maxOf { it.mitteX } }
+        fun x(k: TafelPerson?) = plaetze.firstOrNull { it.knoten === k }?.mitteX
+    }
+    val l = c.links?.let { Stueck(stammtafelLayout(it, masse), if (it === c.vater) 1 else 0, false) }
+    val r = c.rechts?.let { Stueck(stammtafelLayout(it, masse), if (it === c.mutter) 1 else 0, false) }
+    val halter = c.kinder.firstOrNull()?.let { TafelPerson(it.person, c.kinder) }
+    val k = halter?.let { Stueck(stammtafelLayout(it, masse), 1, true) }
+    // Abstand zwischen zwei Stuecken, damit sich in keiner Reihe Kaesten beruehren
+    fun abstand(a: Stueck, b: Stueck): Float =
+        a.rechts.keys.intersect(b.links.keys).maxOfOrNull { e -> a.rechts.getValue(e) + masse.slot - b.links.getValue(e) } ?: Float.NEGATIVE_INFINITY
+    val fx = l?.x(c.vater); val mx = r?.x(c.mutter)
+    var dr = 0f; var dk = 0f
+    if (l != null && r != null) {
+        dr = abstand(l, r)
+        if (fx != null && mx != null) {
+            // Das Paar etwas weiter auseinander als Geschwister: dazwischen die Heiratslinie
+            dr = maxOf(dr, fx + masse.slot * 1.3f - mx)
+            if (k != null) {
+                // Kinder mittig: dk = (fx + mx + dr) / 2 - kc; links an l, rechts an r vorbei
+                val kc = k.layout.plaetze.first().mitteX
+                k.links.forEach { (e, kl) -> l.rechts[e]?.let { lr -> dr = maxOf(dr, 2 * (lr + masse.slot - kl + kc) - fx - mx) } }
+                k.rechts.forEach { (e, kr) -> r.links[e]?.let { rl -> dr = maxOf(dr, 2 * (kr + masse.slot - kc - rl) + fx + mx) } }
+                dk = (fx + mx + dr) / 2 - kc
+            }
+        }
+    } else if (k != null) dk = (fx ?: mx ?: 0f) - k.layout.plaetze.first().mitteX
+    // Zusammensetzen: neue Plaetze mit den neuen Eltern-Verweisen
+    val alle = mutableListOf<TafelPlatz>()
+    val neu = HashMap<TafelPlatz, TafelPlatz>()
+    listOfNotNull(l?.let { it to 0f }, r?.let { it to dr }, k?.let { it to dk }).forEach { (st, dx) ->
+        st.plaetze.forEach { p ->
+            val n = TafelPlatz(p.knoten, p.mitteX + dx, 0f, st.ebene(p), p.eltern?.let { neu[it] })
+            neu[p] = n; alle += n
+        }
+    }
+    if (alle.isEmpty()) return TafelLayout(emptyList(), 0f, 0f, masse)
+    val e0 = alle.minOf { it.ebene }
+    val x0 = alle.minOf { it.mitteX } - masse.slot / 2
+    val fertig = HashMap<TafelPlatz, TafelPlatz>()
+    // Reihenfolge bleibt: Eltern stehen vor ihren Kindern
+    val plaetze = alle.map { p -> TafelPlatz(p.knoten, p.mitteX - x0, (p.ebene - e0) * masse.ebeneH, p.ebene - e0, p.eltern?.let { fertig[it] }).also { fertig[p] = it } }
+    val paare = if (c.vater == null || c.mutter == null) emptyList() else {
+        val v = plaetze.first { it.knoten === c.vater }; val m = plaetze.first { it.knoten === c.mutter }
+        listOf(TafelPaar(v, m, plaetze.filter { p -> p.eltern == null && c.kinder.any { it === p.knoten } }))
+    }
+    return TafelLayout(plaetze, alle.maxOf { it.mitteX } - x0 + masse.slot / 2, (plaetze.maxOf { it.ebene } + 1) * masse.ebeneH - masse.verbinder, masse, paare)
 }
 
 /** Wer mehrfach vorkommt (Nachfahren, die untereinander geheiratet haben), bekommt auf der Tafel eine Nummer. */
@@ -307,7 +381,7 @@ private fun alleKnoten(k: TafelPerson): List<TafelPerson> = listOf(k) + k.kinder
 fun tafelPdf(
     inhalt: TafelInhalt, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
 ): Pair<PDDocument, TafelInfo> {
-    val knoten = listOfNotNull(inhalt.vorfahren, inhalt.nachfahren).flatMap(::alleKnoten)
+    val knoten = listOfNotNull(inhalt.vorfahren, inhalt.nachfahren).flatMap(::alleKnoten) + inhalt.cousins?.knoten().orEmpty()
     val masse = TafelMasse(o.rahmenMm * 72f / 25.4f, o.bilder, zusatzZeilen(knoten, o), o.waagerecht)
     val w = o.waagerecht
     // Teile: Layout, Richtung, waagerechter Versatz, Reihe der Ausgangsperson
@@ -315,6 +389,7 @@ fun tafelPdf(
     val teile = buildList {
         inhalt.vorfahren?.let { add(Teil(if (inhalt.linie) linienLayout(it, masse) else stammtafelLayout(it, masse), true)) }
         inhalt.nachfahren?.let { add(Teil(stammtafelLayout(it, masse), false)) }
+        inhalt.cousins?.let { add(Teil(cousinLayout(it, masse), false)) }
     }
     // Geschwister: eigene Plaetze in der Reihe der Person, nur wenn deren Eltern auf der Tafel stehen
     val geschwisterVon = HashMap<TafelPlatz, List<TafelPlatz>>()
@@ -484,6 +559,25 @@ fun tafelPdf(
                     val ende = if (t.aufwaerts) t.oberkante(k) + masse.laengeG else t.oberkante(k)
                     val q = t.x(k)
                     cs.moveTo(px(mitte, q), pyv(mitte, q)); cs.lineTo(px(ende, q), pyv(ende, q))
+                }
+                cs.stroke()
+            }
+            // Paare: Heiratslinie zwischen den Kaesten, aus ihrer Mitte hinunter zu den gemeinsamen Kindern
+            t.layout.paare.forEach { paar ->
+                val g = t.oberkante(paar.vater) + if (w) masse.laengeG / 2 else masse.bild + masse.bildAbstand + masse.kastenH / 2
+                val q1 = t.x(paar.vater) + masse.laengeQ / 2; val q2 = t.x(paar.mutter) - masse.laengeQ / 2
+                cs.moveTo(px(g, q1), pyv(g, q1)); cs.lineTo(px(g, q2), pyv(g, q2))
+                if (paar.kinder.isNotEmpty()) {
+                    val qm = (q1 + q2) / 2
+                    val mitte = t.oberkante(paar.vater) + masse.laengeG + masse.verbinder / 2
+                    cs.moveTo(px(g, qm), pyv(g, qm)); cs.lineTo(px(mitte, qm), pyv(mitte, qm))
+                    val xs = paar.kinder.map { t.x(it) }
+                    val a = minOf(xs.min(), qm); val e = maxOf(xs.max(), qm)
+                    cs.moveTo(px(mitte, a), pyv(mitte, a)); cs.lineTo(px(mitte, e), pyv(mitte, e))
+                    paar.kinder.forEach { kind ->
+                        val q = t.x(kind); val ende = t.oberkante(kind)
+                        cs.moveTo(px(mitte, q), pyv(mitte, q)); cs.lineTo(px(ende, q), pyv(ende, q))
+                    }
                 }
                 cs.stroke()
             }

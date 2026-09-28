@@ -568,6 +568,9 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_chart_ancestors_open">Ancestor chart…</string>
     <string name="desk_chart_title_ancestors">Ancestors of %1$s</string>
     <string name="desk_chart_numbers">Show Kekulé numbers</string>
+    <string name="desk_chart_cousins">Descendants of the grandparents</string>
+    <string name="desk_chart_cousins_hint">The paternal and maternal grandparents with all their descendants: uncles, aunts and cousins. Father and mother stand side by side in the middle, the starting person and siblings below them.</string>
+    <string name="desk_chart_title_cousins">The family of %1$s</string>
     <string name="desk_chart_group_both">Ancestors and descendants</string>
     <string name="desk_chart_hourglass">Hourglass chart</string>
     <string name="desk_chart_hourglass_hint">Ancestors above and descendants below the starting person, on one sheet.</string>
