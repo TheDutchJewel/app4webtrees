@@ -1,6 +1,8 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.Person
+import de.bgghome.webtrees.nativ.res.*
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
@@ -102,6 +104,8 @@ private fun faecherJahre(p: Person): String {
 fun faecherPdf(
     wurzel: TafelPerson, generationen: Int, vollkreis: Boolean, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
 ): Pair<PDDocument, TafelInfo> {
+    // Lebende auf Wunsch ohne Jahre
+    fun jahre(p: Person) = if (o.lebendeNurNamen && !p.isDead) "" else faecherJahre(p)
     val knoten = HashMap<Long, TafelPerson>()
     fun sammeln(k: TafelPerson) { knoten[k.nummer ?: 1L] = k; k.kinder.forEach(::sammeln) }
     sammeln(wurzel)
@@ -116,16 +120,30 @@ fun faecherPdf(
     val f = farben(o.stil)
     val s = TafelSchriften(doc, o.stil)
 
-    val rand = maxOf(r * 0.5f, 28f)
+    val rand = maxOf(r * 0.5f, 28f) * schmuckRand(o.schmuck)
     val titelGroesse = (r * 0.55f).coerceIn(22f, 72f)
     val titelBreite = if (o.titel.isBlank()) 0f else s.titel.breite(o.titel, titelGroesse)
-    val titelH = if (o.titel.isBlank()) 0f else titelGroesse * 1.9f
+    // Zeile unter dem Titel und Legende wie bei den anderen Tafeln
+    val untertitel = untertitelText(o)
+    val ug = (titelGroesse * 0.36f).coerceIn(10f, 26f)
+    val untertitelBreite = if (untertitel.isEmpty()) 0f else s.normal.breite(untertitel, ug)
+    val titelH = (if (o.titel.isBlank()) 0f else titelGroesse * 1.9f) + (if (untertitel.isEmpty()) 0f else if (o.titel.isBlank()) ug * 2f else ug * 1.3f)
+    val legende = if (!o.legende) emptyList() else buildList {
+        // Farbig: die vier Grosseltern-Linien, benannt nach dem Grosselternteil
+        if (o.stil == TafelStil.Farbig && ringe >= 2) (4L..7L).forEach { n -> knoten[n]?.let { add(LegendenEintrag(LegendenArt.Farbe, "", Texte.t(Res.string.desk_legend_line, it.person.name), (n - 4).toInt())) } }
+        add(LegendenEintrag(LegendenArt.Zeichen, "*", Texte.t(Res.string.desk_legend_born)))
+        add(LegendenEintrag(LegendenArt.Zeichen, "†", Texte.t(Res.string.desk_legend_died)))
+        if (o.nummern) add(LegendenEintrag(LegendenArt.Nummer, "4", Texte.t(Res.string.desk_legend_kekule)))
+        if (knoten.values.any { it.verweis != null }) add(LegendenEintrag(LegendenArt.Zeichen, "= 8", Texte.t(Res.string.desk_legend_ref)))
+    }
     val fussH = 18f
     val grafikB = 2 * aussen
     val grafikH = if (vollkreis) 2 * aussen else aussen + r0 * 0.9f
-    val inhaltB = maxOf(grafikB, titelBreite)
+    val lm = LegendenMass(legende, s.normal, s.fett, r, maxOf(grafikB, titelBreite))
+    val legendeH = if (lm.h > 0f) lm.h + lm.g else 0f
+    val inhaltB = maxOf(grafikB, titelBreite, untertitelBreite, lm.b)
     val b = inhaltB + 2 * rand
-    val h = rand + titelH + grafikH + fussH + rand
+    val h = rand + titelH + grafikH + legendeH + fussH + rand
     val skala = minOf(1f, PDF_MAX / b, PDF_MAX / h)
     val page = PDPage(PDRectangle(b * skala, h * skala))
     if (skala < 1f) page.userUnit = 1f / skala
@@ -143,11 +161,17 @@ fun faecherPdf(
 
     PDPageContentStream(doc, page).use { cs ->
         if (skala < 1f) cs.transform(Matrix.getScaleInstance(skala, skala))
-        if (f.hintergrundOben != f.hintergrundUnten) cs.verlauf(b, h, f.hintergrundOben, f.hintergrundUnten)
+        cs.tafelHintergrund(doc, o.hintergrund, b, h, f.hintergrundOben, f.hintergrundUnten, o.hintergrundBild)
+        cs.schmuckrahmen(o.schmuck, b, h, rand, f.titel)
         if (o.titel.isNotBlank()) {
             cs.setNonStrokingColor(f.titel)
             cs.beginText(); cs.setFont(s.titel, titelGroesse)
             cs.newLineAtOffset((b - titelBreite) / 2, h - (rand + titelGroesse * 1.05f)); cs.showText(s.titel.sicher(o.titel)); cs.endText()
+        }
+        if (untertitel.isNotEmpty()) {
+            val y = if (o.titel.isBlank()) rand + ug * 1.1f else rand + titelGroesse * 1.05f + ug * 1.9f
+            cs.setNonStrokingColor(f.linie)
+            cs.beginText(); cs.setFont(s.normal, ug); cs.newLineAtOffset((b - untertitelBreite) / 2, h - y); cs.showText(s.normal.sicher(untertitel)); cs.endText()
         }
         val linie = maxOf(0.5f, r * 0.008f)
 
@@ -182,10 +206,10 @@ fun faecherPdf(
                 else if (quer) {
                     p.given.ifBlank { if (p.surname.isBlank()) p.name else "" }.takeIf(String::isNotBlank)?.let { add(it to s.normal) }
                     add(p.surname.ifBlank { p.name } to s.fett)
-                    faecherJahre(p).takeIf(String::isNotBlank)?.let { add(it to s.normal) }
+                    jahre(p).takeIf(String::isNotBlank)?.let { add(it to s.normal) }
                 } else {
                     add(p.name.ifBlank { "?" } to s.fett)
-                    faecherJahre(p).takeIf(String::isNotBlank)?.let { add(it to s.normal) }
+                    jahre(p).takeIf(String::isNotBlank)?.let { add(it to s.normal) }
                 }
                 k.verweis?.let { add("= $it" to s.fett) }
             }
@@ -233,7 +257,7 @@ fun faecherPdf(
             cs.restoreGraphicsState()
             cs.setStrokingColor(f.linie); cs.setLineWidth(linie); cs.kreis(cx, bildY, bildR); cs.stroke()
         }
-        val mitteZeilen = listOf(p.given.ifBlank { p.name } to s.fett, p.surname to s.fett, faecherJahre(p) to s.normal).filter { it.first.isNotBlank() }
+        val mitteZeilen = listOf(p.given.ifBlank { p.name } to s.fett, p.surname to s.fett, jahre(p) to s.normal).filter { it.first.isNotBlank() }
         val mg = schriftFuer(mitteZeilen, r0 * 1.5f, r0 * 0.5f, r * 0.12f)
         var ty = if (o.bilder) bildY - bildR - mg * 1.1f else cy + if (vollkreis) mitteZeilen.size * mg * 0.6f else r0 * 0.6f
         cs.setNonStrokingColor(f.text)
@@ -243,8 +267,14 @@ fun faecherPdf(
             ty -= mg * 1.2f
         }
 
+        // Legende unten rechts unter der Grafik
+        if (legende.isNotEmpty()) {
+            val heirat = if (runCatching { s.normal.encode("⚭") }.isSuccess) "⚭" else "oo"
+            cs.legendeZeichnen(legende, lm, b - rand - lm.b, rand + titelH + grafikH + lm.g, { h - it }, s, f, heirat, r)
+        }
         cs.setNonStrokingColor(Color(0x66, 0x66, 0x66))
-        cs.beginText(); cs.setFont(s.normal, 7f); cs.newLineAtOffset(rand, rand * 0.6f); cs.showText(s.normal.sicher(fuss)); cs.endText()
+        val fx = if (o.schmuck == Schmuckrahmen.Keiner) rand else (b - s.normal.breite(fuss, 7f)) / 2
+        cs.beginText(); cs.setFont(s.normal, 7f); cs.newLineAtOffset(fx, rand * if (o.schmuck == Schmuckrahmen.Keiner) 0.6f else 0.85f); cs.showText(s.normal.sicher(fuss)); cs.endText()
     }
     val info = TafelInfo(knoten.values.map { it.person.xref }.distinct().size, (b / 72f * 2.54f).toInt(), (h / 72f * 2.54f).toInt(),
         seiteB = b * skala, seiteH = h * skala, einheit = 1f / skala)

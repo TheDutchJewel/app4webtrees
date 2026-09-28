@@ -196,8 +196,7 @@ internal class TafelBlatt(a: TafelAnordnung, s: TafelSchriften, val legende: Lis
     val titelGroesse = (a.masse.rahmen * 0.55f).coerceIn(22f, 72f)
     val titelBreite = if (a.o.titel.isBlank()) 0f else s.titel.breite(a.o.titel, titelGroesse)
     /** Zeile unter dem Titel: freier Text und "zusammengestellt von". */
-    val untertitel = listOfNotNull(a.o.untertitel.trim().takeIf(String::isNotBlank),
-        a.o.ersteller.trim().takeIf(String::isNotBlank)?.let { Texte.t(Res.string.desk_legend_by, it) }).joinToString("  ·  ")
+    val untertitel = untertitelText(a.o)
     val untertitelGroesse = (titelGroesse * 0.36f).coerceIn(10f, 26f)
     val untertitelBreite = if (untertitel.isEmpty()) 0f else s.normal.breite(untertitel, untertitelGroesse)
     val titelH = (if (a.o.titel.isBlank()) 0f else titelGroesse * 1.9f) +
@@ -316,34 +315,9 @@ private class TafelZeichner(
 
     /** Legende unten rechts unter der Tafel, spaltenweise von oben nach unten. */
     fun legende() {
-        val lm = bl.lm
         if (bl.legende.isEmpty()) return
-        val g = lm.g
-        val lx = bl.b - bl.rand - bl.gitterRand - lm.b
-        val ly = bl.y0 + bl.blattH + bl.gitterRand + g
-        cs.setNonStrokingColor(f.text)
-        text(Texte.t(Res.string.desk_legend_title), s.fett, g * 1.1f, lx, bl.py(ly + g * 1.2f))
-        bl.legende.forEachIndexed { i, e ->
-            val x = lx + (i / lm.zeilen) * lm.spaltenB
-            val cy = ly + lm.kopfH + (i % lm.zeilen) * lm.zeileH + lm.zeileH / 2
-            when (e.art) {
-                LegendenArt.Farbe -> {
-                    val k = KASTEN_FARBEN[e.farbe.coerceIn(0, KASTEN_FARBEN.size - 1)]
-                    cs.setNonStrokingColor(k.fuellung); cs.setStrokingColor(k.rahmen); cs.setLineWidth(0.8f)
-                    cs.rechteck(x, bl.py(cy + g * 0.6f), lm.feldB * 0.75f, g * 1.2f, g * 0.2f); cs.fillAndStroke()
-                }
-                LegendenArt.Schild -> schild(e.zeichen, x + lm.feldB * 0.35f, bl.py(cy))
-                LegendenArt.Nummer -> { cs.setNonStrokingColor(f.linie); text(e.zeichen, s.normal, g * 0.85f, x + lm.feldB * 0.3f, bl.py(cy + g * 0.3f)) }
-                LegendenArt.Zeichen -> {
-                    // Heiratszeichen wie in den Kaesten (ohne ⚭ in der Schrift "oo")
-                    val zeichen = if (e.zeichen == "⚭") heirat else e.zeichen
-                    val zg = if (zeichen.length > 2) g * 0.9f else g * 1.2f
-                    cs.setNonStrokingColor(f.text); text(zeichen, s.normal, zg, x + (lm.feldB * 0.75f - s.normal.breite(zeichen, zg)) / 2, bl.py(cy + zg * 0.35f))
-                }
-            }
-            cs.setNonStrokingColor(f.text)
-            text(e.text, s.normal, g, x + lm.feldB, bl.py(cy + g * 0.35f))
-        }
+        val lx = bl.b - bl.rand - bl.gitterRand - bl.lm.b
+        cs.legendeZeichnen(bl.legende, bl.lm, lx, bl.y0 + bl.blattH + bl.gitterRand + bl.lm.g, bl::py, s, f, heirat, m.rahmen)
     }
 
     /** Gitter am Rand: Buchstaben fuer die Spalten, roemische Zahlen fuer die Generationen, dazwischen kleine Striche. */
@@ -471,14 +445,7 @@ private class TafelZeichner(
     }
 
     /** Kleines Schild an der rechten oberen Bildecke (Nummer fuer Doppelte, "= 8" fuer Ahnenschwund). */
-    private fun schild(text: String, cx: Float, cy: Float) {
-        val r = m.rahmen * 0.075f; val g = r * 1.3f
-        val sw = maxOf(2 * r, s.fett.breite(text, g) + r)
-        cs.setNonStrokingColor(Color(0xFF, 0xF3, 0x9A)); cs.setStrokingColor(f.linie); cs.setLineWidth(0.5f)
-        cs.rechteck(cx - sw / 2, cy - r, sw, 2 * r, r); cs.fillAndStroke()
-        cs.setNonStrokingColor(f.text)
-        text(text, s.fett, g, cx - s.fett.breite(text, g) / 2, cy - g * 0.35f)
-    }
+    private fun schild(text: String, cx: Float, cy: Float) = cs.schildZeichnen(text, cx, cy, m.rahmen, s, f)
 
     /** Zeilen im Kasten: Vorname klein, Nachname fett, Geburt (und Ort), Tod (und Ort), Partner. */
     private fun zeilen(k: TafelPerson): List<KastenZeile> = buildList {

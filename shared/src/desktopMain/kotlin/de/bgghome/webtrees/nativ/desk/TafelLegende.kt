@@ -2,6 +2,7 @@ package de.bgghome.webtrees.nativ.desk
 
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.res.*
+import org.apache.pdfbox.pdmodel.PDPageContentStream
 import org.apache.pdfbox.pdmodel.font.PDFont
 
 /*
@@ -31,6 +32,52 @@ internal fun legendenEintraege(a: TafelAnordnung): List<LegendenEintrag> = build
     if (a.mitGitter && a.positionen.values.any { it.distinct().size > 1 }) add(LegendenEintrag(LegendenArt.Zeichen, "= C III", Texte.t(Res.string.desk_legend_grid)))
     if (knoten.any { it.hinweis?.startsWith("→") == true }) add(LegendenEintrag(LegendenArt.Zeichen, "→ S. 5", Texte.t(Res.string.desk_legend_page)))
 }
+
+/** Kleines gelbes Schild (Nummer fuer Doppelte, "= 8" fuer Ahnenschwund), Groesse aus der Rahmenbreite. */
+internal fun PDPageContentStream.schildZeichnen(text: String, cx: Float, cy: Float, rahmen: Float, s: TafelSchriften, f: StilFarben) {
+    val r = rahmen * 0.075f; val g = r * 1.3f
+    val sw = maxOf(2 * r, s.fett.breite(text, g) + r)
+    setNonStrokingColor(java.awt.Color(0xFF, 0xF3, 0x9A)); setStrokingColor(f.linie); setLineWidth(0.5f)
+    rechteck(cx - sw / 2, cy - r, sw, 2 * r, r); fillAndStroke()
+    setNonStrokingColor(f.text)
+    beginText(); setFont(s.fett, g); newLineAtOffset(cx - s.fett.breite(text, g) / 2, cy - g * 0.35f); showText(s.fett.sicher(text)); endText()
+}
+
+/** Die Legende als Block ab (lx, oben) - y von oben, [py] rechnet in PDF-Koordinaten um; spaltenweise von oben nach unten. */
+internal fun PDPageContentStream.legendeZeichnen(
+    eintraege: List<LegendenEintrag>, lm: LegendenMass, lx: Float, oben: Float, py: (Float) -> Float,
+    s: TafelSchriften, f: StilFarben, heirat: String, rahmen: Float,
+) {
+    val g = lm.g
+    fun text(t: String, schrift: PDFont, gr: Float, x: Float, y: Float) { beginText(); setFont(schrift, gr); newLineAtOffset(x, y); showText(schrift.sicher(t)); endText() }
+    setNonStrokingColor(f.text)
+    text(Texte.t(Res.string.desk_legend_title), s.fett, g * 1.1f, lx, py(oben + g * 1.2f))
+    eintraege.forEachIndexed { i, e ->
+        val x = lx + (i / lm.zeilen) * lm.spaltenB
+        val cy = oben + lm.kopfH + (i % lm.zeilen) * lm.zeileH + lm.zeileH / 2
+        when (e.art) {
+            LegendenArt.Farbe -> {
+                val k = KASTEN_FARBEN[e.farbe.coerceIn(0, KASTEN_FARBEN.size - 1)]
+                setNonStrokingColor(k.fuellung); setStrokingColor(k.rahmen); setLineWidth(0.8f)
+                rechteck(x, py(cy + g * 0.6f), lm.feldB * 0.75f, g * 1.2f, g * 0.2f); fillAndStroke()
+            }
+            LegendenArt.Schild -> schildZeichnen(e.zeichen, x + lm.feldB * 0.35f, py(cy), rahmen, s, f)
+            LegendenArt.Nummer -> { setNonStrokingColor(f.linie); text(e.zeichen, s.normal, g * 0.85f, x + lm.feldB * 0.3f, py(cy + g * 0.3f)) }
+            LegendenArt.Zeichen -> {
+                // Heiratszeichen wie in den Kaesten (ohne ⚭ in der Schrift "oo")
+                val zeichen = if (e.zeichen == "⚭") heirat else e.zeichen
+                val zg = if (zeichen.length > 2) g * 0.9f else g * 1.2f
+                setNonStrokingColor(f.text); text(zeichen, s.normal, zg, x + (lm.feldB * 0.75f - s.normal.breite(zeichen, zg)) / 2, py(cy + zg * 0.35f))
+            }
+        }
+        setNonStrokingColor(f.text)
+        text(e.text, s.normal, g, x + lm.feldB, py(cy + g * 0.35f))
+    }
+}
+
+/** Zeile unter dem Titel: freier Text und "zusammengestellt von". */
+internal fun untertitelText(o: TafelOptionen): String = listOfNotNull(o.untertitel.trim().takeIf(String::isNotBlank),
+    o.ersteller.trim().takeIf(String::isNotBlank)?.let { Texte.t(Res.string.desk_legend_by, it) }).joinToString("  ·  ")
 
 private typealias StringResource = org.jetbrains.compose.resources.StringResource
 

@@ -225,7 +225,7 @@ private object TafelWahl {
         farbe = FarbSchema.entries.firstOrNull { it.name == prefs.getString(k(art, "farbe"), null) } ?: FarbSchema.Geschlecht,
         jeSeite = (prefs.getString(k(art, "jeseite"), null)?.toIntOrNull() ?: 3).coerceIn(2, 5),
         karteikarten = prefs.getBoolean(k(art, "karten"), false),
-        legende = art !in kreise && prefs.getBoolean(k(art, "legende"), true),
+        legende = prefs.getBoolean(k(art, "legende"), true),
         form = KastenForm.entries.firstOrNull { it.name == prefs.getString(k(art, "form"), null) } ?: KastenForm.Stil,
         schatten = prefs.getBoolean(k(art, "schatten"), false), fotoLinks = prefs.getBoolean(k(art, "fotolinks"), false),
         hintergrund = TafelHintergrund.entries.firstOrNull { it.name == prefs.getString(k(art, "hg"), null) } ?: TafelHintergrund.Stil,
@@ -438,6 +438,9 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                             val namen = listOf(Res.string.desk_chart_align_center, Res.string.desk_chart_align_left, Res.string.desk_chart_align_right).map { stringResource(it) }
                             Auswahl(namen[o.buendig], namen) { w -> o = o.copy(buendig = namen.indexOf(w)) }
                         }
+                    }
+                    // Fuer alle Tafeln, auch Faecher und Kreis: Lebende, Hintergrund, Rahmen
+                    run {
                         Haken(stringResource(Res.string.desk_chart_living_names), o.lebendeNurNamen) { o = o.copy(lebendeNurNamen = it) }
                         Einstellung(stringResource(Res.string.desk_chart_background)) {
                             val namen = listOf(Res.string.desk_chart_form_style, Res.string.desk_chart_bg_white, Res.string.desk_chart_bg_parchment,
@@ -522,7 +525,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         if (mitKarten && details == null) Text(stringResource(Res.string.desk_chart_cards_loading), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     OutlinedTextField(o.titel, { o = o.copy(titel = it) }, label = { Text(stringResource(Res.string.desk_chart_heading)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    if (art !in kreise) {
+                    run {
                         OutlinedTextField(o.untertitel, { o = o.copy(untertitel = it) }, label = { Text(stringResource(Res.string.desk_chart_subtitle)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(o.ersteller, { o = o.copy(ersteller = it) }, label = { Text(stringResource(Res.string.desk_chart_author)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                         Haken(stringResource(Res.string.desk_chart_legend), o.legende) { o = o.copy(legende = it) }
