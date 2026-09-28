@@ -54,6 +54,9 @@ enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstam
 
 enum class TafelStil { Pergament, Klassisch, Farbig, Schwarzweiss }
 
+/** Form der Kaesten (C2): wie der Stil (Pergament/Farbig abgerundet, sonst eckig), eckig, abgerundet, oval mit rundem Foto, Schild. */
+enum class KastenForm { Stil, Eckig, Rund, Oval, Schild }
+
 data class TafelOptionen(
     val generationen: Int = 6,
     /** Kekule-Nummern an den Kaesten (Tafeln mit Vorfahren). */
@@ -87,6 +90,10 @@ data class TafelOptionen(
     val legende: Boolean = false,
     /** Karteikarten je Person hinter der Tafel (Karteikarten.kt). */
     val karteikarten: Boolean = false,
+    /** Kastenform, Schatten, Foto links neben statt ueber dem Kasten. */
+    val form: KastenForm = KastenForm.Stil,
+    val schatten: Boolean = false,
+    val fotoLinks: Boolean = false,
     /** Verwandtschaftstafel: Stammpaare (xref der Wurzel), die nicht auf die Tafel sollen. */
     val ohneStamm: Set<String> = emptySet(),
     /** Nur seitenweise Stammtafel: Generationen je Seite, Seitenuebersicht vorn. */
@@ -136,17 +143,23 @@ class TafelPlatz(val knoten: TafelPerson, val mitteX: Float, val obenY: Float, v
  * Das Layout rechnet in zwei Achsen: Generation (Reihe) und Geschwister (nebeneinander). [waagerecht]: die
  * Generationen liegen als Spalten nebeneinander, das Bild steht links neben dem Text statt darueber.
  */
-class TafelMasse(val rahmen: Float, val bilder: Boolean, zusatz: Int = 0, val waagerecht: Boolean = false) {
+class TafelMasse(
+    val rahmen: Float, val bilder: Boolean, zusatz: Int = 0, val waagerecht: Boolean = false,
+    /** Foto links neben dem Kasten auch bei senkrechten Tafeln; [schildForm]: Platz fuer die Spitze unten. */
+    fotoLinks: Boolean = false, schildForm: Boolean = false,
+) {
     val bild = if (bilder) rahmen * 0.78f else 0f
     val bildAbstand = if (bilder) rahmen * 0.06f else 0f
     val schriftKlein = rahmen * 0.085f
     val schriftName = rahmen * 0.12f
-    val kastenH = schriftKlein * (3 + zusatz) * 1.3f + schriftName * 1.3f + rahmen * 0.12f
+    val kastenH = (schriftKlein * (3 + zusatz) * 1.3f + schriftName * 1.3f + rahmen * 0.12f) * (if (schildForm) 1.22f else 1f)
     val spalt = maxOf(rahmen * 0.12f, 6f)
     val verbinder = maxOf(rahmen * 0.36f, 18f)
+    /** Das Foto steht links neben dem Kasten (waagerechte Tafeln immer). */
+    val bildLinks = bilder && (waagerecht || fotoLinks)
     /** Eine Karte (Bild und Kasten) in Blattrichtung. */
-    val karteB = if (waagerecht) bild + bildAbstand + rahmen else rahmen
-    val karteH = if (waagerecht) maxOf(bild, kastenH) else bild + bildAbstand + kastenH
+    val karteB = if (bildLinks || waagerecht) bild + bildAbstand + rahmen else rahmen
+    val karteH = if (bildLinks || waagerecht) maxOf(bild, kastenH) else bild + bildAbstand + kastenH
     /** Laenge der Karte entlang der Generationen und entlang der Geschwister. */
     val laengeG = if (waagerecht) karteB else karteH
     val laengeQ = if (waagerecht) karteH else karteB
@@ -352,6 +365,36 @@ internal fun PDPageContentStream.verlauf(b: Float, h: Float, oben: Color, unten:
         extend = COSArray().apply { add(COSBoolean.TRUE); add(COSBoolean.TRUE) }
     }
     saveGraphicsState(); addRect(0f, 0f, b, h); clip(); shadingFill(shading); restoreGraphicsState()
+}
+
+/** Ellipse im Rechteck (Bezier-Naeherung). */
+internal fun PDPageContentStream.ellipse(x: Float, y: Float, w: Float, h: Float) {
+    val k = 0.5523f; val rx = w / 2; val ry = h / 2; val cx = x + rx; val cy = y + ry
+    moveTo(cx + rx, cy)
+    curveTo(cx + rx, cy + ry * k, cx + rx * k, cy + ry, cx, cy + ry)
+    curveTo(cx - rx * k, cy + ry, cx - rx, cy + ry * k, cx - rx, cy)
+    curveTo(cx - rx, cy - ry * k, cx - rx * k, cy - ry, cx, cy - ry)
+    curveTo(cx + rx * k, cy - ry, cx + rx, cy - ry * k, cx + rx, cy)
+    closePath()
+}
+
+/** Umriss eines Kastens in der gewaehlten Form; (x, y) links unten in PDF-Koordinaten. */
+internal fun PDPageContentStream.kastenPfad(form: KastenForm, rund: Boolean, x: Float, y: Float, w: Float, h: Float, rahmen: Float) {
+    when (form) {
+        KastenForm.Eckig -> rechteck(x, y, w, h, 0f)
+        KastenForm.Rund -> rechteck(x, y, w, h, rahmen * 0.07f)
+        KastenForm.Stil -> rechteck(x, y, w, h, if (rund) rahmen * 0.05f else 0f)
+        KastenForm.Oval -> rechteck(x, y, w, h, minOf(w, h) * 0.45f)
+        KastenForm.Schild -> {
+            // Oben gerade mit kleinen Ecken, die Seiten gerade bis gut zur Haelfte, dann im Bogen zur Spitze unten
+            val r = rahmen * 0.04f; val knick = y + h * 0.42f
+            moveTo(x + r, y + h); lineTo(x + w - r, y + h); curveTo(x + w, y + h, x + w, y + h, x + w, y + h - r)
+            lineTo(x + w, knick)
+            curveTo(x + w, y + h * 0.18f, x + w * 0.62f, y + h * 0.06f, x + w / 2, y)
+            curveTo(x + w * 0.38f, y + h * 0.06f, x, y + h * 0.18f, x, knick)
+            lineTo(x, y + h - r); curveTo(x, y + h, x, y + h, x + r, y + h); closePath()
+        }
+    }
 }
 
 internal fun PDPageContentStream.rechteck(x: Float, y: Float, w: Float, h: Float, r: Float) {

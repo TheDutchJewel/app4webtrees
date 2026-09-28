@@ -661,6 +661,14 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_legend_branch">Zweig %1$s</string>
     <string name="desk_legend_by">zusammengestellt von %1$s</string>
     <string name="desk_decimal_point">,</string>
+    <string name="desk_chart_box_form">Kastenform</string>
+    <string name="desk_chart_form_style">wie der Stil</string>
+    <string name="desk_chart_form_square">eckig</string>
+    <string name="desk_chart_form_round">abgerundet</string>
+    <string name="desk_chart_form_oval">oval, Foto rund</string>
+    <string name="desk_chart_form_shield">Schild</string>
+    <string name="desk_chart_shadow">Schatten</string>
+    <string name="desk_chart_photo_left">Foto links neben dem Kasten</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

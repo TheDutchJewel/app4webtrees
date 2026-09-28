@@ -67,7 +67,7 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
     init {
         val knoten = listOfNotNull(inhalt.vorfahren, inhalt.nachfahren).flatMap(::alleKnoten) + inhalt.cousins?.knoten().orEmpty() + inhalt.paar?.knoten().orEmpty() +
             inhalt.wald.flatMap(::alleKnoten)
-        masse = TafelMasse(o.rahmenMm * 72f / 25.4f, o.bilder, zusatzZeilen(knoten, o), o.waagerecht)
+        masse = TafelMasse(o.rahmenMm * 72f / 25.4f, o.bilder, zusatzZeilen(knoten, o), o.waagerecht, o.fotoLinks, o.form == KastenForm.Schild)
         teile = buildList {
             inhalt.vorfahren?.let { add(TafelTeil(if (inhalt.linie) linienLayout(it, masse) else stammtafelLayout(it, masse), true)) }
             inhalt.nachfahren?.let { add(TafelTeil(stammtafelLayout(it, masse), false)) }
@@ -369,7 +369,7 @@ private class TafelZeichner(
     /** Heiratslinie zwischen den Kaesten eines Paares, aus ihrer Mitte hinunter zu den gemeinsamen Kindern. */
     private fun paar(p: PaarLage) = with(a) {
         val oberkante = p.vaterTeil.oberkante(p.vater)
-        val g = oberkante + if (w) m.laengeG / 2 else m.bild + m.bildAbstand + m.kastenH / 2
+        val g = oberkante + if (m.bildLinks || w) m.laengeG / 2 else m.bild + m.bildAbstand + m.kastenH / 2
         val q1 = p.vaterTeil.x(p.vater) + m.laengeQ / 2; val q2 = p.mutterTeil.x(p.mutter) - m.laengeQ / 2
         linie(g, q1, g, q2)
         val kt = p.kinderTeil
@@ -428,9 +428,10 @@ private class TafelZeichner(
         val p = k.person
         val (karteL, karteO) = bl.karteEcke(a, t, platz)
         // Senkrecht: Bild oben mittig, Kasten darunter. Waagerecht: Bild links, Kasten rechts daneben, beide mittig.
-        val bildL = if (w) karteL else karteL + (m.karteB - m.bild) / 2
-        val oben = if (w) karteO + (m.karteH - m.bild) / 2 else karteO
-        val links = if (w) karteL + m.bild + m.bildAbstand else karteL
+        val bl2 = m.bildLinks
+        val bildL = if (bl2) karteL else karteL + (m.karteB - m.bild) / 2
+        val oben = if (bl2) karteO + (m.karteH - m.bild) / 2 else karteO
+        val links = if (bl2) karteL + m.bild + m.bildAbstand else karteL
         k.hinweis?.let { hw ->
             // Auf der Seite, wo die Vorfahren weitergehen
             val g = m.schriftKlein
@@ -457,15 +458,30 @@ private class TafelZeichner(
         val schildText = k.verweis?.let { "= $it" } ?: nummern[p.xref]?.toString()
         // Bild mit feinem Rand
         bildFuer(p)?.let { img ->
-            cs.drawImage(img, bildL, bl.py(oben + m.bild), m.bild, m.bild)
-            cs.setStrokingColor(f.linie); cs.setLineWidth(0.5f); cs.addRect(bildL, bl.py(oben + m.bild), m.bild, m.bild); cs.stroke()
+            val by = bl.py(oben + m.bild)
+            if (o.form == KastenForm.Oval) {
+                // Medaillon: das Foto im Kreis
+                cs.saveGraphicsState(); cs.ellipse(bildL, by, m.bild, m.bild); cs.clip()
+                cs.drawImage(img, bildL, by, m.bild, m.bild); cs.restoreGraphicsState()
+                cs.setStrokingColor(f.linie); cs.setLineWidth(0.8f); cs.ellipse(bildL, by, m.bild, m.bild); cs.stroke()
+            } else {
+                cs.drawImage(img, bildL, by, m.bild, m.bild)
+                cs.setStrokingColor(f.linie); cs.setLineWidth(0.5f); cs.addRect(bildL, by, m.bild, m.bild); cs.stroke()
+            }
             schildText?.let { schild(it, bildL + m.bild, bl.py(oben)) }
         }
-        // Kasten
-        val ky = if (w) karteO + (m.karteH - m.kastenH) / 2 else oben + m.bild + m.bildAbstand
+        // Kasten (mit Schatten leicht nach rechts unten versetzt darunter)
+        val ky = if (bl2) karteO + (m.karteH - m.kastenH) / 2 else oben + m.bild + m.bildAbstand
+        val kx = links + f.rahmenBreite / 2; val kw = m.rahmen - f.rahmenBreite
+        if (o.schatten) {
+            val d = m.rahmen * 0.03f
+            cs.saveGraphicsState(); cs.setGraphicsStateParameters(PDExtendedGraphicsState().apply { nonStrokingAlphaConstant = 0.28f })
+            cs.setNonStrokingColor(Color(0x30, 0x28, 0x20)); cs.kastenPfad(o.form, f.rund, kx + d, bl.py(ky + m.kastenH) - d, kw, m.kastenH, m.rahmen); cs.fill()
+            cs.restoreGraphicsState()
+        }
         val eigen = farben[platz]?.let { KASTEN_FARBEN[it.coerceIn(0, KASTEN_FARBEN.size - 1)] }
         cs.setNonStrokingColor(eigen?.fuellung ?: f.fuellung(p.sex)); cs.setStrokingColor(eigen?.rahmen ?: f.rahmen(p.sex)); cs.setLineWidth(f.rahmenBreite)
-        cs.rechteck(links + f.rahmenBreite / 2, bl.py(ky + m.kastenH), m.rahmen - f.rahmenBreite, m.kastenH, if (f.rund) m.rahmen * 0.05f else 0f); cs.fillAndStroke()
+        cs.kastenPfad(o.form, f.rund, kx, bl.py(ky + m.kastenH), kw, m.kastenH, m.rahmen); cs.fillAndStroke()
         if (!o.bilder) schildText?.let { schild(it, links + m.rahmen, bl.py(ky)) }
         // Kekule-Nummer klein oben links im Kasten; die erste Zeile weicht ihr beidseitig aus
         val nummer = k.nummer?.takeIf { o.nummern }?.toString()

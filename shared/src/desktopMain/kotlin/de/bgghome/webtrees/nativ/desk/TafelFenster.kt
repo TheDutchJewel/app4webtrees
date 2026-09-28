@@ -175,6 +175,8 @@ private object TafelWahl {
         jeSeite = (prefs.getString(k(art, "jeseite"), null)?.toIntOrNull() ?: 3).coerceIn(2, 5),
         karteikarten = prefs.getBoolean(k(art, "karten"), false),
         legende = art !in kreise && prefs.getBoolean(k(art, "legende"), true),
+        form = KastenForm.entries.firstOrNull { it.name == prefs.getString(k(art, "form"), null) } ?: KastenForm.Stil,
+        schatten = prefs.getBoolean(k(art, "schatten"), false), fotoLinks = prefs.getBoolean(k(art, "fotolinks"), false),
         ersteller = prefs.getString("tafel_ersteller", null).orEmpty(),
         uebersicht = prefs.getBoolean(k(art, "uebersicht"), true),
     )
@@ -190,6 +192,7 @@ private object TafelWahl {
         prefs.putString(k(art, "farbe"), o.farbe.name)
         prefs.putString(k(art, "jeseite"), o.jeSeite.toString()); prefs.putBoolean(k(art, "uebersicht"), o.uebersicht)
         prefs.putBoolean(k(art, "karten"), o.karteikarten); prefs.putBoolean(k(art, "legende"), o.legende)
+        prefs.putString(k(art, "form"), o.form.name); prefs.putBoolean(k(art, "schatten"), o.schatten); prefs.putBoolean(k(art, "fotolinks"), o.fotoLinks)
         prefs.putString("tafel_ersteller", o.ersteller)
     }
 }
@@ -351,6 +354,15 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     }
                     Einstellung(stringResource(Res.string.desk_chart_box_width)) {
                         Auswahl("${o.rahmenMm} mm", (20..60 step 5).map { "$it mm" }) { o = o.copy(rahmenMm = it.substringBefore(' ').toInt()) }
+                    }
+                    if (art !in kreise) {
+                        Einstellung(stringResource(Res.string.desk_chart_box_form)) {
+                            val namen = listOf(Res.string.desk_chart_form_style, Res.string.desk_chart_form_square, Res.string.desk_chart_form_round,
+                                Res.string.desk_chart_form_oval, Res.string.desk_chart_form_shield).map { stringResource(it) }
+                            Auswahl(namen[o.form.ordinal], namen) { w -> o = o.copy(form = KastenForm.entries[namen.indexOf(w)]) }
+                        }
+                        Haken(stringResource(Res.string.desk_chart_shadow), o.schatten) { o = o.copy(schatten = it) }
+                        if (!o.waagerecht && o.bilder) Haken(stringResource(Res.string.desk_chart_photo_left), o.fotoLinks) { o = o.copy(fotoLinks = it) }
                     }
                     if (art in waagerechtMoeglich) Haken(stringResource(Res.string.desk_chart_horizontal), o.waagerecht) { o = o.copy(waagerecht = it) }
                     Haken(stringResource(Res.string.desk_chart_photos), o.bilder) { o = o.copy(bilder = it) }

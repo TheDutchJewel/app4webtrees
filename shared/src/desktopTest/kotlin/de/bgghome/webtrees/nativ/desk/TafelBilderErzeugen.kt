@@ -66,6 +66,9 @@ class TafelBilderErzeugen {
                 rahmenMm = schalter.firstOrNull { it.startsWith("rahmen") }?.drop(6)?.toInt() ?: 30,
                 // Titelblock: "legende", "unter=Familie_Falkenrath", "von=Anna_Falkenrath" (Unterstrich = Leerzeichen)
                 legende = "legende" in schalter,
+                // Kastenform: "form=Oval", "schatten", "fotolinks"
+                form = schalter.firstOrNull { it.startsWith("form=") }?.drop(5)?.let { KastenForm.valueOf(it) } ?: KastenForm.Stil,
+                schatten = "schatten" in schalter, fotoLinks = "fotolinks" in schalter,
                 untertitel = schalter.firstOrNull { it.startsWith("unter=") }?.drop(6)?.replace('_', ' ').orEmpty(),
                 ersteller = schalter.firstOrNull { it.startsWith("von=") }?.drop(4)?.replace('_', ' ').orEmpty(),
                 ohneStamm = schalter.filter { it.startsWith("ohne=") }.map { it.drop(5) }.toSet(),

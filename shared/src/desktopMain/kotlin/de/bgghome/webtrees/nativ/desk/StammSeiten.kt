@@ -43,7 +43,7 @@ fun stammSeitenPdf(
     d: TafelDaten, o: TafelOptionen, bilder: (Person) -> BufferedImage?, privat: String, fuss: String,
 ): Pair<PDDocument, TafelInfo>? {
     val baum = d.nachfahren?.let { tafelBaum(it, o.generationen, o.namenstraeger, o.partner) } ?: return null
-    val masse = TafelMasse(o.rahmenMm * 72f / 25.4f, o.bilder, 0, o.waagerecht)
+    val masse = TafelMasse(o.rahmenMm * 72f / 25.4f, o.bilder, 0, o.waagerecht, o.fotoLinks, o.form == KastenForm.Schild)
     val maxBreite = if (o.waagerecht) MAX_BREITE_WAAGERECHT else MAX_BREITE_SENKRECHT
     // Seiten der Reihe nach (Breitensuche): jede so tief wie eingestellt, aber nicht breiter als maxBreite Kaesten
     val seiten = ArrayList<StammSeite>()

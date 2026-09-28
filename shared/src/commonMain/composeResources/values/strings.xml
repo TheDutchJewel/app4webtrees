@@ -666,6 +666,14 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_legend_branch">Branch of %1$s</string>
     <string name="desk_legend_by">compiled by %1$s</string>
     <string name="desk_decimal_point">.</string>
+    <string name="desk_chart_box_form">Box shape</string>
+    <string name="desk_chart_form_style">as the style</string>
+    <string name="desk_chart_form_square">square</string>
+    <string name="desk_chart_form_round">rounded</string>
+    <string name="desk_chart_form_oval">oval, round photo</string>
+    <string name="desk_chart_form_shield">shield</string>
+    <string name="desk_chart_shadow">Shadow</string>
+    <string name="desk_chart_photo_left">Photo left of the box</string>
     <string name="desk_chart_ancestors_pages">Ancestor chart (pages)</string>
     <string name="desk_chart_ancestors_pages_hint">Four generations per A4 page in landscape. Above each person of the top row it says on which page their ancestors continue – for a binder or a book.</string>
     <string name="desk_chart_paternal">Paternal line</string>
