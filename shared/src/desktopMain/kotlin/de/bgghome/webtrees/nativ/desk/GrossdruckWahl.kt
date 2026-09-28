@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.res.*
 import org.jetbrains.compose.resources.stringResource
 
@@ -53,7 +54,7 @@ object DruckWahl {
 /** Uebliche Rollenbreiten der Plotter in cm (24", 36", 42", 60"). */
 private val ROLLEN = listOf("61", "91.4", "106.7", "152.4")
 
-private fun zeigeCm(t: String) = t.replace('.', ',')
+private fun zeigeCm(t: String) = t.replace(".", Texte.t(Res.string.desk_decimal_point))
 
 @Composable
 internal fun GrossdruckWahl(
@@ -99,7 +100,7 @@ internal fun GrossdruckWahl(
     val rolle = d.rolleCm()
     if (grund != null && ber != null && rolle != null) {
         val r = rollenPlan(ber.b, ber.h, grund.einheit, rolle, d.groesse(), d.einpassen)
-        val laenge = String.format("%.2f", r.laenge / 72f * 0.0254f)
+        val laenge = dezimal(r.laenge / 72f * 0.0254f, 2)
         Text(if (r.bahnen > 1) stringResource(Res.string.desk_print_roll_info_strips, r.endBCm, r.endHCm, r.bahnen, laenge)
             else stringResource(Res.string.desk_print_roll_info, r.endBCm, r.endHCm, laenge),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

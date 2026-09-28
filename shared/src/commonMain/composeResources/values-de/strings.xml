@@ -609,8 +609,8 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_print_sheets">Blätter (Spalten × Zeilen)</string>
     <string name="desk_print_sheets_info">Endmaß %1$d × %2$d cm · %3$d Blätter A4 (%4$d × %5$d)</string>
     <string name="desk_print_roll">Plotterrolle</string>
-    <string name="desk_print_roll_other">andere Breite</string>
-    <string name="desk_print_roll_cm">Rollenbreite (cm)</string>
+    <string name="desk_print_roll_other">andere Rollenbreite</string>
+    <string name="desk_print_roll_cm">Andere Rollenbreite (cm)</string>
     <string name="desk_print_roll_fit">Auf Rollenbreite einpassen</string>
     <string name="desk_print_roll_info">Endmaß %1$d × %2$d cm · Länge %3$s m</string>
     <string name="desk_print_roll_info_strips">Endmaß %1$d × %2$d cm · %3$d Bahnen à %4$s m</string>
@@ -660,6 +660,7 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_legend_line">Linie %1$s</string>
     <string name="desk_legend_branch">Zweig %1$s</string>
     <string name="desk_legend_by">zusammengestellt von %1$s</string>
+    <string name="desk_decimal_point">,</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

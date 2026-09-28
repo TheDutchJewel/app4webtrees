@@ -40,6 +40,12 @@ private const val BAHN_UEBERLAPPUNG = 20 * MM
 
 private fun cm(pt: Float) = Math.round(pt / 72f * 2.54f)
 
+/** Zahl mit [stellen] Nachkommastellen und dem Dezimalzeichen der Programmsprache (0,33 bzw. 0.33); ",0" faellt weg. */
+internal fun dezimal(x: Float, stellen: Int): String =
+    String.format(java.util.Locale.ROOT, "%.${stellen}f", x).replace(".", Texte.t(Res.string.desk_decimal_point)).let { t ->
+        if (stellen == 1) t.removeSuffix(Texte.t(Res.string.desk_decimal_point) + "0") else t
+    }
+
 /** Kacheldruck: Blattformat, Raster, Massstab (Einheit der Tafelseite -> Punkt auf Papier), Endmass in Punkt. */
 class KachelPlan(val format: PDRectangle, val spalten: Int, val zeilen: Int, val massstab: Float, val endB: Float, val endH: Float) {
     val schrittX get() = format.width - 2 * KACHEL_RAND - UEBERLAPPUNG
@@ -170,10 +176,8 @@ class RollenPlan(val rolle: Float, val massstab: Float, val gedreht: Boolean, va
 fun rollenPlan(b: Float, h: Float, einheit: Float, rolleCm: Float, groesse: DruckGroesse, einpassen: Boolean): RollenPlan {
     val rolle = rolleCm * 72f / 2.54f
     val nutz = rolle - 2 * ROLLEN_RAND
-    val m = if (einpassen) nutz / minOf(b, h) else when (groesse) {
-        is DruckGroesse.Breite -> groesse.cm * 72f / 2.54f / b
-        else -> einheit
-    }
+    // Ohne Einpassen dasselbe Endmass wie bei den Blaettern (auch "auf Spalten x Zeilen")
+    val m = if (einpassen) nutz / minOf(b, h) else kachelPlan(b, h, einheit, groesse).massstab
     val w = b * m; val hh = h * m
     return when {
         einpassen -> RollenPlan(rolle, m, h < b, 1, w, hh)
@@ -232,7 +236,7 @@ fun aufRolle(original: PDDocument, plan: RollenPlan, bereich: Bereich? = null): 
             } }
             cs.stroke()
             cs.setNonStrokingColor(Color(0x88, 0x88, 0x88))
-            val rolleText = String.format("%.1f", plan.rolle / 72f * 2.54f).removeSuffix(",0").removeSuffix(".0")
+            val rolleText = dezimal(plan.rolle / 72f * 2.54f, 1)
             val text = (if (plan.bahnen > 1) Texte.t(Res.string.desk_print_strip, i + 1, plan.bahnen) + "  ·  " else "") +
                 "${plan.endBCm} × ${plan.endHCm} cm  ·  $rolleText cm"
             cs.beginText(); cs.setFont(schrift, 8f); cs.newLineAtOffset(ROLLEN_RAND, ROLLEN_RAND * 0.35f); cs.showText(schrift.sicher(text)); cs.endText()

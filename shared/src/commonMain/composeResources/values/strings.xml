@@ -614,8 +614,8 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_print_sheets">Sheets (columns × rows)</string>
     <string name="desk_print_sheets_info">Final size %1$d × %2$d cm · %3$d A4 sheets (%4$d × %5$d)</string>
     <string name="desk_print_roll">Plotter roll</string>
-    <string name="desk_print_roll_other">other width</string>
-    <string name="desk_print_roll_cm">Roll width (cm)</string>
+    <string name="desk_print_roll_other">other roll width</string>
+    <string name="desk_print_roll_cm">Other roll width (cm)</string>
     <string name="desk_print_roll_fit">Fit to roll width</string>
     <string name="desk_print_roll_info">Final size %1$d × %2$d cm · length %3$s m</string>
     <string name="desk_print_roll_info_strips">Final size %1$d × %2$d cm · %3$d strips of %4$s m</string>
@@ -665,6 +665,7 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_legend_line">Line of %1$s</string>
     <string name="desk_legend_branch">Branch of %1$s</string>
     <string name="desk_legend_by">compiled by %1$s</string>
+    <string name="desk_decimal_point">.</string>
     <string name="desk_chart_ancestors_pages">Ancestor chart (pages)</string>
     <string name="desk_chart_ancestors_pages_hint">Four generations per A4 page in landscape. Above each person of the top row it says on which page their ancestors continue – for a binder or a book.</string>
     <string name="desk_chart_paternal">Paternal line</string>

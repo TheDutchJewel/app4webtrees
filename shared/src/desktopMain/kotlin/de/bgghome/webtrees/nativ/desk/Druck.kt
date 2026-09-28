@@ -203,5 +203,15 @@ fun alsPdf(doc: PDDocument, vorschlag: String) {
     if (name == null) { doc.close(); return }
     val ziel = File(dialog.directory, if (name.endsWith(".pdf", true)) name else "$name.pdf")
     doc.use { it.save(ziel) }
-    runCatching { java.awt.Desktop.getDesktop().open(ziel) }
+    dateiOeffnen(ziel)
+}
+
+/**
+ * Datei mit dem Standardprogramm oeffnen. Desktop.open tut unter Linux auf vielen Systemen still nichts (ohne
+ * GNOME-Bibliotheken), darum dort zuerst xdg-open (28.09.2026); sonst und als Ersatz Desktop.open.
+ */
+internal fun dateiOeffnen(datei: File) {
+    val linux = System.getProperty("os.name").orEmpty().lowercase().contains("linux")
+    if (linux && runCatching { ProcessBuilder("xdg-open", datei.absolutePath).start() }.isSuccess) return
+    runCatching { java.awt.Desktop.getDesktop().open(datei) }
 }
