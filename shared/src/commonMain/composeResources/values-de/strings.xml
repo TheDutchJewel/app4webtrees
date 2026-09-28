@@ -681,6 +681,8 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_frame_double">doppelte Linie</string>
     <string name="desk_chart_frame_corners">Ornament-Ecken</string>
     <string name="desk_chart_frame_vines">Blattranken</string>
+    <string name="desk_save_png">Als Bild speichern …</string>
+    <string name="desk_chart_png">Als Bild speichern (PNG)</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

@@ -446,6 +446,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     } else {
                         Knopf(stringResource(Res.string.desk_chart_print_one), bereit) { erzeugen(true)?.first?.let { drucken(aufEinBlatt(it), titel) } }
                         Knopf(stringResource(Res.string.desk_chart_pdf_poster), bereit) { erzeugen(true)?.first?.let { alsPdf(it, titel) } }
+                        Knopf(stringResource(Res.string.desk_chart_png), bereit) { erzeugen()?.first?.let { alsPng(it, titel) } }
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         GrossdruckWahl(druck, { druck = it }, info, bereit,
                             onBlaetterDrucken = { erzeugen(true)?.let { (p, i) -> p.use { drucken(aufBlaetter(it, druck.groesse(), i.bereich), titel) } } },

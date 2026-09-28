@@ -193,6 +193,28 @@ fun drucken(doc: PDDocument, titel: String) {
     } else doc.close()
 }
 
+/**
+ * Die erste Seite als PNG (E3, 28.09.2026): 150 dpi im echten Mass, die lange Seite hoechstens 8000 Pixel (sonst wird
+ * es fuer den Speicher zu viel). Fuer Webseiten, E-Mail und Vereinsblatt.
+ */
+fun alsPng(original: PDDocument, vorschlag: String) {
+    val dialog = FileDialog(null as Frame?, Texte.t(Res.string.desk_save_png), FileDialog.SAVE).apply {
+        file = vorschlag.replace(Regex("[\\/:*?\"<>|]"), "_") + ".png"
+        isVisible = true
+    }
+    val name = dialog.file ?: run { original.close(); return }
+    val ziel = File(dialog.directory, if (name.endsWith(".png", true)) name else "$name.png")
+    // Einmal speichern und laden, damit die Schriften eingebettet sind (sonst Ersatzschrift im Bild)
+    eingebettet(original).use { doc ->
+        val seite = doc.getPage(0)
+        val lang = maxOf(seite.mediaBox.width, seite.mediaBox.height)
+        val skala = minOf(150f / 72f * seite.userUnit, 8000f / lang)
+        javax.imageio.ImageIO.write(org.apache.pdfbox.rendering.PDFRenderer(doc).renderImage(0, skala), "png", ziel)
+    }
+    original.close()
+    runCatching { java.awt.Desktop.getDesktop().open(ziel) }
+}
+
 /** Speichern-Dialog, PDF schreiben, mit dem Standardprogramm oeffnen. */
 fun alsPdf(doc: PDDocument, vorschlag: String) {
     val dialog = FileDialog(null as Frame?, Texte.t(Res.string.desk_save_pdf), FileDialog.SAVE).apply {
