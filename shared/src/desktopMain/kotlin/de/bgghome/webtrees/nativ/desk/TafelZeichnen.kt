@@ -202,19 +202,43 @@ internal class TafelBlatt(a: TafelAnordnung, s: TafelSchriften, val legende: Lis
     fun pyv(g: Float, q: Float) = py(y0 + if (w) q else g)
 }
 
-/** Eine Zeile im Kasten. */
-private class KastenZeile(val text: String, val schrift: PDFont, val groesse: Float)
+/** Eine Zeile im Kasten; [unterstrichen]: Wort, das unterstrichen wird (Rufname). */
+private class KastenZeile(val text: String, val schrift: PDFont, val groesse: Float, val unterstrichen: String? = null)
 
-/** Ort gekuerzt auf den ersten Teil ("Celle, Niedersachsen, Deutschland" -> "Celle"). */
-private fun ort(e: EventJson?): String =
-    e?.place?.name?.substringBefore(',')?.trim().orEmpty()
+/** Ort mit [teile] Ebenen ("Celle, Niedersachsen, Deutschland" -> 1: "Celle", 2: "Celle, Niedersachsen"); 0: voll. */
+private fun ort(e: EventJson?, teile: Int = 1): String {
+    val name = e?.place?.name?.trim().orEmpty()
+    if (teile <= 0) return name
+    return name.split(',').map { it.trim() }.filter(String::isNotBlank).take(teile).joinToString(", ")
+}
 
-private fun datum(e: EventJson?, voll: Boolean): String =
-    e?.date?.let { d -> if (voll) d.text.ifBlank { d.year.takeIf { it > 0 }?.toString().orEmpty() } else d.year.takeIf { it > 0 }?.toString().orEmpty() }.orEmpty()
+/** Datum nach [art]: 0 nur Jahr, 1 kurz (12.03.1851, um 1850), 2 lang wie von webtrees. */
+private fun datum(e: EventJson?, art: Int): String = e?.date?.let { d ->
+    val jahr = d.year.takeIf { it > 0 }?.toString().orEmpty()
+    when (art) {
+        1 -> buchDatum(d).ifBlank { jahr }
+        2 -> d.text.ifBlank { jahr }
+        else -> jahr
+    }
+}.orEmpty()
 
-/** Zusatzzeilen, die die Kaesten dieser Tafel brauchen: je ein Ort unter Geburt und Tod, bis zu zwei Partner. */
+/** Alter in Jahren zwischen zwei Ereignissen; ungefaehr ("~73"), wenn eines nur ein Jahr hat. */
+private fun alterText(von: EventJson?, bis: EventJson?): String? {
+    val a = von?.date ?: return null; val b = bis?.date ?: return null
+    if (a.year <= 0 || b.year <= 0) return null
+    // Tagesgenau: GEDCOM-Form mit Tag, Monat, Jahr - fehlt sie (Tafeldaten), beginnt der Text mit dem Tag ("26.04.1897")
+    fun genau(d: de.bgghome.webtrees.nativ.api.DateJson) = if (d.gedcom.isNotBlank()) d.gedcom.trim().split(Regex("\\s+")).size == 3
+        else Regex("^\\d{1,2}[.\\s]").containsMatchIn(d.text.trim())
+    return if (a.jd > 0 && b.jd > 0 && genau(a) && genau(b)) ((b.jd - a.jd) / 365.2425).toInt().toString()
+    else "~${b.year - a.year}"
+}
+
+/** Wirksame Datumsart: die neue Wahl, sonst das fruehere "volle Daten". */
+private fun datumsArt(o: TafelOptionen) = if (o.datumsArt != 0) o.datumsArt else if (o.volleDaten) 2 else 0
+
+/** Zusatzzeilen, die die Kaesten dieser Tafel brauchen: je ein Ort unter Geburt und Tod, Beruf, bis zu zwei Partner. */
 private fun zusatzZeilen(knoten: List<TafelPerson>, o: TafelOptionen): Int =
-    (if (o.orte) 2 else 0) + knoten.maxOf { it.partner.size }.coerceAtMost(2)
+    (if (o.orte) 2 else 0) + (if (o.beruf) 1 else 0) + knoten.maxOf { it.partner.size }.coerceAtMost(2)
 
 /** Zeichnet die Anordnung auf das Blatt, Schritt fuer Schritt. */
 private class TafelZeichner(
@@ -227,6 +251,8 @@ private class TafelZeichner(
     private val f = farben(o.stil)
     // Heiratszeichen: nicht jede Schrift hat ⚭ - dann das uebliche "oo"
     private val heirat = if (runCatching { s.normal.encode("⚭") }.isSuccess) "⚭" else "oo"
+    // Begraebniszeichen wie in den Buechern; ohne ▭ in der Schrift "begr."
+    private val begraben = if (runCatching { s.normal.encode("▭") }.isSuccess) "▭" else "begr."
     private val bildCache = HashMap<String, PDImageXObject>()
 
     private fun text(t: String, schrift: PDFont, groesse: Float, x: Float, y: Float) {
@@ -435,13 +461,36 @@ private class TafelZeichner(
         val p = k.person
         if (p.isPrivate) { add(KastenZeile(privat, s.normal, m.schriftKlein)); return@buildList }
         val vor = p.given.ifBlank { if (p.surname.isBlank()) p.name else "" }
-        add(KastenZeile(vor, s.fett, m.schriftKlein))
+        // Rufname: unterstrichen; passt die Zeile nicht, werden die anderen Vornamen von hinten gekuerzt ("Wilh.")
+        val ruf = p.call.trim().takeIf { o.rufname && it.isNotEmpty() && vor.split(' ').contains(it) }
+        val vorText = if (ruf == null) vor else {
+            val woerter = vor.split(' ').toMutableList()
+            val innen = m.rahmen * 0.84f
+            var i = woerter.size - 1
+            while (s.fett.breite(woerter.joinToString(" "), m.schriftKlein) > innen && i >= 0) {
+                if (woerter[i] != ruf && woerter[i].length > 2 && !woerter[i].endsWith(".")) woerter[i] = woerter[i].take(1) + "."
+                i--
+            }
+            woerter.joinToString(" ")
+        }
+        add(KastenZeile(vorText, s.fett, m.schriftKlein, ruf))
         add(KastenZeile(p.surname, s.fett, m.schriftName))
-        // Lebende auf Wunsch ohne Daten und Orte
-        if (!(o.lebendeNurNamen && !p.isDead)) listOf("*" to p.birth, "†" to p.death).forEach { (zeichen, e) ->
-            val d = datum(e, o.volleDaten)
-            if (d.isNotBlank()) add(KastenZeile("$zeichen $d", s.normal, m.schriftKlein))
-            if (o.orte) ort(e).takeIf(String::isNotBlank)?.let { add(KastenZeile(it, s.normal, m.schriftKlein * 0.92f)) }
+        // Lebende auf Wunsch ohne Daten und Orte; fehlt Geburt oder Tod, auf Wunsch Taufe bzw. Begraebnis
+        if (!(o.lebendeNurNamen && !p.isDead)) {
+            val geburt = p.birth?.takeIf { it.date != null || it.place != null }
+            val tod = p.death?.takeIf { it.date != null || it.place != null }
+            val paare = listOf(
+                (if (geburt == null && o.ersatz && p.chr != null) "~" to p.chr else "*" to p.birth),
+                (if (tod == null && o.ersatz && p.buri != null) begraben to p.buri else "†" to p.death),
+            )
+            paare.forEachIndexed { nr, (zeichen, e) ->
+                val d = datum(e, datumsArt(o))
+                // Alter beim Tod hinter dem Sterbedatum
+                val alter = if (nr == 1 && o.alter && d.isNotBlank()) alterText(geburt ?: p.chr, e)?.let { " ($it)" }.orEmpty() else ""
+                if (d.isNotBlank()) add(KastenZeile("$zeichen $d$alter", s.normal, m.schriftKlein))
+                if (o.orte) ort(e, o.ortTeile).takeIf(String::isNotBlank)?.let { add(KastenZeile(it, s.normal, m.schriftKlein * 0.92f)) }
+            }
+            if (o.beruf) p.occupation?.takeIf(String::isNotBlank)?.let { add(KastenZeile(it, s.normal, m.schriftKlein * 0.92f)) }
         }
         k.partner.take(2).forEach { add(KastenZeile("$heirat ${it.name.ifBlank { "?" }}", s.normal, m.schriftKlein * 0.92f)) }
     }
@@ -523,7 +572,16 @@ private class TafelZeichner(
             y += z.groesse * 1.3f
             if (z.text.isNotBlank()) {
                 val (tx, g) = passend(z.schrift, z.text, z.groesse, if (i == 0) innen - 2 * nummerB else innen)
-                text(tx, z.schrift, g, mx - z.schrift.breite(tx, g) / 2, bl.py(y - z.groesse * 0.25f))
+                val x0 = mx - z.schrift.breite(tx, g) / 2
+                text(tx, z.schrift, g, x0, bl.py(y - z.groesse * 0.25f))
+                // Rufname unterstreichen, wenn er nach dem Kuerzen noch ganz dasteht
+                z.unterstrichen?.let { ruf ->
+                    val pos = Regex("(^| )" + Regex.escape(ruf) + "( |$)").find(tx) ?: return@let
+                    val start = pos.range.first + if (pos.value.startsWith(" ")) 1 else 0
+                    val ux = x0 + z.schrift.breite(tx.substring(0, start), g); val uw = z.schrift.breite(ruf, g)
+                    val uy = bl.py(y - z.groesse * 0.25f) - g * 0.15f
+                    cs.setStrokingColor(f.text); cs.setLineWidth(maxOf(0.4f, g * 0.06f)); cs.moveTo(ux, uy); cs.lineTo(ux + uw, uy); cs.stroke()
+                }
             }
         }
     }

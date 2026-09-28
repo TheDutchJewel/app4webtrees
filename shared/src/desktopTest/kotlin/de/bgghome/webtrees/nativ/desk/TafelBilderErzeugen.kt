@@ -72,6 +72,10 @@ class TafelBilderErzeugen {
                 // "buendig1"/"buendig2", "geschwungen", "lebende"
                 buendig = schalter.firstOrNull { it.startsWith("buendig") }?.drop(7)?.toInt() ?: 0,
                 geschwungen = "geschwungen" in schalter, lebendeNurNamen = "lebende" in schalter,
+                // Kasteninhalt: "datum1"/"datum2", "ort0"/"ort2", "ersatz", "alter", "beruf", "rufname"
+                datumsArt = schalter.firstOrNull { it.startsWith("datum") }?.drop(5)?.toInt() ?: 0,
+                ortTeile = schalter.firstOrNull { it.matches(Regex("ort\\d")) }?.drop(3)?.toInt() ?: 1,
+                ersatz = "ersatz" in schalter, alter = "alter" in schalter, beruf = "beruf" in schalter, rufname = "rufname" in schalter,
                 // Hintergrund und Rahmen: "hg=Papier", "hgbild" (WT_HGBILD), "schmuck=Ranken"
                 hintergrund = schalter.firstOrNull { it.startsWith("hg=") }?.drop(3)?.let { TafelHintergrund.valueOf(it) } ?: TafelHintergrund.Stil,
                 hintergrundBild = System.getenv("WT_HGBILD").orEmpty(),

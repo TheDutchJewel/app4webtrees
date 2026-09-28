@@ -104,6 +104,15 @@ data class TafelOptionen(
     val geschwungen: Boolean = false,
     /** Lebende nur mit Namen (ohne Daten und Orte), zum Schutz Lebender. */
     val lebendeNurNamen: Boolean = false,
+    /** Kasteninhalt (D4): Datum 0 Jahr, 1 kurz (12.03.1851, um 1850), 2 lang (wie webtrees; frueher volleDaten);
+     * Ortsteile 1 nur Ort, 2 Ort und naechste Ebene, 0 voll; Taufe/Begraebnis statt fehlender Geburt/Tod; Alter beim
+     * Tod; Beruf; Rufname unterstrichen (weitere Vornamen gekuerzt, wenn es eng wird). */
+    val datumsArt: Int = 0,
+    val ortTeile: Int = 1,
+    val ersatz: Boolean = false,
+    val alter: Boolean = false,
+    val beruf: Boolean = false,
+    val rufname: Boolean = false,
     /** Verwandtschaftstafel: Stammpaare (xref der Wurzel), die nicht auf die Tafel sollen. */
     val ohneStamm: Set<String> = emptySet(),
     /** Nur seitenweise Stammtafel: Generationen je Seite, Seitenuebersicht vorn. */

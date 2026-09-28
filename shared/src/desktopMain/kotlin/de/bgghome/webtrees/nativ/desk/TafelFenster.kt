@@ -193,6 +193,10 @@ private object TafelWahl {
         hintergrundBild = prefs.getString("tafel_hg_bild", null).orEmpty(),
         schmuck = Schmuckrahmen.entries.firstOrNull { it.name == prefs.getString(k(art, "schmuck"), null) } ?: Schmuckrahmen.Keiner,
         buendig = (prefs.getString(k(art, "buendig"), null)?.toIntOrNull() ?: 0).coerceIn(0, 2),
+        datumsArt = (prefs.getString(k(art, "datum"), null)?.toIntOrNull() ?: 0).coerceIn(0, 2),
+        ortTeile = (prefs.getString(k(art, "ortteile"), null)?.toIntOrNull() ?: 1).coerceIn(0, 2),
+        ersatz = prefs.getBoolean(k(art, "ersatz"), false), alter = prefs.getBoolean(k(art, "alter"), false),
+        beruf = prefs.getBoolean(k(art, "beruf"), false), rufname = prefs.getBoolean(k(art, "rufname"), false),
         geschwungen = prefs.getBoolean(k(art, "geschwungen"), false), lebendeNurNamen = prefs.getBoolean(k(art, "lebende"), false),
         ersteller = prefs.getString("tafel_ersteller", null).orEmpty(),
         uebersicht = prefs.getBoolean(k(art, "uebersicht"), true),
@@ -210,6 +214,8 @@ private object TafelWahl {
         prefs.putString(k(art, "jeseite"), o.jeSeite.toString()); prefs.putBoolean(k(art, "uebersicht"), o.uebersicht)
         prefs.putBoolean(k(art, "karten"), o.karteikarten); prefs.putBoolean(k(art, "legende"), o.legende)
         prefs.putString(k(art, "hg"), o.hintergrund.name); prefs.putString("tafel_hg_bild", o.hintergrundBild); prefs.putString(k(art, "schmuck"), o.schmuck.name)
+        prefs.putString(k(art, "datum"), o.datumsArt.toString()); prefs.putString(k(art, "ortteile"), o.ortTeile.toString())
+        prefs.putBoolean(k(art, "ersatz"), o.ersatz); prefs.putBoolean(k(art, "alter"), o.alter); prefs.putBoolean(k(art, "beruf"), o.beruf); prefs.putBoolean(k(art, "rufname"), o.rufname)
         prefs.putString(k(art, "buendig"), o.buendig.toString()); prefs.putBoolean(k(art, "geschwungen"), o.geschwungen); prefs.putBoolean(k(art, "lebende"), o.lebendeNurNamen)
         prefs.putString(k(art, "form"), o.form.name); prefs.putBoolean(k(art, "schatten"), o.schatten); prefs.putBoolean(k(art, "fotolinks"), o.fotoLinks)
         prefs.putString("tafel_ersteller", o.ersteller)
@@ -425,8 +431,21 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Sanduhr || art == TafelArt.Cousins || art == TafelArt.Paar || art == TafelArt.Verwandt) Haken(stringResource(Res.string.desk_chart_spouses), o.partner) { o = o.copy(partner = it) }
                     if (art in linien) Haken(stringResource(Res.string.desk_chart_both_parents), o.partner) { o = o.copy(partner = it) }
                     if (art !in kreise) {
+                        // Kasteninhalt (D4)
+                        Einstellung(stringResource(Res.string.desk_chart_date_form)) {
+                            val namen = listOf(Res.string.desk_chart_date_year, Res.string.desk_chart_date_short, Res.string.desk_chart_date_long).map { stringResource(it) }
+                            val jetzt = if (o.datumsArt != 0) o.datumsArt else if (o.volleDaten) 2 else 0
+                            Auswahl(namen[jetzt], namen) { w -> o = o.copy(datumsArt = namen.indexOf(w), volleDaten = false) }
+                        }
                         Haken(stringResource(Res.string.desk_chart_places), o.orte) { o = o.copy(orte = it) }
-                        Haken(stringResource(Res.string.desk_chart_full_dates), o.volleDaten) { o = o.copy(volleDaten = it) }
+                        if (o.orte) Einstellung(stringResource(Res.string.desk_chart_place_parts)) {
+                            val namen = listOf(Res.string.desk_chart_place_full, Res.string.desk_chart_place_one, Res.string.desk_chart_place_two).map { stringResource(it) }
+                            Auswahl(namen[o.ortTeile.coerceIn(0, 2)], namen) { w -> o = o.copy(ortTeile = namen.indexOf(w)) }
+                        }
+                        Haken(stringResource(Res.string.desk_chart_substitute), o.ersatz) { o = o.copy(ersatz = it) }
+                        Haken(stringResource(Res.string.desk_chart_age), o.alter) { o = o.copy(alter = it) }
+                        Haken(stringResource(Res.string.desk_chart_occupation), o.beruf) { o = o.copy(beruf = it) }
+                        Haken(stringResource(Res.string.desk_chart_call_name), o.rufname) { o = o.copy(rufname = it) }
                     }
                     if (art in farbArten) FarbEinstellungen(
                         o, art in linienArten, art in zweigArten, { o = o.copy(farbe = it) },
