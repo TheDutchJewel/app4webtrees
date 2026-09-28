@@ -146,6 +146,9 @@ private val farbArten = mitGitterArten + TafelArt.AhnenSeiten + TafelArt.StammSe
 private val linienArten = setOf(TafelArt.Verwandt, TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester)
 private val zweigArten = setOf(TafelArt.Verwandt, TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar)
 
+/** Tafeln, deren Personen mittig, links- oder rechtsbuendig ueber den Kindern (bzw. unter den Eltern) stehen koennen. */
+private val buendigArten = setOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Sanduhr)
+
 /** Einblattige Tafeln aus dem Zeichenkern: sie koennen Karteikarten tragen. */
 private val kartenArten = mitGitterArten + TafelArt.Paar
 
@@ -189,6 +192,8 @@ private object TafelWahl {
         hintergrund = TafelHintergrund.entries.firstOrNull { it.name == prefs.getString(k(art, "hg"), null) } ?: TafelHintergrund.Stil,
         hintergrundBild = prefs.getString("tafel_hg_bild", null).orEmpty(),
         schmuck = Schmuckrahmen.entries.firstOrNull { it.name == prefs.getString(k(art, "schmuck"), null) } ?: Schmuckrahmen.Keiner,
+        buendig = (prefs.getString(k(art, "buendig"), null)?.toIntOrNull() ?: 0).coerceIn(0, 2),
+        geschwungen = prefs.getBoolean(k(art, "geschwungen"), false), lebendeNurNamen = prefs.getBoolean(k(art, "lebende"), false),
         ersteller = prefs.getString("tafel_ersteller", null).orEmpty(),
         uebersicht = prefs.getBoolean(k(art, "uebersicht"), true),
     )
@@ -205,6 +210,7 @@ private object TafelWahl {
         prefs.putString(k(art, "jeseite"), o.jeSeite.toString()); prefs.putBoolean(k(art, "uebersicht"), o.uebersicht)
         prefs.putBoolean(k(art, "karten"), o.karteikarten); prefs.putBoolean(k(art, "legende"), o.legende)
         prefs.putString(k(art, "hg"), o.hintergrund.name); prefs.putString("tafel_hg_bild", o.hintergrundBild); prefs.putString(k(art, "schmuck"), o.schmuck.name)
+        prefs.putString(k(art, "buendig"), o.buendig.toString()); prefs.putBoolean(k(art, "geschwungen"), o.geschwungen); prefs.putBoolean(k(art, "lebende"), o.lebendeNurNamen)
         prefs.putString(k(art, "form"), o.form.name); prefs.putBoolean(k(art, "schatten"), o.schatten); prefs.putBoolean(k(art, "fotolinks"), o.fotoLinks)
         prefs.putString("tafel_ersteller", o.ersteller)
     }
@@ -375,6 +381,12 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                             Auswahl(namen[o.form.ordinal], namen) { w -> o = o.copy(form = KastenForm.entries[namen.indexOf(w)]) }
                         }
                         Haken(stringResource(Res.string.desk_chart_shadow), o.schatten) { o = o.copy(schatten = it) }
+                        Haken(stringResource(Res.string.desk_chart_curved), o.geschwungen) { o = o.copy(geschwungen = it) }
+                        if (art in buendigArten) Einstellung(stringResource(Res.string.desk_chart_align)) {
+                            val namen = listOf(Res.string.desk_chart_align_center, Res.string.desk_chart_align_left, Res.string.desk_chart_align_right).map { stringResource(it) }
+                            Auswahl(namen[o.buendig], namen) { w -> o = o.copy(buendig = namen.indexOf(w)) }
+                        }
+                        Haken(stringResource(Res.string.desk_chart_living_names), o.lebendeNurNamen) { o = o.copy(lebendeNurNamen = it) }
                         Einstellung(stringResource(Res.string.desk_chart_background)) {
                             val namen = listOf(Res.string.desk_chart_form_style, Res.string.desk_chart_bg_white, Res.string.desk_chart_bg_parchment,
                                 Res.string.desk_chart_bg_paper, Res.string.desk_chart_bg_gradient, Res.string.desk_chart_bg_image).map { stringResource(it) }

@@ -69,6 +69,9 @@ class TafelBilderErzeugen {
                 // Kastenform: "form=Oval", "schatten", "fotolinks"
                 form = schalter.firstOrNull { it.startsWith("form=") }?.drop(5)?.let { KastenForm.valueOf(it) } ?: KastenForm.Stil,
                 schatten = "schatten" in schalter, fotoLinks = "fotolinks" in schalter,
+                // "buendig1"/"buendig2", "geschwungen", "lebende"
+                buendig = schalter.firstOrNull { it.startsWith("buendig") }?.drop(7)?.toInt() ?: 0,
+                geschwungen = "geschwungen" in schalter, lebendeNurNamen = "lebende" in schalter,
                 // Hintergrund und Rahmen: "hg=Papier", "hgbild" (WT_HGBILD), "schmuck=Ranken"
                 hintergrund = schalter.firstOrNull { it.startsWith("hg=") }?.drop(3)?.let { TafelHintergrund.valueOf(it) } ?: TafelHintergrund.Stil,
                 hintergrundBild = System.getenv("WT_HGBILD").orEmpty(),

@@ -69,8 +69,8 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
             inhalt.wald.flatMap(::alleKnoten)
         masse = TafelMasse(o.rahmenMm * 72f / 25.4f, o.bilder, zusatzZeilen(knoten, o), o.waagerecht, o.fotoLinks, o.form == KastenForm.Schild)
         teile = buildList {
-            inhalt.vorfahren?.let { add(TafelTeil(if (inhalt.linie) linienLayout(it, masse) else stammtafelLayout(it, masse), true)) }
-            inhalt.nachfahren?.let { add(TafelTeil(stammtafelLayout(it, masse), false)) }
+            inhalt.vorfahren?.let { add(TafelTeil(if (inhalt.linie) linienLayout(it, masse) else stammtafelLayout(it, masse, o.buendig), true)) }
+            inhalt.nachfahren?.let { add(TafelTeil(stammtafelLayout(it, masse, o.buendig), false)) }
             inhalt.cousins?.let { add(TafelTeil(cousinLayout(it, masse), false)) }
             // Mehrere Baeume nebeneinander (Verwandtschaftstafel): der Halter ist unsichtbar und nimmt keine Reihe ein
             inhalt.wald.firstOrNull()?.let { add(TafelTeil(stammtafelLayout(TafelPerson(it.person, inhalt.wald), masse), false, ohneWurzel = true, versatz = 1)) }
@@ -233,6 +233,13 @@ private class TafelZeichner(
         cs.beginText(); cs.setFont(schrift, groesse); cs.newLineAtOffset(x, y); cs.showText(schrift.sicher(t)); cs.endText()
     }
 
+    /** Ein S-Bogen von (g1, q1) nach (g2, q2): startet und endet in Richtung der Generationen. */
+    private fun bogen(g1: Float, q1: Float, g2: Float, q2: Float) {
+        val gm = (g1 + g2) / 2
+        cs.moveTo(bl.px(g1, q1), bl.pyv(g1, q1))
+        cs.curveTo(bl.px(gm, q1), bl.pyv(gm, q1), bl.px(gm, q2), bl.pyv(gm, q2), bl.px(g2, q2), bl.pyv(g2, q2))
+    }
+
     /** Eine Linie zwischen zwei Punkten in Generations- und Querachse. */
     private fun linie(g1: Float, q1: Float, g2: Float, q2: Float) {
         cs.moveTo(bl.px(g1, q1), bl.pyv(g1, q1)); cs.lineTo(bl.px(g2, q2), bl.pyv(g2, q2))
@@ -358,11 +365,20 @@ private class TafelZeichner(
                 // Geschwister haengen an derselben Linie wie die Person
                 val gs = geschwisterVon[eltern].orEmpty().map { t.x(it) }
                 gs.forEach { q -> linie(start, q, mitte, q) }
-                val q1 = minOf(xs.min(), ex, gs.minOrNull() ?: ex); val q2 = maxOf(xs.max(), ex, gs.maxOrNull() ?: ex)
-                linie(mitte, q1, mitte, q2)
-                kinder.forEach { k ->
-                    val ende = if (t.aufwaerts) t.oberkante(k) + m.laengeG else t.oberkante(k)
-                    linie(mitte, t.x(k), ende, t.x(k))
+                if (o.geschwungen) {
+                    // Geschwungen: von der Mitte unter der Person je ein Bogen zu jedem Kind; Geschwister weiter am Querstrich
+                    if (gs.isNotEmpty()) linie(mitte, minOf(ex, gs.min()), mitte, maxOf(ex, gs.max()))
+                    kinder.forEach { k ->
+                        val ende = if (t.aufwaerts) t.oberkante(k) + m.laengeG else t.oberkante(k)
+                        bogen(mitte, ex, ende, t.x(k))
+                    }
+                } else {
+                    val q1 = minOf(xs.min(), ex, gs.minOrNull() ?: ex); val q2 = maxOf(xs.max(), ex, gs.maxOrNull() ?: ex)
+                    linie(mitte, q1, mitte, q2)
+                    kinder.forEach { k ->
+                        val ende = if (t.aufwaerts) t.oberkante(k) + m.laengeG else t.oberkante(k)
+                        linie(mitte, t.x(k), ende, t.x(k))
+                    }
                 }
                 cs.stroke()
             }
@@ -381,9 +397,12 @@ private class TafelZeichner(
             val qm = (q1 + q2) / 2
             val mitte = oberkante + m.laengeG + m.verbinder / 2
             linie(g, qm, mitte, qm)
-            val xs = p.kinder.map { kt.x(it) }
-            linie(mitte, minOf(xs.min(), qm), mitte, maxOf(xs.max(), qm))
-            p.kinder.forEach { kind -> linie(mitte, kt.x(kind), kt.oberkante(kind), kt.x(kind)) }
+            if (o.geschwungen) p.kinder.forEach { kind -> bogen(mitte, qm, kt.oberkante(kind), kt.x(kind)) }
+            else {
+                val xs = p.kinder.map { kt.x(it) }
+                linie(mitte, minOf(xs.min(), qm), mitte, maxOf(xs.max(), qm))
+                p.kinder.forEach { kind -> linie(mitte, kt.x(kind), kt.oberkante(kind), kt.x(kind)) }
+            }
         }
         cs.stroke()
     }
@@ -418,7 +437,8 @@ private class TafelZeichner(
         val vor = p.given.ifBlank { if (p.surname.isBlank()) p.name else "" }
         add(KastenZeile(vor, s.fett, m.schriftKlein))
         add(KastenZeile(p.surname, s.fett, m.schriftName))
-        listOf("*" to p.birth, "†" to p.death).forEach { (zeichen, e) ->
+        // Lebende auf Wunsch ohne Daten und Orte
+        if (!(o.lebendeNurNamen && !p.isDead)) listOf("*" to p.birth, "†" to p.death).forEach { (zeichen, e) ->
             val d = datum(e, o.volleDaten)
             if (d.isNotBlank()) add(KastenZeile("$zeichen $d", s.normal, m.schriftKlein))
             if (o.orte) ort(e).takeIf(String::isNotBlank)?.let { add(KastenZeile(it, s.normal, m.schriftKlein * 0.92f)) }

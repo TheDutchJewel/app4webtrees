@@ -98,6 +98,12 @@ data class TafelOptionen(
     val hintergrund: TafelHintergrund = TafelHintergrund.Stil,
     val hintergrundBild: String = "",
     val schmuck: Schmuckrahmen = Schmuckrahmen.Keiner,
+    /** Person ueber ihren Kindern mittig (0), ueber dem ersten (1, linksbuendig) oder letzten (2, rechtsbuendig). */
+    val buendig: Int = 0,
+    /** Verbindungen als geschwungene Linien statt rechtwinklig. */
+    val geschwungen: Boolean = false,
+    /** Lebende nur mit Namen (ohne Daten und Orte), zum Schutz Lebender. */
+    val lebendeNurNamen: Boolean = false,
     /** Verwandtschaftstafel: Stammpaare (xref der Wurzel), die nicht auf die Tafel sollen. */
     val ohneStamm: Set<String> = emptySet(),
     /** Nur seitenweise Stammtafel: Generationen je Seite, Seitenuebersicht vorn. */
@@ -178,7 +184,7 @@ class TafelLayout(val plaetze: List<TafelPlatz>, val breite: Float, val hoehe: F
  * Umrisse in JEDER Reihe erlauben - ein tiefer Zweig darf unter kinderlose Geschwister reichen. Jede Person steht
  * mittig ueber ihrem ersten und letzten Kind. So wird die Tafel nicht breiter als noetig (Vorbild: 78 statt 140 cm).
  */
-fun stammtafelLayout(wurzel: TafelPerson, masse: TafelMasse): TafelLayout {
+fun stammtafelLayout(wurzel: TafelPerson, masse: TafelMasse, buendig: Int = 0): TafelLayout {
     // Ein Teilbaum: Versatz jedes Kindes zur Mitte der Person, Umriss je Tiefe (linkeste und rechteste Mitte).
     class Teil(val kinderVersatz: List<Float>, val links: MutableList<Float>, val rechts: MutableList<Float>)
     val teile = HashMap<TafelPerson, Teil>()
@@ -203,7 +209,8 @@ fun stammtafelLayout(wurzel: TafelPerson, masse: TafelMasse): TafelLayout {
                 if (d < accL.size) { accL[d] = minOf(accL[d], l); accR[d] = maxOf(accR[d], r) } else { accL += l; accR += r }
             }
         }
-        val mitte = (versatz.first() + versatz.last()) / 2
+        // Ueber den Kindern: mittig, oder buendig ueber dem ersten bzw. letzten Kind
+        val mitte = when (buendig) { 1 -> versatz.first(); 2 -> versatz.last(); else -> (versatz.first() + versatz.last()) / 2 }
         val teil = Teil(versatz.map { it - mitte }, mutableListOf(-lw(k)).apply { addAll(accL.map { it - mitte }) }, mutableListOf(rw(k)).apply { addAll(accR.map { it - mitte }) })
         teile[k] = teil
         return teil
