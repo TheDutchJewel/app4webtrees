@@ -728,6 +728,24 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_events">Zeitereignisse zeigen</string>
     <string name="desk_legend_estimated">geschätzt (Datum fehlt)</string>
     <string name="desk_timeline_events">1618|1648|Dreißigjähriger Krieg;1683|1699|Türkenkriege;1756|1763|Siebenjähriger Krieg;1806|1815|Napoleonische Kriege;1816|1817|Jahr ohne Sommer, Hunger;1845|1855|Auswanderungswelle;1848|1849|Revolution;1866|1866|Deutscher Krieg;1870|1871|Deutsch-Französischer Krieg;1880|1893|Auswanderungswelle;1914|1918|Erster Weltkrieg;1918|1920|Spanische Grippe;1923|1923|Inflation;1939|1945|Zweiter Weltkrieg;1945|1950|Flucht und Vertreibung;1961|1989|Berliner Mauer</string>
+    <string name="desk_chart_way">Verwandtschaftsweg</string>
+    <string name="desk_chart_way_hint">Wie sind zwei Personen verwandt? Oben der nächste gemeinsame Vorfahr (oder das Paar), darunter die beiden Linien bis zu den Personen; die Verwandtschaft steht unter dem Titel. Generationen = wie weit zurück gesucht wird.</string>
+    <string name="desk_chart_way_second">Zweite Person</string>
+    <string name="desk_chart_way_search">Name eingeben …</string>
+    <string name="desk_chart_title_way">Verwandtschaft von %1$s</string>
+    <string name="desk_way_same">dieselbe Person</string>
+    <string name="desk_way_parent">Elternteil und Kind</string>
+    <string name="desk_way_grandparent">Großelternteil und Enkel</string>
+    <string name="desk_way_great">%1$d× Urgroßelternteil und Urenkel</string>
+    <string name="desk_way_siblings">Geschwister</string>
+    <string name="desk_way_half_siblings">Halbgeschwister</string>
+    <string name="desk_way_uncle">Onkel/Tante und Neffe/Nichte</string>
+    <string name="desk_way_great_uncle">Großonkel/-tante und Großneffe/-nichte</string>
+    <string name="desk_way_great_uncle_n">%1$d× Urgroßonkel/-tante</string>
+    <string name="desk_way_cousins">Cousins %1$d. Grades</string>
+    <string name="desk_way_removed">%1$d Generationen versetzt</string>
+    <string name="desk_way_removed_one">eine Generation versetzt</string>
+    <string name="desk_way_half">(halbbürtig)</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

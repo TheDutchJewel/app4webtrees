@@ -97,9 +97,10 @@ class TafelBilderErzeugen {
             )
             // Schalter "ehe2": beim Paar die zweite Familie der Person
             val ehe = schalter.firstOrNull { it.startsWith("ehe") }?.drop(3)?.toInt()?.minus(1) ?: 0
-            val daten = runBlocking { tafelDatenLaden(client, baumName, xref, art, if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Cousins) maxGen(art) else o0.generationen, o0.geschwister, ehe, if (art == TafelArt.Verwandt) o0.nachfahren else 0) }
+            val daten = runBlocking { tafelDatenLaden(client, baumName, xref, art, if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Cousins) maxGen(art) else o0.generationen, o0.geschwister, ehe, if (art == TafelArt.Verwandt) o0.nachfahren else 0, schalter.firstOrNull { it.startsWith("mit=") }?.drop(4)) }
             val name0 = daten.ahnen[1L]?.person?.name ?: daten.nachfahren?.person?.name.orEmpty()
-            val o = o0.copy(titel = tafelTitel(art, name0, daten.partnerNamen.getOrNull(daten.paarFamilie).orEmpty()))
+            val o = daten.weg?.let { w -> o0.copy(titel = "${w.personA.name} und ${w.personB.name}", untertitel = wegText(w)) }
+                ?: o0.copy(titel = tafelTitel(art, name0, daten.partnerNamen.getOrNull(daten.paarFamilie).orEmpty()))
             // Schalter "karten": Karteikarten mit den Daten aller geladenen Personen
             val details = if ("karten" in schalter) runBlocking {
                 kartenLaden(client, baumName, (daten.ahnen.values.map { it.person.xref } + (daten.nachfahren?.let { n -> generateSequence(listOf(n)) { e -> e.flatMap { it.families.flatMap { f -> f.children } }.takeIf { it.isNotEmpty() } }.flatten().map { it.person.xref }.toList() } ?: emptyList())))

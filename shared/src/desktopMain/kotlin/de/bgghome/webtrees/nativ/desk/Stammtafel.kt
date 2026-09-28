@@ -52,7 +52,7 @@ class TafelPerson(
  * AhnenSeiten: die Ahnentafel in Stuecken zu vier Generationen je A4-Seite, StammSeiten ebenso die Stammtafel (StammSeiten.kt). Faecher und Kreis: Ringe um den
  * Probanden (Faechertafel.kt).
  */
-enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, StammSeiten, Cousins, Sanduhr, Paar, Verwandt, Zeitleiste }
+enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, StammSeiten, Cousins, Sanduhr, Paar, Verwandt, Zeitleiste, Weg }
 
 enum class TafelStil { Pergament, Klassisch, Farbig, Schwarzweiss }
 

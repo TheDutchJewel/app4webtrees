@@ -198,6 +198,8 @@ class TafelDaten(
     val partnerAhnen: Map<Long, AhnenEintrag> = emptyMap(), val paarFamilie: Int = 0,
     /** Verwandtschaftstafel: die Stammpaare mit ihren Nachfahren, von links nach rechts. */
     val stammpaare: List<Stammpaar> = emptyList(),
+    /** Verwandtschaftsweg: der gemeinsame Vorfahr zweier Personen (null: keiner gefunden). */
+    val weg: Weg? = null,
 ) {
     /** Paar: die Ehepartner der Ausgangsperson zur Auswahl, in Familienfolge. */
     val partnerNamen: List<String> get() = nachfahren?.families.orEmpty().map { it.spouse?.name?.ifBlank { null } ?: "?" }
@@ -244,11 +246,13 @@ fun maxGen(art: TafelArt) = when (art) {
     TafelArt.Faecher, TafelArt.Kreis, TafelArt.Zeitleiste -> 8
     TafelArt.Sanduhr, TafelArt.Paar -> 7
     TafelArt.Verwandt -> 6
+    TafelArt.Weg -> 15
     TafelArt.AhnenSeiten, TafelArt.Aeltester -> 13
     TafelArt.Stammlinie, TafelArt.Mutterstamm -> 30
 }
 
-suspend fun tafelDatenLaden(client: WtClient, tree: String, xref: String, art: TafelArt, generationen: Int, geschwister: Int = 0, paarFamilie: Int = 0, nachfahren: Int = 0): TafelDaten = when (art) {
+suspend fun tafelDatenLaden(client: WtClient, tree: String, xref: String, art: TafelArt, generationen: Int, geschwister: Int = 0, paarFamilie: Int = 0, nachfahren: Int = 0, zweiter: String? = null): TafelDaten = when (art) {
+    TafelArt.Weg -> TafelDaten(emptyMap(), null, weg = zweiter?.takeIf { it.isNotEmpty() }?.let { wegLaden(client, tree, xref, it, generationen) })
     TafelArt.Verwandt -> verwandtLaden(client, tree, xref, generationen, nachfahren)
     TafelArt.Stamm, TafelArt.StammSeiten -> TafelDaten(emptyMap(), nachfahrenLaden(client, tree, xref, maxGen(art)))
     // Beide Seiten ab dem Grossvater (sonst der Grossmutter, sonst dem Elternteil) in voller Tiefe, gleichzeitig
@@ -296,6 +300,7 @@ fun tafelInhalt(art: TafelArt, d: TafelDaten, o: TafelOptionen): TafelInhalt? = 
     TafelArt.AhnenSeiten -> ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { if (o.waagerecht) TafelInhalt(nachfahren = it) else TafelInhalt(vorfahren = it) }
     TafelArt.Faecher, TafelArt.Kreis -> ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { TafelInhalt(vorfahren = it) }
     TafelArt.Zeitleiste -> null
+    TafelArt.Weg -> d.weg?.let { TafelInhalt(nachfahren = wegBaum(it)) }
 }
 
 /**
@@ -352,6 +357,7 @@ fun tafelTitel(art: TafelArt, name: String, partner: String = ""): String = if (
         TafelArt.Aeltester -> Res.string.desk_chart_title_oldest
         TafelArt.Faecher -> Res.string.desk_chart_title_fan
         TafelArt.Zeitleiste -> Res.string.desk_chart_title_timeline
+        TafelArt.Weg -> Res.string.desk_chart_title_way
         TafelArt.Kreis -> Res.string.desk_chart_title_circle
     }, name,
 )

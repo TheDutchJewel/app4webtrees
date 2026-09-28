@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -159,5 +160,31 @@ internal fun ZweigMenue(karte: KartenOrt?, stelle: DpOffset, markiert: Boolean, 
         if (markiert) TextButton(onClick = { onWahl(null) }, Modifier.padding(horizontal = 4.dp)) { Text(stringResource(Res.string.desk_chart_branch_remove)) }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         TextButton(onClick = onAusblenden, Modifier.padding(horizontal = 4.dp)) { Text(stringResource(Res.string.desk_chart_branch_hide)) }
+    }
+}
+
+/**
+ * Suchfeld fuer eine Person (Verwandtschaftsweg): tippen, nach kurzer Pause sucht der Server nach dem Namen, ein
+ * Treffer aus der Liste wird die gewaehlte Person.
+ */
+@Composable
+internal fun PersonSuche(gewaehlt: de.bgghome.webtrees.nativ.api.Person?, onWahl: (de.bgghome.webtrees.nativ.api.Person) -> Unit,
+                         suche: suspend (String) -> List<de.bgghome.webtrees.nativ.api.Person>) {
+    var text by remember(gewaehlt?.xref) { mutableStateOf(gewaehlt?.name.orEmpty()) }
+    var treffer by remember { mutableStateOf(emptyList<de.bgghome.webtrees.nativ.api.Person>()) }
+    androidx.compose.runtime.LaunchedEffect(text) {
+        if (text.length < 2 || text == gewaehlt?.name) { treffer = emptyList(); return@LaunchedEffect }
+        kotlinx.coroutines.delay(350)
+        treffer = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { suche(text) }.take(12)
+    }
+    Box {
+        OutlinedTextField(text, { text = it }, singleLine = true, placeholder = { Text(stringResource(Res.string.desk_chart_way_search)) },
+            modifier = Modifier.fillMaxWidth())
+        DropdownMenu(expanded = treffer.isNotEmpty(), onDismissRequest = { treffer = emptyList() }) {
+            treffer.forEach { p ->
+                androidx.compose.material3.DropdownMenuItem(text = { Text(p.name + p.lifespan.takeIf(String::isNotBlank)?.let { " ($it)" }.orEmpty()) },
+                    onClick = { treffer = emptyList(); text = p.name; onWahl(p) })
+            }
+        }
     }
 }
