@@ -48,6 +48,7 @@ class LokaleEinrichtung(
 ) {
     fun einrichten(
         titel: String,
+        gedcom: File? = null,
         anzeigename: String = System.getProperty("user.name").orEmpty(),
         sprache: String = "de",
         schritt: (String) -> Unit = {},
@@ -84,22 +85,38 @@ class LokaleEinrichtung(
             assistent(server, z, anzeigename.ifBlank { z.benutzer }, sprache)
             z
         } else alt.copy(port = server.port)
-        zugang.sichern()
+        // GEDCOM-Uebernahme nie in einen vorhandenen Baum (tree-import loescht dessen Daten): dann ein neuer daneben.
+        val vorhanden = baeume()
+        val baum = if (gedcom == null || zugang.baum !in vorhanden) zugang.baum
+            else generateSequence(2) { it + 1 }.map { "${zugang.baum}$it" }.first { it !in vorhanden }
+        val z = zugang.copy(baum = baum)
+        z.sichern()
 
-        if (baeume().none { it == zugang.baum }) {
+        if (baum !in vorhanden) {
             schritt("Stammbaum „$titel“ wird angelegt …")
             cli("site-setting", "LANGUAGE", sprache)
             cli("site-setting", "TIMEZONE", java.util.TimeZone.getDefault().id)
-            cli("tree", zugang.baum, "--create", "--title=$titel", pruefen = true)
-            cli("site-setting", "DEFAULT_GEDCOM", zugang.baum)
+            cli("tree", baum, "--create", "--title=$titel", pruefen = true)
+            cli("site-setting", "DEFAULT_GEDCOM", baum)
             // Nur fuer Angemeldete (webtrees 2.2.6: Spalte gedcom.private) und kein Konto-Beantragen.
-            sql("UPDATE wt_gedcom SET private=1 WHERE gedcom_name=?", zugang.baum)
+            sql("UPDATE wt_gedcom SET private=1 WHERE gedcom_name=?", baum)
             cli("site-setting", "USE_REGISTRATION_MODULE", "0")
             // Ein Benutzer, keine Moderation: eigene Aenderungen gelten sofort (wie in jedem Genealogie-Programm).
-            cli("user-setting", zugang.benutzer, "auto_accept", "1")
+            cli("user-setting", z.benutzer, "auto_accept", "1")
+        }
+        if (gedcom != null) {
+            schritt("„${gedcom.name}“ wird eingelesen …")
+            // Die Kommandozeile sieht nur Baeume, die ein Gast sehen darf: fuer den Import kurz freigeben.
+            sql("UPDATE wt_gedcom SET private=0 WHERE gedcom_name=?", baum)
+            try {
+                cli("tree-import", baum, gedcom.absolutePath, pruefen = true)
+            } finally {
+                sql("UPDATE wt_gedcom SET private=1 WHERE gedcom_name=?", baum)
+            }
+            cli("site-setting", "DEFAULT_GEDCOM", baum)
         }
         schritt("Fertig.")
-        return server to zugang
+        return server to z
     }
 
     /** Der webtrees-Assistent, Schritt 6 - wie im Browser, nur ohne Browser. */

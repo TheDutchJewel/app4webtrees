@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -58,6 +59,25 @@ private fun LokalAnlegen(viewModel: AppViewModel) {
     val scope = rememberCoroutineScope()
     val appName = LocalAppName.current
 
+    // Anlegen, leer oder aus einer GEDCOM-Datei; blockiert (Auspacken, Import), also im Hintergrund.
+    fun anlegen(gedcom: java.io.File?) {
+        fehler = null
+        schritt = "…"
+        // Beim Uebernehmen heisst der Baum wie die Datei, solange der Name nicht von Hand geaendert wurde.
+        val name = titel.trim().takeUnless { it.isEmpty() || (gedcom != null && it == vorgabe) }
+            ?: gedcom?.nameWithoutExtension ?: vorgabe
+        scope.launch {
+            runCatching {
+                val (adresse, zugang) = withContext(Dispatchers.IO) { LokalBetrieb.anlegen(name, gedcom) { schritt = it } }
+                viewModel.client.baseUrl = adresse
+                viewModel.settings.baseUrl = viewModel.client.baseUrl
+                viewModel.login(zugang.benutzer, zugang.passwort)
+            }.onFailure { fehler = it.message ?: it.toString() }
+            schritt = null
+        }
+    }
+    val dialogTitel = stringResource(Res.string.lokal_gedcom_choose)
+
     Surface(Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(
@@ -74,24 +94,19 @@ private fun LokalAnlegen(viewModel: AppViewModel) {
                     label = { Text(stringResource(Res.string.lokal_title_label)) }, modifier = Modifier.fillMaxWidth(),
                 )
                 Button(
-                    onClick = {
-                        fehler = null
-                        schritt = "…"
-                        scope.launch {
-                            runCatching {
-                                val (adresse, zugang) = withContext(Dispatchers.IO) {
-                                    LokalBetrieb.anlegen(titel.trim().ifEmpty { vorgabe }) { schritt = it }
-                                }
-                                viewModel.client.baseUrl = adresse
-                                viewModel.settings.baseUrl = viewModel.client.baseUrl
-                                viewModel.login(zugang.benutzer, zugang.passwort)
-                            }.onFailure { fehler = it.message ?: it.toString() }
-                            schritt = null
-                        }
-                    },
+                    onClick = { anlegen(null) },
                     enabled = schritt == null && titel.isNotBlank(),
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text(stringResource(Res.string.lokal_create)) }
+                OutlinedButton(
+                    onClick = { gedcomWaehlen(dialogTitel)?.let(::anlegen) },
+                    enabled = schritt == null,
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(stringResource(Res.string.lokal_gedcom)) }
+                Text(
+                    stringResource(Res.string.lokal_gedcom_hint),
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 schritt?.let {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(Modifier.padding(2.dp).widthIn(max = 18.dp), strokeWidth = 2.dp)
@@ -106,4 +121,14 @@ private fun LokalAnlegen(viewModel: AppViewModel) {
             }
         }
     }
+}
+
+/** GEDCOM-Datei aus dem bisherigen Programm waehlen (.ged, unter Windows auch .GED). */
+private fun gedcomWaehlen(titel: String): java.io.File? {
+    val d = java.awt.FileDialog(null as java.awt.Frame?, titel, java.awt.FileDialog.LOAD).apply {
+        setFilenameFilter { _, name -> name.endsWith(".ged", ignoreCase = true) }
+        file = "*.ged"
+        isVisible = true
+    }
+    return d.file?.let { java.io.File(d.directory, it) }?.takeIf { it.isFile }
 }

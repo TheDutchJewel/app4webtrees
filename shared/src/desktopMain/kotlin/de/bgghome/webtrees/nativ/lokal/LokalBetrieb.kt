@@ -26,14 +26,14 @@ object LokalBetrieb {
     fun istLokal(baseUrl: String): Boolean = baseUrl.startsWith("http://127.0.0.1:")
 
     /**
-     * "Neuen Stammbaum auf diesem PC anlegen" - blockiert (Auspacken, Datenbank anlegen), also nicht auf dem
+     * "Neuen Stammbaum auf diesem PC anlegen", mit [gedcom] aus einer GEDCOM-Datei - blockiert (Auspacken, Datenbank anlegen), also nicht auf dem
      * Hauptthread. Danach zeigt [LokalerZugang] auf den laufenden Server; anmelden macht der Aufrufer.
      */
-    fun anlegen(titel: String, schritt: (String) -> Unit): Pair<String, LokalerZugang> {
+    fun anlegen(titel: String, gedcom: File? = null, schritt: (String) -> Unit): Pair<String, LokalerZugang> {
         val php = checkNotNull(mitgeliefertesPhp()) { "PHP fehlt im Paket" }
         val zip = checkNotNull(webtreesZip()) { "webtrees fehlt im Paket" }
         server?.beenden()
-        val (s, z) = LokaleEinrichtung(php, zip, apiZip()).einrichten(titel, schritt = schritt)
+        val (s, z) = LokaleEinrichtung(php, zip, apiZip()).einrichten(titel, gedcom, schritt = schritt)
         server = s
         return s.adresse to z
     }

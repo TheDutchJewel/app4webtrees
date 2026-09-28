@@ -100,6 +100,37 @@ class LokaleEinrichtungTest {
             System.clearProperty("wtand.lokal")
         }
     }
+
+    /** Umsteiger: Stammbaum aus einer GEDCOM-Datei; ein zweiter Import legt einen neuen Baum an statt zu ueberschreiben. */
+    @Test fun ausGedcomUebernehmen() {
+        val ged = File("../demo-tree/falkenrath.ged").takeIf { it.isFile } ?: File("demo-tree/falkenrath.ged")
+        if (!php.canExecute() || zip?.isFile != true || !ged.isFile) return
+        System.setProperty("wtand.lokal", basis.absolutePath)
+        try {
+            val (server, zugang) = LokaleEinrichtung(php, zip, api).einrichten("falkenrath", ged)
+            try {
+                val client = de.bgghome.webtrees.nativ.api.WtClient(SpeicherAblage(), SpeicherAblage(), userAgent = "test")
+                client.baseUrl = server.adresse
+                kotlinx.coroutines.runBlocking {
+                    client.login(zugang.benutzer, zugang.passwort)
+                    val leute = client.individuals(zugang.baum, "Falkenrath", 1).data
+                    assertTrue(leute.size > 5, leute.toString())
+                }
+                server.beenden()
+                val (s2, z2) = LokaleEinrichtung(php, zip, api).einrichten("zweiter", ged)
+                try {
+                    assertEquals(zugang.baum + "2", z2.baum)
+                    val c2 = de.bgghome.webtrees.nativ.api.WtClient(SpeicherAblage(), SpeicherAblage(), userAgent = "test")
+                    c2.baseUrl = s2.adresse
+                    val info = kotlinx.coroutines.runBlocking { c2.login(z2.benutzer, z2.passwort) }
+                    assertEquals(setOf(zugang.baum, z2.baum), info.trees.map { it.name }.toSet(), info.toString())
+                } finally { s2.beenden() }
+            } finally { server.beenden() }
+        } finally {
+            basis.deleteRecursively()
+            System.clearProperty("wtand.lokal")
+        }
+    }
 }
 
 private class SpeicherAblage : de.bgghome.webtrees.nativ.data.Ablage {
