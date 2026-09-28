@@ -30,7 +30,7 @@ import java.awt.image.BufferedImage
  * Ein Teil der Tafel: Layout, Richtung (Vorfahren wachsen nach oben) und waagerechter Versatz auf dem Blatt.
  * [ohneWurzel]: die Wurzel haelt nur mehrere Kinder zusammen und wird weder gezeichnet noch verbunden.
  */
-internal class TafelTeil(val layout: TafelLayout, val aufwaerts: Boolean, var dx: Float = 0f, val ohneWurzel: Boolean = false) {
+internal class TafelTeil(val layout: TafelLayout, val aufwaerts: Boolean, var dx: Float = 0f, val ohneWurzel: Boolean = false, val versatz: Int = 0) {
     fun istHalter(pl: TafelPlatz) = ohneWurzel && pl === layout.plaetze.first()
 }
 
@@ -64,12 +64,15 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
     private val beideRichtungen: Boolean
 
     init {
-        val knoten = listOfNotNull(inhalt.vorfahren, inhalt.nachfahren).flatMap(::alleKnoten) + inhalt.cousins?.knoten().orEmpty() + inhalt.paar?.knoten().orEmpty()
+        val knoten = listOfNotNull(inhalt.vorfahren, inhalt.nachfahren).flatMap(::alleKnoten) + inhalt.cousins?.knoten().orEmpty() + inhalt.paar?.knoten().orEmpty() +
+            inhalt.wald.flatMap(::alleKnoten)
         masse = TafelMasse(o.rahmenMm * 72f / 25.4f, o.bilder, zusatzZeilen(knoten, o), o.waagerecht)
         teile = buildList {
             inhalt.vorfahren?.let { add(TafelTeil(if (inhalt.linie) linienLayout(it, masse) else stammtafelLayout(it, masse), true)) }
             inhalt.nachfahren?.let { add(TafelTeil(stammtafelLayout(it, masse), false)) }
             inhalt.cousins?.let { add(TafelTeil(cousinLayout(it, masse), false)) }
+            // Mehrere Baeume nebeneinander (Verwandtschaftstafel): der Halter ist unsichtbar und nimmt keine Reihe ein
+            inhalt.wald.firstOrNull()?.let { add(TafelTeil(stammtafelLayout(TafelPerson(it.person, inhalt.wald), masse), false, ohneWurzel = true, versatz = 1)) }
             inhalt.paar?.let { p ->
                 add(TafelTeil(stammtafelLayout(p.mann, masse), true)); add(TafelTeil(stammtafelLayout(p.frau, masse), true))
                 p.kinder.firstOrNull()?.let { add(TafelTeil(stammtafelLayout(TafelPerson(it.person, p.kinder), masse), false, ohneWurzel = true)) }
@@ -90,7 +93,7 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
         teile.forEach { it.dx -= minX }
         breite = teile.maxOf { t -> t.alle().maxOf { it.mitteX } + t.dx } + masse.slot / 2
         oben = teile.filter { it.aufwaerts }.maxOfOrNull { t -> t.layout.plaetze.maxOf { it.ebene } } ?: 0
-        unten = teile.filter { !it.aufwaerts }.maxOfOrNull { t -> t.layout.plaetze.maxOf { it.ebene } } ?: 0
+        unten = teile.filter { !it.aufwaerts }.maxOfOrNull { t -> t.layout.plaetze.maxOf { it.ebene } - t.versatz } ?: 0
         beideRichtungen = teile.any { it.aufwaerts } && teile.any { !it.aufwaerts }
         hoehe = (oben + unten + 1) * masse.ebeneH - masse.verbinder
         // Sanduhr: die Ausgangsperson steht in beiden Teilen und wird nur unten gezeichnet
@@ -108,7 +111,7 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
     }
 
     fun TafelTeil.alle() = layout.plaetze + layout.plaetze.flatMap { geschwisterVon[it].orEmpty() }
-    fun TafelTeil.reihe(pl: TafelPlatz) = if (aufwaerts) oben - pl.ebene else oben + pl.ebene
+    fun TafelTeil.reihe(pl: TafelPlatz) = if (aufwaerts) oben - pl.ebene else oben + pl.ebene - versatz
     fun TafelTeil.oberkante(pl: TafelPlatz) = reihe(pl) * masse.ebeneH
     fun TafelTeil.x(pl: TafelPlatz) = pl.mitteX + dx
 
@@ -118,7 +121,7 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
     val zelle = masse.slot * 3
     val zeilenZahl = oben + unten + 1
     val zeilenName = HashMap<Int, String>().also { m ->
-        gezeichnet.forEach { (t, pl) -> m.putIfAbsent(t.reihe(pl), roemisch(if (beideRichtungen) t.reihe(pl) + 1 else pl.ebene + 1)) }
+        gezeichnet.forEach { (t, pl) -> m.putIfAbsent(t.reihe(pl), roemisch(if (beideRichtungen || !t.aufwaerts) t.reihe(pl) + 1 else pl.ebene + 1)) }
     }
     /** Farbe je Platz (TafelFarben.kt); fehlt ein Platz, gilt die Farbe des Stils. */
     val farben: Map<TafelPlatz, Int> = kastenFarben(this)

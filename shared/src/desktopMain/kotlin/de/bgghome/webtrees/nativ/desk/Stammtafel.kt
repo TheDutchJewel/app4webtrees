@@ -50,7 +50,7 @@ class TafelPerson(
  * AhnenSeiten: die Ahnentafel in Stuecken zu vier Generationen je A4-Seite, StammSeiten ebenso die Stammtafel (StammSeiten.kt). Faecher und Kreis: Ringe um den
  * Probanden (Faechertafel.kt).
  */
-enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, StammSeiten, Cousins, Sanduhr, Paar }
+enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, StammSeiten, Cousins, Sanduhr, Paar, Verwandt }
 
 enum class TafelStil { Pergament, Klassisch, Farbig, Schwarzweiss }
 
@@ -81,6 +81,8 @@ data class TafelOptionen(
     val gitter: Boolean = false,
     val verzeichnis: Boolean = false,
     val kurven: Boolean = false,
+    /** Verwandtschaftstafel: Stammpaare (xref der Wurzel), die nicht auf die Tafel sollen. */
+    val ohneStamm: Set<String> = emptySet(),
     /** Nur seitenweise Stammtafel: Generationen je Seite, Seitenuebersicht vorn. */
     val jeSeite: Int = 3,
     val uebersicht: Boolean = true,
@@ -94,6 +96,8 @@ data class TafelOptionen(
 class TafelInhalt(
     val vorfahren: TafelPerson? = null, val nachfahren: TafelPerson? = null, val linie: Boolean = false, val cousins: CousinTafel? = null,
     val paar: PaarTafel? = null,
+    /** Verwandtschaftstafel: die Baeume der Stammpaare nebeneinander, von links nach rechts. */
+    val wald: List<TafelPerson> = emptyList(),
 )
 
 /**

@@ -625,6 +625,16 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_chart_overview_title">Seitenübersicht · %1$s</string>
     <string name="desk_chart_desc_page_title">%1$s · Fortsetzung von S. %2$d</string>
     <string name="desk_chart_page_short">S. %1$d</string>
+    <string name="desk_chart_relatives">Verwandtschaftstafel</string>
+    <string name="desk_chart_relatives_hint">Die Nachfahren aller Stammpaare einer Ahnen-Generation nebeneinander, die väterliche Seite links – alle Blutsverwandten auf einem Blatt. Wer mehrfach vorkommt, steht einmal ausführlich; sonst verweist ein Kasten auf die Gitterposition.</string>
+    <string name="desk_chart_title_relatives">Verwandtschaftstafel %1$s</string>
+    <string name="desk_chart_roots_generation">Stammpaare</string>
+    <string name="desk_chart_gen_parents">Eltern</string>
+    <string name="desk_chart_gen_grandparents">Großeltern</string>
+    <string name="desk_chart_gen_great">Urgroßeltern</string>
+    <string name="desk_chart_gen_nth">%1$d. Urgroßeltern</string>
+    <string name="desk_chart_below_root">Generationen unter dem Probanden</string>
+    <string name="desk_chart_roots">Stammpaare auf der Tafel</string>
     <string name="desk_chart_ancestors_pages">Ahnentafel (seitenweise)</string>
     <string name="desk_chart_ancestors_pages_hint">Vier Generationen je A4-Seite quer. Über jeder Person der obersten Reihe steht, auf welcher Seite ihre Vorfahren weitergehen – zum Abheften oder Binden.</string>
     <string name="desk_chart_paternal">Stammlinie</string>

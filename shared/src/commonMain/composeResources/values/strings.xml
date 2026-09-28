@@ -630,6 +630,16 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_chart_overview_title">Page overview · %1$s</string>
     <string name="desk_chart_desc_page_title">%1$s · continued from p. %2$d</string>
     <string name="desk_chart_page_short">p. %1$d</string>
+    <string name="desk_chart_relatives">Relationship chart</string>
+    <string name="desk_chart_relatives_hint">The descendants of all root couples of one ancestor generation side by side, the paternal side on the left – all blood relatives on one sheet. Anyone appearing more than once is shown in full once; elsewhere a box refers to the grid position.</string>
+    <string name="desk_chart_title_relatives">Relatives of %1$s</string>
+    <string name="desk_chart_roots_generation">Root couples</string>
+    <string name="desk_chart_gen_parents">Parents</string>
+    <string name="desk_chart_gen_grandparents">Grandparents</string>
+    <string name="desk_chart_gen_great">Great-grandparents</string>
+    <string name="desk_chart_gen_nth">%1$d× great-grandparents</string>
+    <string name="desk_chart_below_root">Generations below the starting person</string>
+    <string name="desk_chart_roots">Root couples on the chart</string>
     <string name="desk_chart_ancestors_pages">Ancestor chart (pages)</string>
     <string name="desk_chart_ancestors_pages_hint">Four generations per A4 page in landscape. Above each person of the top row it says on which page their ancestors continue – for a binder or a book.</string>
     <string name="desk_chart_paternal">Paternal line</string>

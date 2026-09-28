@@ -64,6 +64,7 @@ class TafelBilderErzeugen {
                 ausgangOben = "oben" in schalter, waagerecht = "quer" in schalter, bilder = "ohnebild" !in schalter, gitter = "gitter" in schalter, verzeichnis = "verz" in schalter, kurven = "kurven" in schalter, geschwister = if ("geschwalle" in schalter) 2 else if ("geschw" in schalter) 1 else 0, namenstraeger = "namen" in schalter, nummern = "ohnenr" !in schalter,
                 nachfahren = schalter.firstOrNull { it.startsWith("nach") }?.drop(4)?.toInt() ?: 3,
                 rahmenMm = schalter.firstOrNull { it.startsWith("rahmen") }?.drop(6)?.toInt() ?: 30,
+                ohneStamm = schalter.filter { it.startsWith("ohne=") }.map { it.drop(5) }.toSet(),
                 jeSeite = schalter.firstOrNull { it.startsWith("je") }?.drop(2)?.toInt() ?: 3, uebersicht = "ohneuebersicht" !in schalter,
                 // Farben: "linie"/"zweig" als Schema, "regel=Feld/enthaelt|gleich/Text/Farbe", "markiert=I8/4"
                 farbe = if ("linie" in schalter) FarbSchema.Linie else if ("zweig" in schalter) FarbSchema.Zweig else FarbSchema.Geschlecht,
@@ -72,7 +73,7 @@ class TafelBilderErzeugen {
             )
             // Schalter "ehe2": beim Paar die zweite Familie der Person
             val ehe = schalter.firstOrNull { it.startsWith("ehe") }?.drop(3)?.toInt()?.minus(1) ?: 0
-            val daten = runBlocking { tafelDatenLaden(client, baumName, xref, art, if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Cousins) maxGen(art) else o0.generationen, o0.geschwister, ehe) }
+            val daten = runBlocking { tafelDatenLaden(client, baumName, xref, art, if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Cousins) maxGen(art) else o0.generationen, o0.geschwister, ehe, if (art == TafelArt.Verwandt) o0.nachfahren else 0) }
             val name0 = daten.ahnen[1L]?.person?.name ?: daten.nachfahren?.person?.name.orEmpty()
             val o = o0.copy(titel = tafelTitel(art, name0, daten.partnerNamen.getOrNull(daten.paarFamilie).orEmpty()))
             val (doc, groesse) = tafelErzeugen(art, daten, o, ::bild, "Privat", fusszeile("wtTux", baumTitel))!!
