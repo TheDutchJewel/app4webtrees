@@ -76,6 +76,7 @@ class TafelBilderErzeugen {
                 datumsArt = schalter.firstOrNull { it.startsWith("datum") }?.drop(5)?.toInt() ?: 0,
                 ortTeile = schalter.firstOrNull { it.matches(Regex("ort\\d")) }?.drop(3)?.toInt() ?: 1,
                 mehrHinweise = "mehr" in schalter,
+                nummernArt = schalter.firstOrNull { it.matches(Regex("nr\\d")) }?.drop(2)?.toInt() ?: 0,
                 ersatz = "ersatz" in schalter, alter = "alter" in schalter, beruf = "beruf" in schalter, rufname = "rufname" in schalter,
                 // Hintergrund und Rahmen: "hg=Papier", "hgbild" (WT_HGBILD), "schmuck=Ranken"
                 hintergrund = schalter.firstOrNull { it.startsWith("hg=") }?.drop(3)?.let { TafelHintergrund.valueOf(it) } ?: TafelHintergrund.Stil,

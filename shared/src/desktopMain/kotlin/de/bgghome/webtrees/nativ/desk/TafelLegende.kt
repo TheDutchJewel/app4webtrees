@@ -21,7 +21,11 @@ internal fun legendenEintraege(a: TafelAnordnung): List<LegendenEintrag> = build
     z("*", Res.string.desk_legend_born)
     z("†", Res.string.desk_legend_died)
     if (knoten.any { it.partner.isNotEmpty() }) add(LegendenEintrag(LegendenArt.Zeichen, "⚭", Texte.t(Res.string.desk_legend_married)))
-    if (a.o.nummern && knoten.any { it.nummer != null }) add(LegendenEintrag(LegendenArt.Nummer, "4", Texte.t(Res.string.desk_legend_kekule)))
+    if (a.nummerText.isNotEmpty()) when (a.o.nummernArt) {
+        1 -> add(LegendenEintrag(LegendenArt.Nummer, "IV-12", Texte.t(Res.string.desk_legend_chronik)))
+        2 -> add(LegendenEintrag(LegendenArt.Nummer, "1.2.3", Texte.t(Res.string.desk_legend_aboville)))
+        else -> add(LegendenEintrag(LegendenArt.Nummer, "4", Texte.t(Res.string.desk_legend_kekule)))
+    }
     if (a.nummern.isNotEmpty()) add(LegendenEintrag(LegendenArt.Schild, "1", Texte.t(Res.string.desk_legend_double)))
     if (knoten.any { it.verweis != null }) add(LegendenEintrag(LegendenArt.Schild, "= 8", Texte.t(Res.string.desk_legend_ref)))
     if (a.mitGitter && a.positionen.values.any { it.distinct().size > 1 }) add(LegendenEintrag(LegendenArt.Zeichen, "= C III", Texte.t(Res.string.desk_legend_grid)))

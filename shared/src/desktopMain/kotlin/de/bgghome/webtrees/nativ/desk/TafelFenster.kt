@@ -197,6 +197,7 @@ private object TafelWahl {
         ortTeile = (prefs.getString(k(art, "ortteile"), null)?.toIntOrNull() ?: 1).coerceIn(0, 2),
         ersatz = prefs.getBoolean(k(art, "ersatz"), false), alter = prefs.getBoolean(k(art, "alter"), false),
         mehrHinweise = prefs.getBoolean(k(art, "mehr"), true),
+        nummernArt = (prefs.getString(k(art, "nrart"), null)?.toIntOrNull() ?: 0).coerceIn(0, 2),
         beruf = prefs.getBoolean(k(art, "beruf"), false), rufname = prefs.getBoolean(k(art, "rufname"), false),
         geschwungen = prefs.getBoolean(k(art, "geschwungen"), false), lebendeNurNamen = prefs.getBoolean(k(art, "lebende"), false),
         ersteller = prefs.getString("tafel_ersteller", null).orEmpty(),
@@ -216,7 +217,7 @@ private object TafelWahl {
         prefs.putBoolean(k(art, "karten"), o.karteikarten); prefs.putBoolean(k(art, "legende"), o.legende)
         prefs.putString(k(art, "hg"), o.hintergrund.name); prefs.putString("tafel_hg_bild", o.hintergrundBild); prefs.putString(k(art, "schmuck"), o.schmuck.name)
         prefs.putString(k(art, "datum"), o.datumsArt.toString()); prefs.putString(k(art, "ortteile"), o.ortTeile.toString())
-        prefs.putBoolean(k(art, "mehr"), o.mehrHinweise); prefs.putBoolean(k(art, "ersatz"), o.ersatz); prefs.putBoolean(k(art, "alter"), o.alter); prefs.putBoolean(k(art, "beruf"), o.beruf); prefs.putBoolean(k(art, "rufname"), o.rufname)
+        prefs.putBoolean(k(art, "mehr"), o.mehrHinweise); prefs.putString(k(art, "nrart"), o.nummernArt.toString()); prefs.putBoolean(k(art, "ersatz"), o.ersatz); prefs.putBoolean(k(art, "alter"), o.alter); prefs.putBoolean(k(art, "beruf"), o.beruf); prefs.putBoolean(k(art, "rufname"), o.rufname)
         prefs.putString(k(art, "buendig"), o.buendig.toString()); prefs.putBoolean(k(art, "geschwungen"), o.geschwungen); prefs.putBoolean(k(art, "lebende"), o.lebendeNurNamen)
         prefs.putString(k(art, "form"), o.form.name); prefs.putBoolean(k(art, "schatten"), o.schatten); prefs.putBoolean(k(art, "fotolinks"), o.fotoLinks)
         prefs.putString("tafel_ersteller", o.ersteller)
@@ -422,7 +423,13 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         Haken(stringResource(Res.string.desk_chart_index), o.verzeichnis) { o = o.copy(verzeichnis = it) }
                         Haken(stringResource(Res.string.desk_chart_curves), o.kurven) { o = o.copy(kurven = it) }
                     }
-                    if (art != TafelArt.Stamm && art != TafelArt.StammSeiten) Haken(stringResource(Res.string.desk_chart_numbers), o.nummern) { o = o.copy(nummern = it) }
+                    if (art in kreise) Haken(stringResource(Res.string.desk_chart_numbers), o.nummern) { o = o.copy(nummern = it) }
+                    else Einstellung(stringResource(Res.string.desk_chart_numbering)) {
+                        // Stammtafeln haben keine Kekule-Nummern: dort "keine" statt "Kekule"
+                        val namen = listOf(Res.string.desk_chart_num_none, Res.string.desk_chart_num_kekule, Res.string.desk_chart_num_chronik, Res.string.desk_chart_num_aboville).map { stringResource(it) }
+                        val jetzt = if (!o.nummern || (o.nummernArt == 0 && art in setOf(TafelArt.Stamm, TafelArt.StammSeiten))) 0 else o.nummernArt + 1
+                        Auswahl(namen[jetzt], namen) { w -> val i = namen.indexOf(w); o = if (i == 0) o.copy(nummern = false) else o.copy(nummern = true, nummernArt = i - 1) }
+                    }
                     if (art == TafelArt.Ahnen) Haken(stringResource(if (o.waagerecht) Res.string.desk_chart_root_right else Res.string.desk_chart_root_top), o.ausgangOben) { o = o.copy(ausgangOben = it) }
                     if (art == TafelArt.Ahnen) Einstellung(stringResource(Res.string.desk_chart_siblings)) {
                         val werte = listOf(Res.string.desk_chart_siblings_none, Res.string.desk_chart_siblings_root, Res.string.desk_chart_siblings_all).map { stringResource(it) }

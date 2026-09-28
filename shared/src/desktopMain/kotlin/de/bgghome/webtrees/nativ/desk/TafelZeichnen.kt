@@ -124,6 +124,30 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
     val zeilenName = HashMap<Int, String>().also { m ->
         gezeichnet.forEach { (t, pl) -> m.putIfAbsent(t.reihe(pl), roemisch(if (beideRichtungen || !t.aufwaerts) t.reihe(pl) + 1 else pl.ebene + 1)) }
     }
+    /**
+     * Nummer je Platz (D1): Kekule wie geladen; Chronik "Generation-laufende Nummer" (Vorfahren aus der Kekule-Nummer,
+     * Nachfahren je Reihe von links); d'Aboville fuer Nachfahren (Kinder als .1, .2 ... an der Nummer der Eltern).
+     */
+    val nummerText: Map<TafelPlatz, String> = if (!o.nummern) emptyMap() else HashMap<TafelPlatz, String>().also { m ->
+        teile.forEach { t ->
+            val plaetze = t.layout.plaetze.filterNot { t.istHalter(it) }
+            when (o.nummernArt) {
+                1 -> if (t.aufwaerts || plaetze.all { it.knoten.nummer != null }) plaetze.forEach { pl ->
+                        pl.knoten.nummer?.let { n -> m[pl] = roemisch(reihe(n) + 1) + "-" + (n - (1L shl reihe(n)) + 1) }
+                    } else plaetze.groupBy { it.ebene - t.versatz }.forEach { (e, reihePl) ->
+                        reihePl.sortedBy { it.mitteX }.forEachIndexed { i, pl -> m[pl] = roemisch(e + 1) + "-" + (i + 1) }
+                    }
+                2 -> if (t.aufwaerts) plaetze.forEach { pl -> pl.knoten.nummer?.let { m[pl] = it.toString() } }
+                    else plaetze.forEach { pl ->
+                        val e = pl.eltern?.takeUnless { t.istHalter(it) }
+                        m[pl] = if (e == null) (plaetze.filter { it.eltern == pl.eltern }.indexOf(pl) + 1).toString()
+                            else m.getValue(e) + "." + (plaetze.filter { it.eltern === e }.indexOf(pl) + 1)
+                    }
+                else -> plaetze.forEach { pl -> pl.knoten.nummer?.let { m[pl] = it.toString() } }
+            }
+        }
+    }
+
     /** Farbe je Platz (TafelFarben.kt); fehlt ein Platz, gilt die Farbe des Stils. */
     private val farbErgebnis = kastenFarben(this)
     val farben: Map<TafelPlatz, Int> get() = farbErgebnis.farben
@@ -557,7 +581,7 @@ private class TafelZeichner(
         cs.kastenPfad(o.form, f.rund, kx, bl.py(ky + m.kastenH), kw, m.kastenH, m.rahmen); cs.fillAndStroke()
         if (!o.bilder) schildText?.let { schild(it, links + m.rahmen, bl.py(ky)) }
         // Kekule-Nummer klein oben links im Kasten; die erste Zeile weicht ihr beidseitig aus
-        val nummer = k.nummer?.takeIf { o.nummern }?.toString()
+        val nummer = nummerText[platz]
         val nummerG = m.schriftKlein * 0.85f
         val nummerB = nummer?.let { s.normal.breite(it, nummerG) + m.rahmen * 0.04f } ?: 0f
         if (nummer != null) {

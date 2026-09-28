@@ -110,6 +110,8 @@ data class TafelOptionen(
     val datumsArt: Int = 0,
     /** Hinweise (B6): "+3 Kinder", wo die Tafel endet, "weitere Vorfahren" in der obersten Reihe. */
     val mehrHinweise: Boolean = false,
+    /** Nummern an den Kaesten (D1): 0 Kekule (Vorfahren), 1 Chronik "IV-12", 2 d'Aboville "1.2.3" (Nachfahren). */
+    val nummernArt: Int = 0,
     val ortTeile: Int = 1,
     val ersatz: Boolean = false,
     val alter: Boolean = false,
