@@ -727,6 +727,12 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_chart_template_save">Save template …</string>
     <string name="desk_chart_template_load">Load template …</string>
     <string name="desk_book_foldout">Chart as fold-out page (A3, PDF only)</string>
+    <string name="desk_chart_timeline">Timeline</string>
+    <string name="desk_chart_timeline_hint">The ancestors as life bars on a time axis – who lived when, who at the same time. Oldest generation at the top; unknown ends estimated (dashed), optionally with historical events.</string>
+    <string name="desk_chart_title_timeline">Timeline of the ancestors of %1$s</string>
+    <string name="desk_chart_events">Show historical events</string>
+    <string name="desk_legend_estimated">estimated (date missing)</string>
+    <string name="desk_timeline_events">1618|1648|Thirty Years’ War;1683|1699|Great Turkish War;1756|1763|Seven Years’ War;1806|1815|Napoleonic Wars;1816|1817|Year without a summer;1845|1855|Emigration wave;1848|1849|Revolutions of 1848;1861|1865|American Civil War;1870|1871|Franco-Prussian War;1880|1893|Emigration wave;1914|1918|First World War;1918|1920|Spanish flu;1929|1933|Great Depression;1939|1945|Second World War;1945|1950|Flight and expulsion;1961|1989|Berlin Wall</string>
     <string name="desk_chart_ancestors_pages">Ancestor chart (pages)</string>
     <string name="desk_chart_ancestors_pages_hint">Four generations per A4 page in landscape. Above each person of the top row it says on which page their ancestors continue – for a binder or a book.</string>
     <string name="desk_chart_paternal">Paternal line</string>

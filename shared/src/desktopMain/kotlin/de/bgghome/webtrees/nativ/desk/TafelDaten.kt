@@ -241,7 +241,7 @@ fun maxGen(art: TafelArt) = when (art) {
     TafelArt.Stamm, TafelArt.StammSeiten -> 10
     TafelArt.Cousins -> 7
     TafelArt.Ahnen -> 10
-    TafelArt.Faecher, TafelArt.Kreis -> 8
+    TafelArt.Faecher, TafelArt.Kreis, TafelArt.Zeitleiste -> 8
     TafelArt.Sanduhr, TafelArt.Paar -> 7
     TafelArt.Verwandt -> 6
     TafelArt.AhnenSeiten, TafelArt.Aeltester -> 13
@@ -276,7 +276,7 @@ suspend fun tafelDatenLaden(client: WtClient, tree: String, xref: String, art: T
     TafelArt.Ahnen -> ahnenLaden(client, tree, xref, generationen, geschwister = geschwister > 0).let { a ->
         TafelDaten(a, null, if (geschwister > 0) geschwisterLaden(client, tree, a, generationen, geschwister == 1) else emptyMap())
     }
-    TafelArt.AhnenSeiten, TafelArt.Aeltester, TafelArt.Faecher, TafelArt.Kreis -> TafelDaten(ahnenLaden(client, tree, xref, generationen), null)
+    TafelArt.AhnenSeiten, TafelArt.Aeltester, TafelArt.Faecher, TafelArt.Kreis, TafelArt.Zeitleiste -> TafelDaten(ahnenLaden(client, tree, xref, generationen), null)
 }
 
 /** Der Inhalt einer Tafel aus den geladenen Daten und den Einstellungen. */
@@ -295,6 +295,7 @@ fun tafelInhalt(art: TafelArt, d: TafelDaten, o: TafelOptionen): TafelInhalt? = 
         linienBaum(art, d.ahnen, o.generationen, o.partner)?.let { TafelInhalt(vorfahren = it, linie = true) }
     TafelArt.AhnenSeiten -> ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { if (o.waagerecht) TafelInhalt(nachfahren = it) else TafelInhalt(vorfahren = it) }
     TafelArt.Faecher, TafelArt.Kreis -> ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { TafelInhalt(vorfahren = it) }
+    TafelArt.Zeitleiste -> null
 }
 
 /**
@@ -350,6 +351,7 @@ fun tafelTitel(art: TafelArt, name: String, partner: String = ""): String = if (
         TafelArt.Mutterstamm -> Res.string.desk_chart_title_maternal
         TafelArt.Aeltester -> Res.string.desk_chart_title_oldest
         TafelArt.Faecher -> Res.string.desk_chart_title_fan
+        TafelArt.Zeitleiste -> Res.string.desk_chart_title_timeline
         TafelArt.Kreis -> Res.string.desk_chart_title_circle
     }, name,
 )
@@ -360,6 +362,7 @@ fun tafelErzeugen(
     details: Map<String, de.bgghome.webtrees.nativ.api.IndividualDetail>? = null,
 ): Pair<PDDocument, TafelInfo>? =
     if (art == TafelArt.AhnenSeiten) ahnenSeitenPdf(d, o, bilder, privat, fuss)
+    else if (art == TafelArt.Zeitleiste) zeitleistePdf(d.ahnen, o, fuss)
     else if (art == TafelArt.StammSeiten) stammSeitenPdf(d, o, bilder, privat, fuss)
     else if (art == TafelArt.Faecher || art == TafelArt.Kreis) ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { faecherPdf(it, o.generationen, art == TafelArt.Kreis, o, bilder, privat, fuss) }
     else tafelInhalt(art, d, o)?.let { tafelPdf(it, o, bilder, privat, fuss, details) }

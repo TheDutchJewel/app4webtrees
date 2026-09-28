@@ -52,7 +52,7 @@ class TafelPerson(
  * AhnenSeiten: die Ahnentafel in Stuecken zu vier Generationen je A4-Seite, StammSeiten ebenso die Stammtafel (StammSeiten.kt). Faecher und Kreis: Ringe um den
  * Probanden (Faechertafel.kt).
  */
-enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, StammSeiten, Cousins, Sanduhr, Paar, Verwandt }
+enum class TafelArt { Ahnen, AhnenSeiten, Faecher, Kreis, Stammlinie, Mutterstamm, Aeltester, Stamm, StammSeiten, Cousins, Sanduhr, Paar, Verwandt, Zeitleiste }
 
 enum class TafelStil { Pergament, Klassisch, Farbig, Schwarzweiss }
 
@@ -114,6 +114,8 @@ data class TafelOptionen(
     val mehrHinweise: Boolean = false,
     /** Nummern an den Kaesten (D1): 0 Kekule (Vorfahren), 1 Chronik "IV-12", 2 d'Aboville "1.2.3" (Nachfahren). */
     val nummernArt: Int = 0,
+    /** Zeitleiste: Zeitereignisse als blasse Baender. */
+    val zeitereignisse: Boolean = true,
     val ortTeile: Int = 1,
     val ersatz: Boolean = false,
     val alter: Boolean = false,
