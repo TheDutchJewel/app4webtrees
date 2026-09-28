@@ -97,6 +97,15 @@ private object TafelBilder {
 
 private fun nachfahrenPersonen(k: DescendantNode): List<Person> = listOf(k.person) + k.families.flatMap { it.children }.flatMap(::nachfahrenPersonen)
 
+/** Bilddatei fuer den Tafelhintergrund waehlen (Wappen, Karte ...); null bei Abbruch. */
+private fun bildWaehlen(): String? {
+    val d = java.awt.FileDialog(null as java.awt.Frame?, de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_chart_bg_choose), java.awt.FileDialog.LOAD).apply {
+        setFilenameFilter { _, n -> n.lowercase().let { it.endsWith(".jpg") || it.endsWith(".jpeg") || it.endsWith(".png") } }
+        isVisible = true
+    }
+    return d.file?.let { java.io.File(d.directory, it).absolutePath }
+}
+
 /** Alle geladenen Personen einer Tafel (fuer Bilder und Karteikarten). */
 private fun datenPersonen(d: TafelDaten): List<Person> =
     d.ahnen.values.map { it.person } + (d.nachfahren?.let(::nachfahrenPersonen) ?: emptyList()) + (d.mutterseite?.let(::nachfahrenPersonen) ?: emptyList()) +
@@ -177,6 +186,9 @@ private object TafelWahl {
         legende = art !in kreise && prefs.getBoolean(k(art, "legende"), true),
         form = KastenForm.entries.firstOrNull { it.name == prefs.getString(k(art, "form"), null) } ?: KastenForm.Stil,
         schatten = prefs.getBoolean(k(art, "schatten"), false), fotoLinks = prefs.getBoolean(k(art, "fotolinks"), false),
+        hintergrund = TafelHintergrund.entries.firstOrNull { it.name == prefs.getString(k(art, "hg"), null) } ?: TafelHintergrund.Stil,
+        hintergrundBild = prefs.getString("tafel_hg_bild", null).orEmpty(),
+        schmuck = Schmuckrahmen.entries.firstOrNull { it.name == prefs.getString(k(art, "schmuck"), null) } ?: Schmuckrahmen.Keiner,
         ersteller = prefs.getString("tafel_ersteller", null).orEmpty(),
         uebersicht = prefs.getBoolean(k(art, "uebersicht"), true),
     )
@@ -192,6 +204,7 @@ private object TafelWahl {
         prefs.putString(k(art, "farbe"), o.farbe.name)
         prefs.putString(k(art, "jeseite"), o.jeSeite.toString()); prefs.putBoolean(k(art, "uebersicht"), o.uebersicht)
         prefs.putBoolean(k(art, "karten"), o.karteikarten); prefs.putBoolean(k(art, "legende"), o.legende)
+        prefs.putString(k(art, "hg"), o.hintergrund.name); prefs.putString("tafel_hg_bild", o.hintergrundBild); prefs.putString(k(art, "schmuck"), o.schmuck.name)
         prefs.putString(k(art, "form"), o.form.name); prefs.putBoolean(k(art, "schatten"), o.schatten); prefs.putBoolean(k(art, "fotolinks"), o.fotoLinks)
         prefs.putString("tafel_ersteller", o.ersteller)
     }
@@ -362,6 +375,25 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                             Auswahl(namen[o.form.ordinal], namen) { w -> o = o.copy(form = KastenForm.entries[namen.indexOf(w)]) }
                         }
                         Haken(stringResource(Res.string.desk_chart_shadow), o.schatten) { o = o.copy(schatten = it) }
+                        Einstellung(stringResource(Res.string.desk_chart_background)) {
+                            val namen = listOf(Res.string.desk_chart_form_style, Res.string.desk_chart_bg_white, Res.string.desk_chart_bg_parchment,
+                                Res.string.desk_chart_bg_paper, Res.string.desk_chart_bg_gradient, Res.string.desk_chart_bg_image).map { stringResource(it) }
+                            Auswahl(namen[o.hintergrund.ordinal], namen) { w ->
+                                val hg = TafelHintergrund.entries[namen.indexOf(w)]
+                                // Eigenes Bild: gleich die Datei waehlen lassen
+                                val datei = if (hg == TafelHintergrund.Bild) bildWaehlen() ?: o.hintergrundBild else o.hintergrundBild
+                                o = if (hg == TafelHintergrund.Bild && datei.isBlank()) o else o.copy(hintergrund = hg, hintergrundBild = datei)
+                            }
+                        }
+                        if (o.hintergrund == TafelHintergrund.Bild) Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(java.io.File(o.hintergrundBild).name, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                            androidx.compose.material3.TextButton(onClick = { bildWaehlen()?.let { o = o.copy(hintergrundBild = it) } }) { Text(stringResource(Res.string.desk_chart_bg_choose)) }
+                        }
+                        Einstellung(stringResource(Res.string.desk_chart_frame)) {
+                            val namen = listOf(Res.string.desk_chart_frame_none, Res.string.desk_chart_frame_double, Res.string.desk_chart_frame_corners,
+                                Res.string.desk_chart_frame_vines).map { stringResource(it) }
+                            Auswahl(namen[o.schmuck.ordinal], namen) { w -> o = o.copy(schmuck = Schmuckrahmen.entries[namen.indexOf(w)]) }
+                        }
                         if (!o.waagerecht && o.bilder) Haken(stringResource(Res.string.desk_chart_photo_left), o.fotoLinks) { o = o.copy(fotoLinks = it) }
                     }
                     if (art in waagerechtMoeglich) Haken(stringResource(Res.string.desk_chart_horizontal), o.waagerecht) { o = o.copy(waagerecht = it) }

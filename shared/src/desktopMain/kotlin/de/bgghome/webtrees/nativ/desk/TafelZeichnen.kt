@@ -165,7 +165,10 @@ internal fun roemisch(n: Int): String {
  */
 internal class TafelBlatt(a: TafelAnordnung, s: TafelSchriften, val legende: List<LegendenEintrag>) {
     private val w = a.o.waagerecht
-    val rand = maxOf(a.masse.rahmen * 0.5f, 28f)
+    /** Blattrand; ein Schmuckrahmen braucht mehr Platz. */
+    val rand = maxOf(a.masse.rahmen * 0.5f, 28f) * schmuckRand(a.o.schmuck)
+    /** Mit Rahmen oder eigenem Bild gehoert der Rand zum Bild: Grossdruck nimmt dann das ganze Blatt. */
+    val randGehoertDazu = a.o.schmuck != Schmuckrahmen.Keiner || a.o.hintergrund == TafelHintergrund.Bild
     val titelGroesse = (a.masse.rahmen * 0.55f).coerceIn(22f, 72f)
     val titelBreite = if (a.o.titel.isBlank()) 0f else s.titel.breite(a.o.titel, titelGroesse)
     /** Zeile unter dem Titel: freier Text und "zusammengestellt von". */
@@ -237,7 +240,8 @@ private class TafelZeichner(
 
     fun hintergrund() {
         if (bl.skala < 1f) cs.transform(Matrix.getScaleInstance(bl.skala, bl.skala))
-        if (f.hintergrundOben != f.hintergrundUnten) cs.verlauf(bl.b, bl.h, f.hintergrundOben, f.hintergrundUnten)
+        cs.tafelHintergrund(doc, o.hintergrund, bl.b, bl.h, f.hintergrundOben, f.hintergrundUnten, o.hintergrundBild)
+        cs.schmuckrahmen(o.schmuck, bl.b, bl.h, bl.rand, f.titel)
     }
 
     fun titel() {
@@ -506,7 +510,9 @@ private class TafelZeichner(
 
     fun fuss(fuss: String) {
         cs.setNonStrokingColor(Color(0x66, 0x66, 0x66))
-        text(fuss, s.normal, 7f, bl.rand, bl.rand * 0.6f)
+        // Mit Schmuckrahmen mittig, damit sie keine Ornament-Ecke trifft
+        if (o.schmuck == Schmuckrahmen.Keiner) text(fuss, s.normal, 7f, bl.rand, bl.rand * 0.6f)
+        else text(fuss, s.normal, 7f, (bl.b - s.normal.breite(fuss, 7f)) / 2, bl.rand * 0.85f)
     }
 }
 
@@ -543,7 +549,7 @@ fun tafelPdf(
     val info = TafelInfo(a.gezeichnet.map { it.second.knoten.person.xref }.distinct().size, (bl.b / 72f * 2.54f).toInt(), (bl.h / 72f * 2.54f).toInt(),
         seiteB = bl.b * bl.skala, seiteH = bl.h * bl.skala, einheit = 1f / bl.skala, karten = karten,
         // Unten bleibt die Fusszeile (sie steht bei 0,6 Rand)
-        bereich = Bereich(bl.rand * bl.skala, bl.rand * 0.4f * bl.skala, (bl.b - 2 * bl.rand) * bl.skala, (bl.h - 1.4f * bl.rand) * bl.skala))
+        bereich = if (bl.randGehoertDazu) null else Bereich(bl.rand * bl.skala, bl.rand * 0.4f * bl.skala, (bl.b - 2 * bl.rand) * bl.skala, (bl.h - 1.4f * bl.rand) * bl.skala))
     // Karteikarten hinter Tafel und Verzeichnis, nach Namen; zurueck fuehrt an die erste Stelle der Person
     if (details != null) {
         val personen = karten.map { it.person }.filter { it.xref.isNotEmpty() && !it.isPrivate }.distinctBy { it.xref }

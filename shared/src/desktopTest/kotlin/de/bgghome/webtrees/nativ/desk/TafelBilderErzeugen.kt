@@ -69,6 +69,10 @@ class TafelBilderErzeugen {
                 // Kastenform: "form=Oval", "schatten", "fotolinks"
                 form = schalter.firstOrNull { it.startsWith("form=") }?.drop(5)?.let { KastenForm.valueOf(it) } ?: KastenForm.Stil,
                 schatten = "schatten" in schalter, fotoLinks = "fotolinks" in schalter,
+                // Hintergrund und Rahmen: "hg=Papier", "hgbild" (WT_HGBILD), "schmuck=Ranken"
+                hintergrund = schalter.firstOrNull { it.startsWith("hg=") }?.drop(3)?.let { TafelHintergrund.valueOf(it) } ?: TafelHintergrund.Stil,
+                hintergrundBild = System.getenv("WT_HGBILD").orEmpty(),
+                schmuck = schalter.firstOrNull { it.startsWith("schmuck=") }?.drop(8)?.let { Schmuckrahmen.valueOf(it) } ?: Schmuckrahmen.Keiner,
                 untertitel = schalter.firstOrNull { it.startsWith("unter=") }?.drop(6)?.replace('_', ' ').orEmpty(),
                 ersteller = schalter.firstOrNull { it.startsWith("von=") }?.drop(4)?.replace('_', ' ').orEmpty(),
                 ohneStamm = schalter.filter { it.startsWith("ohne=") }.map { it.drop(5) }.toSet(),

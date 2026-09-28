@@ -94,6 +94,10 @@ data class TafelOptionen(
     val form: KastenForm = KastenForm.Stil,
     val schatten: Boolean = false,
     val fotoLinks: Boolean = false,
+    /** Hintergrund (TafelSchmuck.kt), eigenes Bild als Dateipfad, Schmuckrahmen. */
+    val hintergrund: TafelHintergrund = TafelHintergrund.Stil,
+    val hintergrundBild: String = "",
+    val schmuck: Schmuckrahmen = Schmuckrahmen.Keiner,
     /** Verwandtschaftstafel: Stammpaare (xref der Wurzel), die nicht auf die Tafel sollen. */
     val ohneStamm: Set<String> = emptySet(),
     /** Nur seitenweise Stammtafel: Generationen je Seite, Seitenuebersicht vorn. */
