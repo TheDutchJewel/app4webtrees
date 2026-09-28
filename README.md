@@ -35,7 +35,7 @@
 | <img src="docs/screenshots/tafel-verwandtschaftsweg.jpg" alt="Verwandtschaftsweg zwischen Jonas Falkenrath und Florian Ahlers" width="100%"> | <img src="docs/screenshots/tafel-montageplan.jpg" alt="Montageplan einer Ahnentafel auf sechs A4-Blättern" width="100%"> |
 | **Verwandtschaftsweg** – wie zwei Personen verwandt sind | **Großdruck** – Blätter zum Kleben oder Plotter |
 
-**[Alle 15 Tafelarten mit Beispielen →](docs/TAFELN.md)** Ahnentafel (auch seitenweise), Fächertafel, Ahnenkreis, Zeitleiste, Stammlinie, Mutterstamm, ältester Vorfahr, Stammtafel (auch seitenweise), Nachfahren der Großeltern, Sanduhr, Sanduhr eines Paares, Verwandtschaftstafel, Verwandtschaftsweg.
+**[Alle 15 Tafelarten, Listen und Bücher mit Beispielen →](docs/GALERIE.md)** Ahnentafel (auch seitenweise), Fächertafel, Ahnenkreis, Zeitleiste, Stammlinie, Mutterstamm, ältester Vorfahr, Stammtafel (auch seitenweise), Nachfahren der Großeltern, Sanduhr, Sanduhr eines Paares, Verwandtschaftstafel, Verwandtschaftsweg.
 
 <p align="center">
   <img src="docs/screenshots/desktop-pruefung.jpg" alt="wtTux: Fenster Plausibilitätsprüfung mit Voreinstellung und Treffern im Demo-Stammbaum" width="100%">

@@ -1,4 +1,4 @@
-# Charts in wtWin, wtTux and wtMac
+# Charts, lists and books in wtWin, wtTux and wtMac
 
 All chart types from **Create › Descendant chart …** (Ctrl+T), each with an example from the fictitious demo tree [Familie Falkenrath](../demo-tree/) (CC0; photos of unknown people from the Rijksmuseum Amsterdam, CC0). Every chart can be styled (style, box shape, background, frame, colours by line, branch or your own rules, legend), its content set (dates, places, age, occupation, call name, numbering, filters) and printed: on one sheet, as a poster PDF, on A4 sheets to glue together, as a PDF for the plotter or as a picture (PNG).
 
@@ -36,4 +36,31 @@ All chart types from **Create › Descendant chart …** (Ctrl+T), each with an 
 | :-: | :-: |
 | **Large print** – on A4 sheets to glue together with an assembly plan – or as a PDF for the plotter on roll width | **Person card** – optionally one page per person behind the chart; a click on the box in the PDF jumps there |
 
-[Back to the README](../README.en.md) · [Deutsch](TAFELN.md)
+
+## Lists
+
+From the **Create** menu (ancestor list, descendant list, event list): starting from one person or across the whole tree, with a preview of the PDF pages. Also: paternal line, maternal line, descendants per generation, families, occupations and religions, person sheet.
+
+| <img src="screenshots/liste-ahnen.jpg" alt="Ancestor list" width="100%"> | <img src="screenshots/liste-stamm.jpg" alt="Descendant list" width="100%"> |
+| :-: | :-: |
+| **Ancestor list** – up to 12 generations, Kekulé numbers, pedigree collapse as reference | **Descendant list** – up to 10 generations, numbered by Saragossa, d'Aboville, Henry or consecutively |
+| <img src="screenshots/liste-ahnenwertung.jpg" alt="Ancestor statistics" width="100%"> | <img src="screenshots/liste-spitzenahnen.jpg" alt="Top ancestors" width="100%"> |
+| **Ancestor statistics** – how many ancestors are known per generation, with pedigree collapse | **Top ancestors** – where each line ends, ordered by grandparent lines |
+| <img src="screenshots/liste-ereignisse.jpg" alt="Anniversaries" width="100%"> | <img src="screenshots/liste-namen.jpg" alt="Surnames" width="100%"> |
+| **Anniversaries** – births, marriages, deaths – as a list or calendar, with place filter | **Surnames** – all surnames with count, period and places |
+| <img src="screenshots/liste-orte.jpg" alt="Places" width="100%"> | <img src="screenshots/liste-taufpaten.jpg" alt="Baptisms and godparents" width="100%"> |
+| **Places** – which families lived where and when | **Baptisms and godparents** – all baptisms of a tree with their godparents |
+
+## Books
+
+From **Create › Create book …**: in the style of printed local family books – every person with events, sources, godparents and notes, references to parents and children, portraits in the margin, table of contents and index. As PDF with bookmarks and links, DOCX for further editing, HTML, TeX or text. Ancestor and descendant books can get the matching chart as a fold-out page (A3).
+
+| <img src="screenshots/buch-vor-titel.jpg" alt="Ancestor book" width="100%"> | <img src="screenshots/buch-vor-gen.jpg" alt="Ancestor book inside" width="100%"> |
+| :-: | :-: |
+| **Ancestor book** – title page with portrait and preface | **Ancestor book inside** – one chapter per generation, grandparent lines coloured in the margin |
+| <img src="screenshots/buch-vor-reg.jpg" alt="Index" width="100%"> | <img src="screenshots/buch-nach-titel.jpg" alt="Descendant book" width="100%"> |
+| **Index** – names, places, occupations and sources, by entry number | **Descendant book** – with a portrait of the progenitors |
+| <img src="screenshots/buch-nach-gen.jpg" alt="Descendant book inside" width="100%"> | <img src="screenshots/buch-fam.jpg" alt="Family book" width="100%"> |
+| **Descendant book inside** – numbered by Saragossa, d'Aboville, Henry or consecutively | **Family book** – one entry per family, alphabetical or chronological; with place filter as a local family book |
+
+[Back to the README](../README.en.md) · [Deutsch](GALERIE.md)

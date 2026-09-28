@@ -35,7 +35,7 @@
 | <img src="docs/screenshots/tafel-verwandtschaftsweg.jpg" alt="Relationship path between Jonas Falkenrath and Florian Ahlers" width="100%"> | <img src="docs/screenshots/tafel-montageplan.jpg" alt="Assembly plan of an ancestor chart on six A4 sheets" width="100%"> |
 | **Relationship path** – how two people are related | **Large print** – sheets to glue or plotter |
 
-**[All 15 chart types with examples →](docs/TAFELN.en.md)** Ancestor chart (also on pages), fan chart, ancestor circle, timeline, paternal line, maternal line, oldest ancestor, descendant chart (also on pages), descendants of the grandparents, hourglass, couple hourglass, relationship chart, relationship path.
+**[All 15 chart types, lists and books with examples →](docs/GALERIE.en.md)** Ancestor chart (also on pages), fan chart, ancestor circle, timeline, paternal line, maternal line, oldest ancestor, descendant chart (also on pages), descendants of the grandparents, hourglass, couple hourglass, relationship chart, relationship path.
 
 <p align="center">
   <img src="docs/screenshots/desktop-pruefung.jpg" alt="wtTux: plausibility check window with preset and findings in the demo tree" width="100%">
