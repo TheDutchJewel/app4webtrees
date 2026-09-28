@@ -188,6 +188,9 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     if (state.screen != Screen.Main) {
         // Erster Start (noch keine Adresse): daneben der Weg "Neuen Stammbaum auf diesem PC anlegen" (Stufe 4).
         if (state.screen == Screen.Setup && LokalBetrieb.verfuegbar) DeskStart(viewModel) else AppRoot(viewModel)
+        // Hilfe und "Ueber" stehen im Menue schon vor der Anmeldung
+        if (hilfe) HilfeFenster(onClose = { hilfe = false })
+        if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
         return
     }
 
@@ -290,25 +293,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
     if (pruefung && state.tree != null) PruefFenster(state, viewModel, openSheet, onClose = { pruefung = false })
 
-    if (about) {
-        AlertDialog(
-            onDismissRequest = { about = false },
-            title = { Text(stringResource(Res.string.desk_about, appName)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(stringResource(Res.string.desk_about_text, appName, viewModel.versionName))
-                    Text(stringResource(Res.string.app_author), style = MaterialTheme.typography.bodySmall)
-                    state.info?.module?.takeIf { it.isNotEmpty() }?.let {
-                        Text(stringResource(Res.string.menu_about_module, "api4webtrees $it"), style = MaterialTheme.typography.bodySmall)
-                    }
-                    state.archive?.modul?.takeIf { it.isNotEmpty() }?.let {
-                        Text(stringResource(Res.string.menu_about_module, "Sammlungen $it"), style = MaterialTheme.typography.bodySmall)
-                    }
-                }
-            },
-            confirmButton = { TextButton(onClick = { about = false }) { Text(stringResource(Res.string.action_close)) } },
-        )
-    }
+    if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
 }
 
 // ── Menueleiste ──────────────────────────────────────────────────────
@@ -942,4 +927,27 @@ private fun StatusBar(state: UiState, version: String, appName: String) {
             Text("$appName $version", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
+}
+
+@Composable
+private fun UeberDialog(state: UiState, viewModel: AppViewModel, appName: String, onClose: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onClose() },
+        title = { Text(stringResource(Res.string.desk_about, appName)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(Res.string.desk_about_text, appName, viewModel.versionName))
+                Text(stringResource(Res.string.app_author), style = MaterialTheme.typography.bodySmall)
+                state.info?.module?.takeIf { it.isNotEmpty() }?.let {
+                    Text(stringResource(Res.string.menu_about_module, "api4webtrees $it"), style = MaterialTheme.typography.bodySmall)
+                }
+                state.archive?.modul?.takeIf { it.isNotEmpty() }?.let {
+                    Text(stringResource(Res.string.menu_about_module, "Sammlungen $it"), style = MaterialTheme.typography.bodySmall)
+                }
+                // Stammbaum auf diesem PC (Stufe 4): ob PHP und webtrees im Paket gefunden wurden
+                Text(LokalBetrieb.zustand(), style = MaterialTheme.typography.bodySmall)
+            }
+        },
+        confirmButton = { TextButton(onClick = { onClose() }) { Text(stringResource(Res.string.action_close)) } },
+    )
 }

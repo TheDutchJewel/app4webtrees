@@ -23,6 +23,15 @@ object LokalBetrieb {
     /** Bringt dieses Paket alles mit, um einen Stammbaum auf dem PC anzulegen? */
     val verfuegbar: Boolean get() = mitgeliefertesPhp() != null && webtreesZip() != null
 
+    /** Fuer "Ueber": ob der Stammbaum auf diesem PC moeglich ist, sonst was im Paket fehlt und wo gesucht wurde. */
+    fun zustand(): String {
+        val php = runCatching { mitgeliefertesPhp() }.getOrNull()
+        val wt = webtreesZip()
+        return if (php != null && wt != null) "Stammbaum auf diesem PC: bereit (${wt.name})"
+        else "Stammbaum auf diesem PC: nicht verfügbar – PHP ${if (php != null) "ok" else "fehlt"}, webtrees ${if (wt != null) "ok" else "fehlt"}" +
+            " (${System.getProperty("compose.application.resources.dir") ?: "kein Ressourcen-Ordner"})"
+    }
+
     fun istLokal(baseUrl: String): Boolean = baseUrl.startsWith("http://127.0.0.1:")
 
     /**
