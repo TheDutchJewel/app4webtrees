@@ -24,7 +24,7 @@
 
 <p align="center">
   <img src="docs/screenshots/desktop-tafel-fenster.jpg" alt="wtTux: Fenster Tafel erstellen mit Ahnenkreis über sieben Generationen" width="100%">
-  <br><b>Tafel erstellen</b> – Tafelart, Generationen, Gestaltung (Pergament, Klassisch, Farbig, Schwarzweiß), Bilder und Kekule-Nummern; die Vorschau ist das fertige Blatt, zum Drucken oder als PDF.
+  <br><b>Tafel erstellen</b> – Tafelart, Generationen, Gestaltung (Pergament, Klassisch, Farbig, Schwarzweiß), Bilder und Kekule-Nummern; die Vorschau ist das fertige Blatt, zum Drucken oder als PDF. Ab 1.24 mit Farbregeln und Legende, Großdruck auf A4-Blättern mit Montageplan oder als PDF für den Plotter und Karteikarten je Person.
 </p>
 
 | <img src="docs/screenshots/tafel-stammtafel.jpg" alt="Stammtafel der Nachfahren von Johann Heinrich Falkenrath über vier Generationen" width="100%"> | <img src="docs/screenshots/tafel-ahnentafel.jpg" alt="Ahnentafel von Jonas Falkenrath über fünf Generationen mit Kekule-Nummern" width="100%"> |
@@ -32,6 +32,10 @@
 | **Stammtafel** – alle Nachfahren auf einem Blatt | **Ahnentafel** – Proband unten, Kekule-Nummern |
 | <img src="docs/screenshots/tafel-ahnenkreis.jpg" alt="Ahnenkreis von Jonas Falkenrath über sieben Generationen, farbig nach Großeltern-Linien" width="100%"> | <img src="docs/screenshots/tafel-faechertafel.jpg" alt="Fächertafel von Jonas Falkenrath über sechs Generationen" width="100%"> |
 | **Ahnenkreis** – sieben Generationen, die vier Großeltern-Linien in Farbe, Ahnenschwund als „= 74“ | **Fächertafel** – der Halbkreis, hier sechs Generationen |
+| <img src="docs/screenshots/tafel-cousins.jpg" alt="Nachfahren der Großeltern von Jonas Falkenrath, farbig nach Zweigen, mit Legende" width="100%"> | <img src="docs/screenshots/tafel-paar.jpg" alt="Sanduhr des Paares Bernd Falkenrath und Karin Ilgner mit den Vorfahren beider und den gemeinsamen Nachfahren" width="100%"> |
+| **Nachfahren der Großeltern** – Onkel, Tanten, Cousins; die Eltern innen nebeneinander | **Sanduhr eines Paares** – die Vorfahren beider, darunter die gemeinsamen Nachfahren |
+| <img src="docs/screenshots/tafel-verwandt.jpg" alt="Verwandtschaftstafel von Jonas Falkenrath: die Nachfahren der vier Urgroßelternpaare nebeneinander" width="100%"> | <img src="docs/screenshots/tafel-montageplan.jpg" alt="Montageplan einer Ahnentafel auf sechs A4-Blättern" width="100%"> |
+| **Verwandtschaftstafel** – alle Blutsverwandten ab den Urgroßeltern, Doppelte als Gitterverweis | **Großdruck** – Montageplan für die Blätter zum Kleben |
 
 <p align="center">
   <img src="docs/screenshots/desktop-pruefung.jpg" alt="wtTux: Fenster Plausibilitätsprüfung mit Voreinstellung und Treffern im Demo-Stammbaum" width="100%">
