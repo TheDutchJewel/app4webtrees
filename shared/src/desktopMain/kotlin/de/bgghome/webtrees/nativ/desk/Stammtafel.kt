@@ -361,7 +361,10 @@ internal fun passend(schrift: PDFont, text: String, groesse: Float, breite: Floa
     return t to g
 }
 
-/** Groesste Seitenlaenge eines PDF-Blatts (200 Zoll); groessere Tafeln werden verkleinert. */
+/**
+ * Groesste Seitenlaenge eines PDF-Blatts (200 Zoll). Groessere Tafeln werden verkleinert gezeichnet und tragen eine
+ * UserUnit mit dem echten Massstab - so bleibt das Mass fuer Grossdruck und Plotter richtig (Grossdruck.kt).
+ */
 internal const val PDF_MAX = 14400f
 
 /** Masse des Blatts in Zentimetern und die Personenzahl, fuer die Anzeige im Fenster. [seiten] > 0: A4-Seiten. */
@@ -369,6 +372,10 @@ class TafelInfo(
     val personen: Int, val breiteCm: Int, val hoeheCm: Int, val seiten: Int = 0,
     /** Einblattige Tafeln: Groesse der Seite und die Karten darauf in Punkt (y von oben), fuer Klicks in der Vorschau. */
     val seiteB: Float = 0f, val seiteH: Float = 0f, val karten: List<KartenOrt> = emptyList(),
+    /** Punkt je Einheit der Seite (UserUnit): ueber PDF_MAX ist die Seite verkleinert gezeichnet. */
+    val einheit: Float = 1f,
+    /** Inhalt ohne den leeren Aussenrand (Einheiten der Seite) - Grossdruck kachelt nur ihn. */
+    val bereich: Bereich? = null,
 )
 
 /** Wo die Karte einer Person auf der Seite steht (Punkt, y von oben). */
@@ -383,7 +390,7 @@ internal fun alleKnoten(k: TafelPerson): List<TafelPerson> = listOf(k) + k.kinde
  * Wer die Seite vorher in ein anderes Dokument uebernimmt, bekommt leere Schriften - der Titel in Great Vibes
  * wurde dort zu Zeichensalat (26.09.2026). Das Original bleibt unveraendert nutzbar.
  */
-private fun eingebettet(poster: PDDocument): PDDocument =
+internal fun eingebettet(poster: PDDocument): PDDocument =
     org.apache.pdfbox.Loader.loadPDF(java.io.ByteArrayOutputStream().also { poster.save(it) }.toByteArray())
 
 /** Das Blatt verkleinert auf eine A4-Seite (hoch oder quer, was besser passt). */
@@ -396,7 +403,7 @@ fun aufEinBlatt(original: PDDocument, ziel: PDDocument, querErzwingen: Boolean =
 }
 
 /** Seiten hinter dem Blatt (Personenverzeichnis) unveraendert anhaengen, ohne Links auf das Poster. */
-private fun anhangSeiten(poster: PDDocument, ziel: PDDocument) {
+internal fun anhangSeiten(poster: PDDocument, ziel: PDDocument) {
     for (i in 1 until poster.numberOfPages) ziel.importPage(poster.getPage(i)).annotations = emptyList()
 }
 
@@ -415,52 +422,4 @@ private fun aufEinBlattSeite(poster: PDDocument, ziel: PDDocument, querErzwingen
         cs.transform(Matrix.getScaleInstance(f, f))
         cs.drawForm(form); cs.restoreGraphicsState()
     }
-}
-
-/**
- * Das Blatt in Originalgroesse auf A4-Seiten zum Zusammenkleben: 10 mm Rand, 10 mm Ueberlappung, jede Seite
- * mit Zeile/Spalte und Schnittmarken. Hoch- oder Querformat - was weniger Seiten braucht.
- */
-fun aufA4Blaetter(original: PDDocument): PDDocument {
-    val poster = eingebettet(original)
-    val quelle = poster.getPage(0).mediaBox
-    val mm = 72f / 25.4f
-    val rand = 10 * mm; val ueber = 10 * mm
-    fun zahl(format: PDRectangle): Pair<Int, Int> {
-        val sx = format.width - 2 * rand - ueber; val sy = format.height - 2 * rand - ueber
-        return Math.ceil(((quelle.width - ueber) / sx).toDouble()).toInt().coerceAtLeast(1) to Math.ceil(((quelle.height - ueber) / sy).toDouble()).toInt().coerceAtLeast(1)
-    }
-    val hoch = PDRectangle.A4; val quer = PDRectangle(hoch.height, hoch.width)
-    val (hs, hz) = zahl(hoch); val (qs, qz) = zahl(quer)
-    val format = if (qs * qz < hs * hz) quer else hoch
-    val (spalten, zeilen) = zahl(format)
-    val schrittX = format.width - 2 * rand - ueber; val schrittY = format.height - 2 * rand - ueber
-    val doc = PDDocument()
-    val form = LayerUtility(doc).importPageAsForm(poster, 0)
-    val schrift = Schriften(doc).normal
-    for (z in 0 until zeilen) for (sp in 0 until spalten) {
-        val page = PDPage(format); doc.addPage(page)
-        PDPageContentStream(doc, page).use { cs ->
-            // Ausschnitt: Spalte sp von links, Zeile z von oben
-            val qx = sp * schrittX
-            val qyOben = quelle.height - z * schrittY
-            cs.saveGraphicsState()
-            cs.addRect(rand, rand, format.width - 2 * rand, format.height - 2 * rand); cs.clip()
-            cs.transform(Matrix.getTranslateInstance(rand - qx, format.height - rand - qyOben))
-            cs.drawForm(form)
-            cs.restoreGraphicsState()
-            // Schnittmarken an den Ecken des bedruckten Bereichs, Kennung der Seite
-            cs.setStrokingColor(Color(0x99, 0x99, 0x99)); cs.setLineWidth(0.4f)
-            val l = 4 * mm
-            listOf(rand to rand, format.width - rand to rand, rand to format.height - rand, format.width - rand to format.height - rand).forEach { (x, y) ->
-                cs.moveTo(x - l, y); cs.lineTo(x + l, y); cs.moveTo(x, y - l); cs.lineTo(x, y + l)
-            }
-            cs.stroke()
-            cs.setNonStrokingColor(Color(0x88, 0x88, 0x88))
-            cs.beginText(); cs.setFont(schrift, 7f); cs.newLineAtOffset(rand, rand * 0.4f)
-            cs.showText(schrift.sicher("${z + 1}/${sp + 1}  ·  ${zeilen}×${spalten}")); cs.endText()
-        }
-    }
-    anhangSeiten(poster, doc)
-    return doc
 }

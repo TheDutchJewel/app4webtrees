@@ -63,6 +63,7 @@ class TafelBilderErzeugen {
                 partner = "partner" in schalter || (art in setOf(TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester) && "allein" !in schalter),
                 ausgangOben = "oben" in schalter, waagerecht = "quer" in schalter, bilder = "ohnebild" !in schalter, gitter = "gitter" in schalter, verzeichnis = "verz" in schalter, kurven = "kurven" in schalter, geschwister = if ("geschwalle" in schalter) 2 else if ("geschw" in schalter) 1 else 0, namenstraeger = "namen" in schalter, nummern = "ohnenr" !in schalter,
                 nachfahren = schalter.firstOrNull { it.startsWith("nach") }?.drop(4)?.toInt() ?: 3,
+                rahmenMm = schalter.firstOrNull { it.startsWith("rahmen") }?.drop(6)?.toInt() ?: 30,
                 // Farben: "linie"/"zweig" als Schema, "regel=Feld/enthaelt|gleich/Text/Farbe", "markiert=I8/4"
                 farbe = if ("linie" in schalter) FarbSchema.Linie else if ("zweig" in schalter) FarbSchema.Zweig else FarbSchema.Geschlecht,
                 regeln = schalter.filter { it.startsWith("regel=") }.map { r -> r.drop(6).split('/').let { (fe, v, t, c) -> FarbRegel(RegelFeld.valueOf(fe), v == "enthaelt", t, c.toInt()) } },
@@ -87,6 +88,25 @@ class TafelBilderErzeugen {
                 (0 until minOf(2, d.numberOfPages)).forEach { i ->
                     ImageIO.write(PDFRenderer(d).renderImage(i, 3000f / maxOf(box.width, box.height)), "png", File(ziel, if (i == 0) "$name.png" else "$name-s${i + 1}.png"))
                 }
+            }
+            // Grossdruck: "kachel=O" (Original), "kachel=B150" (Breite cm), "kachel=3x2" (Blaetter); "rolle=91.4" (eingepasst), "rolle=61fix"
+            schalter.firstOrNull { it.startsWith("kachel=") }?.drop(7)?.let { k ->
+                val g = when { k == "O" -> DruckGroesse.Original; k.startsWith("B") -> DruckGroesse.Breite(k.drop(1).toFloat()); else -> k.split('x').let { (a, b) -> DruckGroesse.Blaetter(a.toInt(), b.toInt()) } }
+                val kd = aufBlaetter(Loader.loadPDF(bytes), g, groesse.bereich)
+                val kb = ByteArrayOutputStream().also { out -> kd.use { it.save(out) } }.toByteArray()
+                File(ziel, "$name-kacheln.pdf").writeBytes(kb)
+                Loader.loadPDF(kb).use { d -> (0 until minOf(3, d.numberOfPages)).forEach { i -> ImageIO.write(PDFRenderer(d).renderImage(i, 1.5f), "png", File(ziel, "$name-kachel${i + 1}.png")) }
+                    println("$name: ${d.numberOfPages} Seiten Kacheldruck") }
+            }
+            schalter.firstOrNull { it.startsWith("rolle=") }?.drop(6)?.let { r ->
+                val fix = r.endsWith("fix")
+                val s0 = Loader.loadPDF(bytes).use { it.getPage(0).let { p -> druckBereich(p, groesse.bereich).let { b -> Triple(b.b, b.h, p.userUnit) } } }
+                val plan = rollenPlan(s0.first, s0.second, s0.third, r.removeSuffix("fix").toFloat(), o.let { DruckGroesse.Original }, !fix)
+                val rb = ByteArrayOutputStream().also { out -> aufRolle(Loader.loadPDF(bytes), plan, groesse.bereich).use { it.save(out) } }.toByteArray()
+                File(ziel, "$name-rolle.pdf").writeBytes(rb)
+                Loader.loadPDF(rb).use { d -> val p = d.getPage(0)
+                    ImageIO.write(PDFRenderer(d).renderImage(0, 1500f / maxOf(p.mediaBox.width, p.mediaBox.height)), "png", File(ziel, "$name-rolle.png"))
+                    println("$name: Rolle ${d.numberOfPages} Bahn(en), Seite ${p.mediaBox.width * p.userUnit / 72 * 2.54} x ${p.mediaBox.height * p.userUnit / 72 * 2.54} cm, UserUnit ${p.userUnit}") }
             }
             blatt?.let { b -> Loader.loadPDF(b).use { d -> ImageIO.write(PDFRenderer(d).renderImage(0, 2f), "png", File(ziel, "$name-a4.png")) } }
             println("$name: ${groesse.personen} Personen, ${groesse.breiteCm} x ${groesse.hoeheCm} cm, ${groesse.seiten} Seiten")

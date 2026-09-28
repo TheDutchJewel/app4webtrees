@@ -453,6 +453,8 @@ fun tafelPdf(
     val s = TafelSchriften(doc, o.stil)
     val bl = TafelBlatt(a, s.titel)
     val page = PDPage(PDRectangle(bl.b * bl.skala, bl.h * bl.skala))
+    // Groesser als PDF_MAX: die Seite ist verkleinert gezeichnet, die UserUnit nennt das echte Mass
+    if (bl.skala < 1f) page.userUnit = 1f / bl.skala
     doc.addPage(page)
     PDPageContentStream(doc, page).use { cs ->
         TafelZeichner(a, bl, cs, doc, s, bilder, privat).apply {
@@ -466,8 +468,10 @@ fun tafelPdf(
         val (l, oben) = bl.karteEcke(a, t, pl)
         KartenOrt(pl.knoten.person, l * bl.skala, oben * bl.skala, a.masse.karteB * bl.skala, a.masse.karteH * bl.skala)
     }
-    val info = TafelInfo(a.gezeichnet.map { it.second.knoten.person.xref }.distinct().size, (bl.b * bl.skala / 72f * 2.54f).toInt(), (bl.h * bl.skala / 72f * 2.54f).toInt(),
-        seiteB = bl.b * bl.skala, seiteH = bl.h * bl.skala, karten = karten)
+    val info = TafelInfo(a.gezeichnet.map { it.second.knoten.person.xref }.distinct().size, (bl.b / 72f * 2.54f).toInt(), (bl.h / 72f * 2.54f).toInt(),
+        seiteB = bl.b * bl.skala, seiteH = bl.h * bl.skala, einheit = 1f / bl.skala, karten = karten,
+        // Unten bleibt die Fusszeile (sie steht bei 0,6 Rand)
+        bereich = Bereich(bl.rand * bl.skala, bl.rand * 0.4f * bl.skala, (bl.b - 2 * bl.rand) * bl.skala, (bl.h - 1.4f * bl.rand) * bl.skala))
     return doc to info
 }
 

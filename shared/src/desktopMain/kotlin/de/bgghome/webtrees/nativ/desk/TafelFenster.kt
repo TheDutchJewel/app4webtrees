@@ -196,6 +196,8 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
     var zweige by remember(baumName) { mutableStateOf(TafelFarbSpeicher.zweige(baumName)) }
     LaunchedEffect(baumName, regeln, zweige) { if (baumName.isNotEmpty()) TafelFarbSpeicher.sichern(baumName, regeln, zweige) }
     val oVoll = o.copy(regeln = regeln, zweige = zweige)
+    var druck by remember { mutableStateOf(DruckWahl.laden()) }
+    LaunchedEffect(druck) { DruckWahl.sichern(druck) }
     val privat = stringResource(Res.string.person_private)
     val fuss = remember(tree) { fusszeile(appName, tree?.title.orEmpty()) }
 
@@ -333,9 +335,18 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         Knopf(stringResource(Res.string.desk_chart_pdf_pages), bereit) { erzeugen()?.first?.let { alsPdf(it, titel) } }
                     } else {
                         Knopf(stringResource(Res.string.desk_chart_print_one), bereit) { erzeugen()?.first?.let { drucken(aufEinBlatt(it), titel) } }
-                        Knopf(stringResource(Res.string.desk_chart_print_tiles), bereit) { erzeugen()?.first?.let { drucken(aufA4Blaetter(it), titel) } }
                         Knopf(stringResource(Res.string.desk_chart_pdf_poster), bereit) { erzeugen()?.first?.let { alsPdf(it, titel) } }
-                        Knopf(stringResource(Res.string.desk_chart_pdf_tiles), bereit) { erzeugen()?.first?.let { p -> p.use { alsPdf(aufA4Blaetter(it), "$titel A4") } } }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        GrossdruckWahl(druck, { druck = it }, info, bereit,
+                            onBlaetterDrucken = { erzeugen()?.let { (p, i) -> p.use { drucken(aufBlaetter(it, druck.groesse(), i.bereich), titel) } } },
+                            onBlaetterPdf = { erzeugen()?.let { (p, i) -> p.use { alsPdf(aufBlaetter(it, druck.groesse(), i.bereich), "$titel A4") } } },
+                            onPlotter = {
+                                val rolle = druck.rolleCm() ?: return@GrossdruckWahl
+                                erzeugen()?.let { (p, i) -> p.use {
+                                    val s = it.getPage(0); val ber = druckBereich(s, i.bereich)
+                                    alsPdf(aufRolle(it, rollenPlan(ber.b, ber.h, s.userUnit, rolle, druck.groesse(), druck.einpassen), i.bereich), "$titel Plotter")
+                                } }
+                            })
                     }
                     Spacer(Modifier.height(4.dp))
                     Knopf(stringResource(Res.string.action_close), true, onClose)

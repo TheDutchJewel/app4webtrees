@@ -128,6 +128,7 @@ fun faecherPdf(
     val h = rand + titelH + grafikH + fussH + rand
     val skala = minOf(1f, PDF_MAX / b, PDF_MAX / h)
     val page = PDPage(PDRectangle(b * skala, h * skala))
+    if (skala < 1f) page.userUnit = 1f / skala
     doc.addPage(page)
     // Mittelpunkt in PDF-Koordinaten (y nach oben)
     val cx = b / 2
@@ -245,6 +246,7 @@ fun faecherPdf(
         cs.setNonStrokingColor(Color(0x66, 0x66, 0x66))
         cs.beginText(); cs.setFont(s.normal, 7f); cs.newLineAtOffset(rand, rand * 0.6f); cs.showText(s.normal.sicher(fuss)); cs.endText()
     }
-    val info = TafelInfo(knoten.values.map { it.person.xref }.distinct().size, (b * skala / 72f * 2.54f).toInt(), (h * skala / 72f * 2.54f).toInt())
+    val info = TafelInfo(knoten.values.map { it.person.xref }.distinct().size, (b / 72f * 2.54f).toInt(), (h / 72f * 2.54f).toInt(),
+        seiteB = b * skala, seiteH = h * skala, einheit = 1f / skala)
     return doc to info
 }
