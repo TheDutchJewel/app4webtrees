@@ -142,8 +142,9 @@ class LokaleEinrichtung(
         }
     }
 
+    // Im PHP-Code nie doppelte Anfuehrungszeichen: Java reicht sie unter Windows nicht sauber an das Programm weiter.
     private fun baeume(): List<String> =
-        php("-r", "\$d=new PDO('sqlite:data/webtrees.sqlite');foreach(\$d->query('SELECT gedcom_name FROM wt_gedcom WHERE gedcom_id>0') as \$r)echo \$r[0],\"\\n\";")
+        php("-r", "\$d=new PDO('sqlite:data/webtrees.sqlite');foreach(\$d->query('SELECT gedcom_name FROM wt_gedcom WHERE gedcom_id>0') as \$r)echo \$r[0],PHP_EOL;")
             .lines().filter { it.isNotBlank() }
 
     private fun sql(anweisung: String, vararg werte: String) {
