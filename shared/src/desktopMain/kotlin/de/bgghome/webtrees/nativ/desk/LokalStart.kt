@@ -71,6 +71,8 @@ private fun LokalAnlegen(viewModel: AppViewModel) {
                 val (adresse, zugang) = withContext(Dispatchers.IO) { LokalBetrieb.anlegen(name, gedcom) { schritt = it } }
                 viewModel.client.baseUrl = adresse
                 viewModel.settings.baseUrl = viewModel.client.baseUrl
+                // Gleich den eben angelegten Baum oeffnen, auch wenn schon andere da sind
+                viewModel.settings.tree = zugang.baum
                 viewModel.login(zugang.benutzer, zugang.passwort)
             }.onFailure { fehler = it.message ?: it.toString() }
             schritt = null
