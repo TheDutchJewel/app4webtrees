@@ -308,7 +308,7 @@ fun tafelInhalt(art: TafelArt, d: TafelDaten, o: TafelOptionen): TafelInhalt? = 
     TafelArt.Faecher, TafelArt.Kreis -> ahnenBaum(d.ahnen, o.generationen, o.nummern)?.let { TafelInhalt(vorfahren = it) }
     TafelArt.Zeitleiste -> null
     // Ein Weg als Baum, mehrere nebeneinander
-    TafelArt.Weg -> when (d.wege.size) { 0 -> null; 1 -> TafelInhalt(nachfahren = wegBaum(d.wege[0])); else -> TafelInhalt(wald = d.wege.map(::wegBaum)) }
+    TafelArt.Weg -> when (d.wege.size) { 0 -> null; 1 -> TafelInhalt(nachfahren = wegBaum(d.wege[0])); else -> TafelInhalt(wald = d.wege.map(::wegBaum), ohneDoppelte = true) }
 }
 
 /**

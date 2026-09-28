@@ -145,6 +145,8 @@ class TafelInhalt(
     val paar: PaarTafel? = null,
     /** Verwandtschaftstafel: die Baeume der Stammpaare nebeneinander, von links nach rechts. */
     val wald: List<TafelPerson> = emptyList(),
+    /** Keine Nummern fuer mehrfach vorkommende Personen (Verwandtschaftsweg: beide Personen stehen in jedem Weg). */
+    val ohneDoppelte: Boolean = false,
 )
 
 /**

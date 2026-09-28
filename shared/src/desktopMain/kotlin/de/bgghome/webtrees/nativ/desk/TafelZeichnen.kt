@@ -103,7 +103,7 @@ internal class TafelAnordnung(inhalt: TafelInhalt, val o: TafelOptionen) {
             t.layout.plaetze.filter { !(doppelteWurzel && t.aufwaerts && it.ebene == 0) && !t.istHalter(it) }
                 .flatMap { pl -> listOf(t to pl) + geschwisterVon[pl].orEmpty().map { t to it } }
         }
-        nummern = doppelteNummern(gezeichnet.map { it.second })
+        nummern = if (inhalt.ohneDoppelte) emptyMap() else doppelteNummern(gezeichnet.map { it.second })
         paare = teile.flatMap { t -> t.layout.paare.map { PaarLage(t, it.vater, t, it.mutter, t, it.kinder) } } +
             (if (inhalt.paar == null) emptyList() else {
                 val k = teile.getOrNull(2)
