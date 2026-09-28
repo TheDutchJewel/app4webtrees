@@ -391,7 +391,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     }
                 }
                 VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                // Einstellungen
+                // Einstellungen: oben das Noetigste, darunter aufklappbare Gruppen (28.09.2026)
                 Column(Modifier.width(330.dp).fillMaxHeight().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(artTexte.getValue(art).first), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                     Text(stringResource(artTexte.getValue(art).second), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -437,29 +437,84 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     if (art == TafelArt.Sanduhr || art == TafelArt.Paar) Einstellung(stringResource(Res.string.desk_chart_generations_desc)) {
                         Auswahl(o.nachfahren.toString(), (1..9).map { it.toString() }) { o = o.copy(nachfahren = it.toInt()) }
                     }
-                    Einstellung(stringResource(Res.string.desk_chart_style)) {
-                        val namen = TafelStil.entries.associateWith { stringResource(stilNamen.getValue(it)) }
-                        Auswahl(namen.getValue(o.stil), namen.values.toList()) { w -> o = o.copy(stil = namen.entries.first { it.value == w }.key) }
-                    }
-                    Einstellung(stringResource(Res.string.desk_chart_box_width)) {
-                        Auswahl("${o.rahmenMm} mm", (20..60 step 5).map { "$it mm" }) { o = o.copy(rahmenMm = it.substringBefore(' ').toInt()) }
-                    }
-                    if (art !in ohneKaesten) {
-                        Einstellung(stringResource(Res.string.desk_chart_box_form)) {
-                            val namen = listOf(Res.string.desk_chart_form_style, Res.string.desk_chart_form_square, Res.string.desk_chart_form_round,
-                                Res.string.desk_chart_form_oval, Res.string.desk_chart_form_shield).map { stringResource(it) }
-                            Auswahl(namen[o.form.ordinal], namen) { w -> o = o.copy(form = KastenForm.entries[namen.indexOf(w)]) }
+                    Gruppe("inhalt", stringResource(Res.string.desk_group_content), true) {
+                        if (art in kreise) Haken(stringResource(Res.string.desk_chart_numbers), o.nummern) { o = o.copy(nummern = it) }
+                        else if (art != TafelArt.Zeitleiste) Einstellung(stringResource(Res.string.desk_chart_numbering)) {
+                            // Stammtafeln haben keine Kekule-Nummern: dort "keine" statt "Kekule"
+                            val namen = listOf(Res.string.desk_chart_num_none, Res.string.desk_chart_num_kekule, Res.string.desk_chart_num_chronik, Res.string.desk_chart_num_aboville).map { stringResource(it) }
+                            val jetzt = if (!o.nummern || (o.nummernArt == 0 && art in setOf(TafelArt.Stamm, TafelArt.StammSeiten))) 0 else o.nummernArt + 1
+                            Auswahl(namen[jetzt], namen) { w -> val i = namen.indexOf(w); o = if (i == 0) o.copy(nummern = false) else o.copy(nummern = true, nummernArt = i - 1) }
                         }
-                        Haken(stringResource(Res.string.desk_chart_shadow), o.schatten) { o = o.copy(schatten = it) }
-                        Haken(stringResource(Res.string.desk_chart_curved), o.geschwungen) { o = o.copy(geschwungen = it) }
-                        if (art in buendigArten) Einstellung(stringResource(Res.string.desk_chart_align)) {
-                            val namen = listOf(Res.string.desk_chart_align_center, Res.string.desk_chart_align_left, Res.string.desk_chart_align_right).map { stringResource(it) }
-                            Auswahl(namen[o.buendig], namen) { w -> o = o.copy(buendig = namen.indexOf(w)) }
+                        if (art == TafelArt.Ahnen) Haken(stringResource(if (o.waagerecht) Res.string.desk_chart_root_right else Res.string.desk_chart_root_top), o.ausgangOben) { o = o.copy(ausgangOben = it) }
+                        if (art == TafelArt.Ahnen) Einstellung(stringResource(Res.string.desk_chart_siblings)) {
+                            val werte = listOf(Res.string.desk_chart_siblings_none, Res.string.desk_chart_siblings_root, Res.string.desk_chart_siblings_all).map { stringResource(it) }
+                            Auswahl(werte[o.geschwister], werte) { w -> o = o.copy(geschwister = werte.indexOf(w)) }
                         }
-                    }
-                    // Fuer alle Tafeln, auch Faecher und Kreis: Lebende, Hintergrund, Rahmen
-                    run {
+                        if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Sanduhr) Haken(stringResource(Res.string.desk_chart_name_bearers), o.namenstraeger) { o = o.copy(namenstraeger = it) }
+                        if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Sanduhr || art == TafelArt.Cousins || art == TafelArt.Paar || art == TafelArt.Verwandt) Haken(stringResource(Res.string.desk_chart_spouses), o.partner) { o = o.copy(partner = it) }
+                        if (art in linien) Haken(stringResource(Res.string.desk_chart_both_parents), o.partner) { o = o.copy(partner = it) }
                         Haken(stringResource(Res.string.desk_chart_living_names), o.lebendeNurNamen) { o = o.copy(lebendeNurNamen = it) }
+                        if (art !in ohneKaesten) {
+                            if (art in setOf(TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Verwandt)) {
+                                Haken(stringResource(Res.string.desk_chart_only_married), o.nurMitPartner) { o = o.copy(nurMitPartner = it) }
+                                Einstellung(stringResource(Res.string.desk_chart_early_dead)) {
+                                    val werte = listOf(0, 1, 5, 15)
+                                    val namen = werte.map { if (it == 0) stringResource(Res.string.desk_chart_early_show) else stringResource(Res.string.desk_chart_early_under, it) }
+                                    Auswahl(namen[werte.indexOf(o.mindestalter).coerceAtLeast(0)], namen) { w -> o = o.copy(mindestalter = werte[namen.indexOf(w)]) }
+                                }
+                            }
+                            if (ausgeblendet.isNotEmpty()) Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(stringResource(Res.string.desk_chart_hidden, ausgeblendet.size), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                                androidx.compose.material3.TextButton(onClick = { ausgeblendet = emptySet() }) { Text(stringResource(Res.string.desk_chart_hidden_clear)) }
+                            }
+                            if (art !in setOf(TafelArt.AhnenSeiten, TafelArt.StammSeiten, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester))
+                                Haken(stringResource(Res.string.desk_chart_more_hints), o.mehrHinweise) { o = o.copy(mehrHinweise = it) }
+                        }
+                        if (art in kartenArten) {
+                            Haken(stringResource(Res.string.desk_chart_cards), o.karteikarten) { o = o.copy(karteikarten = it) }
+                            if (mitKarten && details == null) Text(stringResource(Res.string.desk_chart_cards_loading), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    if (art !in ohneKaesten) Gruppe("kasten", stringResource(Res.string.desk_group_box), false) {
+                        // Kasteninhalt (D4)
+                        Einstellung(stringResource(Res.string.desk_chart_date_form)) {
+                            val namen = listOf(Res.string.desk_chart_date_year, Res.string.desk_chart_date_short, Res.string.desk_chart_date_long).map { stringResource(it) }
+                            val jetzt = if (o.datumsArt != 0) o.datumsArt else if (o.volleDaten) 2 else 0
+                            Auswahl(namen[jetzt], namen) { w -> o = o.copy(datumsArt = namen.indexOf(w), volleDaten = false) }
+                        }
+                        Haken(stringResource(Res.string.desk_chart_places), o.orte) { o = o.copy(orte = it) }
+                        if (o.orte) Einstellung(stringResource(Res.string.desk_chart_place_parts)) {
+                            val namen = listOf(Res.string.desk_chart_place_full, Res.string.desk_chart_place_one, Res.string.desk_chart_place_two).map { stringResource(it) }
+                            Auswahl(namen[o.ortTeile.coerceIn(0, 2)], namen) { w -> o = o.copy(ortTeile = namen.indexOf(w)) }
+                        }
+                        Haken(stringResource(Res.string.desk_chart_substitute), o.ersatz) { o = o.copy(ersatz = it) }
+                        Haken(stringResource(Res.string.desk_chart_age), o.alter) { o = o.copy(alter = it) }
+                        Haken(stringResource(Res.string.desk_chart_occupation), o.beruf) { o = o.copy(beruf = it) }
+                        Haken(stringResource(Res.string.desk_chart_call_name), o.rufname) { o = o.copy(rufname = it) }
+                    }
+                    Gruppe("gestaltung", stringResource(Res.string.desk_group_design), true) {
+                        Einstellung(stringResource(Res.string.desk_chart_style)) {
+                            val namen = TafelStil.entries.associateWith { stringResource(stilNamen.getValue(it)) }
+                            Auswahl(namen.getValue(o.stil), namen.values.toList()) { w -> o = o.copy(stil = namen.entries.first { it.value == w }.key) }
+                        }
+                        Einstellung(stringResource(Res.string.desk_chart_box_width)) {
+                            Auswahl("${o.rahmenMm} mm", (20..60 step 5).map { "$it mm" }) { o = o.copy(rahmenMm = it.substringBefore(' ').toInt()) }
+                        }
+                        if (art in waagerechtMoeglich) Haken(stringResource(Res.string.desk_chart_horizontal), o.waagerecht) { o = o.copy(waagerecht = it) }
+                        Haken(stringResource(Res.string.desk_chart_photos), o.bilder) { o = o.copy(bilder = it) }
+                        if (art !in ohneKaesten) {
+                            Einstellung(stringResource(Res.string.desk_chart_box_form)) {
+                                val namen = listOf(Res.string.desk_chart_form_style, Res.string.desk_chart_form_square, Res.string.desk_chart_form_round,
+                                    Res.string.desk_chart_form_oval, Res.string.desk_chart_form_shield).map { stringResource(it) }
+                                Auswahl(namen[o.form.ordinal], namen) { w -> o = o.copy(form = KastenForm.entries[namen.indexOf(w)]) }
+                            }
+                            Haken(stringResource(Res.string.desk_chart_shadow), o.schatten) { o = o.copy(schatten = it) }
+                            Haken(stringResource(Res.string.desk_chart_curved), o.geschwungen) { o = o.copy(geschwungen = it) }
+                            if (art in buendigArten) Einstellung(stringResource(Res.string.desk_chart_align)) {
+                                val namen = listOf(Res.string.desk_chart_align_center, Res.string.desk_chart_align_left, Res.string.desk_chart_align_right).map { stringResource(it) }
+                                Auswahl(namen[o.buendig], namen) { w -> o = o.copy(buendig = namen.indexOf(w)) }
+                            }
+                        }
                         Einstellung(stringResource(Res.string.desk_chart_background)) {
                             val namen = listOf(Res.string.desk_chart_form_style, Res.string.desk_chart_bg_white, Res.string.desk_chart_bg_parchment,
                                 Res.string.desk_chart_bg_paper, Res.string.desk_chart_bg_gradient, Res.string.desk_chart_bg_image).map { stringResource(it) }
@@ -479,74 +534,28 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                                 Res.string.desk_chart_frame_vines).map { stringResource(it) }
                             Auswahl(namen[o.schmuck.ordinal], namen) { w -> o = o.copy(schmuck = Schmuckrahmen.entries[namen.indexOf(w)]) }
                         }
-                        if (!o.waagerecht && o.bilder) Haken(stringResource(Res.string.desk_chart_photo_left), o.fotoLinks) { o = o.copy(fotoLinks = it) }
+                        if (!o.waagerecht && o.bilder && art !in ohneKaesten) Haken(stringResource(Res.string.desk_chart_photo_left), o.fotoLinks) { o = o.copy(fotoLinks = it) }
                     }
-                    if (art in waagerechtMoeglich) Haken(stringResource(Res.string.desk_chart_horizontal), o.waagerecht) { o = o.copy(waagerecht = it) }
-                    Haken(stringResource(Res.string.desk_chart_photos), o.bilder) { o = o.copy(bilder = it) }
-                    if (art in mitGitterArten) {
-                        Haken(stringResource(Res.string.desk_chart_grid), o.gitter) { o = o.copy(gitter = it) }
-                        Haken(stringResource(Res.string.desk_chart_index), o.verzeichnis) { o = o.copy(verzeichnis = it) }
-                        Haken(stringResource(Res.string.desk_chart_curves), o.kurven) { o = o.copy(kurven = it) }
-                    }
-                    if (art in kreise) Haken(stringResource(Res.string.desk_chart_numbers), o.nummern) { o = o.copy(nummern = it) }
-                    else if (art != TafelArt.Zeitleiste) Einstellung(stringResource(Res.string.desk_chart_numbering)) {
-                        // Stammtafeln haben keine Kekule-Nummern: dort "keine" statt "Kekule"
-                        val namen = listOf(Res.string.desk_chart_num_none, Res.string.desk_chart_num_kekule, Res.string.desk_chart_num_chronik, Res.string.desk_chart_num_aboville).map { stringResource(it) }
-                        val jetzt = if (!o.nummern || (o.nummernArt == 0 && art in setOf(TafelArt.Stamm, TafelArt.StammSeiten))) 0 else o.nummernArt + 1
-                        Auswahl(namen[jetzt], namen) { w -> val i = namen.indexOf(w); o = if (i == 0) o.copy(nummern = false) else o.copy(nummern = true, nummernArt = i - 1) }
-                    }
-                    if (art == TafelArt.Ahnen) Haken(stringResource(if (o.waagerecht) Res.string.desk_chart_root_right else Res.string.desk_chart_root_top), o.ausgangOben) { o = o.copy(ausgangOben = it) }
-                    if (art == TafelArt.Ahnen) Einstellung(stringResource(Res.string.desk_chart_siblings)) {
-                        val werte = listOf(Res.string.desk_chart_siblings_none, Res.string.desk_chart_siblings_root, Res.string.desk_chart_siblings_all).map { stringResource(it) }
-                        Auswahl(werte[o.geschwister], werte) { w -> o = o.copy(geschwister = werte.indexOf(w)) }
-                    }
-                    if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Sanduhr) Haken(stringResource(Res.string.desk_chart_name_bearers), o.namenstraeger) { o = o.copy(namenstraeger = it) }
-                    if (art == TafelArt.Stamm || art == TafelArt.StammSeiten || art == TafelArt.Sanduhr || art == TafelArt.Cousins || art == TafelArt.Paar || art == TafelArt.Verwandt) Haken(stringResource(Res.string.desk_chart_spouses), o.partner) { o = o.copy(partner = it) }
-                    if (art in linien) Haken(stringResource(Res.string.desk_chart_both_parents), o.partner) { o = o.copy(partner = it) }
-                    if (art !in ohneKaesten) {
-                        // Kasteninhalt (D4)
-                        Einstellung(stringResource(Res.string.desk_chart_date_form)) {
-                            val namen = listOf(Res.string.desk_chart_date_year, Res.string.desk_chart_date_short, Res.string.desk_chart_date_long).map { stringResource(it) }
-                            val jetzt = if (o.datumsArt != 0) o.datumsArt else if (o.volleDaten) 2 else 0
-                            Auswahl(namen[jetzt], namen) { w -> o = o.copy(datumsArt = namen.indexOf(w), volleDaten = false) }
+                    if (art in mitGitterArten) Gruppe("gross", stringResource(Res.string.desk_group_large), false) {
+                        if (art in mitGitterArten) {
+                            Haken(stringResource(Res.string.desk_chart_grid), o.gitter) { o = o.copy(gitter = it) }
+                            Haken(stringResource(Res.string.desk_chart_index), o.verzeichnis) { o = o.copy(verzeichnis = it) }
+                            Haken(stringResource(Res.string.desk_chart_curves), o.kurven) { o = o.copy(kurven = it) }
                         }
-                        Haken(stringResource(Res.string.desk_chart_places), o.orte) { o = o.copy(orte = it) }
-                        if (o.orte) Einstellung(stringResource(Res.string.desk_chart_place_parts)) {
-                            val namen = listOf(Res.string.desk_chart_place_full, Res.string.desk_chart_place_one, Res.string.desk_chart_place_two).map { stringResource(it) }
-                            Auswahl(namen[o.ortTeile.coerceIn(0, 2)], namen) { w -> o = o.copy(ortTeile = namen.indexOf(w)) }
-                        }
-                        Haken(stringResource(Res.string.desk_chart_substitute), o.ersatz) { o = o.copy(ersatz = it) }
-                        Haken(stringResource(Res.string.desk_chart_age), o.alter) { o = o.copy(alter = it) }
-                        Haken(stringResource(Res.string.desk_chart_occupation), o.beruf) { o = o.copy(beruf = it) }
-                        Haken(stringResource(Res.string.desk_chart_call_name), o.rufname) { o = o.copy(rufname = it) }
-                        if (art in setOf(TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Verwandt)) {
-                            Haken(stringResource(Res.string.desk_chart_only_married), o.nurMitPartner) { o = o.copy(nurMitPartner = it) }
-                            Einstellung(stringResource(Res.string.desk_chart_early_dead)) {
-                                val werte = listOf(0, 1, 5, 15)
-                                val namen = werte.map { if (it == 0) stringResource(Res.string.desk_chart_early_show) else stringResource(Res.string.desk_chart_early_under, it) }
-                                Auswahl(namen[werte.indexOf(o.mindestalter).coerceAtLeast(0)], namen) { w -> o = o.copy(mindestalter = werte[namen.indexOf(w)]) }
-                            }
-                        }
-                        if (ausgeblendet.isNotEmpty()) Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(Res.string.desk_chart_hidden, ausgeblendet.size), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                            androidx.compose.material3.TextButton(onClick = { ausgeblendet = emptySet() }) { Text(stringResource(Res.string.desk_chart_hidden_clear)) }
-                        }
-                        if (art !in setOf(TafelArt.AhnenSeiten, TafelArt.StammSeiten, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester))
-                            Haken(stringResource(Res.string.desk_chart_more_hints), o.mehrHinweise) { o = o.copy(mehrHinweise = it) }
                     }
-                    if (art in farbArten) FarbEinstellungen(
-                        o, art in linienArten, art in zweigArten, { o = o.copy(farbe = it) },
-                        regeln, { regeln = it }, zweige.size, { zweige = emptyMap() },
-                    )
-                    if (art in kartenArten) {
-                        Haken(stringResource(Res.string.desk_chart_cards), o.karteikarten) { o = o.copy(karteikarten = it) }
-                        if (mitKarten && details == null) Text(stringResource(Res.string.desk_chart_cards_loading), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (art in farbArten) Gruppe("farben", stringResource(Res.string.desk_group_colors), false) {
+                        if (art in farbArten) FarbEinstellungen(
+                            o, art in linienArten, art in zweigArten, { o = o.copy(farbe = it) },
+                            regeln, { regeln = it }, zweige.size, { zweige = emptyMap() },
+                        )
                     }
-                    OutlinedTextField(o.titel, { o = o.copy(titel = it) }, label = { Text(stringResource(Res.string.desk_chart_heading)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    run {
-                        OutlinedTextField(o.untertitel, { o = o.copy(untertitel = it) }, label = { Text(stringResource(Res.string.desk_chart_subtitle)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                        OutlinedTextField(o.ersteller, { o = o.copy(ersteller = it) }, label = { Text(stringResource(Res.string.desk_chart_author)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                        Haken(stringResource(Res.string.desk_chart_legend), o.legende) { o = o.copy(legende = it) }
+                    Gruppe("titel", stringResource(Res.string.desk_group_title), false) {
+                        OutlinedTextField(o.titel, { o = o.copy(titel = it) }, label = { Text(stringResource(Res.string.desk_chart_heading)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                        run {
+                            OutlinedTextField(o.untertitel, { o = o.copy(untertitel = it) }, label = { Text(stringResource(Res.string.desk_chart_subtitle)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                            OutlinedTextField(o.ersteller, { o = o.copy(ersteller = it) }, label = { Text(stringResource(Res.string.desk_chart_author)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                            Haken(stringResource(Res.string.desk_chart_legend), o.legende) { o = o.copy(legende = it) }
+                        }
                     }
                     val info = vorschau?.getOrNull()?.info
                     info?.let {
@@ -565,7 +574,8 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         Knopf(stringResource(Res.string.desk_chart_print_one), bereit) { erzeugen(true)?.first?.let { drucken(aufEinBlatt(it), titel) } }
                         Knopf(stringResource(Res.string.desk_chart_pdf_poster), bereit) { erzeugen(true)?.first?.let { alsPdf(it, titel) } }
                         Knopf(stringResource(Res.string.desk_chart_png), bereit) { erzeugen()?.first?.let { alsPng(it, titel) } }
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    }
+                    if (art != TafelArt.AhnenSeiten && art != TafelArt.StammSeiten) Gruppe("grossdruck", stringResource(Res.string.desk_group_bigprint), false) {
                         GrossdruckWahl(druck, { druck = it }, info, bereit,
                             onBlaetterDrucken = { erzeugen(true)?.let { (p, i) -> p.use { drucken(aufBlaetter(it, druck.groesse(), i.bereich), titel) } } },
                             onBlaetterPdf = { erzeugen(true)?.let { (p, i) -> p.use { alsPdf(aufBlaetter(it, druck.groesse(), i.bereich), "$titel A4") } } },
@@ -577,19 +587,19 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                                 } }
                             })
                     }
-                    Spacer(Modifier.height(4.dp))
-                    // Vorlagen (E4): alle Einstellungen dieser Tafel als Datei, zum Wiederverwenden und Weitergeben
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Box(Modifier.weight(1f)) { Knopf(stringResource(Res.string.desk_chart_template_save), true) {
-                            vorlageDatei(true, "$titel.wtvorlage")?.writeText(TafelWahl.vorlageText(art, o))
-                        } }
-                        Box(Modifier.weight(1f)) { Knopf(stringResource(Res.string.desk_chart_template_load), true) {
-                            vorlageDatei(false, "")?.let { f -> runCatching { f.readText() }.getOrNull() }?.let(TafelWahl::vorlageLesen)?.let { (neueArt, neu) ->
-                                // Titel und Zeile unter dem Titel gehoeren zur Person, nicht zur Vorlage
-                                TafelWahl.sichern(neueArt, neu)
-                                if (neueArt == art) o = neu.copy(titel = o.titel, untertitel = o.untertitel) else art = neueArt
-                            }
-                        } }
+                    Gruppe("vorlagen", stringResource(Res.string.desk_group_templates), false) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Box(Modifier.weight(1f)) { Knopf(stringResource(Res.string.desk_chart_template_save), true) {
+                                vorlageDatei(true, "$titel.wtvorlage")?.writeText(TafelWahl.vorlageText(art, o))
+                            } }
+                            Box(Modifier.weight(1f)) { Knopf(stringResource(Res.string.desk_chart_template_load), true) {
+                                vorlageDatei(false, "")?.let { f -> runCatching { f.readText() }.getOrNull() }?.let(TafelWahl::vorlageLesen)?.let { (neueArt, neu) ->
+                                    // Titel und Zeile unter dem Titel gehoeren zur Person, nicht zur Vorlage
+                                    TafelWahl.sichern(neueArt, neu)
+                                    if (neueArt == art) o = neu.copy(titel = o.titel, untertitel = o.untertitel) else art = neueArt
+                                }
+                            } }
+                        }
                     }
                     Knopf(stringResource(Res.string.action_close), true, onClose)
                 }
@@ -628,6 +638,21 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                 }
             }
         }
+    }
+}
+
+/** Aufklappbare Gruppe im Einstellungsfenster; ob offen, merkt sich das Programm je [name]. */
+@Composable
+internal fun Gruppe(name: String, titel: String, vorgabe: Boolean, inhalt: @Composable () -> Unit) {
+    var offen by remember { mutableStateOf(DeskLayout.prefs.getBoolean("tafel_gruppe_$name", vorgabe)) }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth().clickable { offen = !offen; DeskLayout.prefs.putBoolean("tafel_gruppe_$name", offen) }.padding(top = 6.dp, bottom = 2.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Text(if (offen) "▾" else "▸", Modifier.width(18.dp), style = MaterialTheme.typography.titleSmall)
+            Text(titel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        }
+        if (offen) inhalt()
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 

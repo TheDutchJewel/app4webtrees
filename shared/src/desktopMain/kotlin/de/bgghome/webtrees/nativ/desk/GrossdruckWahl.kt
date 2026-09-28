@@ -61,7 +61,6 @@ internal fun GrossdruckWahl(
     d: DruckEinstellung, onAendern: (DruckEinstellung) -> Unit, info: TafelInfo?, bereit: Boolean,
     onBlaetterDrucken: () -> Unit, onBlaetterPdf: () -> Unit, onPlotter: () -> Unit,
 ) {
-    Text(stringResource(Res.string.desk_print_heading), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
     Einstellung(stringResource(Res.string.desk_print_size)) {
         val namen = listOf(Res.string.desk_print_size_original, Res.string.desk_print_size_width, Res.string.desk_print_size_sheets).map { stringResource(it) }
         Auswahl(namen[d.art], namen) { onAendern(d.copy(art = namen.indexOf(it))) }
