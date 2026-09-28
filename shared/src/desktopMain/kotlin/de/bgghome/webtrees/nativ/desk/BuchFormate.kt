@@ -322,5 +322,5 @@ fun buchSpeichern(buch: Buch, format: BuchFormat, vorschlag: String) {
     val name = dialog.file ?: return
     val ziel = File(dialog.directory, if (name.endsWith("." + format.endung, true)) name else "$name.${format.endung}")
     buchSchreiben(buch, format, ziel)
-    if (format != BuchFormat.TEX) dateiOeffnen(ziel)
+    if (format != BuchFormat.TEX) runCatching { java.awt.Desktop.getDesktop().open(ziel) }
 }
