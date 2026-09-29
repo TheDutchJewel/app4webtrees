@@ -842,7 +842,7 @@ GEDCOM, merging, places and sources are managed by webtrees itself – the webtr
     <string name="desk_check_untick">Open again</string>
     <!-- Stufe 4: Stammbaum auf diesem PC -->
     <string name="lokal_heading">New family tree on this PC</string>
-    <string name="lokal_text">Start from scratch or switch from another program: %1$s keeps your family tree on this computer. No server, no password, no internet needed. Later the tree can move to a NAS without anything changing for you.</string>
+    <string name="lokal_text">Start from scratch or switch from another program: %1$s keeps your family tree on this computer. No server, no password, no internet needed. If the family should see it later, the tree moves with its photos to a NAS or web host via GEDCOM export – you keep using the program as before.</string>
     <string name="lokal_title_label">Name of the family tree</string>
     <string name="lokal_title_default">My family tree</string>
     <string name="lokal_create">Create family tree</string>

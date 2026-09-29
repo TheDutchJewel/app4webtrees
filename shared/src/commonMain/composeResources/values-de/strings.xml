@@ -837,7 +837,7 @@ GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Men�
     <string name="desk_check_untick">Wieder öffnen</string>
     <!-- Stufe 4: Stammbaum auf diesem PC -->
     <string name="lokal_heading">Neuer Stammbaum auf diesem PC</string>
-    <string name="lokal_text">Neu anfangen oder vom bisherigen Programm umsteigen: %1$s legt deinen Stammbaum auf diesem Computer an. Kein Server, kein Passwort, kein Internet nötig. Später kann der Stammbaum auf eine NAS umziehen, ohne dass sich für dich etwas ändert.</string>
+    <string name="lokal_text">Neu anfangen oder vom bisherigen Programm umsteigen: %1$s legt deinen Stammbaum auf diesem Computer an. Kein Server, kein Passwort, kein Internet nötig. Soll die Familie später mitlesen, zieht der Stammbaum per GEDCOM-Export mit seinen Fotos auf eine NAS oder zu einem Webhoster um – %1$s bedienst du danach wie gewohnt.</string>
     <string name="lokal_title_label">Name des Stammbaums</string>
     <string name="lokal_title_default">Mein Stammbaum</string>
     <string name="lokal_create">Stammbaum anlegen</string>
