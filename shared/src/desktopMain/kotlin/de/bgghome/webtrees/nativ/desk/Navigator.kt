@@ -73,13 +73,12 @@ import org.jetbrains.compose.resources.stringResource
 
 private val BOX_W = 330.dp
 private val BOX_H = 58.dp
-/** Kompakter Kasten der aeussersten Generation (ab [KOMPAKT_AB] Generationen): eine Zeile Name und Jahre, kleines Foto. */
-private val KOMPAKT_H = 32.dp
-private val KOMPAKT_AB = 4
-/** Zeilenabstand der kompakten Generation: zwei Zeilen (124 dp) muessen wie bisher den Elternkasten zwischen zwei
- *  Grosselternkaesten aufnehmen; die kompakte Spalte selbst steht rechts neben der vorigen, ohne Ueberlappung. */
-private val SLOT_KOMPAKT = 62.dp
 private val GAP = 10.dp
+/** Zeilenabstand der aeussersten Generation: dicht (Kasten plus Luft), bei hohem Fenster bis zur doppelten Kastenhoehe. */
+private val SLOT_MIN = BOX_H + 6.dp
+private val SLOT_MAX = BOX_H * 2 + 8.dp
+/** Die aeusserste Spalte steht rechts neben der vorigen, ohne Ueberlappung - nur so koennen ihre Zeilen dicht liegen. */
+private val AUSSEN = BOX_W + 36.dp
 /** Spaltenabstand kleiner als die Kastenbreite: die Spalten ueberlappen, die Linie zu den Eltern
  *  laeuft hinter dem Kasten des Kindes bei zwei Dritteln seiner Breite. */
 private val COL = 245.dp
@@ -151,7 +150,7 @@ fun Navigator(
     val quer = rememberScrollState(); val hoch = rememberScrollState()
     val basis = LocalDensity.current
     val g = state.ancestorGenerations.coerceIn(2, 7)
-    val eng = chartMasse(g, familie, familien.isNotEmpty(), COL)
+    val eng = chartMasse(g, familie, familien.isNotEmpty(), COL, SLOT_MIN)
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
     // Generationen und Zoom ueber der Tafel, rechts - im Navigator statt in der Symbolleiste
     // (dort fehlte bei 125 % Skalierung der Platz).
@@ -166,9 +165,18 @@ fun Navigator(
         val skala = fit * zoom
         // Bleibt Breite uebrig, ruecken die Spalten auseinander, bis die Tafel das Fenster ausfuellt.
         val frei = (maxWidth - rand) / skala - eng.breite
-        val spalten = if (eng.kompakt) g - 2 else g - 1
+        val spalten = g - 2 // die inneren Spalten; die aeusserste steht fest neben der vorigen
         val col = if (spalten > 0 && frei > 0.dp) minOf(COL + frei / spalten, BOX_W + 40.dp) else COL
-        val masse = chartMasse(g, familie, familien.isNotEmpty(), col)
+        // Bleibt Hoehe uebrig, ruecken die Zeilen der aeussersten Generation auseinander, bis die Tafel das Fenster fuellt.
+        val hoeheFrei = (maxHeight - rand) / skala - eng.hoeheFit
+        var slotH = if (hoeheFrei > 0.dp) minOf(SLOT_MIN + hoeheFrei / eng.slots, SLOT_MAX) else SLOT_MIN
+        var masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH)
+        // Rutscht die Tafel wegen des Infokastens nach unten, die Zeilen wieder etwas enger ziehen.
+        val zuviel = masse.hoeheFit - (maxHeight - rand) / skala
+        if (zuviel > 0.dp && slotH > SLOT_MIN) {
+            slotH = maxOf(SLOT_MIN, slotH - zuviel / eng.slots)
+            masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH)
+        }
         CompositionLocalProvider(LocalFarben provides farben, LocalDensity provides Density(basis.density * skala, basis.fontScale)) {
             Box(Modifier.fillMaxSize()) {
                 Box(Modifier.fillMaxSize().horizontalScroll(quer).verticalScroll(hoch).padding(12.dp)) {
@@ -239,28 +247,35 @@ internal fun klarName(p: Person): String =
 /** Die Masse der Tafel in dp vor dem Zeichnen - fuer das Einpassen. */
 private class ChartMasse(
     val slots: Int, val slotH: Dp, val ancH: Dp, val kinder: Int, val partner: Int, val xZentral: Dp, val centerY: Dp, val kinderTop: Dp,
-    val breite: Dp, val hoehe: Dp, val hoeheFit: Dp, val kompakt: Boolean, val col: Dp,
+    val breite: Dp, val hoehe: Dp, val hoeheFit: Dp, val col: Dp,
 ) {
-    /** Hoehe eines Kastens der Generation [gen] (0 = Zentralperson). */
-    fun boxH(gen: Int, g: Int): Dp = if (kompakt && gen == g - 1) KOMPAKT_H else BOX_H
-    /** Linker Rand der Generation [gen]; die kompakte aeusserste Spalte steht ohne Ueberlappung rechts neben der vorigen. */
-    fun left(gen: Int, g: Int): Dp = if (kompakt && gen == g - 1) xZentral + col * (g - 2) + BOX_W + 12.dp else xZentral + col * gen
+    /** Linker Rand der Generation [gen] (0 = Zentralperson); die aeusserste Spalte steht rechts neben der vorigen. */
+    fun left(gen: Int, g: Int): Dp = if (gen == g - 1) xZentral + col * (g - 2) + AUSSEN else xZentral + col * gen
 }
 
-private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson?, hatFamilien: Boolean, col: Dp): ChartMasse {
+/**
+ * Die Masse der Tafel fuer [slotH] als Zeilenabstand der aeussersten Generation. Die inneren Spalten ueberlappen sich
+ * waagerecht (COL kleiner als die Kastenbreite), darum muss dort jeder Kasten senkrecht zwischen seine beiden Eltern
+ * passen - mit dem doppelten Zeilenabstand je Generation nach innen geht das ab SLOT_MIN von selbst auf. Nur die
+ * aeusserste Spalte darf deshalb nicht ueberlappen (AUSSEN), sonst braeuchte sie die doppelte Zeilenhoehe.
+ */
+private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson?, hatFamilien: Boolean, col: Dp, slotH: Dp): ChartMasse {
     val slots = 1 shl (g - 1)
-    val kompakt = g >= KOMPAKT_AB
-    // Zeilenabstand gut zwei Kastenhoehen: nur so passt der Elternkasten senkrecht zwischen die beiden Grosseltern,
-    // wenn sich die Spalten waagerecht ueberlappen. Mit kompakter aeusserster Generation reicht die halbe Zeile, weil
-    // deren Spalte nicht ueberlappt und erst die naechste Generation (doppelter Abstand) wieder Platz braucht.
-    // Die Kinderspalte bleibt dicht (BOX_H + GAP).
-    val slotH = if (kompakt) SLOT_KOMPAKT else BOX_H * 2 + 8.dp
     val ancH = slotH * slots
     val kinder = familie?.children?.size ?: 0
     val partner = if (hatFamilien) 1 else 0
     val xZentral = BOX_W + 56.dp
     // Die Zentralperson sitzt in der Mitte der Vorfahren; nur wenn ihr Kasten in den Infokasten ragt, rutscht alles nach unten.
-    val centerY = maxOf(ancH / 2, INFO_H + ICON_ROW + BOX_H / 2)
+    var centerY = maxOf(ancH / 2, INFO_H + ICON_ROW + BOX_H / 2)
+    // Ebenso jede Vorfahrenspalte, die waagerecht noch in den Infokasten reicht (bei wenig Platz die Eltern):
+    // ihr oberster Kasten beginnt erst unter dem Infokasten.
+    val infoW = BOX_W * 2 + 56.dp
+    for (k in 1 until g) {
+        val links = if (k == g - 1) xZentral + col * (g - 2) + AUSSEN else xZentral + col * k
+        if (links >= infoW) continue
+        val oben = (slotH * (slots shr k) - BOX_H) / 2
+        centerY = maxOf(centerY, INFO_H + ancH / 2 - oben)
+    }
     // Die Kinderspalte beginnt unter dem Infokasten und ist sonst um die Zentralperson zentriert.
     val kinderH = (BOX_H + GAP) * kinder
     val kinderTop = maxOf(centerY - kinderH / 2, INFO_H + ICON_ROW)
@@ -268,9 +283,8 @@ private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson
     val hoeheFit = maxOf(centerY + ancH / 2, centerY + BOX_H / 2 + partnerH + 30.dp) + 24.dp
     // Die Kinderspalte rollt in ihrem eigenen Bereich; die Tafel wird durch sie nicht hoeher.
     val hoehe = hoeheFit
-    val aussen = if (kompakt) col * (g - 2) + BOX_W + 12.dp else col * (g - 1)
-    val breite = xZentral + aussen + BOX_W + 24.dp
-    return ChartMasse(slots, slotH, ancH, kinder, partner, xZentral, centerY, kinderTop, breite, hoehe, hoeheFit, kompakt, col)
+    val breite = xZentral + col * (g - 2) + AUSSEN + BOX_W + 24.dp
+    return ChartMasse(slots, slotH, ancH, kinder, partner, xZentral, centerY, kinderTop, breite, hoehe, hoeheFit, col)
 }
 
 @Composable
@@ -286,8 +300,7 @@ private fun Chart(
     val hoehe = m.hoehe; val breite = m.breite
     val line = MaterialTheme.colorScheme.outline
 
-    fun boxH(n: Int): Dp = m.boxH(gen(n), g)
-    fun top(n: Int): Dp { val gg = gen(n); val span = slots shr gg; val i = n - (1 shl gg); return centerY - ancH / 2 + slotH * (i * span) + (slotH * span - boxH(n)) / 2 }
+    fun top(n: Int): Dp { val gg = gen(n); val span = slots shr gg; val i = n - (1 shl gg); return centerY - ancH / 2 + slotH * (i * span) + (slotH * span - BOX_H) / 2 }
     fun left(n: Int): Dp = m.left(gen(n), g)
     val kinderTop = m.kinderTop
     val kinderBereich = hoehe - kinderTop - 12.dp
@@ -300,7 +313,7 @@ private fun Chart(
             for (n in 1 until (1 shl (g - 1))) {
                 if (n !in ahnen) continue
                 val xm = minOf(left(n) + LINE_X, left(2 * n) - 12.dp).toPx()
-                val yV = (top(2 * n) + boxH(2 * n) / 2).toPx(); val yM = (top(2 * n + 1) + boxH(2 * n + 1) / 2).toPx()
+                val yV = (top(2 * n) + BOX_H / 2).toPx(); val yM = (top(2 * n + 1) + BOX_H / 2).toPx()
                 drawLine(line, Offset(xm, yV), Offset(xm, yM), w)
                 drawLine(line, Offset(xm, yV), Offset(left(2 * n).toPx(), yV), w); drawLine(line, Offset(xm, yM), Offset(left(2 * n + 1).toPx(), yM), w)
             }
@@ -367,10 +380,10 @@ private fun Chart(
         for (n in 2 until (1 shl g)) {
             val a = ahnen[n]
             if (a != null) {
-                PersonBox(a.person, Art.Ahn, viewModel, onOpenSheet, openWeb, Modifier.offset(left(n), top(n)), pfeilRechts = gen(n) == g - 1 && a.hasParents, kompakt = m.kompakt && gen(n) == g - 1)
+                PersonBox(a.person, Art.Ahn, viewModel, onOpenSheet, openWeb, Modifier.offset(left(n), top(n)), pfeilRechts = gen(n) == g - 1 && a.hasParents)
             } else if ((n / 2) in ahnen) {
                 val kind = ahnen.getValue(n / 2).person
-                LeerBox(if (n % 2 == 0) "M" else "F", Modifier.offset(left(n), top(n)), onClick = if (canEdit && !kind.isPrivate) ({ viewModel.requestAddRelative(kind.xref) }) else null, hoehe = boxH(n))
+                LeerBox(if (n % 2 == 0) "M" else "F", Modifier.offset(left(n), top(n)), onClick = if (canEdit && !kind.isPrivate) ({ viewModel.requestAddRelative(kind.xref) }) else null)
             }
         }
     }
@@ -415,16 +428,14 @@ private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier,
 
 private enum class Art { Zentral, Ahn, Kind, Partner }
 
-/** Ein Personenkasten: Portraet ueber die ganze Hoehe, "Nachname, Vorname" gross, Jahre darunter, Pfeile wo es weitergeht.
- *  [kompakt] (aeusserste Generation): halbe Hoehe, Name und Jahre in einer Zeile. */
+/** Ein Personenkasten: Portraet ueber die ganze Hoehe, "Nachname, Vorname" gross, Jahre darunter, Pfeile wo es weitergeht. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PersonBox(
     person: Person, art: Art, viewModel: AppViewModel, onOpenSheet: (String) -> Unit, openWeb: (String) -> Unit, modifier: Modifier,
-    pfeilLinks: Boolean = false, pfeilRechts: Boolean = false, kompakt: Boolean = false,
+    pfeilLinks: Boolean = false, pfeilRechts: Boolean = false,
 ) {
     val c = boxColors(person.sex)
-    val h = if (kompakt) KOMPAKT_H else BOX_H
     val name = registerName(person, stringResource(Res.string.person_private), stringResource(Res.string.person_no_name))
     val asCentre = stringResource(Res.string.desk_as_centre); val edit = stringResource(Res.string.desk_sheet); val web = stringResource(Res.string.chip_open_web)
     val merken = stringResource(Res.string.desk_bookmark_add); val merkWeg = stringResource(Res.string.desk_bookmark_remove)
@@ -439,7 +450,7 @@ private fun PersonBox(
         )
     }) {
         Row(
-            modifier.size(BOX_W, h)
+            modifier.size(BOX_W, BOX_H)
                 .background(c.fill)
                 .border(if (art == Art.Zentral) 2.5.dp else 1.dp, if (art == Art.Zentral) onSurface else c.border)
                 .fokusRahmen()
@@ -447,13 +458,8 @@ private fun PersonBox(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (pfeilLinks) Text("◀", fontSize = 11.sp, color = onSurface, modifier = Modifier.padding(start = 2.dp))
-            Portrait(person, Modifier.padding(1.dp).size(h - 2.dp))
-            if (kompakt) {
-                Row(Modifier.weight(1f).padding(start = 6.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(name, Modifier.weight(1f, fill = false), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, lineHeight = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = onSurface)
-                    jahre(person).takeIf(String::isNotBlank)?.let { Text(it, Modifier.padding(start = 6.dp), fontSize = 11.sp, lineHeight = 14.sp, color = onSurface.copy(alpha = 0.75f), maxLines = 1, softWrap = false) }
-                }
-            } else Column(Modifier.weight(1f).padding(start = 6.dp, end = 4.dp)) {
+            Portrait(person, Modifier.padding(1.dp).size(BOX_H - 2.dp))
+            Column(Modifier.weight(1f).padding(start = 6.dp, end = 4.dp)) {
                 Text(name, fontSize = 15.sp, fontWeight = if (art == Art.Zentral) FontWeight.Bold else FontWeight.SemiBold, lineHeight = 18.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = onSurface)
                 Text(jahre(person).ifBlank { " " }, fontSize = 12.sp, lineHeight = 15.sp, color = onSurface.copy(alpha = 0.75f), maxLines = 1)
             }
@@ -465,10 +471,10 @@ private fun PersonBox(
 
 /** Leerer Kasten fuer einen unbekannten Elternteil; mit Schreibrecht legt ein Klick die Person an. */
 @Composable
-private fun LeerBox(sex: String, modifier: Modifier, onClick: (() -> Unit)?, text: String = "", hoehe: Dp = BOX_H) {
+private fun LeerBox(sex: String, modifier: Modifier, onClick: (() -> Unit)?, text: String = "") {
     val c = boxColors(sex)
     Box(
-        modifier.size(BOX_W, hoehe).background(c.fill.copy(alpha = 0.55f)).border(1.dp, c.border.copy(alpha = 0.6f))
+        modifier.size(BOX_W, BOX_H).background(c.fill.copy(alpha = 0.55f)).border(1.dp, c.border.copy(alpha = 0.6f))
             .let { if (onClick != null) it.clickable(onClick = onClick) else it },
         contentAlignment = Alignment.CenterStart,
     ) { if (text.isNotEmpty()) Text(text, Modifier.padding(start = 10.dp), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
