@@ -44,6 +44,13 @@
   <br><b>Plausibilitätsprüfung</b> (ab 1.22, erweitert in 1.23) – 61 Regeln prüfen den ganzen Stammbaum: Tod vor Geburt, Mutter zu jung, Pate schon gestorben, mögliche Dubletten, Ortsvarianten, eigener Vorfahr … Voreinstellungen von streng bis großzügig, Grenzen einstellbar; geprüfte Treffer abhaken, das Ereignis direkt aus dem Treffer bearbeiten, Drucken und PDF.
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/desktop-hilfe.jpg" alt="wtTux: Hilfefenster mit Inhaltsverzeichnis, Suche nach „Plotter“ und markierten Treffern im Kapitel Tafeln" width="100%">
+  <br><b>Hilfe im Programm</b> (ab 1.27) – F1 öffnet zwölf Kapitel mit Suche, in jedem Fenster gleich das passende; Fachbegriffe in den Einstellungen erklären sich beim Überfahren mit der Maus:
+</p>
+
+<p align="center"><img src="docs/screenshots/desktop-tooltip.jpg" alt="wtTux: Tafelfenster mit Erklärung zu „Nur Namensträger“ beim Überfahren" width="100%"></p>
+
 <p align="center"><sub>Alle Bilder: frei erfundener Demo-Stammbaum <a href="demo-tree/">Familie Falkenrath</a> (CC0), Fotos unbekannter Personen aus dem Rijksmuseum Amsterdam (CC0).</sub></p>
 
 **Android:** Die APK ist signiert. Außerhalb des Play Store muss Android einmalig erlauben, dass der Browser Apps installiert.  

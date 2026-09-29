@@ -44,6 +44,13 @@
   <br><b>Plausibility check</b> (from 1.22, extended in 1.23) – 61 rules check the whole tree: death before birth, mother too young, godparent already dead, possible duplicates, place variants, own ancestor … presets from strict to lenient, adjustable limits; tick off checked findings, edit the event straight from the finding, print and PDF.
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/desktop-hilfe.jpg" alt="wtTux: help window with table of contents, search for “Plotter” and highlighted hits in the Charts chapter" width="100%">
+  <br><b>Help inside the program</b> (from 1.27) – F1 opens twelve chapters with search, in every window the matching one; technical terms in the settings explain themselves on mouse-over:
+</p>
+
+<p align="center"><img src="docs/screenshots/desktop-tooltip.jpg" alt="wtTux: chart window with the explanation of “Name bearers only” on mouse-over" width="100%"></p>
+
 <p align="center"><sub>All pictures: fictitious demo tree <a href="demo-tree/">Familie Falkenrath</a> (CC0), photos of unknown people from the Rijksmuseum Amsterdam (CC0).</sub></p>
 
 **Android:** the APK is signed. To install outside the Play Store, Android asks once to allow your browser to install apps.  
