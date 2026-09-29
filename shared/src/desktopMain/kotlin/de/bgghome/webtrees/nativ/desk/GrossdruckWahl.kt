@@ -61,7 +61,7 @@ internal fun GrossdruckWahl(
     d: DruckEinstellung, onAendern: (DruckEinstellung) -> Unit, info: TafelInfo?, bereit: Boolean,
     onBlaetterDrucken: () -> Unit, onBlaetterPdf: () -> Unit, onPlotter: () -> Unit,
 ) {
-    Einstellung(stringResource(Res.string.desk_print_size)) {
+    Einstellung(stringResource(Res.string.desk_print_size), stringResource(Res.string.tipp_print_size)) {
         val namen = listOf(Res.string.desk_print_size_original, Res.string.desk_print_size_width, Res.string.desk_print_size_sheets).map { stringResource(it) }
         Auswahl(namen[d.art], namen) { onAendern(d.copy(art = namen.indexOf(it))) }
     }
@@ -86,7 +86,7 @@ internal fun GrossdruckWahl(
     }
     Knopf(stringResource(Res.string.desk_chart_print_tiles), bereit && grund != null, onBlaetterDrucken)
     Knopf(stringResource(Res.string.desk_chart_pdf_tiles), bereit && grund != null, onBlaetterPdf)
-    Einstellung(stringResource(Res.string.desk_print_roll)) {
+    Einstellung(stringResource(Res.string.desk_print_roll), stringResource(Res.string.tipp_print_roll)) {
         val andere = stringResource(Res.string.desk_print_roll_other)
         val werte = ROLLEN.map { "${zeigeCm(it)} cm" } + andere
         val jetzt = if (d.rolle in ROLLEN) "${zeigeCm(d.rolle)} cm" else andere
@@ -95,7 +95,7 @@ internal fun GrossdruckWahl(
     if (d.rolle !in ROLLEN) Einstellung(stringResource(Res.string.desk_print_roll_cm)) {
         OutlinedTextField(zeigeCm(d.rolle), { onAendern(d.copy(rolle = it.filter { c -> c.isDigit() || c == ',' || c == '.' }.replace(',', '.').take(6))) }, singleLine = true, modifier = Modifier.fillMaxWidth())
     }
-    Haken(stringResource(Res.string.desk_print_roll_fit), d.einpassen) { onAendern(d.copy(einpassen = it)) }
+    Haken(stringResource(Res.string.desk_print_roll_fit), d.einpassen, stringResource(Res.string.tipp_roll_fit)) { onAendern(d.copy(einpassen = it)) }
     val rolle = d.rolleCm()
     if (grund != null && ber != null && rolle != null) {
         val r = rollenPlan(ber.b, ber.h, grund.einheit, rolle, d.groesse(), d.einpassen)

@@ -855,4 +855,47 @@
     <string name="desk_about_local_missing">Family tree on this PC: not available, missing %1$s</string>
     <string name="desk_about_unofficial">%1$s is not an official webtrees product. Questions and bug reports please at github.com/thobgg/app4webtrees/issues.</string>
     <string name="lokal_hint">Behind the scenes this is webtrees: everything the webtrees website can do is available via “Open webtrees in the browser”.</string>
+    <!-- Erklaerungen beim Ueberfahren (Tipp) fuer Fachbegriffe in den Einstellungen -->
+    <string name="tipp_kekule">Kekulé numbers: the central person is 1, the father twice the number, the mother twice plus 1. Men even, women odd.</string>
+    <string name="tipp_numbering">Kekulé counts ancestors (father 2, mother 3 …). Chronicle gives generation and running number (IV-12). d’Aboville counts descendants (1.2.3 = third child of the second child).</string>
+    <string name="tipp_list_numbering">1.2.3: the child\'s number per generation, with dots. d’Aboville: the same with the root couple\'s letter in front (C1.2.3). Henry: without dots (123). Serial: 1, 2, 3 in reading order.</string>
+    <string name="tipp_name_bearers">Only the children of sons, i.e. the descendants who carry the central person\'s surname.</string>
+    <string name="tipp_both_parents">Show the married-in parent in each generation too, not only the line itself.</string>
+    <string name="tipp_living_names">Persons without a death date with names only, no birth or places – for sharing with others.</string>
+    <string name="tipp_only_married">Leave out unmarried and childless descendants; the chart stays smaller.</string>
+    <string name="tipp_early_dead">Hide children who died before the chosen age; the chart stays clear.</string>
+    <string name="tipp_more_hints">Where the chart ends, a small hint such as “+3 children” or “↑ more ancestors”.</string>
+    <string name="tipp_cards">One page per person with all details behind the chart. In the PDF, a click on the box jumps there and back.</string>
+    <string name="tipp_substitute">If the birth is missing, the baptism is shown instead; if the death is missing, the burial – with its own symbol in the legend.</string>
+    <string name="tipp_call_name">The call name marked in webtrees is underlined, as usual in genealogy.</string>
+    <string name="tipp_horizontal">Generations as columns from left to right instead of rows – good for wide prints and screens.</string>
+    <string name="tipp_grid">Letters and numbers at the margin like on a map; references to duplicate persons name the position (B3).</string>
+    <string name="tipp_index">All persons alphabetically with their position on the chart, on a page of its own.</string>
+    <string name="tipp_curves">If a person appears more than once on the chart, a curved line connects the positions.</string>
+    <string name="tipp_legend">Explains the symbols (* † ⚭), the numbers, the colours and the colour rules at the bottom of the chart.</string>
+    <string name="tipp_events">Wars, famine years and eras as bars above the timeline, to place the dates in context.</string>
+    <string name="tipp_overview">A first page shows which person is on which page.</string>
+    <string name="tipp_per_page">How many generations fit on one A4 page; the continuation appears as “→ p. 7” below the person.</string>
+    <string name="tipp_roots">From which ancestral generation the descendants are shown: parents (siblings), grandparents (cousins), great-grandparents (second cousins) …</string>
+    <string name="tipp_below_root">How many generations below the central person are added: children, grandchildren …</string>
+    <string name="tipp_siblings">Siblings of the central person or of all ancestors on the chart; “of all ancestors” makes it much wider.</string>
+    <string name="tipp_root_top">Ancestor chart upside down: the central person on top, the ancestors below.</string>
+    <string name="tipp_colour_by">Sex: blue and red. Grandparent line: the central person\'s four lines in four colours. Branch: one colour per child of the root couple.</string>
+    <string name="tipp_print_size">Original size prints as large as the chart is calculated. Width in cm scales it. On sheets spreads the chart over A4 pages for gluing, with an assembly plan.</string>
+    <string name="tipp_print_roll">Roll width of the plotter or copy shop; the PDF page gets exactly this width.</string>
+    <string name="tipp_roll_fit">Shrink the chart so that it fits the roll in one strip; otherwise several strips are produced.</string>
+    <string name="tipp_template_save">Save all settings of this chart as a file (.wtvorlage) – for later or for another person.</string>
+    <string name="tipp_template_load">Load a saved template; it replaces the current settings.</string>
+    <string name="tipp_calendar">Sorted by month and day instead of year – for anniversaries and the family newsletter.</string>
+    <string name="tipp_full_dates">Full dates (12 March 1851) instead of the year only.</string>
+    <string name="tipp_short_places">Only the place name without district and country, e.g. “Winterbach” instead of “Winterbach, Rems-Murr-Kreis, Württemberg”.</string>
+    <string name="tipp_duplicates">Ancestors who appear via several lines (pedigree collapse) written out in full each time instead of “see no.”.</string>
+    <string name="tipp_foldout">The matching chart as an A3 page at the back of the book, to fold out; PDF only.</string>
+    <string name="tipp_book_color">Colour mark at the page margin: in the ancestor book the four grandparent lines, in the descendant book one colour per child of the root couple.</string>
+    <string name="tipp_preset">Strict reports more, generous less; the rules\' limits change with it. Own values turn it into “Own settings”.</string>
+    <string name="tipp_estimate">If the birth is missing, the baptism counts as birth; if the death is missing, the burial. So the age rules work with pure parish register data too.</string>
+    <string name="tipp_limit">From this value on the rule reports; the default is shown on the right.</string>
+    <string name="tipp_severity">Errors are contradictions in the data, warnings are only unusual. Changeable per rule.</string>
+    <string name="tipp_ticks_export">Save the tick list as a file – for a second computer or a fellow researcher.</string>
+    <string name="tipp_ticks_import">Load a saved tick list; it is merged into the existing one.</string>
 </resources>

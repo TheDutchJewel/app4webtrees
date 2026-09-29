@@ -96,7 +96,7 @@ internal fun FarbEinstellungen(
     o: TafelOptionen, linie: Boolean, zweig: Boolean, onSchema: (FarbSchema) -> Unit,
     regeln: List<FarbRegel>, onRegeln: (List<FarbRegel>) -> Unit, zweige: Int, onZweigeLeeren: () -> Unit,
 ) {
-    if (o.stil == TafelStil.Farbig) Einstellung(stringResource(Res.string.desk_chart_colour_by)) {
+    if (o.stil == TafelStil.Farbig) Einstellung(stringResource(Res.string.desk_chart_colour_by), stringResource(Res.string.tipp_colour_by)) {
         val arten = FarbSchema.entries.filter { it == FarbSchema.Geschlecht || (it == FarbSchema.Linie && linie) || (it == FarbSchema.Zweig && zweig) }
         val namen = arten.associateWith { stringResource(schemaNamen.getValue(it)) }
         Auswahl(namen[o.farbe] ?: namen.getValue(FarbSchema.Geschlecht), namen.values.toList()) { w -> onSchema(namen.entries.first { it.value == w }.key) }

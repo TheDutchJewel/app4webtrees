@@ -170,24 +170,24 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                         Auswahl(o.generationen.toString(), (2..(if (nachfahren) 10 else 12)).map { it.toString() }) { o = o.copy(generationen = it.toInt()) }
                     }
                     if (nachfahren) {
-                        Einstellung(stringResource(Res.string.desk_list_numbering)) {
+                        Einstellung(stringResource(Res.string.desk_list_numbering), stringResource(Res.string.tipp_list_numbering)) {
                             val namen = mapOf(Nummerierung.Saragossa to "1.2.3", Nummerierung.Aboville to "d'Aboville (C1.2.3)", Nummerierung.Henry to "Henry (123)",
                                 Nummerierung.Fortlaufend to stringResource(Res.string.desk_list_numbering_serial))
                             Auswahl(namen.getValue(o.nummerierung), namen.values.toList()) { w -> o = o.copy(nummerierung = namen.entries.first { it.value == w }.key) }
                         }
                         Haken(stringResource(Res.string.desk_chart_spouses), o.partner) { o = o.copy(partner = it) }
-                        Haken(stringResource(Res.string.desk_chart_name_bearers), o.namenstraeger) { o = o.copy(namenstraeger = it) }
+                        Haken(stringResource(Res.string.desk_chart_name_bearers), o.namenstraeger, stringResource(Res.string.tipp_name_bearers)) { o = o.copy(namenstraeger = it) }
                     }
                     OutlinedTextField(o.titel, { o = o.copy(titel = it) }, label = { Text(stringResource(Res.string.desk_chart_heading)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     Text(stringResource(Res.string.desk_book_section_data), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))
                     Haken(stringResource(Res.string.desk_book_notes), o.notizen) { o = o.copy(notizen = it) }
                     Haken(stringResource(Res.string.desk_book_sources), o.quellen) { o = o.copy(quellen = it) }
-                    Haken(stringResource(Res.string.desk_book_short_places), o.orteKuerzen) { o = o.copy(orteKuerzen = it) }
-                    if (art == BuchArt.Vorfahren) Haken(stringResource(Res.string.desk_book_duplicates), o.doppelteZeigen) { o = o.copy(doppelteZeigen = it) }
+                    Haken(stringResource(Res.string.desk_book_short_places), o.orteKuerzen, stringResource(Res.string.tipp_short_places)) { o = o.copy(orteKuerzen = it) }
+                    if (art == BuchArt.Vorfahren) Haken(stringResource(Res.string.desk_book_duplicates), o.doppelteZeigen, stringResource(Res.string.tipp_duplicates)) { o = o.copy(doppelteZeigen = it) }
                     Text(stringResource(Res.string.desk_book_section_look), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))
                     Haken(stringResource(Res.string.desk_chart_photos), o.bilder) { o = o.copy(bilder = it) }
-                    if (!familien) Haken(stringResource(Res.string.desk_book_foldout), o.tafel) { o = o.copy(tafel = it) }
-                    if (!familien) Haken(stringResource(if (nachfahren) Res.string.desk_book_branch_colors else Res.string.desk_book_color), o.farbkodierung) { o = o.copy(farbkodierung = it) }
+                    if (!familien) Haken(stringResource(Res.string.desk_book_foldout), o.tafel, stringResource(Res.string.tipp_foldout)) { o = o.copy(tafel = it) }
+                    if (!familien) Haken(stringResource(if (nachfahren) Res.string.desk_book_branch_colors else Res.string.desk_book_color), o.farbkodierung, stringResource(Res.string.tipp_book_color)) { o = o.copy(farbkodierung = it) }
                     Text(stringResource(Res.string.desk_book_section_indexes), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))
                     Haken(stringResource(Res.string.desk_book_index_names), o.namen) { o = o.copy(namen = it) }
                     Haken(stringResource(Res.string.desk_book_index_places), o.orte) { o = o.copy(orte = it) }

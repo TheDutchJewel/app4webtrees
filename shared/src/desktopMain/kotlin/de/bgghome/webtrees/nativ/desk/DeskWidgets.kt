@@ -3,7 +3,12 @@ package de.bgghome.webtrees.nativ.desk
 import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -66,4 +71,24 @@ val DruckerIcon: androidx.compose.ui.graphics.vector.ImageVector by lazy {
             fill = androidx.compose.ui.graphics.SolidColor(Color.Black),
         )
     }.build()
+}
+
+/**
+ * Erklaerung beim Ueberfahren (Fachbegriffe in den Einstellungen: Kekule, Stammpaare, Ahnenschwund ...). Ohne [text] nur der
+ * Inhalt. Kurz verzoegert, damit die Blase nicht bei jeder Mausbewegung aufgeht; hoechstens 340 dp breit, mehrzeilig.
+ */
+@Composable
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+fun Tipp(text: String?, inhalt: @Composable () -> Unit) {
+    if (text == null) { inhalt(); return }
+    TooltipArea(
+        tooltip = {
+            Surface(color = MaterialTheme.colorScheme.inverseSurface, shape = MaterialTheme.shapes.extraSmall, shadowElevation = 2.dp) {
+                Text(text, Modifier.widthIn(max = 340.dp).padding(horizontal = 10.dp, vertical = 6.dp),
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.inverseOnSurface)
+            }
+        },
+        delayMillis = 500,
+        content = inhalt,
+    )
 }

@@ -251,13 +251,13 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
                 // ── Einstellungen und Regeln ──
                 Column(Modifier.width(470.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(start = 12.dp, end = 12.dp, top = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Einstellung(stringResource(Res.string.desk_check_preset)) {
+                        Einstellung(stringResource(Res.string.desk_check_preset), stringResource(Res.string.tipp_preset)) {
                             val namen = Voreinstellung.alle.associate { it.id to it.name(deutsch) } + ("eigene" to stringResource(Res.string.desk_check_preset_own))
                             Auswahl(namen[voreinstellung] ?: namen.getValue("eigene"), Voreinstellung.alle.map { it.name(deutsch) }) { w ->
                                 Voreinstellung.alle.firstOrNull { it.name(deutsch) == w }?.let(::voreinstellungSetzen)
                             }
                         }
-                        Haken(stringResource(Res.string.desk_check_estimate), schaetzen) { schaetzen = it; PruefWahl.schaetzen = it; eigene() }
+                        Haken(stringResource(Res.string.desk_check_estimate), schaetzen, stringResource(Res.string.tipp_estimate)) { schaetzen = it; PruefWahl.schaetzen = it; eigene() }
                     }
                     HorizontalDivider(Modifier.padding(top = 6.dp), color = MaterialTheme.colorScheme.outlineVariant)
                     val liste = rememberLazyListState()
@@ -293,12 +293,12 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Box(Modifier.weight(1f)) {
-                            Knopf(stringResource(Res.string.desk_check_ticks_export), abhak.anzahl(baumSchluessel) > 0) {
+                            Knopf(stringResource(Res.string.desk_check_ticks_export), abhak.anzahl(baumSchluessel) > 0, stringResource(Res.string.tipp_ticks_export)) {
                                 dateiWaehlen(Texte.t(Res.string.desk_check_ticks_export), true, "pruefung-abgehakt.json")?.let { runCatching { it.writeText(abhak.alsJson()) } }
                             }
                         }
                         Box(Modifier.weight(1f)) {
-                            Knopf(stringResource(Res.string.desk_check_ticks_import), true) {
+                            Knopf(stringResource(Res.string.desk_check_ticks_import), true, stringResource(Res.string.tipp_ticks_import)) {
                                 dateiWaehlen(Texte.t(Res.string.desk_check_ticks_import), false)?.let { f ->
                                     runCatching { Abhakliste.dateiAusJson(f.readText()) }.getOrNull()?.let { abhak = abhak.zusammenfuehren(it); AbhakAblage.sichern(abhak) }
                                 }
@@ -413,7 +413,7 @@ private fun RegelEinstellung(r: Regel, wert: Double?, schwere: Schwere, onWert: 
         if (vorgabe != null) {
             var text by remember(r.id) { mutableStateOf(zahl(wert ?: vorgabe)) }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(Res.string.desk_check_limit), Modifier.width(70.dp), style = MaterialTheme.typography.bodyMedium)
+                Tipp(stringResource(Res.string.tipp_limit)) { Text(stringResource(Res.string.desk_check_limit), Modifier.width(70.dp), style = MaterialTheme.typography.bodyMedium) }
                 OutlinedTextField(text, { neu ->
                     text = neu
                     val d = neu.replace(',', '.').toDoubleOrNull()
@@ -426,7 +426,7 @@ private fun RegelEinstellung(r: Regel, wert: Double?, schwere: Schwere, onWert: 
             }
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(Res.string.desk_check_severity), Modifier.width(70.dp), style = MaterialTheme.typography.bodyMedium)
+            Tipp(stringResource(Res.string.tipp_severity)) { Text(stringResource(Res.string.desk_check_severity), Modifier.width(70.dp), style = MaterialTheme.typography.bodyMedium) }
             Box(Modifier.width(160.dp)) {
                 Auswahl(schwereText(schwere), Schwere.entries.map(::schwereText)) { w -> Schwere.entries.firstOrNull { schwereText(it) == w }?.let(onSchwere) }
             }

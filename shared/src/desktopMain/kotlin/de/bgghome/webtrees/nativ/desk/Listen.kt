@@ -408,19 +408,19 @@ fun ListenFenster(start: ListenArt, state: UiState, viewModel: AppViewModel, onC
                         Auswahl(o.generationen.toString(), (2..listenMaxGen(art)).map { it.toString() }) { o = o.copy(generationen = it.toInt()) }
                     }
                     if (art == ListenArt.Stamm) {
-                        Einstellung(stringResource(Res.string.desk_list_numbering)) {
+                        Einstellung(stringResource(Res.string.desk_list_numbering), stringResource(Res.string.tipp_list_numbering)) {
                             val namen = Nummerierung.entries.associateWith { nummerierungNamen[it] ?: stringResource(Res.string.desk_list_numbering_serial) }
                             Auswahl(namen.getValue(o.nummerierung), namen.values.toList()) { w -> o = o.copy(nummerierung = namen.entries.first { it.value == w }.key) }
                         }
                         Haken(stringResource(Res.string.desk_chart_spouses), o.partner) { o = o.copy(partner = it) }
-                        Haken(stringResource(Res.string.desk_chart_name_bearers), o.namenstraeger) { o = o.copy(namenstraeger = it) }
+                        Haken(stringResource(Res.string.desk_chart_name_bearers), o.namenstraeger, stringResource(Res.string.tipp_name_bearers)) { o = o.copy(namenstraeger = it) }
                     }
                     if (art == ListenArt.Ereignisse) {
                         listOf("BIRT" to Res.string.desk_ev_birth, "CHR" to Res.string.desk_ev_baptism, "MARR" to Res.string.desk_ev_marriage,
                             "DEAT" to Res.string.desk_ev_death, "BURI" to Res.string.desk_ev_burial).forEach { (tag, name) ->
                             Haken(stringResource(name), tag in o.ereignisse) { an -> o = o.copy(ereignisse = if (an) o.ereignisse + tag else o.ereignisse - tag) }
                         }
-                        Haken(stringResource(Res.string.desk_list_calendar), o.kalender) { o = o.copy(kalender = it) }
+                        Haken(stringResource(Res.string.desk_list_calendar), o.kalender, stringResource(Res.string.tipp_calendar)) { o = o.copy(kalender = it) }
                     }
                     if (art == ListenArt.Familien) Haken(stringResource(Res.string.desk_book_sort_chrono), o.chronologisch) { o = o.copy(chronologisch = it) }
                     if (art == ListenArt.Fakten) Einstellung(stringResource(Res.string.desk_list_fact)) {
@@ -434,7 +434,7 @@ fun ListenFenster(start: ListenArt, state: UiState, viewModel: AppViewModel, onC
                     if (art !in setOf(ListenArt.Ahnenwertung, ListenArt.Nachfahrenzahl, ListenArt.Ereignisse, ListenArt.Personenblatt, ListenArt.Namen, ListenArt.Orte,
                             ListenArt.Familien, ListenArt.Fakten, ListenArt.Taufpaten)) {
                         Haken(stringResource(Res.string.desk_chart_places), o.orte) { o = o.copy(orte = it) }
-                        Haken(stringResource(Res.string.desk_chart_full_dates), o.volleDaten) { o = o.copy(volleDaten = it) }
+                        Haken(stringResource(Res.string.desk_chart_full_dates), o.volleDaten, stringResource(Res.string.tipp_full_dates)) { o = o.copy(volleDaten = it) }
                     }
                     seiten?.second?.let { Text(stringResource(Res.string.desk_list_pages, it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

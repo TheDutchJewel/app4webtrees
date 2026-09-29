@@ -3,6 +3,9 @@ package de.bgghome.webtrees.nativ.desk
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -327,15 +330,11 @@ private fun Inhalt(kapitel: List<HilfeKapitel>, aktuell: String, suche: String, 
                 Text(
                     k.titel, style = MaterialTheme.typography.bodyMedium, fontWeight = if (gewaehlt) FontWeight.SemiBold else FontWeight.Normal,
                     color = if (gewaehlt) farben.onPrimaryContainer else farben.onSurface,
-                    modifier = Modifier.fillMaxWidth().background(if (gewaehlt) farben.primaryContainer else Color.Transparent)
-                        .clickable { onWahl(k.id) }.padding(horizontal = 16.dp, vertical = 7.dp),
+                    modifier = Modifier.fillMaxWidth().zeile(gewaehlt) { onWahl(k.id) }.padding(horizontal = 16.dp, vertical = 7.dp),
                 )
             } else items(treffer, key = { it.first.id }) { (k, n) ->
                 val gewaehlt = k.id == aktuell
-                Column(
-                    Modifier.fillMaxWidth().background(if (gewaehlt) farben.primaryContainer else Color.Transparent)
-                        .clickable { onWahl(k.id) }.padding(horizontal = 16.dp, vertical = 7.dp),
-                ) {
+                Column(Modifier.fillMaxWidth().zeile(gewaehlt) { onWahl(k.id) }.padding(horizontal = 16.dp, vertical = 7.dp)) {
                     Text(k.titel, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
                         color = if (gewaehlt) farben.onPrimaryContainer else farben.onSurface)
                     Text(stringResource(Res.string.desk_help_hits, n) + " · " + k.ausschnitt(suche), style = MaterialTheme.typography.bodySmall,
@@ -351,7 +350,7 @@ private fun BlockAnsicht(block: HilfeBlock, suche: String, onLink: (String) -> U
     val farben = MaterialTheme.colorScheme
     val typo = MaterialTheme.typography
     val taste = SpanStyle(fontFamily = FontFamily.Monospace, background = farben.surfaceVariant, fontSize = typo.bodyMedium.fontSize * 0.92f)
-    val link = TextLinkStyles(SpanStyle(color = farben.primary, textDecoration = TextDecoration.Underline))
+    val link = TextLinkStyles(style = SpanStyle(color = farben.primary, textDecoration = TextDecoration.Underline), hoveredStyle = SpanStyle(color = farben.primary, textDecoration = TextDecoration.Underline, background = farben.primaryContainer))
     val hervor = SpanStyle(background = farben.tertiaryContainer, color = farben.onTertiaryContainer)
     fun t(text: String) = inline(text, suche, taste, link, hervor, onLink)
     when (block) {
@@ -389,4 +388,14 @@ private fun BlockAnsicht(block: HilfeBlock, suche: String, onLink: (String) -> U
             Text(t(block.text), style = typo.bodyMedium, color = farben.onSecondaryContainer)
         }
     }
+}
+
+/** Eintrag im Inhaltsverzeichnis: gewaehlt farbig, beim Ueberfahren leicht hinterlegt, Klick waehlt. */
+@Composable
+private fun Modifier.zeile(gewaehlt: Boolean, onKlick: () -> Unit): Modifier {
+    val quelle = remember { MutableInteractionSource() }
+    val ueberfahren by quelle.collectIsHoveredAsState()
+    val farben = MaterialTheme.colorScheme
+    return this.background(if (gewaehlt) farben.primaryContainer else if (ueberfahren) farben.surfaceVariant else Color.Transparent)
+        .hoverable(quelle).clickable(interactionSource = quelle, indication = null, onClick = onKlick)
 }

@@ -850,4 +850,47 @@
     <string name="desk_about_local_missing">Stammbaum auf diesem PC: nicht verfügbar, es fehlt %1$s</string>
     <string name="desk_about_unofficial">%1$s ist kein offizielles webtrees-Produkt. Fragen und Fehler bitte unter github.com/thobgg/app4webtrees/issues.</string>
     <string name="lokal_hint">Im Hintergrund arbeitet webtrees: Alles, was die webtrees-Seite kann, erreichst du über „webtrees im Browser öffnen“.</string>
+    <!-- Erklaerungen beim Ueberfahren (Tipp) fuer Fachbegriffe in den Einstellungen -->
+    <string name="tipp_kekule">Kekulé-Nummern: der Proband ist 1, der Vater die doppelte Nummer, die Mutter die doppelte plus 1. Männer gerade, Frauen ungerade.</string>
+    <string name="tipp_numbering">Kekulé zählt Vorfahren (Vater 2, Mutter 3 …). Chronik nennt Generation und laufende Nummer (IV-12). d’Aboville zählt Nachfahren (1.2.3 = drittes Kind des zweiten Kindes).</string>
+    <string name="tipp_list_numbering">1.2.3: je Generation die Nummer des Kindes, mit Punkten. d’Aboville: dasselbe mit Buchstabe des Stammpaares davor (C1.2.3). Henry: ohne Punkte (123). Fortlaufend: 1, 2, 3 in Lesefolge.</string>
+    <string name="tipp_name_bearers">Nur die Kinder der Söhne, also die Nachfahren, die den Familiennamen des Probanden tragen.</string>
+    <string name="tipp_both_parents">Zu jeder Generation auch den eingeheirateten Elternteil zeigen, nicht nur die Linie selbst.</string>
+    <string name="tipp_living_names">Personen ohne Sterbedatum nur mit Namen, ohne Geburt und Orte – für die Weitergabe an Dritte.</string>
+    <string name="tipp_only_married">Ledige und kinderlose Nachfahren weglassen; die Tafel bleibt kleiner.</string>
+    <string name="tipp_early_dead">Kinder, die vor dem gewählten Alter starben, ausblenden; die Tafel bleibt übersichtlich.</string>
+    <string name="tipp_more_hints">Wo die Tafel endet, ein kleiner Hinweis wie „+3 Kinder“ oder „↑ weitere Vorfahren“.</string>
+    <string name="tipp_cards">Hinter der Tafel je Person eine Seite mit allen Angaben. Im PDF springt ein Klick auf den Kasten dorthin und zurück.</string>
+    <string name="tipp_substitute">Fehlt die Geburt, steht stattdessen die Taufe; fehlt der Tod, das Begräbnis – mit eigenem Zeichen in der Legende.</string>
+    <string name="tipp_call_name">Der in webtrees markierte Rufname wird unterstrichen, wie in der Familienforschung üblich.</string>
+    <string name="tipp_horizontal">Generationen als Spalten von links nach rechts statt als Reihen – gut für breite Ausdrucke und Bildschirme.</string>
+    <string name="tipp_grid">Buchstaben und Zahlen am Rand wie auf einer Landkarte; Verweise auf doppelte Personen nennen die Stelle (B3).</string>
+    <string name="tipp_index">Alle Personen alphabetisch mit ihrer Stelle auf der Tafel, auf einer eigenen Seite.</string>
+    <string name="tipp_curves">Steht eine Person mehrfach auf der Tafel, verbindet eine geschwungene Linie die Stellen.</string>
+    <string name="tipp_legend">Erklärt unten auf der Tafel die Zeichen (* † ⚭), die Nummern, die Farben und die Farbregeln.</string>
+    <string name="tipp_events">Kriege, Hungerjahre und Epochen als Balken über der Zeitleiste, zum Einordnen der Lebensdaten.</string>
+    <string name="tipp_overview">Eine erste Seite zeigt, welche Person auf welcher Seite steht.</string>
+    <string name="tipp_per_page">Wie viele Generationen auf eine A4-Seite kommen; die Fortsetzung steht als „→ S. 7“ unter der Person.</string>
+    <string name="tipp_roots">Von welcher Ahnengeneration die Nachfahren gezeigt werden: Eltern (Geschwister), Großeltern (Cousins), Urgroßeltern (Cousins 2. Grades) …</string>
+    <string name="tipp_below_root">Wie viele Generationen unter dem Probanden dazukommen: Kinder, Enkel …</string>
+    <string name="tipp_siblings">Geschwister des Probanden oder aller Vorfahren mit auf die Tafel; „aller Vorfahren“ macht sie deutlich breiter.</string>
+    <string name="tipp_root_top">Ahnentafel umgekehrt: der Proband oben, die Vorfahren darunter.</string>
+    <string name="tipp_colour_by">Geschlecht: blau und rot. Großeltern-Linie: die vier Linien des Probanden in vier Farben. Zweig: je Kind der Stammeltern eine Farbe.</string>
+    <string name="tipp_print_size">Originalgröße druckt so groß, wie die Tafel rechnet. Breite in cm skaliert. Auf Blätter verteilt die Tafel auf A4-Seiten zum Kleben, mit Montageplan.</string>
+    <string name="tipp_print_roll">Rollenbreite des Plotters oder Copyshops; die PDF-Seite bekommt genau diese Breite.</string>
+    <string name="tipp_roll_fit">Tafel so verkleinern, dass sie in einer Bahn auf die Rolle passt; sonst entstehen mehrere Bahnen.</string>
+    <string name="tipp_template_save">Alle Einstellungen dieser Tafel als Datei (.wtvorlage) sichern – für später oder für eine andere Person.</string>
+    <string name="tipp_template_load">Eine gesicherte Vorlage laden; sie ersetzt die aktuellen Einstellungen.</string>
+    <string name="tipp_calendar">Nach Monat und Tag statt nach Jahr sortiert – für Jahrestage und die Familienzeitung.</string>
+    <string name="tipp_full_dates">Vollständige Daten (12. März 1851) statt nur des Jahres.</string>
+    <string name="tipp_short_places">Nur der Ortsname ohne Kreis und Land, etwa „Winterbach“ statt „Winterbach, Rems-Murr-Kreis, Württemberg“.</string>
+    <string name="tipp_duplicates">Vorfahren, die über mehrere Linien vorkommen (Ahnenschwund), jedes Mal ganz ausschreiben statt „siehe Nr.“.</string>
+    <string name="tipp_foldout">Die passende Tafel als A3-Seite hinten im Buch, zum Ausklappen; nur im PDF.</string>
+    <string name="tipp_book_color">Farbmarke am Seitenrand: im Vorfahrenbuch die vier Großeltern-Linien, im Nachfahrenbuch je Kind der Stammeltern eine Farbe.</string>
+    <string name="tipp_preset">Streng meldet mehr, großzügig weniger; die Grenzen der Regeln ändern sich mit. Eigene Werte machen daraus „Eigene Einstellung“.</string>
+    <string name="tipp_estimate">Fehlt die Geburt, gilt die Taufe als Geburt; fehlt der Tod, das Begräbnis. So greifen die Altersregeln auch bei reinen Kirchenbuchdaten.</string>
+    <string name="tipp_limit">Ab diesem Wert meldet die Regel; die Vorgabe steht rechts daneben.</string>
+    <string name="tipp_severity">Fehler sind Widersprüche in den Daten, Warnungen nur ungewöhnlich. Je Regel umstellbar.</string>
+    <string name="tipp_ticks_export">Die Abhakliste als Datei sichern – für einen zweiten Rechner oder einen Mitforscher.</string>
+    <string name="tipp_ticks_import">Eine gesicherte Abhakliste laden; sie ergänzt die vorhandene.</string>
 </resources>
