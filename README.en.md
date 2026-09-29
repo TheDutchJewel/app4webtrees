@@ -20,13 +20,14 @@
   <br><b>wtWin on Windows</b> – the same family tree as in wtAnd, laid out like a classic genealogy program.
 </p>
 
-| <img src="docs/screenshots/desktop-baum-mittelpunkt.jpg" alt="wtTux: tree-centred layout with person list, hourglass tree and person panel" width="100%"> | <img src="docs/screenshots/desktop-baum-vollbild.jpg" alt="wtTux: tree in full screen, six generations around Frieda Behnke" width="100%"> |
-| :-: | :-: |
-| **“Tree in the centre” layout** (View › Layout) – person list on the left, the tree as an hourglass in the middle, the person panel on the right | **Full screen** (from 1.28) – only the tree, up to seven generations; Esc returns |
+<p align="center">
+  <img src="docs/screenshots/desktop-baum-vollbild.jpg" alt="wtTux: tree in full screen, six generations around Frieda Behnke" width="100%">
+  <br><b>Full screen</b> (from 1.28) – only the tree, up to seven generations; Esc returns.
+</p>
 
-| <img src="docs/screenshots/windows-personenblatt.jpg" alt="wtWin: person sheet of Frieda Behnke" width="100%"> | <img src="docs/screenshots/desktop-navigator.png" alt="wtTux on Linux: navigator with Frieda Behnke and four generations of ancestors" width="100%"> |
+| <img src="docs/screenshots/windows-personenblatt.jpg" alt="wtWin: person sheet of Frieda Behnke" width="100%"> | <img src="docs/screenshots/desktop-baum-mittelpunkt.jpg" alt="wtTux: tree-centred layout with person list, hourglass tree and person panel" width="100%"> |
 | :-: | :-: |
-| **Person sheet** – events as a table, the family beside them, print and PDF | **wtTux on Linux** – the same program |
+| **Person sheet** – events as a table, the family beside them, print and PDF | **“Tree in the centre” layout** (View › Layout) – person list on the left, the tree as an hourglass in the middle, the person panel on the right |
 
 <p align="center">
   <img src="docs/screenshots/desktop-tafel-fenster.jpg" alt="wtTux: chart window with ancestor circle over seven generations" width="100%">

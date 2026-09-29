@@ -20,13 +20,14 @@
   <br><b>wtWin unter Windows</b> – derselbe Stammbaum wie in wtAnd, aufgebaut wie ein klassisches Genealogie-Programm.
 </p>
 
-| <img src="docs/screenshots/desktop-baum-mittelpunkt.jpg" alt="wtTux: Aufbau Baum im Mittelpunkt mit Personenliste, Sanduhr-Baum und Personentafel" width="100%"> | <img src="docs/screenshots/desktop-baum-vollbild.jpg" alt="wtTux: Baum im Vollbild, sechs Generationen um Frieda Behnke" width="100%"> |
-| :-: | :-: |
-| **Aufbau „Baum im Mittelpunkt“** (Ansicht › Aufbau) – links die Personenliste, in der Mitte der Baum als Sanduhr, rechts die Personentafel | **Vollbild** (ab 1.28) – nur der Baum, bis zu sieben Generationen; Esc zurück |
+<p align="center">
+  <img src="docs/screenshots/desktop-baum-vollbild.jpg" alt="wtTux: Baum im Vollbild, sechs Generationen um Frieda Behnke" width="100%">
+  <br><b>Vollbild</b> (ab 1.28) – nur der Baum, bis zu sieben Generationen; Esc zurück.
+</p>
 
-| <img src="docs/screenshots/windows-personenblatt.jpg" alt="wtWin: Personenblatt von Frieda Behnke" width="100%"> | <img src="docs/screenshots/desktop-navigator.png" alt="wtTux unter Linux: Navigator mit Frieda Behnke und vier Generationen Vorfahren" width="100%"> |
+| <img src="docs/screenshots/windows-personenblatt.jpg" alt="wtWin: Personenblatt von Frieda Behnke" width="100%"> | <img src="docs/screenshots/desktop-baum-mittelpunkt.jpg" alt="wtTux: Aufbau Baum im Mittelpunkt mit Personenliste, Sanduhr-Baum und Personentafel" width="100%"> |
 | :-: | :-: |
-| **Personenblatt** – Ereignisse als Tabelle, die Familie daneben, Drucken und PDF | **wtTux unter Linux** – dasselbe Programm |
+| **Personenblatt** – Ereignisse als Tabelle, die Familie daneben, Drucken und PDF | **Aufbau „Baum im Mittelpunkt“** (Ansicht › Aufbau) – links die Personenliste, in der Mitte der Baum als Sanduhr, rechts die Personentafel |
 
 <p align="center">
   <img src="docs/screenshots/desktop-tafel-fenster.jpg" alt="wtTux: Fenster Tafel erstellen mit Ahnenkreis über sieben Generationen" width="100%">
