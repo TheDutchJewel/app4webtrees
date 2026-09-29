@@ -13,7 +13,7 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), for testing"></a>
 </p>
 
-<p align="center"><b>New in 1.26: the family tree right on your PC.</b> Install wtWin (wtTux on Linux), choose the GEDCOM file from your previous program – done. No server, no password, no internet; webtrees runs invisibly in the background.</p>
+<p align="center"><b>New in 1.26: the family tree on your PC – no server needed.</b> Install wtWin (wtTux on Linux), choose the GEDCOM file from your previous program – done. No server, no password, no internet; webtrees runs invisibly in the background.</p>
 
 <p align="center">
   <img src="docs/screenshots/windows-navigator.jpg" alt="wtWin on Windows: navigator with central person, children and four generations of ancestors" width="100%">

@@ -13,7 +13,7 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), zum Testen"></a>
 </p>
 
-<p align="center"><b>Neu in 1.26: der Stammbaum direkt auf dem PC.</b> wtWin (unter Linux wtTux) installieren, GEDCOM-Datei aus dem bisherigen Programm wählen – fertig. Kein Server, kein Passwort, kein Internet; webtrees läuft unsichtbar im Hintergrund.</p>
+<p align="center"><b>Neu in 1.26: der Stammbaum auf dem PC – ohne Server.</b> wtWin (unter Linux wtTux) installieren, GEDCOM-Datei aus dem bisherigen Programm wählen – fertig. Kein Server, kein Passwort, kein Internet; webtrees läuft unsichtbar im Hintergrund.</p>
 
 <p align="center">
   <img src="docs/screenshots/windows-navigator.jpg" alt="wtWin unter Windows: Navigator mit Proband, Kindern und vier Generationen Vorfahren" width="100%">
