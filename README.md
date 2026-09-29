@@ -53,6 +53,8 @@
 
 **Mit oder ohne Server:** wtWin und wtTux verbinden sich mit einem vorhandenen webtrees, dort muss das Modul [api4webtrees](https://github.com/thobgg/api4webtrees) installiert sein. Oder sie legen den Stammbaum **auf diesem PC** an, leer oder aus einer GEDCOM-Datei aus dem bisherigen Programm (ab 1.26). Dafür bringen sie webtrees (unverändert aus dem [offiziellen Release](https://github.com/fisharebest/webtrees/releases), GPL-3) und PHP mit – kein Server, kein Passwort, kein Internet nötig. wtAnd und wtMac brauchen einen Server.
 
+<p align="center"><img src="docs/screenshots/desktop-start.jpg" alt="Startbildschirm: links mit webtrees verbinden, rechts Stammbaum auf diesem PC anlegen oder aus GEDCOM übernehmen" width="100%"><br><b>Erster Start</b> – links mit einem webtrees-Server verbinden, rechts den Stammbaum auf dem PC anlegen.</p>
+
 wtAnd, wtWin, wtTux und wtMac sind keine offiziellen webtrees-Produkte; Fragen und Fehler bitte als [Issue](https://github.com/thobgg/app4webtrees/issues).
 
 Eine native Android-App für [webtrees](https://webtrees.net/) – den eigenen Stammbaum auf Handy und Tablet
