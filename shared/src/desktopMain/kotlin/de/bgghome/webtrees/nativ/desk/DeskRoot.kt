@@ -206,8 +206,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
 
     LaunchedEffect(Unit) { viewModel.setWide(true) }
 
-    BackHandler(enabled = state.viewer != null || state.pdf != null) {
-        if (state.viewer != null) viewModel.closeViewer() else viewModel.closePdf()
+    BackHandler(enabled = state.viewer != null || state.pdf != null || state.treeFullscreen) {
+        if (state.viewer != null) viewModel.closeViewer() else if (state.pdf != null) viewModel.closePdf() else viewModel.setTreeFullscreen(false)
     }
 
     val snackbar = remember { SnackbarHostState() }
@@ -234,8 +234,12 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                     else -> Navigator(state, viewModel, openSheet, openWeb, farben, zoom, onZoom = { zoom = it; DeskLayout.prefs.putString("zoom", it.toString()) })
                 }
             } else Row(Modifier.weight(1f).fillMaxWidth()) {
-                PersonIndex(state, viewModel, openWeb, search, Modifier.width(280.dp).fillMaxHeight())
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                // Vollbild (Knopf im Baum oder Esc zurueck): nur der Baum, ohne Personenliste und Personentafel
+                val vollbild = state.treeFullscreen && state.section != Section.Home && state.section != Section.Photos
+                if (!vollbild) {
+                    PersonIndex(state, viewModel, openWeb, search, Modifier.width(280.dp).fillMaxHeight())
+                    VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
                 Box(Modifier.weight(1f).fillMaxHeight()) {
                     when (state.section) {
                         Section.Home -> HomeSection(state, viewModel, openWeb)
@@ -243,16 +247,18 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                         else -> DeskTree(state, viewModel, openWeb)
                     }
                 }
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Box(Modifier.width(400.dp).fillMaxHeight()) {
-                    val detail = state.detail
-                    if (detail != null) {
-                        ProfilePanel(state, detail, viewModel, openWeb, onClose = null)
-                    } else {
-                        Text(
-                            stringResource(Res.string.detail_choose), Modifier.align(Alignment.Center).padding(24.dp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                if (!vollbild) {
+                    VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    Box(Modifier.width(400.dp).fillMaxHeight()) {
+                        val detail = state.detail
+                        if (detail != null) {
+                            ProfilePanel(state, detail, viewModel, openWeb, onClose = null)
+                        } else {
+                            Text(
+                                stringResource(Res.string.detail_choose), Modifier.align(Alignment.Center).padding(24.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
@@ -864,16 +870,16 @@ private fun DeskTree(state: UiState, viewModel: AppViewModel, openWeb: (String) 
         FamilyTreeView(
             layout = layout,
             selected = state.selected,
-            fullscreen = false,
+            fullscreen = state.treeFullscreen,
             initialScale = 1f,
             compact = false,
-            onToggleFullscreen = {},
+            onToggleFullscreen = { viewModel.setTreeFullscreen(!state.treeFullscreen) },
             onPerson = { viewModel.select(it.xref) },
             onPlus = { viewModel.requestAddRelative(it.xref) },
             onExpand = viewModel::expandAncestors,
             onSecondary = { person, at -> viewModel.select(person.xref); menu = person to at },
             onOpen = { viewModel.setRoot(it.xref) },
-            showFullscreen = false,
+            showFullscreen = true,
         )
         menu?.let { (person, at) ->
             val offset = with(density) { DpOffset(at.x.toDp(), at.y.toDp()) }
