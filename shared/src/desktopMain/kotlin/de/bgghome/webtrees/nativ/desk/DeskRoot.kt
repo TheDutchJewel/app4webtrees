@@ -219,7 +219,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         Column(Modifier.fillMaxSize()) {
             if (layout == DeskLayout.Navigator) {
                 ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
-                    symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTafel = { tafel = it }, onQuit = onQuit)
+                    symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = onQuit)
             } else {
                 WorkspaceBar(state, viewModel)
             }
@@ -447,7 +447,7 @@ private const val TRENNER = 9f
 private fun ClassicToolbar(
     state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, onGoTo: () -> Unit, onSheet: () -> Unit, onAbout: () -> Unit,
     nav: DeskNav, drucke: DeskDruck, symboltexte: Boolean,
-    onMerkliste: () -> Unit, onListe: (ListenArt) -> Unit, onTafel: (TafelArt) -> Unit, onQuit: () -> Unit,
+    onMerkliste: () -> Unit, onListe: (ListenArt) -> Unit, onTafel: (TafelArt) -> Unit, onPruefung: () -> Unit, onQuit: () -> Unit,
 ) {
     val canEdit = state.tree?.canEdit == true
     val manager = state.tree?.role == "manager"
@@ -484,12 +484,13 @@ private fun ClassicToolbar(
         add(Knopf(TreeIcon, stringResource(Res.string.desk_layout_navigator), active = state.section == Section.Tree || state.section == Section.Search) { viewModel.setSection(Section.Tree) })
         add(Knopf(PhotoIcon, stringResource(Res.string.nav_photos), active = state.section == Section.Photos) { viewModel.setSection(Section.Photos) })
         add(Trenner)
-        add(Knopf(Icons.Default.Check, stringResource(Res.string.desk_check), enabled = manager) { web("/tree/$t/check") })
+        // Die Plausibilitaetspruefung des Programms; "Stammbaum pruefen" von webtrees bleibt im Menue webtrees.
+        add(Knopf(Icons.Default.Check, stringResource(Res.string.desk_check), enabled = state.tree != null, onClick = onPruefung))
         add(Knopf(Icons.Default.Place, stringResource(Res.string.desk_web_places), enabled = state.tree != null) { web("/tree/$t/place-list") })
-        add(Knopf(Icons.Default.Info, stringResource(Res.string.desk_web_sources), enabled = state.tree != null) { web("/tree/$t/source-list") })
+        add(Knopf(SourceIcon, stringResource(Res.string.desk_web_sources), enabled = state.tree != null) { web("/tree/$t/source-list") })
         add(Knopf(Icons.AutoMirrored.Filled.ExitToApp, "webtrees") { openWeb(state.detail?.person?.url ?: state.baseUrl) })
         add(Trenner)
-        add(Knopf(Icons.Default.Info, stringResource(Res.string.desk_help), onClick = onAbout))
+        add(Knopf(HelpIcon, stringResource(Res.string.desk_help), onClick = onAbout))
         add(Knopf(Icons.Default.Close, stringResource(Res.string.desk_quit), onClick = onQuit))
     }
     Surface(color = MaterialTheme.colorScheme.surfaceVariant) {

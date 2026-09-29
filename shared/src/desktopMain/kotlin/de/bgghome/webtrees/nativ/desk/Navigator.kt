@@ -159,9 +159,9 @@ fun Navigator(
     androidx.compose.foundation.layout.BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
         val rand = 24.dp
         // Massgeblich sind Vorfahren und Infokasten; eine lange Kinderspalte rollt, statt alles zu verkleinern.
-        // Bei wenigen Generationen darf die Tafel wachsen (bis 150 Prozent), bei vielen nie unter 60 Prozent schrumpfen -
-        // darunter ist die Schrift nicht mehr lesbar, dann rollt die Tafel.
-        val fit = minOf((maxWidth - rand) / eng.breite, (maxHeight - rand) / eng.hoeheFit).coerceIn(0.6f, 1.5f)
+        // Bei wenigen Generationen darf die Tafel wachsen (bis 150 Prozent), bei vielen bis 45 Prozent schrumpfen - so passen
+        // 5 Generationen auf einen Laptop-Bildschirm (60 Prozent reichten nicht, Einpassen tat dann nichts); darunter rollt die Tafel.
+        val fit = minOf((maxWidth - rand) / eng.breite, (maxHeight - rand) / eng.hoeheFit).coerceIn(0.45f, 1.5f)
         val skala = fit * zoom
         // Bleibt Breite uebrig, ruecken die Spalten auseinander, bis die Tafel das Fenster ausfuellt.
         val frei = (maxWidth - rand) / skala - eng.breite
