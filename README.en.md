@@ -16,11 +16,11 @@
 <p align="center"><b>New in 1.26: the family tree on your PC – no server needed.</b> Install wtWin (wtTux on Linux), choose the GEDCOM file from your previous program – done. No server, no password, no internet; webtrees runs invisibly in the background.</p>
 
 <p align="center">
-  <img src="docs/screenshots/windows-navigator.jpg" alt="wtWin on Windows: navigator with central person, children and four generations of ancestors" width="100%">
+  <img src="docs/screenshots/windows-navigator.jpg" alt="wtWin on Windows: navigator with Heinrich Falkenrath, children and four generations of ancestors" width="100%">
   <br><b>wtWin on Windows</b> – the same family tree as in wtAnd, laid out like a classic genealogy program.
 </p>
 
-| <img src="docs/screenshots/windows-personenblatt.jpg" alt="wtWin: person sheet of Cosimo I de' Medici" width="100%"> | <img src="docs/screenshots/desktop-navigator.png" alt="wtTux on Linux: navigator with Frieda Behnke and four generations of ancestors" width="100%"> |
+| <img src="docs/screenshots/windows-personenblatt.jpg" alt="wtWin: person sheet of Frieda Behnke" width="100%"> | <img src="docs/screenshots/desktop-navigator.png" alt="wtTux on Linux: navigator with Frieda Behnke and four generations of ancestors" width="100%"> |
 | :-: | :-: |
 | **Person sheet** – events as a table, the family beside them, print and PDF | **wtTux on Linux** – the same program |
 
@@ -44,7 +44,7 @@
   <br><b>Plausibility check</b> (from 1.22, extended in 1.23) – 61 rules check the whole tree: death before birth, mother too young, godparent already dead, possible duplicates, place variants, own ancestor … presets from strict to lenient, adjustable limits; tick off checked findings, edit the event straight from the finding, print and PDF.
 </p>
 
-<p align="center"><sub>Charts, plausibility check and wtTux navigator: fictitious demo tree <a href="demo-tree/">Familie Falkenrath</a> (CC0), photos of unknown people from the Rijksmuseum Amsterdam (CC0). wtWin navigator and person sheet: historical tree of the Medici; portrait of Caterina Sforza: <a href="https://commons.wikimedia.org/wiki/File:Italia,_caterina_riario_di_forl%C3%AC,_riproduzione_della_medaglia_del_1488_ca..JPG">Sailko</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, all others public domain (Wikimedia Commons).</sub></p>
+<p align="center"><sub>All pictures: fictitious demo tree <a href="demo-tree/">Familie Falkenrath</a> (CC0), photos of unknown people from the Rijksmuseum Amsterdam (CC0).</sub></p>
 
 **Android:** the APK is signed. To install outside the Play Store, Android asks once to allow your browser to install apps.  
 **Linux:** install the package with `sudo apt install ./wttux_…_amd64.deb`.  

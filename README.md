@@ -16,11 +16,11 @@
 <p align="center"><b>Neu in 1.26: der Stammbaum auf dem PC – ohne Server.</b> wtWin (unter Linux wtTux) installieren, GEDCOM-Datei aus dem bisherigen Programm wählen – fertig. Kein Server, kein Passwort, kein Internet; webtrees läuft unsichtbar im Hintergrund.</p>
 
 <p align="center">
-  <img src="docs/screenshots/windows-navigator.jpg" alt="wtWin unter Windows: Navigator mit Proband, Kindern und vier Generationen Vorfahren" width="100%">
+  <img src="docs/screenshots/windows-navigator.jpg" alt="wtWin unter Windows: Navigator mit Heinrich Falkenrath, Kindern und vier Generationen Vorfahren" width="100%">
   <br><b>wtWin unter Windows</b> – derselbe Stammbaum wie in wtAnd, aufgebaut wie ein klassisches Genealogie-Programm.
 </p>
 
-| <img src="docs/screenshots/windows-personenblatt.jpg" alt="wtWin: Personenblatt von Cosimo I de' Medici" width="100%"> | <img src="docs/screenshots/desktop-navigator.png" alt="wtTux unter Linux: Navigator mit Frieda Behnke und vier Generationen Vorfahren" width="100%"> |
+| <img src="docs/screenshots/windows-personenblatt.jpg" alt="wtWin: Personenblatt von Frieda Behnke" width="100%"> | <img src="docs/screenshots/desktop-navigator.png" alt="wtTux unter Linux: Navigator mit Frieda Behnke und vier Generationen Vorfahren" width="100%"> |
 | :-: | :-: |
 | **Personenblatt** – Ereignisse als Tabelle, die Familie daneben, Drucken und PDF | **wtTux unter Linux** – dasselbe Programm |
 
@@ -44,7 +44,7 @@
   <br><b>Plausibilitätsprüfung</b> (ab 1.22, erweitert in 1.23) – 61 Regeln prüfen den ganzen Stammbaum: Tod vor Geburt, Mutter zu jung, Pate schon gestorben, mögliche Dubletten, Ortsvarianten, eigener Vorfahr … Voreinstellungen von streng bis großzügig, Grenzen einstellbar; geprüfte Treffer abhaken, das Ereignis direkt aus dem Treffer bearbeiten, Drucken und PDF.
 </p>
 
-<p align="center"><sub>Tafeln, Prüfung und wtTux-Navigator: frei erfundener Demo-Stammbaum <a href="demo-tree/">Familie Falkenrath</a> (CC0), Fotos unbekannter Personen aus dem Rijksmuseum Amsterdam (CC0). wtWin-Navigator und Personenblatt: historischer Stammbaum der Medici; Porträt Caterina Sforza: <a href="https://commons.wikimedia.org/wiki/File:Italia,_caterina_riario_di_forl%C3%AC,_riproduzione_della_medaglia_del_1488_ca..JPG">Sailko</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, alle anderen gemeinfrei (Wikimedia Commons).</sub></p>
+<p align="center"><sub>Alle Bilder: frei erfundener Demo-Stammbaum <a href="demo-tree/">Familie Falkenrath</a> (CC0), Fotos unbekannter Personen aus dem Rijksmuseum Amsterdam (CC0).</sub></p>
 
 **Android:** Die APK ist signiert. Außerhalb des Play Store muss Android einmalig erlauben, dass der Browser Apps installiert.  
 **Linux:** Das Paket mit `sudo apt install ./wttux_…_amd64.deb` installieren.  
