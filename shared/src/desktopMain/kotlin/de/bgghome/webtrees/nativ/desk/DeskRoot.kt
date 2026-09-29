@@ -122,7 +122,6 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     var layout by remember { mutableStateOf(DeskLayout.load()) }
     var sheetOpen by remember { mutableStateOf(false) }
     var goTo by remember { mutableStateOf(false) }
-    var hilfe by remember { mutableStateOf(false) }
     var liste by remember { mutableStateOf<ListenArt?>(null) }
     var merkliste by remember { mutableStateOf(false) }
     // Tafelfenster: null = zu, sonst die Tafelart, mit der es oeffnet
@@ -163,7 +162,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onSearch = { if (layout == DeskLayout.Navigator) goTo = true else runCatching { search.requestFocus() } },
         onSheet = { (state.detail?.person?.xref ?: state.root)?.let(openSheet) },
         onAbout = { about = true }, onQuit = onQuit,
-        nav = nav, drucke = drucke, onListe = { liste = it }, onHilfe = { hilfe = true },
+        nav = nav, drucke = drucke, onListe = { liste = it }, onHilfe = { Hilfe.oeffnen(if (state.screen == Screen.Main) "hauptfenster" else HilfeTexte.START) },
         farbkodierung = farbkodierung, onFarbkodierung = { farbkodierung = it; DeskLayout.prefs.putBoolean("farbkodierung", it) },
         symboltexte = symboltexte, onSymboltexte = { symboltexte = it; DeskLayout.prefs.putBoolean("symboltexte", it) },
         onMerkliste = { merkliste = true }, onTafel = { tafel = it }, onBuch = { buch = true }, onPruefung = { pruefung = true },
@@ -189,7 +188,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         // Erster Start (noch keine Adresse): daneben der Weg "Neuen Stammbaum auf diesem PC anlegen" (Stufe 4).
         if (state.screen == Screen.Setup && LokalBetrieb.verfuegbar) DeskStart(viewModel) else AppRoot(viewModel)
         // Hilfe und "Ueber" stehen im Menue schon vor der Anmeldung
-        if (hilfe) HilfeFenster(onClose = { hilfe = false })
+        HilfeFenster()
         if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
         return
     }
@@ -219,7 +218,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(Modifier.fillMaxSize()) {
             if (layout == DeskLayout.Navigator) {
-                ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { hilfe = true }, nav = nav, drucke = drucke,
+                ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
                     symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTafel = { tafel = it }, onQuit = onQuit)
             } else {
                 WorkspaceBar(state, viewModel)
@@ -287,7 +286,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     if (sheetOpen && state.detail != null) PersonSheet(state, viewModel, openWeb, onClose = { sheetOpen = false })
     if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
     liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
-    if (hilfe) HilfeFenster(onClose = { hilfe = false })
+    HilfeFenster()
     if (merkliste) MerklisteFenster(state, viewModel, openSheet, onClose = { merkliste = false })
     tafel?.let { art -> if (state.root != null) TafelFenster(state, viewModel, art, onClose = { tafel = null }) }
     if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
@@ -674,27 +673,6 @@ class DeskDruck(private val state: UiState, private val viewModel: AppViewModel,
 fun personentextKopieren(d: de.bgghome.webtrees.nativ.api.IndividualDetail) {
     val text = personenblattZeilen(d).joinToString("\n") { "  ".repeat(it.einzug) + it.text }
     java.awt.Toolkit.getDefaultToolkit().systemClipboard.setContents(java.awt.datatransfer.StringSelection(text), null)
-}
-
-/** Hilfe (F1): Bedienung, Tastenkuerzel und der Hinweis auf die Verwaltung in webtrees. */
-@Composable
-private fun HilfeFenster(onClose: () -> Unit) {
-    androidx.compose.ui.window.DialogWindow(
-        onCloseRequest = onClose, title = stringResource(Res.string.desk_help),
-        state = androidx.compose.ui.window.rememberDialogState(width = 620.dp, height = 520.dp),
-        onPreviewKeyEvent = { e -> if (e.key == Key.Escape) { onClose(); true } else false },
-    ) {
-        DeskTheme {
-            Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(Res.string.desk_help), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                Text(stringResource(Res.string.desk_help_text), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                Text(stringResource(Res.string.desk_web_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    androidx.compose.material3.OutlinedButton(shape = MaterialTheme.shapes.small, onClick = onClose) { Text(stringResource(Res.string.action_close)) }
-                }
-            }
-        }
-    }
 }
 
 // ── Arbeitsbereiche ──────────────────────────────────────────────────

@@ -1,0 +1,44 @@
+# Family tree on this PC
+
+Without a server, wtWin creates the family tree on this computer. In the background runs a complete webtrees with bundled PHP, unchanged from the official release. It is reachable only on this PC, starts with the program and stops with it. You see no server and no password; the program signs in by itself.
+
+## Creating
+
+On first start, on the right: enter a name and click **Create family tree** (empty) or **Import from GEDCOM file …**. To move over from another program, export a GEDCOM file (`.ged`) there and choose it here. Persons, families, events, sources and notes are imported. The GEDCOM file itself stays unchanged; a second import creates another tree next to it and never overwrites.
+
+Photos do not come along from the GEDCOM. Add them in the program, or copy them into the media folder later (see below) and link them in webtrees.
+
+## Where the data is
+
+| System | Folder |
+| - | - |
+| Windows | `%LOCALAPPDATA%\app4webtrees` (type it into the Explorer address bar) |
+| Linux | `~/.local/share/app4webtrees` |
+
+Inside are `webtrees/` with the program and `webtrees/data/` with the database (SQLite) and the media folder `media/`. The PHP server's log is `php.log`.
+
+## Backup
+
+The program does not back up automatically. Two ways:
+
+- With wtWin closed, copy the folder `app4webtrees`, e.g. to a USB stick. That is the complete backup including photos.
+- **Open webtrees in browser** and export the tree as GEDCOM in the control panel. That saves the data, not the pictures.
+
+## Everything from webtrees
+
+**File › Open webtrees in browser** shows your webtrees in the browser: control panel, modules, changing names, creating sources. The browser asks for its own sign-in. The user name is your login name on the PC; the password was generated randomly when the tree was created and stored in the file `zugang.properties` in the folder `app4webtrees` (see above). Open the file with a text editor and copy the password. Do not pass it on; it is the manager login to your tree.
+
+## Moving to a NAS or web host
+
+If the family should read along or you work on two computers, the tree moves to a server, e.g. a Synology with nas4webtrees. Afterwards you use wtWin as before, just connected.
+
+1. In wtWin **Open webtrees in browser**, there **Control panel › Family tree › Export** as GEDCOM.
+2. Photos: copy the folder `webtrees/data/media` (see above) to `data/media` of the webtrees on the server.
+3. On the server create a new tree and import the GEDCOM.
+4. In wtWin **File › Sign out**, **Other address**, enter the server address. Or click **Connect with wtWin** on the server's **App** page.
+
+The tree on the PC is kept until you delete the folder.
+
+## If something goes wrong
+
+If the tree cannot be created, the program shows a message with the path to `php.log`. Please report it at github.com/thobgg/app4webtrees/issues and attach the file. **Help › About wtWin** shows whether PHP and webtrees were found.

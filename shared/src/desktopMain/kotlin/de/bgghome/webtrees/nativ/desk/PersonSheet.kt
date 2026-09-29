@@ -99,6 +99,7 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
         onPreviewKeyEvent = { e ->
             if (e.type != KeyEventType.KeyDown) false else when (e.key) {
                 Key.Escape -> { onClose(); true }
+                Key.F1 -> { Hilfe.oeffnen("person"); true }
                 Key.PageUp -> { step(-1); true }
                 Key.PageDown -> { step(1); true }
                 Key.MoveHome -> { if (e.isCtrlPressed) { step(-index); true } else false }

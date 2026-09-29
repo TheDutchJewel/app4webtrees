@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -243,7 +244,7 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
     DialogWindow(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_check_window),
         state = rememberDialogState(width = 1240.dp, height = 860.dp),
-        onPreviewKeyEvent = { e -> if (e.key == Key.Escape && bearbeiten == null) { onClose(); true } else false },
+        onPreviewKeyEvent = { e -> when { e.key == Key.Escape && bearbeiten == null -> { onClose(); true }; e.key == Key.F1 && e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown -> { Hilfe.oeffnen("pruefung"); true }; else -> false } },
     ) {
         DeskTheme {
             Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {

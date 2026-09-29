@@ -1,0 +1,44 @@
+# Stammbaum auf diesem PC
+
+Ohne Server legt wtWin den Stammbaum auf diesem Computer an. Im Hintergrund arbeitet ein vollständiges webtrees mit mitgeliefertem PHP, unverändert aus dem offiziellen Release. Es ist nur auf diesem PC erreichbar, startet mit dem Programm und endet mit ihm. Du siehst keinen Server und kein Passwort; das Programm meldet sich selbst an.
+
+## Anlegen
+
+Beim ersten Start rechts: einen Namen eingeben und **Stammbaum anlegen** (leer) oder **Aus GEDCOM-Datei übernehmen …**. Für den Umstieg exportierst du im bisherigen Programm eine GEDCOM-Datei (`.ged`) und wählst sie hier. Übernommen werden Personen, Familien, Ereignisse, Quellen und Notizen. Die GEDCOM-Datei selbst bleibt unverändert; ein zweiter Import legt einen weiteren Stammbaum daneben an und überschreibt nie.
+
+Fotos kommen aus der GEDCOM nicht mit. Du fügst sie im Programm hinzu oder kopierst sie später in den Medienordner (siehe unten) und verknüpfst sie in webtrees.
+
+## Wo die Daten liegen
+
+| System | Ordner |
+| - | - |
+| Windows | `%LOCALAPPDATA%\app4webtrees` (im Explorer oben eintippen) |
+| Linux | `~/.local/share/app4webtrees` |
+
+Darin liegt `webtrees/` mit dem Programm und `webtrees/data/` mit der Datenbank (SQLite) und dem Medienordner `media/`. Das Protokoll des PHP-Servers heißt `php.log`.
+
+## Sicherung
+
+Das Programm sichert nicht automatisch. Zwei Wege:
+
+- Bei geschlossenem wtWin den Ordner `app4webtrees` kopieren, etwa auf einen USB-Stick. Das ist die vollständige Sicherung samt Fotos.
+- **webtrees im Browser öffnen**, dort in der Verwaltung den Stammbaum als GEDCOM exportieren. Das sichert die Daten, nicht die Bilder.
+
+## Alles aus webtrees
+
+**Datei › webtrees im Browser öffnen** zeigt dein webtrees im Browser: Verwaltung, Module, Namen ändern, Quellen anlegen. Der Browser verlangt eine eigene Anmeldung. Benutzername ist dein Anmeldename am PC; das Passwort hat das Programm beim Anlegen zufällig erzeugt und in der Datei `zugang.properties` im Ordner `app4webtrees` (siehe oben) abgelegt. Öffne die Datei mit einem Texteditor und kopiere das Passwort. Gib es nicht weiter; es ist der Verwalter-Zugang zu deinem Stammbaum.
+
+## Umzug auf eine NAS oder zu einem Webhoster
+
+Soll die Familie mitlesen oder du an zwei Rechnern arbeiten, zieht der Stammbaum auf einen Server, etwa eine Synology mit nas4webtrees. Danach bedienst du wtWin wie vorher, nur verbunden.
+
+1. In wtWin **webtrees im Browser öffnen**, dort **Verwaltung › Stammbaum › Export** als GEDCOM.
+2. Fotos: den Ordner `webtrees/data/media` (siehe oben) nach `data/media` des webtrees auf dem Server kopieren.
+3. Auf dem Server einen neuen Stammbaum anlegen und die GEDCOM importieren.
+4. In wtWin **Datei › Abmelden**, **Andere Adresse**, die Serveradresse eingeben. Oder auf der Seite **App** des Servers auf **Mit wtWin verbinden** klicken.
+
+Der Stammbaum auf dem PC bleibt dabei erhalten, bis du den Ordner löschst.
+
+## Wenn etwas nicht klappt
+
+Lässt sich der Stammbaum nicht anlegen, zeigt das Programm einen Hinweis mit dem Pfad zu `php.log`. Bitte melde das unter github.com/thobgg/app4webtrees/issues und hänge die Datei an. **Hilfe › Über wtWin** zeigt, ob PHP und webtrees gefunden wurden.

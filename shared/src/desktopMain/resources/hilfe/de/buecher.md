@@ -1,0 +1,25 @@
+# Bücher
+
+**Erstellen › Buch erstellen …** macht aus dem Stammbaum ein Buch im Stil gedruckter Ortsfamilienbücher: jede Person mit Ereignissen, Quellen, Paten und Notizen, Verweise auf Eltern und Kinder, Porträts am Rand, Inhaltsverzeichnis und Register.
+
+## Drei Bücher
+
+- **Vorfahrenbuch:** alle Vorfahren des Probanden nach Generationen und Kekulé-Nummern, mit Lebensdaten, Taufen, Begräbnissen, Quellen und Notizen. Die vier Großeltern-Linien auf Wunsch farbig am Rand.
+- **Nachfahrenbuch:** alle Nachfahren Generation für Generation, mit Ehepartnern, Kindern und Verweisen; Nummern nach Saragossa, d’Aboville, Henry oder fortlaufend; Zweigfarben je Kind der Stammeltern.
+- **Familienbuch:** ein Eintrag je Familie, alphabetisch oder chronologisch. Mit **Ortsfilter** wird daraus ein Ortsfamilienbuch. Braucht den ganzen Stammbaum am Stück (api4webtrees ab 1.9 auf dem Server).
+
+## Einstellungen
+
+- **Daten:** Generationen (2 bis 12), Notizen, Quellen, Ortsnamen kürzen, doppelte Vorfahren ganz darstellen (statt „siehe Nr.“).
+- **Darstellung:** Bilder, Farbkodierung, Vorwort (eigener Text auf der ersten Seite), Tafel als Ausklappseite (A3, nur im PDF).
+- **Verzeichnisse:** Namen, Orte, Berufe, Quellen, jeweils auf die Eintragsnummern.
+
+## Speichern
+
+**Buch speichern** fragt nach dem Format:
+
+- **PDF** mit Lesezeichen und Links (Klick auf „siehe Nr.“ springt zum Eintrag).
+- **DOCX** zum Weiterbearbeiten in Word oder LibreOffice. Das Inhaltsverzeichnis dort einmal aktualisieren: anklicken und F9 (LibreOffice: Extras › Verzeichnisse › Aktualisieren).
+- **HTML** für die Homepage, **TeX** für den Satz mit LaTeX, **Text**.
+
+Bei großen Stammbäumen dauert das Laden der Personen und Bilder einen Moment; das Fenster zeigt den Fortschritt.

@@ -169,8 +169,6 @@
     <string name="tree_zoom_in">Vergrößern</string>
     <string name="desk_nav_fit">Einpassen</string>
     <string name="desk_nav_fit_hint">Tafel ins Fenster einpassen (100 %)</string>
-    <string name="desk_nav_fit">Einpassen</string>
-    <string name="desk_nav_fit_hint">Tafel ins Fenster einpassen (100 %)</string>
     <string name="tree_zoom_out">Verkleinern</string>
     <string name="tree_center">Zum Probanden</string>
     <string name="action_make_root">Als Proband</string>
@@ -513,13 +511,12 @@
     <string name="desk_death">Tod</string>
     <string name="desk_marriage">Heirat</string>
     <string name="desk_help">Hilfe</string>
-    <string name="desk_help_text">Navigator: Ein Klick macht eine Person zum Probanden, ein Doppelklick öffnet das Personenfenster, die rechte Maustaste zeigt weitere Möglichkeiten.
-
-Personenfenster: Bild-auf/Bild-ab blättert durch die Liste, Esc schließt, ein Doppelklick auf eine Zeile bearbeitet sie.
-
-Tasten: Strg+F Gehe zu · Strg+E Person bearbeiten · Strg+N Verwandte hinzufügen · Strg+P Personenblatt drucken · Strg+T Stammtafel · Strg+Umschalt+T Ahnentafel · Alt+Links zurück · Alt+Rechts vor · Alt+Pos1 Startperson · Strg+Umschalt+C Personentext kopieren · F5 neu laden · F1 Hilfe.
-
-GEDCOM, Zusammenführen, Orte und Quellen verwaltet webtrees selbst – das Menü webtrees öffnet diese Seiten im Browser.</string>
+    <string name="desk_help_search">Hilfe durchsuchen</string>
+    <string name="desk_help_contents">Inhalt</string>
+    <string name="desk_help_hits">%1$d Treffer</string>
+    <string name="desk_help_none">Nichts gefunden.</string>
+    <string name="desk_help_online">Anleitung im Browser</string>
+    <string name="desk_help_issues">Fragen und Fehler melden</string>
     <string name="desk_appearance">Erscheinungsbild</string>
     <string name="desk_light">Hell</string>
     <string name="desk_dark">Dunkel</string>

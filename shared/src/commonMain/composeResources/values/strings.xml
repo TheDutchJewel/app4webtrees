@@ -174,8 +174,6 @@
     <string name="tree_zoom_in">Zoom in</string>
     <string name="desk_nav_fit">Fit</string>
     <string name="desk_nav_fit_hint">Fit the chart to the window (100 %)</string>
-    <string name="desk_nav_fit">Fit</string>
-    <string name="desk_nav_fit_hint">Fit the chart to the window (100 %)</string>
     <string name="tree_zoom_out">Zoom out</string>
     <string name="tree_center">Go to focus person</string>
     <string name="action_make_root">Show as focus</string>
@@ -518,13 +516,12 @@
     <string name="desk_death">Death</string>
     <string name="desk_marriage">Marriage</string>
     <string name="desk_help">Help</string>
-    <string name="desk_help_text">Navigator: click a person to make them the central person, double-click to open the person window, right-click for more.
-
-Person window: Page Up/Page Down move through the list, Esc closes, double-click a row to edit it.
-
-Keys: Ctrl+F go to · Ctrl+E edit person · Ctrl+N add relative · Ctrl+P print person sheet · Ctrl+T descendant chart · Ctrl+Shift+T ancestor chart · Alt+Left back · Alt+Right forward · Alt+Home start person · Ctrl+Shift+C copy person text · F5 reload · F1 help.
-
-GEDCOM, merging, places and sources are managed by webtrees itself – the webtrees menu opens those pages in the browser.</string>
+    <string name="desk_help_search">Search help</string>
+    <string name="desk_help_contents">Contents</string>
+    <string name="desk_help_hits">%1$d hits</string>
+    <string name="desk_help_none">Nothing found.</string>
+    <string name="desk_help_online">Manual in browser</string>
+    <string name="desk_help_issues">Report questions and errors</string>
     <string name="desk_appearance">Appearance</string>
     <string name="desk_light">Light</string>
     <string name="desk_dark">Dark</string>
