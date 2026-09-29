@@ -55,7 +55,7 @@ import org.jetbrains.compose.resources.stringResource
 
 /*
  * Fenster "Buch erstellen" (26.09.2026): links die Buecher (Vorfahrenbuch; Nachfahren- und Familienbuch folgen),
- * in der Mitte die Einstellungen wie beim Vorbild (Optionen, Daten, Darstellung, Verzeichnisse), rechts die ersten
+ * in der Mitte die Einstellungen in Gruppen (Optionen, Daten, Darstellung, Verzeichnisse), rechts die ersten
  * Seiten des fertigen PDFs. Ausgabe als PDF, DOCX, HTML, TeX oder Text.
  */
 

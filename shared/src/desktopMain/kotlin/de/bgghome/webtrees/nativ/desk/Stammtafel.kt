@@ -208,7 +208,7 @@ class TafelLayout(val plaetze: List<TafelPlatz>, val breite: Float, val hoehe: F
 /**
  * Baumlayout nach Konturen (Art Reingold-Tilford): Geschwister-Teilbaeume ruecken so eng zusammen, wie es ihre
  * Umrisse in JEDER Reihe erlauben - ein tiefer Zweig darf unter kinderlose Geschwister reichen. Jede Person steht
- * mittig ueber ihrem ersten und letzten Kind. So wird die Tafel nicht breiter als noetig (Vorbild: 78 statt 140 cm).
+ * mittig ueber ihrem ersten und letzten Kind. So wird die Tafel nicht breiter als noetig (im Test 78 statt 140 cm).
  */
 fun stammtafelLayout(wurzel: TafelPerson, masse: TafelMasse, buendig: Int = 0): TafelLayout {
     // Ein Teilbaum: Versatz jedes Kindes zur Mitte der Person, Umriss je Tiefe (linkeste und rechteste Mitte).

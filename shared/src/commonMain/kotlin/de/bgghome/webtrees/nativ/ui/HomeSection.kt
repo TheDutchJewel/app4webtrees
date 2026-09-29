@@ -128,7 +128,7 @@ fun HomeSection(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
     }
 }
 
-/** Abschnittstitel in gesperrten Grossbuchstaben - wie beim Vorbild. */
+/** Abschnittstitel in gesperrten Grossbuchstaben. */
 @Composable
 fun SectionHeading(text: String) {
     Text(

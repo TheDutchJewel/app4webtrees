@@ -13,8 +13,8 @@ import org.junit.Test
 import java.net.InetSocketAddress
 
 /**
- * Eine SSO-Anmeldung vor webtrees (Authelia, Authentik, oauth2-proxy ...) darf nicht als "Modul zu alt" enden
- * (Rueckmeldung 24.09.2026). Der Testserver spielt den Proxy; localhost und 127.0.0.1 sind zwei Hosts.
+ * Eine SSO-Anmeldung vor webtrees (Authelia, Authentik, oauth2-proxy ...) darf nicht als "Modul zu alt" enden.
+ * Der Testserver spielt den Proxy; localhost und 127.0.0.1 sind zwei Hosts.
  */
 class LoginWallTest {
     private val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)

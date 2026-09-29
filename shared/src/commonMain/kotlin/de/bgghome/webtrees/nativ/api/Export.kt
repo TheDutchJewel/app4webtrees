@@ -12,7 +12,7 @@ import java.security.MessageDigest
  * Der ganze Baum am Stueck (api4webtrees ab Stufe 17, Route Export, 26.09.2026): erst alle Personen, dann alle
  * Familien, 250 Datensaetze je Seite, verknuepft nur ueber Kennungen. Lohnt sich fuer Buecher und Listen ueber viele
  * Personen und mit dem Zwischenspeicher; fuer wenige Personen sind Einzelabfragen schneller (Richtwert: gut
- * 2157 Personen in 5 s, 3,6 MB). Aeltere Server laden weiter Person fuer Person.
+ * 2000 Personen in 5 s, 3,6 MB). Aeltere Server laden weiter Person fuer Person.
  */
 
 /** Seite der Route Export, wie sie vom Server kommt - die Personen erst roh, siehe WtClient.export(). */

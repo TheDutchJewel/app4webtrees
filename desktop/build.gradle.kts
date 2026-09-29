@@ -1,6 +1,6 @@
 // Linux/Windows/macOS-Huelle von wtAnd: ein Fenster um den geteilten Kern
 // (:shared), native Pakete via jpackage. Gebaut wird je System, auf dem
-// es laeuft: deb hier, msi/exe auf dem Windows-Laptop (WiX noetig), dmg
+// es laeuft: deb unter Linux, msi/exe unter Windows (WiX noetig), dmg
 // auf GitHub (.github/workflows/mac.yml, noch unsigniert).
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import java.net.URI
@@ -52,8 +52,8 @@ val appName = when {
     else -> "wtTux"
 }
 
-// Stufe 4: was "Neuen Stammbaum auf diesem PC anlegen" braucht, liegt im Paket (mitliefern,
-// damit das Anlegen auch ohne Internet klappt). Landet unter resources/ (compose.application.resources.dir):
+// Was "Neuen Stammbaum auf diesem PC anlegen" braucht, liegt im Paket (mitliefern, damit das Anlegen
+// auch ohne Internet klappt). Landet unter resources/ (compose.application.resources.dir):
 // common/webtrees/*.zip fuer alle, <system>/php/php(.exe) nur fuer das System, auf dem gebaut wird.
 // Fuer macOS gibt es noch kein PHP - dort fehlt der Weg dann einfach (LokalBetrieb.verfuegbar).
 val lokalOrdner = layout.buildDirectory.dir("lokal")

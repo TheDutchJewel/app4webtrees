@@ -106,7 +106,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.jetbrains.compose.resources.stringResource
 
 /*
- * Aufbau "Baum im Mittelpunkt" (Etappe 3, 23.09.2026): Menueleiste, Arbeitsbereiche als Knoepfe, links die
+ * Aufbau "Baum im Mittelpunkt": Menueleiste, Arbeitsbereiche als Knoepfe, links die
  * Personenliste, in der Mitte der Baum, rechts die Personentafel, unten die Statuszeile. Dieselben Bausteine und
  * dasselbe ViewModel wie am Handy - nur anders angeordnet und dichter. Weitere Aufbauten (Liste und Personenblatt)
  * sollen aus denselben Bausteinen entstehen.
@@ -155,7 +155,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     }
     val drucke = DeskDruck(state, viewModel, LocalAppName.current)
     var zoom by remember { mutableStateOf(DeskLayout.prefs.getString("zoom", null)?.toFloatOrNull() ?: 1f) }
-    // Texte unter den Symbolen (Ansicht -> Symboltexte, wie beim Vorbild); bei Platzmangel fallen sie ohnehin weg.
+    // Texte unter den Symbolen (Ansicht -> Symboltexte); bei Platzmangel fallen sie ohnehin weg.
     var symboltexte by remember { mutableStateOf(DeskLayout.prefs.getBoolean("symboltexte", true)) }
 
     DeskMenuBar(
@@ -440,10 +440,9 @@ private const val KNOPF_SYMBOL = 36f
 private const val TRENNER = 9f
 
 /*
- * Symbolleiste, die Platzmangel vertraegt (Rueckmeldung wtwin5/6, 25.09.2026 - unter Windows mit 125 % Skalierung
- * reichte die Breite nicht): passt sie mit Texten nicht, zeigt sie nur Symbole (Name beim Ueberfahren); passt sie
+ * Symbolleiste, die Platzmangel vertraegt (unter Windows mit 125 % Skalierung reichte die Breite nicht): passt sie mit Texten nicht, zeigt sie nur Symbole (Name beim Ueberfahren); passt sie
  * auch so nicht, wandert der Rest in das Menue "Mehr" am rechten Ende. Die Texte lassen sich unter Ansicht
- * ganz abschalten (wie beim Vorbild). Generationen und Zoom stehen im Navigator selbst.
+ * ganz abschalten. Generationen und Zoom stehen im Navigator selbst.
  */
 @Composable
 private fun ClassicToolbar(
@@ -798,8 +797,8 @@ private fun PersonIndex(state: UiState, viewModel: AppViewModel, openWeb: (Strin
 @Composable
 private fun SearchField(query: String, onChange: (String) -> Unit, focus: FocusRequester) {
     val colors = MaterialTheme.colorScheme
-    // Eigener Textzustand: kaeme der Text verzoegert aus dem ViewModel zurueck, spraenge der Cursor an den Anfang
-    //. Nur wenn der Zustand von aussen einen anderen Text bringt (Leeren), folgen wir ihm.
+    // Eigener Textzustand: kaeme der Text verzoegert aus dem ViewModel zurueck, spraenge der Cursor an den Anfang.
+    // Nur wenn der Zustand von aussen einen anderen Text bringt (Leeren), folgen wir ihm.
     var feld by remember { mutableStateOf(androidx.compose.ui.text.input.TextFieldValue(query)) }
     LaunchedEffect(query) { if (query != feld.text) feld = androidx.compose.ui.text.input.TextFieldValue(query, androidx.compose.ui.text.TextRange(query.length)) }
     Row(

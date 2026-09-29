@@ -13,7 +13,8 @@ import de.bgghome.webtrees.nativ.api.FactJson
  */
 
 /**
- * Name des Programms auf dieser Plattform: wtAnd (Android), wtWin (Windows), wtTux (Linux). Das Gesamtprojekt heisst app4webtrees; die Namen folgen dem Muster, das der webtrees-Autor akzeptiert
+ * Name des Programms auf dieser Plattform: wtAnd (Android), wtWin (Windows), wtTux (Linux).
+ * Das Gesamtprojekt heisst app4webtrees; die Namen folgen dem Muster, das der webtrees-Autor akzeptiert
  * (kein "webtrees" vorn, das nach offiziellem Produkt klingt).
  */
 val LocalAppName = staticCompositionLocalOf { "wtAnd" }

@@ -46,7 +46,7 @@ private data class TimelineRow(
 )
 
 /**
- * Reiter "Ereignisse" im Profil: der Lebenslauf als Zeitleiste mit grosser Jahreszahl links - wie beim Vorbild.
+ * Reiter "Ereignisse" im Profil: der Lebenslauf als Zeitleiste mit grosser Jahreszahl links.
  * Eingereiht werden auch Heirat & Co. aus den Partnerschaften und die Geburten der Kinder.
  *
  * @param onEdit / onDelete bekommen neben dem Ereignis die Familien-XREF, wenn es an einer Familie haengt

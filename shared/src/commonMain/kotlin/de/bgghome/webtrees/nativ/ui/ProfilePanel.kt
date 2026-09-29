@@ -206,7 +206,7 @@ fun ProfilePanel(state: UiState, detail: IndividualDetail, viewModel: AppViewMod
     ProfileDialogs(dialog, state, detail, viewModel, onDismiss = { dialog = null }, onPickFamily = { dialog = ProfileDialog.NewFamilyFact(it) })
 }
 
-/** Kopf des Profils: Portraet (Tipp fuegt ein Foto hinzu, wie beim Vorbild), Name, "Verwandtschaft | Jahre", zwei Knoepfe. */
+/** Kopf des Profils: Portraet (Tipp fuegt ein Foto hinzu), Name, "Verwandtschaft | Jahre", zwei Knoepfe. */
 @Composable
 private fun ProfileHeader(
     detail: IndividualDetail,

@@ -20,7 +20,7 @@ import de.bgghome.webtrees.nativ.api.Person
 
 /**
  * Rundes Portraet. Ohne Foto eine graue Silhouette (Kopf und Schultern) mit duennem Ring in der
- * Geschlechtsfarbe - wie beim Vorbild. Das Foto liegt ueber der Silhouette: fehlt die Bilddatei auf
+ * Geschlechtsfarbe. Das Foto liegt ueber der Silhouette: fehlt die Bilddatei auf
  * dem Server, bleibt kein leerer Kreis.
  */
 @Composable

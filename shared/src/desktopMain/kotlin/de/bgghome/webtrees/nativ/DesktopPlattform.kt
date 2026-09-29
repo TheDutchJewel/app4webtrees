@@ -11,7 +11,7 @@ import java.io.File
  * Keine Erinnerung im Hintergrund (kannErinnern bleibt false, das Menue bietet sie nicht an).
  */
 class DesktopPlattform : Plattform {
-    /** wtWin unter Windows, wtTux unter Linux, wtMac unter macOS (27.09.2026). */
+    /** wtWin unter Windows, wtTux unter Linux, wtMac unter macOS. */
     val appName: String = System.getProperty("os.name").orEmpty().let {
         when {
             it.startsWith("Windows") -> "wtWin"

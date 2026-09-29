@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 /*
- * Druck und PDF (Etappe 4, 23.09.2026): Personenblatt und Listen als PDF (die Tafeln: Stammtafel.kt) - gedruckt ueber den
+ * Druck und PDF: Personenblatt und Listen als PDF (die Tafeln: Stammtafel.kt) - gedruckt ueber den
  * Druckdialog des Systems oder als Datei gespeichert. PDFBox ist schon da (PDF-Betrachter).
  */
 

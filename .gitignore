@@ -26,8 +26,6 @@ __pycache__/
 docs/offline-konzept.md
 docs/icon/icon_webtreesand.*
 tools/
-
-# Eigene Arbeitsdateien
 /*.md
 !/README.md
 !/README.en.md

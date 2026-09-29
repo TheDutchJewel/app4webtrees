@@ -64,7 +64,7 @@ import de.bgghome.webtrees.nativ.ui.*
 import org.jetbrains.compose.resources.stringResource
 
 /*
- * Aufbau "Navigator" (Fassung 2, 23.09.2026, nach dem Vergleich mit dem Vorbild): links die Kinder als Spalte mit
+ * Aufbau "Navigator": links die Kinder als Spalte mit
  * Klammer, in der Mitte die Zentralperson mit den Partnern darunter, rechts die Vorfahren ueber die volle Hoehe -
  * Generation fuer Generation eine Spalte, unbekannte Eltern als leere Kaesten, Pfeile wo es weitergeht. Oben links
  * der Infokasten mit grossem Portraet und allen Ehen. Klick auf die Zentralperson oeffnet den Eingabedialog,
@@ -74,7 +74,7 @@ import org.jetbrains.compose.resources.stringResource
 private val BOX_W = 330.dp
 private val BOX_H = 58.dp
 private val GAP = 10.dp
-/** Spaltenabstand kleiner als die Kastenbreite: die Spalten ueberlappen wie beim Vorbild, die Linie zu den Eltern
+/** Spaltenabstand kleiner als die Kastenbreite: die Spalten ueberlappen, die Linie zu den Eltern
  *  laeuft hinter dem Kasten des Kindes bei zwei Dritteln seiner Breite. */
 private val COL = 245.dp
 private val LINE_X = 222.dp
@@ -137,7 +137,7 @@ fun Navigator(
     // Kinder, die selbst Kinder haben (aus dem Nachkommenbaum) - bekommen einen Pfeil nach links.
     val mitNachkommen = state.descendants?.tree?.families?.flatMap { it.children }?.filter { k -> k.families.any { it.children.isNotEmpty() } }?.map { it.person.xref }?.toSet().orEmpty()
 
-    // Wie beim Vorbild eine Partnerschaft auf einmal: Partner und deren Kinder; der Pfeil unter dem Partner wechselt.
+    // Eine Partnerschaft auf einmal: Partner und deren Kinder; der Pfeil unter dem Partner wechselt.
     val familien = detail?.spouseFamilies.orEmpty()
     var gewaehlt by remember(state.root) { mutableStateOf(-1) }
     val fIndex = if (gewaehlt in familien.indices) gewaehlt else familien.indexOfFirst { it.spouse != null }.coerceAtLeast(0)
@@ -147,17 +147,17 @@ fun Navigator(
     val g = state.ancestorGenerations.coerceIn(2, 7)
     val eng = chartMasse(g, familie, familien.isNotEmpty(), COL)
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-    // Generationen und Zoom ueber der Tafel, rechts - wie beim Vorbild im Navigator statt in der Symbolleiste
-    // (Rueckmeldung wtwin5/6, 25.09.2026: dort fehlte bei 125 % Skalierung der Platz).
+    // Generationen und Zoom ueber der Tafel, rechts - im Navigator statt in der Symbolleiste
+    // (dort fehlte bei 125 % Skalierung der Platz).
     TafelRegler(state.ancestorGenerations, viewModel::setAncestorGenerations, zoom, onZoom)
-    // Einpassen wie beim Vorbild: die Tafel fuellt das Fenster, der Zoom vergroessert oder verkleinert davon ausgehend.
+    // Einpassen: die Tafel fuellt das Fenster, der Zoom vergroessert oder verkleinert davon ausgehend.
     androidx.compose.foundation.layout.BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
         val rand = 24.dp
         // Massgeblich sind Vorfahren und Infokasten; eine lange Kinderspalte rollt, statt alles zu verkleinern. Nie unter 70 Prozent.
         // Bei wenigen Generationen darf die Tafel wachsen (bis 150 Prozent), bei vielen nie unter 70 Prozent schrumpfen.
         val fit = minOf((maxWidth - rand) / eng.breite, (maxHeight - rand) / eng.hoeheFit).coerceIn(0.7f, 1.5f)
         val skala = fit * zoom
-        // Bleibt Breite uebrig, ruecken die Spalten auseinander, bis die Tafel das Fenster ausfuellt (Vorbild).
+        // Bleibt Breite uebrig, ruecken die Spalten auseinander, bis die Tafel das Fenster ausfuellt.
         val frei = (maxWidth - rand) / skala - eng.breite
         val col = if (g > 1 && frei > 0.dp) minOf(COL + frei / (g - 1), BOX_W + 40.dp) else COL
         val masse = chartMasse(g, familie, familien.isNotEmpty(), col)
@@ -230,7 +230,7 @@ private class ChartMasse(val slots: Int, val slotH: Dp, val ancH: Dp, val kinder
 private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson?, hatFamilien: Boolean, col: Dp): ChartMasse {
     val slots = 1 shl (g - 1)
     // Zeilenabstand gut zwei Kastenhoehen: nur so passt der Elternkasten senkrecht zwischen die beiden Grosseltern,
-    // wenn sich die Spalten waagerecht ueberlappen (Vorbild). Die Kinderspalte bleibt dicht (BOX_H + GAP).
+    // wenn sich die Spalten waagerecht ueberlappen. Die Kinderspalte bleibt dicht (BOX_H + GAP).
     val slotH = BOX_H * 2 + 8.dp
     val ancH = slotH * slots
     val kinder = familie?.children?.size ?: 0
@@ -294,7 +294,7 @@ private fun Chart(
         // Infokasten oben links
         if (detail != null) InfoBox(detail, fIndex, Modifier.offset(0.dp, 0.dp).size(BOX_W * 2 + 56.dp, INFO_H - 12.dp), onOpen = { onOpenSheet(zentral.xref) })
 
-        // Kinder in eigenem Rollbereich: viele Kinder rollen, statt die Tafel zu verkleinern (wie beim Vorbild)
+        // Kinder in eigenem Rollbereich: viele Kinder rollen, statt die Tafel zu verkleinern
         if (kinder.isNotEmpty()) {
             val roll = rememberScrollState()
             val kslot = BOX_H + GAP

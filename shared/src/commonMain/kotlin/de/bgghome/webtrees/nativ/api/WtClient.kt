@@ -44,7 +44,7 @@ class NotJsonException(
 /**
  * Vor webtrees sitzt eine fremde Anmeldung (SSO wie Authelia, Authentik, oauth2-proxy, Cloudflare Access):
  * 401/407, eine Umleitung auf einen anderen Host oder JSON, das nicht von api4webtrees stammt. Frueher las
- * die App solches JSON als Info mit api=0 und meldete "Modul zu alt" (Rueckmeldung 24.09.2026).
+ * die App solches JSON als Info mit api=0 und meldete "Modul zu alt".
  */
 class LoginWallException(val httpStatus: Int, val host: String = "") : Exception("Anmeldung vor webtrees (HTTP $httpStatus $host)")
 

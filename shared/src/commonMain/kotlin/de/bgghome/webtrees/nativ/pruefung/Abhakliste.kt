@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /*
- * Abgehakte Treffer (Stufe 2, 27.09.2026): lokal im Programm, nicht auf dem Server.
+ * Abgehakte Treffer: lokal im Programm, nicht auf dem Server (die API bleibt so klein wie moeglich).
  * Je Baum (Server + Baumname) die Schluessel der Treffer; der Schluessel enthaelt einen Fingerabdruck der Daten -
  * aendert sich an der Stelle etwas, passt er nicht mehr und der Treffer erscheint wieder. Austausch zwischen zwei
  * Rechnern ueber eine kleine JSON-Datei (Export/Import).

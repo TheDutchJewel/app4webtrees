@@ -35,7 +35,7 @@ import de.bgghome.webtrees.nativ.api.Person
 
 // Bausteine, die mehrere Bereiche teilen: die Kopfzeile mit dem Baumnamen und die Personenzeile.
 
-/** Kopfzeile: Baumname mit Wechsel-Pfeil und Personenzahl - wie beim Vorbild. Rechts das Drei-Punkte-Menue. */
+/** Kopfzeile: Baumname mit Wechsel-Pfeil und Personenzahl. Rechts das Drei-Punkte-Menue. */
 @Composable
 fun TreeTitleBar(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, trailing: @Composable () -> Unit = {}) {
     // Am Desktop uebernehmen Menueleiste, Arbeitsbereiche und Statuszeile diese Aufgaben.

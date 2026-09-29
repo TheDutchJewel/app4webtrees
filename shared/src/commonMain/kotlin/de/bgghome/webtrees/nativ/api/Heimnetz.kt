@@ -5,7 +5,7 @@ import java.net.Inet6Address
 import java.net.InetAddress
 
 /*
- * Unverschluesselt (http://) nur im Heimnetz (Auftrag nas4webtrees, 26.09.2026): ein NAS unter
+ * Unverschluesselt (http://) nur im Heimnetz (fuer nas4webtrees): ein NAS unter
  * http://192.168.178.73:8095 soll ohne Zertifikat gehen, ein oeffentlicher Server weiter nur mit https.
  * Dieselbe Regel steht in api4webtrees (Seite "App"). HTTPS mit eigenem Zertifikat folgt spaeter.
  */

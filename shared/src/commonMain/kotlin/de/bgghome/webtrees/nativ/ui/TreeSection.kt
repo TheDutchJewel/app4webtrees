@@ -162,7 +162,7 @@ internal fun GenerationsChip(state: UiState, viewModel: AppViewModel) {
     Box {
         TextButton(onClick = { open = true }) {
             // Einzeilig: bei Platzmangel (wtWin mit 125 % Skalierung) brach der Text sonst nach jedem Buchstaben um
-            // und machte die Symbolleiste ein Drittel des Fensters hoch (Rueckmeldung wtwin5/6, 25.09.2026).
+            // und machte die Symbolleiste ein Drittel des Fensters hoch.
             Text(stringResource(Res.string.tree_generations, state.ancestorGenerations), maxLines = 1, softWrap = false)
             Icon(Icons.Default.ArrowDropDown, contentDescription = null)
         }
@@ -177,7 +177,7 @@ internal fun GenerationsChip(state: UiState, viewModel: AppViewModel) {
     }
 }
 
-/** Zahnrad: Einstellungen der Baumansicht - wie das Einstellungsblatt beim Vorbild, nur kuerzer. */
+/** Zahnrad: Einstellungen der Baumansicht als kurzes Einstellungsblatt. */
 @Composable
 internal fun TreeSettings(state: UiState, viewModel: AppViewModel) {
     var open by remember { mutableStateOf(false) }

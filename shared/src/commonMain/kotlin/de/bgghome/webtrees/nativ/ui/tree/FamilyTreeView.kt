@@ -162,7 +162,7 @@ fun FamilyTreeView(
             offset = Offset((viewW - layout.width * density * fit) / 2, (viewH - layout.height * density * fit) / 2)
         }
 
-        /** Karte sanft in die Bildmitte holen (wie beim Vorbild nach einem Tipp). */
+        /** Karte nach einem Tipp sanft in die Bildmitte holen. */
         fun centerOn(box: TreeBox) {
             val target = Offset(viewW / 2 - box.centerX * density * scale, viewH / 2 - box.centerY * density * scale)
             scope.launch {
