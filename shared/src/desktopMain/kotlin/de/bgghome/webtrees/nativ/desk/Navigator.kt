@@ -44,7 +44,12 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -88,6 +93,21 @@ private val ICON_ROW = 32.dp
 
 /** Farbkodierung nach Mary Hill: xref -> Farbe des Streifens am rechten Kastenrand (leer = aus). */
 val LocalFarben = staticCompositionLocalOf { emptyMap<String, Color>() }
+
+/**
+ * Handschrift des Navigators, im Regler ueber der Tafel umschaltbar: [kante] helle Kaesten, Geschlecht (oder
+ * Linienfarbe) als farbige Kante links statt Vollflaeche; [medaillon] rundes Portraet mit Luft; [weich] gebogene
+ * Verbindungslinien zu den Eltern. Bleibt in den Desktop-Einstellungen.
+ */
+data class NavStil(val kante: Boolean = false, val medaillon: Boolean = false, val weich: Boolean = false) {
+    fun speichern() {
+        DeskLayout.prefs.putBoolean("nav_kante", kante); DeskLayout.prefs.putBoolean("nav_medaillon", medaillon); DeskLayout.prefs.putBoolean("nav_weich", weich)
+    }
+    companion object {
+        fun laden() = NavStil(DeskLayout.prefs.getBoolean("nav_kante", false), DeskLayout.prefs.getBoolean("nav_medaillon", false), DeskLayout.prefs.getBoolean("nav_weich", false))
+    }
+}
+val LocalNavStil = staticCompositionLocalOf { NavStil() }
 
 /** Farben des Systems nach Mary Hill (allgemeiner Genealogie-Standard). */
 object MaryHill {
@@ -151,10 +171,11 @@ fun Navigator(
     val basis = LocalDensity.current
     val g = state.ancestorGenerations.coerceIn(2, 7)
     val eng = chartMasse(g, familie, familien.isNotEmpty(), COL, SLOT_MIN)
+    var stil by remember { mutableStateOf(NavStil.laden()) }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-    // Generationen und Zoom ueber der Tafel, rechts - im Navigator statt in der Symbolleiste
+    // Generationen, Stil und Zoom ueber der Tafel, rechts - im Navigator statt in der Symbolleiste
     // (dort fehlte bei 125 % Skalierung der Platz).
-    TafelRegler(state.ancestorGenerations, viewModel::setAncestorGenerations, zoom, onZoom)
+    TafelRegler(state.ancestorGenerations, viewModel::setAncestorGenerations, zoom, onZoom, stil) { stil = it; it.speichern() }
     // Einpassen: die Tafel fuellt das Fenster, der Zoom vergroessert oder verkleinert davon ausgehend.
     androidx.compose.foundation.layout.BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
         val rand = 24.dp
@@ -177,7 +198,7 @@ fun Navigator(
             slotH = maxOf(SLOT_MIN, slotH - zuviel / eng.slots)
             masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH)
         }
-        CompositionLocalProvider(LocalFarben provides farben, LocalDensity provides Density(basis.density * skala, basis.fontScale)) {
+        CompositionLocalProvider(LocalFarben provides farben, LocalNavStil provides stil, LocalDensity provides Density(basis.density * skala, basis.fontScale)) {
             Box(Modifier.fillMaxSize()) {
                 Box(Modifier.fillMaxSize().horizontalScroll(quer).verticalScroll(hoch).padding(12.dp)) {
                     Chart(detail, zentral, ahnen, g, canEdit, mitNachkommen, viewModel, onOpenSheet, openWeb, masse, col,
@@ -191,9 +212,9 @@ fun Navigator(
     }
 }
 
-/** Die Regler ueber der Tafel: Generationen (2 bis 7), Zoom (60 bis 160 Prozent, Klick auf die Zahl: 100) und Einpassen (= 100). */
+/** Die Regler ueber der Tafel: Generationen (2 bis 7), Stil, Zoom (60 bis 160 Prozent, Klick auf die Zahl: 100) und Einpassen (= 100). */
 @Composable
-private fun TafelRegler(generationen: Int, onGenerationen: (Int) -> Unit, zoom: Float, onZoom: (Float) -> Unit) {
+private fun TafelRegler(generationen: Int, onGenerationen: (Int) -> Unit, zoom: Float, onZoom: (Float) -> Unit, stil: NavStil, onStil: (NavStil) -> Unit) {
     Row(Modifier.fillMaxWidth().height(30.dp).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
         var open by remember { mutableStateOf(false) }
         Box {
@@ -209,6 +230,19 @@ private fun TafelRegler(generationen: Int, onGenerationen: (Int) -> Unit, zoom: 
             }
         }
         Spacer(Modifier.width(16.dp))
+        var stilOffen by remember { mutableStateOf(false) }
+        Box {
+            Row(Modifier.clickable { stilOffen = true }.padding(horizontal = 6.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(Res.string.desk_nav_style), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, maxLines = 1, softWrap = false)
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            }
+            DropdownMenu(expanded = stilOffen, onDismissRequest = { stilOffen = false }) {
+                StilEintrag(stringResource(Res.string.desk_nav_style_edge), stil.kante) { onStil(stil.copy(kante = it)) }
+                StilEintrag(stringResource(Res.string.desk_nav_style_medallion), stil.medaillon) { onStil(stil.copy(medaillon = it)) }
+                StilEintrag(stringResource(Res.string.desk_nav_style_soft), stil.weich) { onStil(stil.copy(weich = it)) }
+            }
+        }
+        Spacer(Modifier.width(16.dp))
         TextKnopf("−", stringResource(Res.string.tree_zoom_out)) { onZoom((zoom - 0.1f).coerceAtLeast(0.6f)) }
         Text("${(zoom * 100).roundToInt()} %", Modifier.clickable { onZoom(1f) }.padding(horizontal = 6.dp).width(44.dp), style = MaterialTheme.typography.labelLarge,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center, maxLines = 1, softWrap = false)
@@ -216,6 +250,12 @@ private fun TafelRegler(generationen: Int, onGenerationen: (Int) -> Unit, zoom: 
         Spacer(Modifier.width(10.dp))
         TextKnopf(stringResource(Res.string.desk_nav_fit), stringResource(Res.string.desk_nav_fit_hint), breit = true) { onZoom(1f) }
     }
+}
+
+/** Ein an- und abschaltbarer Menuepunkt mit Haken. */
+@Composable
+private fun StilEintrag(text: String, an: Boolean, onWechsel: (Boolean) -> Unit) {
+    DropdownMenuItem(text = { Text((if (an) "✓  " else "\u2007\u2007\u2007 ") + text) }, onClick = { onWechsel(!an) })
 }
 
 @Composable
@@ -299,6 +339,7 @@ private fun Chart(
     val xZentral = m.xZentral; val centerY = m.centerY
     val hoehe = m.hoehe; val breite = m.breite
     val line = MaterialTheme.colorScheme.outline
+    val weich = LocalNavStil.current.weich
 
     fun top(n: Int): Dp { val gg = gen(n); val span = slots shr gg; val i = n - (1 shl gg); return centerY - ancH / 2 + slotH * (i * span) + (slotH * span - BOX_H) / 2 }
     fun left(n: Int): Dp = m.left(gen(n), g)
@@ -309,13 +350,22 @@ private fun Chart(
         Canvas(Modifier.fillMaxSize()) {
             val w = 1.2.dp.toPx()
             // Vorfahren: senkrechte Linie hinter dem Kasten des Kindes (bei zwei Dritteln), von Vater zu Mutter,
-            // von dort waagerecht zu den Elternkaesten - auch zu leeren
+            // von dort waagerecht zu den Elternkaesten - auch zu leeren. Weich: je Elternteil ein Bogen, der hinter dem
+            // Kasten des Kindes senkrecht startet und waagerecht in den Elternkasten muendet.
             for (n in 1 until (1 shl (g - 1))) {
                 if (n !in ahnen) continue
                 val xm = minOf(left(n) + LINE_X, left(2 * n) - 12.dp).toPx()
                 val yV = (top(2 * n) + BOX_H / 2).toPx(); val yM = (top(2 * n + 1) + BOX_H / 2).toPx()
-                drawLine(line, Offset(xm, yV), Offset(xm, yM), w)
-                drawLine(line, Offset(xm, yV), Offset(left(2 * n).toPx(), yV), w); drawLine(line, Offset(xm, yM), Offset(left(2 * n + 1).toPx(), yM), w)
+                if (weich) {
+                    val yK = (top(n) + BOX_H / 2).toPx()
+                    for ((xe, ye) in listOf(left(2 * n).toPx() to yV, left(2 * n + 1).toPx() to yM)) {
+                        val pfad = Path().apply { moveTo(xm, yK); cubicTo(xm, ye, xm, ye, xe, ye) }
+                        drawPath(pfad, line, style = Stroke(w * 1.25f, cap = StrokeCap.Round))
+                    }
+                } else {
+                    drawLine(line, Offset(xm, yV), Offset(xm, yM), w)
+                    drawLine(line, Offset(xm, yV), Offset(left(2 * n).toPx(), yV), w); drawLine(line, Offset(xm, yM), Offset(left(2 * n + 1).toPx(), yM), w)
+                }
             }
             // Kinder: von der Klammer waagerecht zur Zentralperson (die Klammer selbst liegt im rollbaren Kinderbereich)
             if (kinder.isNotEmpty()) {
@@ -440,6 +490,10 @@ private fun PersonBox(
     val asCentre = stringResource(Res.string.desk_as_centre); val edit = stringResource(Res.string.desk_sheet); val web = stringResource(Res.string.chip_open_web)
     val merken = stringResource(Res.string.desk_bookmark_add); val merkWeg = stringResource(Res.string.desk_bookmark_remove)
     val onSurface = MaterialTheme.colorScheme.onSurface
+    val stil = LocalNavStil.current
+    val linie = LocalFarben.current[person.xref]
+    val fill = if (stil.kante) MaterialTheme.colorScheme.surface else c.fill
+    val rand = when { art == Art.Zentral -> onSurface; stil.kante -> MaterialTheme.colorScheme.outlineVariant; else -> c.border }
     val klick: () -> Unit = if (art == Art.Zentral) ({ onOpenSheet(person.xref) }) else ({ viewModel.setRoot(person.xref) })
     ContextMenuArea(items = {
         if (person.isPrivate) emptyList() else listOfNotNull(
@@ -451,19 +505,22 @@ private fun PersonBox(
     }) {
         Row(
             modifier.size(BOX_W, BOX_H)
-                .background(c.fill)
-                .border(if (art == Art.Zentral) 2.5.dp else 1.dp, if (art == Art.Zentral) onSurface else c.border)
+                .background(fill)
+                .border(if (art == Art.Zentral) 2.5.dp else 1.dp, rand)
                 .fokusRahmen()
                 .combinedClickable(enabled = !person.isPrivate, onClick = klick, onDoubleClick = { onOpenSheet(person.xref) }),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Kante: Geschlechtsfarbe (oder die Linienfarbe der Farbkodierung) als schmaler Balken links
+            if (stil.kante) Box(Modifier.width(5.dp).fillMaxHeight().background(linie ?: c.border))
             if (pfeilLinks) Text("◀", fontSize = 11.sp, color = onSurface, modifier = Modifier.padding(start = 2.dp))
-            Portrait(person, Modifier.padding(1.dp).size(BOX_H - 2.dp))
+            if (stil.medaillon) Portrait(person, Modifier.padding(start = 6.dp, top = 5.dp, bottom = 5.dp).size(BOX_H - 10.dp).clip(CircleShape).border(1.dp, c.border.copy(alpha = 0.7f), CircleShape))
+            else Portrait(person, Modifier.padding(1.dp).size(BOX_H - 2.dp))
             Column(Modifier.weight(1f).padding(start = 6.dp, end = 4.dp)) {
                 Text(name, fontSize = 15.sp, fontWeight = if (art == Art.Zentral) FontWeight.Bold else FontWeight.SemiBold, lineHeight = 18.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = onSurface)
                 Text(jahre(person).ifBlank { " " }, fontSize = 12.sp, lineHeight = 15.sp, color = onSurface.copy(alpha = 0.75f), maxLines = 1)
             }
-            LocalFarben.current[person.xref]?.let { farbe -> Box(Modifier.width(6.dp).fillMaxHeight().background(farbe)) }
+            if (!stil.kante) linie?.let { farbe -> Box(Modifier.width(6.dp).fillMaxHeight().background(farbe)) }
             if (pfeilRechts) Text("▶", fontSize = 11.sp, color = onSurface, modifier = Modifier.padding(end = 2.dp))
         }
     }
@@ -473,11 +530,17 @@ private fun PersonBox(
 @Composable
 private fun LeerBox(sex: String, modifier: Modifier, onClick: (() -> Unit)?, text: String = "") {
     val c = boxColors(sex)
+    val kante = LocalNavStil.current.kante
     Box(
-        modifier.size(BOX_W, BOX_H).background(c.fill.copy(alpha = 0.55f)).border(1.dp, c.border.copy(alpha = 0.6f))
+        modifier.size(BOX_W, BOX_H)
+            .background(if (kante) MaterialTheme.colorScheme.surface.copy(alpha = 0.7f) else c.fill.copy(alpha = 0.55f))
+            .border(1.dp, if (kante) MaterialTheme.colorScheme.outlineVariant else c.border.copy(alpha = 0.6f))
             .let { if (onClick != null) it.clickable(onClick = onClick) else it },
         contentAlignment = Alignment.CenterStart,
-    ) { if (text.isNotEmpty()) Text(text, Modifier.padding(start = 10.dp), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    ) {
+        if (kante) Box(Modifier.width(5.dp).fillMaxHeight().background(c.border.copy(alpha = 0.45f)))
+        if (text.isNotEmpty()) Text(text, Modifier.padding(start = if (kante) 14.dp else 10.dp), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
 }
 
 @Composable

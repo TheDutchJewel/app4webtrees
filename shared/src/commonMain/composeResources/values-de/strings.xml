@@ -169,6 +169,10 @@
     <string name="tree_zoom_in">Vergrößern</string>
     <string name="desk_nav_fit">Einpassen</string>
     <string name="desk_nav_fit_hint">Tafel ins Fenster einpassen (100 %)</string>
+    <string name="desk_nav_style">Stil</string>
+    <string name="desk_nav_style_edge">Geschlecht als Kante</string>
+    <string name="desk_nav_style_medallion">Foto als Medaillon</string>
+    <string name="desk_nav_style_soft">Weiche Linien</string>
     <string name="tree_zoom_out">Verkleinern</string>
     <string name="tree_center">Zum Probanden</string>
     <string name="action_make_root">Als Proband</string>
