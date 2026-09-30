@@ -948,4 +948,11 @@
     <string name="desk_unsaved_save">Save</string>
     <string name="desk_unsaved_discard">Discard</string>
     <string name="desk_family_siblings_of">Siblings of %1$s:</string>
+    <string name="desk_detail_data">Data</string>
+    <string name="desk_detail_choose">Select an event in the table to see its notes and sources.</string>
+    <string name="desk_detail_age">age %1$d</string>
+    <string name="desk_detail_value">Description</string>
+    <string name="desk_detail_type">Type</string>
+    <string name="desk_detail_no_notes">No note on this event.</string>
+    <string name="desk_detail_no_sources">No source on this event.</string>
 </resources>

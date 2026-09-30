@@ -943,4 +943,11 @@
     <string name="desk_unsaved_save">Speichern</string>
     <string name="desk_unsaved_discard">Verwerfen</string>
     <string name="desk_family_siblings_of">Geschwister von %1$s:</string>
+    <string name="desk_detail_data">Daten</string>
+    <string name="desk_detail_choose">Ein Ereignis in der Tabelle wählen, um Notizen und Quellen zu sehen.</string>
+    <string name="desk_detail_age">Alter %1$d</string>
+    <string name="desk_detail_value">Beschreibung</string>
+    <string name="desk_detail_type">Art</string>
+    <string name="desk_detail_no_notes">Keine Notiz an diesem Ereignis.</string>
+    <string name="desk_detail_no_sources">Keine Quelle an diesem Ereignis.</string>
 </resources>

@@ -95,7 +95,15 @@ data class Person(
 data class MarriageJson(val family: String = "", val spouse: String = "", val date: DateJson? = null, val place: PlaceJson? = null)
 
 @Serializable
-data class SourceRef(val xref: String = "", val title: String = "")
+data class SourceRef(
+    val xref: String = "",
+    val title: String = "",
+    /** Seitenangabe des Verweises (PAGE, "Taufen 1833, Nr. 19"), ab api4webtrees mit Seitenangabe; sonst leer. */
+    val page: String = "",
+) {
+    /** Titel und Seite in einer Zeile: "Kirchenbuch Bienenbuettel, Taufen 1833, Nr. 19". */
+    fun mitSeite(): String = title.ifBlank { xref } + page.replace('\n', ' ').trim().let { if (it.isEmpty()) "" else ", $it" }
+}
 
 @Serializable
 data class FactJson(

@@ -178,7 +178,7 @@ private fun TimelineItem(row: TimelineRow, onEdit: (FactJson, String?) -> Unit, 
             fact.notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             if (fact.sources.isNotEmpty()) {
                 Text(
-                    stringResource(Res.string.fact_sources, fact.sources.joinToString("; ") { it.title }),
+                    stringResource(Res.string.fact_sources, fact.sources.joinToString("; ") { it.mitSeite() }),
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

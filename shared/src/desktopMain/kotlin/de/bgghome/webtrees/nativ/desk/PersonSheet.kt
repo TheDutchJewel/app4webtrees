@@ -2,6 +2,8 @@ package de.bgghome.webtrees.nativ.desk
 
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -488,12 +490,69 @@ private fun EreignisTabelle(
         }
         ListenLeiste(list)
         }
+        HorizontalDivider(color = colors.outlineVariant)
+        EreignisDetail(rows.getOrNull(selected), geburtJd, Modifier.fillMaxWidth().height(170.dp))
         if (canEdit) {
             Row(Modifier.fillMaxWidth().padding(6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 OutlinedButton(shape = MaterialTheme.shapes.small, onClick = onNew) { Icon(Icons.Default.Add, null, Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text(stringResource(Res.string.action_add_event)) }
                 OutlinedButton(shape = MaterialTheme.shapes.small, onClick = { rows.getOrNull(selected)?.let(onEdit) }, enabled = selected >= 0) { Text(stringResource(Res.string.action_edit)) }
                 OutlinedButton(shape = MaterialTheme.shapes.small, onClick = { rows.getOrNull(selected)?.let(onDelete) }, enabled = selected >= 0 && rows.getOrNull(selected)?.fact?.tag != "NAME") { Text(stringResource(Res.string.action_delete)) }
             }
+        }
+    }
+}
+
+/**
+ * Das gewaehlte Ereignis im Detail, mit Unter-Reitern: Daten (Datum, Ort, Beschreibung, Alter), Notizen und Quellen samt
+ * Seitenangabe. Nur zum Lesen - geaendert wird wie bisher per Doppelklick bzw. "Bearbeiten".
+ */
+@Composable
+private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier) {
+    var reiter by remember { mutableStateOf(0) }
+    val colors = MaterialTheme.colorScheme
+    val f = row?.fact
+    Column(modifier.background(colors.surface)) {
+        Row(Modifier.fillMaxWidth().background(colors.surfaceVariant.copy(alpha = 0.5f))) {
+            listOf(stringResource(Res.string.desk_detail_data), stringResource(Res.string.desk_tab_notes) + (f?.notes?.size?.takeIf { it > 0 }?.let { " ($it)" } ?: ""),
+                stringResource(Res.string.desk_tab_sources) + (f?.sources?.size?.takeIf { it > 0 }?.let { " ($it)" } ?: "")).forEachIndexed { i, t ->
+                Text(t, Modifier.clickable { reiter = i }.background(if (reiter == i) colors.surface else androidx.compose.ui.graphics.Color.Transparent)
+                    .padding(horizontal = 12.dp, vertical = 5.dp), style = MaterialTheme.typography.labelLarge,
+                    fontWeight = if (reiter == i) FontWeight.SemiBold else FontWeight.Normal, color = if (reiter == i) colors.primary else colors.onSurface)
+            }
+        }
+        val scroll = rememberScrollState()
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (f == null) {
+                    Text(stringResource(Res.string.desk_detail_choose), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+                } else when (reiter) {
+                    0 -> {
+                        @Composable
+                        fun Zeile(label: String, wert: String) {
+                            if (wert.isBlank()) return
+                            Row { Text(label, Modifier.width(130.dp), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+                                Text(wert, style = MaterialTheme.typography.bodyMedium) }
+                        }
+                        Text(row.label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        val alter = alterBeiEreignis(geburtJd, f)
+                        Zeile(stringResource(Res.string.desk_col_date), f.date?.text.orEmpty() + (alter?.let { "   (" + stringResource(Res.string.desk_detail_age, it) + ")" } ?: ""))
+                        Zeile(stringResource(Res.string.fact_place), f.place?.name.orEmpty())
+                        Zeile(stringResource(Res.string.desk_detail_value),
+                            if (f.tag == "NAME") de.bgghome.webtrees.nativ.data.GedcomName.aus(f.value).anzeige() else f.value)
+                        if (f.type.isNotBlank()) Zeile(stringResource(Res.string.desk_detail_type), f.type)
+                    }
+                    1 -> if (f.notes.isEmpty()) Text(stringResource(Res.string.desk_detail_no_notes), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+                        else f.notes.forEach { Text(it, style = MaterialTheme.typography.bodyMedium) }
+                    else -> if (f.sources.isEmpty()) Text(stringResource(Res.string.desk_detail_no_sources), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+                        else f.sources.forEach { q ->
+                            Column(Modifier.padding(bottom = 4.dp)) {
+                                Text(q.title.ifBlank { q.xref }, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                if (q.page.isNotBlank()) Text(q.page, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+                            }
+                        }
+                }
+            }
+            SenkrechteLeiste(scroll)
         }
     }
 }

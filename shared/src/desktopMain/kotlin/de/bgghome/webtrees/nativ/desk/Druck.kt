@@ -178,9 +178,11 @@ fun notizenVon(d: IndividualDetail): List<Pair<String, String>> =
     d.facts.filter { it.tag == "NOTE" && it.value.isNotBlank() }.map { "" to it.value } +
         (d.facts + d.spouseFamilies.flatMap { it.facts }).filter { it.tag != "NOTE" }.flatMap { f -> f.notes.filter(String::isNotBlank).map { f.label to it } }
 
-/** Quellen einer Person: Titel und die Ereignisse, die sie belegen. */
+/** Quellen einer Person: Titel und die Ereignisse, die sie belegen (mit Seitenangabe in Klammern). */
 fun quellenVon(d: IndividualDetail): List<Pair<String, List<String>>> =
-    (d.facts + d.spouseFamilies.flatMap { it.facts }).flatMap { f -> f.sources.map { it.title.ifBlank { it.xref } to f.label } }
+    (d.facts + d.spouseFamilies.flatMap { it.facts }).flatMap { f ->
+        f.sources.map { q -> q.title.ifBlank { q.xref } to f.label + q.page.replace('\n', ' ').trim().let { if (it.isEmpty()) "" else " ($it)" } }
+    }
         .groupBy({ it.first }, { it.second }).map { (titel, wo) -> titel to wo.distinct() }
 
 /** Den Druckdialog des Systems zeigen und drucken; das Dokument wird danach geschlossen. */

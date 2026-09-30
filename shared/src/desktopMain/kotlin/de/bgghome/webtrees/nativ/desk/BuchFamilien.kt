@@ -104,7 +104,7 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
         val eheText = ehe.joinToString(", ") { e ->
             val ort = ortText(e.place?.name, o.orteKuerzen)
             val zeichen = when (e.tag) { "DIV" -> "⚮"; "ENGA" -> "⚬"; else -> "∞" }
-            val quelle = if (o.quellen && e.sources.isNotEmpty()) " (${Texte.t(Res.string.desk_book_source)}: ${e.sources.joinToString("; ") { it.title }})" else ""
+            val quelle = if (o.quellen && e.sources.isNotEmpty()) " (${Texte.t(Res.string.desk_book_source)}: ${e.sources.joinToString("; ") { it.mitSeite() }})" else ""
             listOf(zeichen, buchDatum(e.date), ort).filter(String::isNotBlank).joinToString(" ") + quelle
         }
         // Weder Heirat noch zweiter Ehepartner bekannt (z. B. unbekannte Mutter): keine leere Zeile mit "∞" und "?"

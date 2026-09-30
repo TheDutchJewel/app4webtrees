@@ -178,7 +178,7 @@ internal fun personText(p: Person, det: IndividualDetail, o: BuchOptionen, n: Lo
         reg.berufe.getOrPut(f.value) { sortedSetOf() } += n
     }
     fun quelle(f: FactJson): String = if (!o.quellen || f.sources.isEmpty()) "" else
-        " (${Texte.t(Res.string.desk_book_source)}: ${f.sources.joinToString("; ") { it.title }})".also { f.sources.forEach { s -> reg.quellen.getOrPut(s.title) { sortedSetOf() } += n } }
+        " (${Texte.t(Res.string.desk_book_source)}: ${f.sources.joinToString("; ") { it.mitSeite() }})".also { f.sources.forEach { s -> reg.quellen.getOrPut(s.title) { sortedSetOf() } += n } }
     fun ereignis(f: FactJson): String {
         val ort = ortText(f.place?.name, o.orteKuerzen)
         if (ort.isNotBlank()) reg.orte.getOrPut(ort) { sortedMapOf(String.CASE_INSENSITIVE_ORDER) }.getOrPut(p.surname.ifBlank { "?" }) { sortedSetOf() } += n
