@@ -963,7 +963,6 @@
     <string name="desk_source_cited_by">Zitiert von</string>
     <string name="desk_source_unused">Diese Quelle zitiert niemand.</string>
     <string name="desk_source_more">… und %1$d weitere</string>
-    <string name="desk_source_hint">Quellen anlegen und ändern folgt; bis dahin über „In webtrees öffnen“.</string>
     <string name="desk_quality_0">unzuverlässig oder geschätzt</string>
     <string name="desk_quality_1">fragwürdig</string>
     <string name="desk_quality_2">Sekundärquelle</string>
@@ -979,7 +978,6 @@
     <string name="desk_cite_as_text">Nur als Text</string>
     <string name="desk_cite_text_source">Quelle als Text</string>
     <string name="desk_cite_text_source_hint">z. B. „laut Erzählung von Martha Meier“</string>
-    <string name="desk_cite_new_source_hint">Eine neue Quelle legst du vorerst in webtrees an (Quellen › In webtrees öffnen).</string>
     <string name="desk_cite_page_hint">z. B. „Taufen 1833, Nr. 19“ oder „S. 145“</string>
     <string name="tipp_quality">Wie sicher der Beleg ist: Primärquelle (Foto oder Original des Eintrags), Sekundärquelle (Abschrift), fragwürdig, unzuverlässig oder geschätzt.</string>
     <string name="desk_cite_quote_hint">Abschrift des Eintrags – so wird der Text später durchsuchbar</string>
@@ -994,4 +992,27 @@
     <string name="desk_cite_remove">Entfernen</string>
     <string name="desk_cite_remove_text">Den Verweis auf „%1$s“ von diesem Ereignis entfernen? Die Quelle selbst bleibt erhalten.</string>
     <string name="desk_cite_copy">Kopieren zu …</string>
+    <string name="desk_repo_none">kein Archiv</string>
+    <string name="desk_repo_new">Neues Archiv …</string>
+    <string name="desk_repo_name">Name des Archivs</string>
+    <string name="desk_source_new">Neue Quelle</string>
+    <string name="desk_source_edit">Quelle ändern</string>
+    <string name="desk_source_title">Titel</string>
+    <string name="desk_source_title_hint">z. B. „Kirchenbuch Bienenbüttel, Taufen 1800–1850“</string>
+    <string name="desk_source_publication_hint">Verlag, Ort, Jahr – oder die Internetadresse bei Online-Quellen</string>
+    <string name="desk_source_call_number">Signatur</string>
+    <string name="desk_source_call_number_hint">Bestell- oder Aktenzeichen im Archiv</string>
+    <string name="desk_source_text_hint">Abschrift oder Beschreibung – wird durchsuchbar</string>
+    <string name="desk_source_add_file">Scan oder Datei hinzufügen …</string>
+    <string name="desk_source_delete">Löschen</string>
+    <string name="desk_source_delete_text">Die Quelle „%1$s“ löschen? Sie wird von %2$d Personen oder Familien zitiert; diese Verweise gehen mit verloren.</string>
+    <string name="desk_source_delete_unused_text">Die Quelle „%1$s“ löschen? Sie wird nirgends zitiert.</string>
+    <string name="desk_sources_unused">Unbenutzte entfernen …</string>
+    <string name="desk_sources_unused_title">Unbenutzte Quellen</string>
+    <string name="desk_sources_unused_none">Alle Quellen werden zitiert.</string>
+    <string name="desk_sources_unused_text">%1$d Quellen zitiert niemand. Abhaken, was bleiben soll.</string>
+    <string name="desk_sources_unused_delete">Löschen (%1$d)</string>
+    <string name="desk_cite_new_source">Neue Quelle …</string>
+    <string name="desk_cite_from_file">Quelle aus Datei …</string>
+    <string name="tipp_source_from_file">Legt aus einem Scan oder Foto (Urkunde, Kirchenbuchseite, Zeitungsanzeige) eine Quelle an: Titel aus dem Dateinamen, die Datei hängt als Dokument daran. Danach ist sie gewählt und lässt sich zitieren.</string>
 </resources>

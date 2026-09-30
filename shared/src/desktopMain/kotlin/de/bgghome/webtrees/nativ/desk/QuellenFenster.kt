@@ -28,8 +28,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -89,6 +92,11 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
     }
     var suche by remember { mutableStateOf("") }
     var gewaehlt by remember(start) { mutableStateOf(start?.takeIf { it.isNotEmpty() }) }
+    val canEdit = state.tree?.canEdit == true
+    var dialog by remember { mutableStateOf<QuellenDialog?>(null) }
+    var fehler by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    fun neuLaden() { neu++ }
     val detail by produceState<Result<SourceDetail>?>(null, tree, gewaehlt, neu) {
         value = null
         val x = gewaehlt
@@ -116,8 +124,14 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
                     val treffer = if (suche.isBlank()) alle else alle.filter { q ->
                         listOf(q.title, q.author, q.publication, q.abbreviation, q.repository, q.callNumber).any { it.contains(suche.trim(), ignoreCase = true) }
                     }
-                    Text(stringResource(Res.string.desk_sources_count, treffer.size, alle.size), Modifier.padding(horizontal = 12.dp),
-                        style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(Res.string.desk_sources_count, treffer.size, alle.size), Modifier.weight(1f),
+                            style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (canEdit && alle.any { it.uses == 0 }) TextButton(onClick = { dialog = QuellenDialog.Unbenutzte }) { Text(stringResource(Res.string.desk_sources_unused), style = MaterialTheme.typography.labelMedium) }
+                    }
+                    if (canEdit) Row(Modifier.padding(horizontal = 10.dp, vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        OutlinedButton(onClick = { dialog = QuellenDialog.Neu }, shape = MaterialTheme.shapes.small) { Text("+ " + stringResource(Res.string.desk_source_new)) }
+                    }
                     HorizontalDivider(Modifier.padding(top = 6.dp), color = MaterialTheme.colorScheme.outlineVariant)
                     Box(Modifier.weight(1f)) {
                         val fehler = liste?.exceptionOrNull()
@@ -156,23 +170,62 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
                         gewaehlt == null -> Text(stringResource(Res.string.desk_sources_choose), Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         d == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                         d.exceptionOrNull() != null -> Text(d.exceptionOrNull()?.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
-                        else -> QuelleDetail(d.getOrThrow(), viewModel, openWeb)
+                        else -> QuelleDetail(d.getOrThrow(), viewModel, openWeb, canEdit,
+                            onBearbeiten = { dialog = QuellenDialog.Bearbeiten(it) },
+                            onLoeschen = { dialog = QuellenDialog.Loeschen(it) },
+                            onDatei = { q ->
+                                dateiOeffnen(scanDialogTitel())?.let { datei ->
+                                    scope.launch { runCatching { scanHochladen(viewModel.client, tree.orEmpty(), q.xref, datei) }.onSuccess { neuLaden() }.onFailure { fehler = it.message } }
+                                }
+                            })
                     }
+                    fehler?.let { Text(it, Modifier.align(Alignment.BottomStart).padding(12.dp), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                 }
+            }
+            val t = tree.orEmpty()
+            when (val dlg = dialog) {
+                null -> {}
+                QuellenDialog.Neu -> QuelleDialog(t, null, viewModel, onDismiss = { dialog = null }, onSaved = { gewaehlt = it; neuLaden() })
+                is QuellenDialog.Bearbeiten -> QuelleDialog(t, dlg.quelle, viewModel, onDismiss = { dialog = null }, onSaved = { neuLaden() })
+                is QuellenDialog.Loeschen -> {
+                    val q = dlg.quelle; val n = q.individuals.size + q.families.size + q.moreIndividuals + q.moreFamilies
+                    de.bgghome.webtrees.nativ.ui.ConfirmDialog(
+                        title = stringResource(Res.string.desk_source_delete),
+                        text = if (n > 0) stringResource(Res.string.desk_source_delete_text, q.title, n) else stringResource(Res.string.desk_source_delete_unused_text, q.title),
+                        confirm = stringResource(Res.string.desk_source_delete), onDismiss = { dialog = null },
+                        onConfirm = { dialog = null; scope.launch { runCatching { viewModel.client.deleteRecord(t, q.xref) }.onSuccess { gewaehlt = null; neuLaden() }.onFailure { fehler = it.message } } },
+                    )
+                }
+                QuellenDialog.Unbenutzte -> UnbenutzteDialog(t, liste?.getOrNull()?.sources.orEmpty(), viewModel, onDismiss = { dialog = null }, onFertig = { gewaehlt = null; neuLaden() })
             }
         }
     }
 }
 
+private sealed interface QuellenDialog {
+    data object Neu : QuellenDialog
+    data class Bearbeiten(val quelle: SourceDetail) : QuellenDialog
+    data class Loeschen(val quelle: SourceDetail) : QuellenDialog
+    data object Unbenutzte : QuellenDialog
+}
+
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
-private fun QuelleDetail(q: SourceDetail, viewModel: AppViewModel, openWeb: (String) -> Unit) {
+private fun QuelleDetail(
+    q: SourceDetail, viewModel: AppViewModel, openWeb: (String) -> Unit, canEdit: Boolean = false,
+    onBearbeiten: (SourceDetail) -> Unit = {}, onLoeschen: (SourceDetail) -> Unit = {}, onDatei: (SourceDetail) -> Unit = {},
+) {
     val scroll = rememberScrollState()
     val farben = MaterialTheme.colorScheme
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(q.title.ifBlank { q.xref }, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                if (canEdit && q.canEdit) {
+                    OutlinedButton(onClick = { onBearbeiten(q) }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.action_edit)) }
+                    Tipp(stringResource(Res.string.tipp_source_from_file)) { OutlinedButton(onClick = { onDatei(q) }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_source_add_file)) } }
+                    OutlinedButton(onClick = { onLoeschen(q) }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_source_delete)) }
+                }
                 OutlinedButton(onClick = { openWeb(q.url) }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.chip_open_web)) }
             }
             @Composable
@@ -208,7 +261,6 @@ private fun QuelleDetail(q: SourceDetail, viewModel: AppViewModel, openWeb: (Str
                 }
             }
             if (q.moreFamilies > 0) Text(stringResource(Res.string.desk_source_more, q.moreFamilies), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
-            Text(stringResource(Res.string.desk_source_hint), Modifier.padding(top = 12.dp), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
         }
         SenkrechteLeiste(scroll)
     }

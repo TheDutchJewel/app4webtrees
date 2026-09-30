@@ -266,6 +266,15 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     /** Ab API-Stufe 18: eine Quelle mit allem, was sie zitiert. */
     suspend fun source(tree: String, xref: String): SourceDetail = get("Source", tree, mapOf("xref" to xref), SourceDetail.serializer())
 
+    /** Ab API-Stufe 18: Quelle anlegen ([xref] null) oder aendern; Antwort mit der Kennung der Quelle. */
+    suspend fun saveSource(tree: String, xref: String?, request: SourceRequest): WriteResult =
+        post("Source", tree, if (xref == null) emptyMap() else mapOf("xref" to xref), jsonBody(SourceRequest.serializer(), request))
+
+    suspend fun repositories(tree: String): RepositoryList = get("Repositories", tree, emptyMap(), RepositoryList.serializer())
+
+    suspend fun saveRepository(tree: String, xref: String?, name: String): WriteResult =
+        post("Repository", tree, if (xref == null) emptyMap() else mapOf("xref" to xref), jsonBody(RepositoryRequest.serializer(), RepositoryRequest(name)))
+
     suspend fun tags(tree: String, type: String): TagList =
         get("Tags", tree, mapOf("type" to type), TagList.serializer())
 
@@ -346,10 +355,12 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     suspend fun addIndividual(tree: String, request: AddIndividualRequest): WriteResult =
         post("AddIndividual", tree, emptyMap(), jsonBody(AddIndividualRequest.serializer(), request))
 
-    suspend fun uploadMedia(tree: String, xref: String, bytes: ByteArray, fileName: String, mime: String, title: String): WriteResult {
+    /** [type]: Art der Datei ab API-Stufe 18 ("document" fuer Scans von Urkunden), sonst Foto. */
+    suspend fun uploadMedia(tree: String, xref: String, bytes: ByteArray, fileName: String, mime: String, title: String, type: String? = null): WriteResult {
         val body = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("title", title)
+            .apply { if (type != null) addFormDataPart("type", type) }
             .addFormDataPart("file", fileName, bytes.toRequestBody(mime.toMediaType()))
             .build()
 

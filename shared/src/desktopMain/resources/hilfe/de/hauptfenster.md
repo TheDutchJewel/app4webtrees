@@ -36,7 +36,9 @@ Alle Personen als Tabelle zeigt die [Personentabelle](hilfe:tabelle) (Strg+4).
 
 ## Quellen
 
-**Ansicht › Quellen** (Strg+5) oder das Symbol **Quellen** öffnet die Quellenverwaltung: links alle Quellen des Stammbaums mit Suche und der Zahl der Verweise, rechts die gewählte Quelle mit Autor, Publikation, Archiv und Signatur, Text, Notizen, Medien und **Zitiert von** – allen Personen und Familien mit den Ereignissen, an denen die Quelle steht. Klick wählt die Person, Doppelklick macht sie zum Probanden. Anlegen und Ändern von Quellen geht vorerst über **In webtrees öffnen**.
+**Ansicht › Quellen** (Strg+5) oder das Symbol **Quellen** öffnet die Quellenverwaltung: links alle Quellen des Stammbaums mit Suche und der Zahl der Verweise, rechts die gewählte Quelle mit Autor, Publikation, Archiv und Signatur, Text, Notizen, Medien und **Zitiert von** – allen Personen und Familien mit den Ereignissen, an denen die Quelle steht. Klick wählt die Person, Doppelklick macht sie zum Probanden.
+
+Mit Bearbeitungsrecht: **+ Neue Quelle** (Titel, Autor, Publikation, Kurztitel, Archiv mit Signatur – auch ein neues Archiv –, Text, Notiz), **Bearbeiten**, **Scan oder Datei hinzufügen …** (hängt die Datei als Dokument an die Quelle) und **Löschen** (mit Warnung, wenn die Quelle noch zitiert wird). **Unbenutzte entfernen …** listet alle Quellen, die niemand zitiert, zum Abhaken und Löschen. Im Zitat-Dialog legst du mit **Neue Quelle …** eine Quelle direkt an oder mit **Quelle aus Datei …** aus einem Scan: Titel aus dem Dateinamen, die Datei hängt daran, die Quelle ist gleich gewählt.
 
 Im Personenblatt zeigt der Detailbereich unter der Ereignistabelle (Reiter **Quellen**) jeden Verweis mit Seite, Qualität, Datum, Zitat, Notizen und Medien; ein Klick auf den Titel öffnet die Quelle hier. Eine Quelle ohne eigenen Eintrag („laut Martha Meier“) steht kursiv.
 

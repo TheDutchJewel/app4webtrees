@@ -36,7 +36,9 @@ The [person table](hilfe:tabelle) (Ctrl+4) shows everyone as a table.
 
 ## Sources
 
-**View › Sources** (Ctrl+5) or the **Sources** icon opens the source manager: all sources of the tree on the left with search and the number of citations, the selected source on the right with author, publication, repository and call number, text, notes, media and **Cited by** – every individual and family with the facts that carry the citation. A click selects the person, a double-click makes them the central person. Adding and changing sources is done via **Open in webtrees** for now.
+**View › Sources** (Ctrl+5) or the **Sources** icon opens the source manager: all sources of the tree on the left with search and the number of citations, the selected source on the right with author, publication, repository and call number, text, notes, media and **Cited by** – every individual and family with the facts that carry the citation. A click selects the person, a double-click makes them the central person.
+
+With edit rights: **+ New source** (title, author, publication, abbreviation, repository with call number – also a new repository –, text, note), **Edit**, **Add scan or file …** (attaches the file to the source as a document) and **Delete** (with a warning if the source is still cited). **Remove unused …** lists all sources nobody cites, to tick and delete. In the citation dialog, **New source …** creates a source directly and **Source from file …** creates one from a scan: title from the file name, the file attached, the source selected right away.
 
 In the person sheet, the detail area below the event table (tab **Sources**) shows each citation with page, quality, date, quotation, notes and media; a click on the title opens the source here. A source without its own record ("according to Martha Meier") is shown in italics.
 

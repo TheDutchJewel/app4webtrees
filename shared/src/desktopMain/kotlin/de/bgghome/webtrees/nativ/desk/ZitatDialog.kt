@@ -21,6 +21,8 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -66,7 +68,11 @@ private fun qualitaetText(q: Int?): String = qualitaet(q)?.let { stringResource(
 @Composable
 fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismiss: () -> Unit) {
     val alt = ziel.alt
-    val quellen by produceState<List<SourceSummary>?>(null, tree) {
+    var quellenNeu by remember { mutableStateOf(0) }
+    var neueQuelle by remember { mutableStateOf(false) }
+    var fehler by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val quellen by produceState<List<SourceSummary>?>(null, tree, quellenNeu) {
         value = withContext(Dispatchers.IO) { runCatching { viewModel.client.sources(tree).sources }.getOrDefault(emptyList()) }
     }
     var textQuelle by remember { mutableStateOf(alt?.istText == true) }
@@ -127,7 +133,22 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
                             }
                         }
                     }
-                    Text(stringResource(Res.string.desk_cite_new_source_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        TextButton(onClick = { neueQuelle = true }) { Text(stringResource(Res.string.desk_cite_new_source)) }
+                        Tipp(stringResource(Res.string.tipp_source_from_file)) {
+                            TextButton(onClick = {
+                                dateiOeffnen(scanDialogTitel())?.let { datei ->
+                                    scope.launch {
+                                        runCatching {
+                                            val x = viewModel.client.saveSource(tree, null, de.bgghome.webtrees.nativ.api.SourceRequest(title = titelAusDatei(datei))).xref
+                                            scanHochladen(viewModel.client, tree, x, datei); x
+                                        }.onSuccess { quelle = it; quellenNeu++ }.onFailure { fehler = it.message }
+                                    }
+                                }
+                            }) { Text(stringResource(Res.string.desk_cite_from_file)) }
+                        }
+                    }
+                    fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                 }
                 Field(seite, { seite = it }, Res.string.desk_citation_page, hint = Res.string.desk_cite_page_hint)
                 val qualNamen = QUALITAETEN.map { qualitaetText(it) }
@@ -150,6 +171,7 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !speichert) { Text(stringResource(Res.string.action_cancel)) } },
     )
+    if (neueQuelle) QuelleDialog(tree, null, viewModel, onDismiss = { neueQuelle = false }, onSaved = { quelle = it; quellenNeu++ })
 }
 
 /**

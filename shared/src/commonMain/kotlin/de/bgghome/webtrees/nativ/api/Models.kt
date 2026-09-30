@@ -424,3 +424,25 @@ data class SourceDetail(
 
 /** Ab dieser Stufe kennt api4webtrees Quellen (Routen Sources/Source, vollstaendige Verweise). */
 const val API_SOURCES = 18
+
+/** Quelle anlegen (title Pflicht) oder aendern - null = nicht anfassen; repository "" = Archiv entfernen. */
+@Serializable
+data class SourceRequest(
+    val title: String? = null,
+    val author: String? = null,
+    val publication: String? = null,
+    val abbreviation: String? = null,
+    val text: String? = null,
+    val note: String? = null,
+    val repository: String? = null,
+    val callNumber: String? = null,
+)
+
+@Serializable
+data class RepositoryRequest(val name: String)
+
+@Serializable
+data class RepositorySummary(val xref: String, val name: String = "", val address: String = "", val canEdit: Boolean = false, val uses: Int = 0)
+
+@Serializable
+data class RepositoryList(val total: Int = 0, val repositories: List<RepositorySummary> = emptyList())
