@@ -8,7 +8,9 @@ Name, dates and picture on top. Below, the tabs:
 
 - **Data:** all events as a table (event, date, place / description), plus age at death.
 - **Life:** the timeline with marriage, births of the children and the age at each event.
-- **Parents/Siblings**, **Partners/Children**: the family, including half-siblings. A click switches to that person.
+- **Parents/Siblings**: parents and siblings, including half-siblings. A click switches to that person.
+- **Partners/Children**: the partnerships on the left, the children of the selected one on the right, below its events (marriage, divorce, residence …) to add, edit and delete. Double-click a partner or child to show their sheet; **+** adds a partner or a child of this partnership.
+- **Name**: given names, surname and name suffix have their own fields when editing.
 - **Notes**, **Sources**, **Media**.
 - **Map:** the places of life as a list with links to OpenStreetMap.
 

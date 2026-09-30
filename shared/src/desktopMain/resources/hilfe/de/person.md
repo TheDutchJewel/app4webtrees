@@ -8,7 +8,9 @@ Oben Name, Lebensdaten und Bild. Darunter die Reiter:
 
 - **Daten:** alle Ereignisse als Tabelle (Ereignis, Datum, Ort / Beschreibung), dazu Alter beim Tod.
 - **Lebenslauf:** die Zeitleiste mit Heirat, Geburten der Kinder und dem jeweiligen Alter.
-- **Eltern/Geschwister**, **Partner/Kinder**: die Familie, auch Halbgeschwister. Ein Klick wechselt zur Person.
+- **Eltern/Geschwister**: Eltern und Geschwister, auch Halbgeschwister. Ein Klick wechselt zur Person.
+- **Partner/Kinder**: links die Partnerschaften, rechts die Kinder der gewählten, darunter ihre Ereignisse (Heirat, Scheidung, Wohnort …) zum Anlegen, Bearbeiten und Löschen. Doppelklick auf Partner oder Kind zeigt dessen Blatt; **+** legt einen Partner bzw. ein Kind dieser Partnerschaft an.
+- **Name**: Vornamen, Familienname und Namenszusatz stehen beim Bearbeiten in eigenen Feldern.
 - **Notizen**, **Quellen**, **Medien**.
 - **Karte:** die Lebensstationen als Liste mit Links zu OpenStreetMap.
 

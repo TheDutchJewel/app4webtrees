@@ -111,7 +111,6 @@
     </string-array>
     <string name="fact_new">New event</string>
     <string name="fact_choose_type">Choose type</string>
-    <string name="fact_name_hint">Surname between slashes: Given names /Surname/</string>
     <string name="fact_text">Text</string>
     <string name="fact_value_hint">Value (e.g. occupation) – leave empty for birth, death …</string>
     <string name="fact_date">Date</string>
@@ -924,4 +923,9 @@
     <string name="desk_family_no_partner">no partner</string>
     <string name="nav_family">Family</string>
     <string name="desk_family_add">add</string>
+    <string name="desk_partner_add">Add partner</string>
+    <string name="desk_child_add">Add child</string>
+    <string name="desk_partner_none">No partnership recorded yet.</string>
+    <string name="field_family_name">Surname</string>
+    <string name="field_name_suffix">Name suffix (e.g. Jr.)</string>
 </resources>

@@ -78,6 +78,9 @@ fun FactDialog(
     val date = rememberDateInput(gedcom = fact?.date?.gedcom.orEmpty(), displayText = fact?.date?.text.orEmpty())
     var place by remember { mutableStateOf(fact?.place?.name.orEmpty()) }
     var note by remember { mutableStateOf(fact?.notes?.firstOrNull().orEmpty()) }
+    // Name: Vornamen, Familienname und Zusatz getrennt; die Schraegstriche setzt das Programm selbst.
+    val alterName = remember(fact) { de.bgghome.webtrees.nativ.data.GedcomName.aus(fact?.value.orEmpty()) }
+    var name by remember(fact) { mutableStateOf(alterName) }
 
     val originalNote = fact?.notes?.firstOrNull().orEmpty()
     val isNameOrNote = fact?.tag == "NAME" || fact?.tag == "NOTE" || (fact == null && tag?.tag == "NOTE")
@@ -99,11 +102,14 @@ fun FactDialog(
                         }
                     }
                 }
-                if (fact?.tag == "NAME") {
-                    Text(stringResource(Res.string.fact_name_hint), style = MaterialTheme.typography.labelMedium)
-                }
                 val isNote = fact?.tag == "NOTE" || (fact == null && tag?.tag == "NOTE")
-                Field(value, { value = it }, if (isNameOrNote) Res.string.fact_text else Res.string.fact_value_hint, minLines = if (isNote) 3 else 1)
+                if (fact?.tag == "NAME") {
+                    Field(name.vornamen, { name = name.copy(vornamen = it) }, Res.string.field_given)
+                    Field(name.familienname, { name = name.copy(familienname = it) }, Res.string.field_family_name)
+                    Field(name.zusatz, { name = name.copy(zusatz = it) }, Res.string.field_name_suffix)
+                } else {
+                    Field(value, { value = it }, if (isNameOrNote) Res.string.fact_text else Res.string.fact_value_hint, minLines = if (isNote) 3 else 1)
+                }
                 if (!isNameOrNote) {
                     DateInput(date, Res.string.fact_date)
                     PlaceField(place, { place = it }, Res.string.fact_place, suggestPlaces, hint = Res.string.fact_place_hint)
@@ -127,7 +133,7 @@ fun FactDialog(
                             // Nur senden, was geaendert wurde - alles andere (Quellen, Koordinaten ...) bleibt auf dem Server unberuehrt.
                             FactRequest(
                                 factId = fact.id,
-                                value = value.trim().takeIf { it != fact.value },
+                                value = if (fact.tag == "NAME") name.takeIf { it != alterName }?.gedcom() else value.trim().takeIf { it != fact.value },
                                 date = if (date.changed) date.result else null,
                                 place = place.trim().takeIf { it != fact.place?.name.orEmpty() },
                                 note = note.trim().takeIf { it != originalNote },

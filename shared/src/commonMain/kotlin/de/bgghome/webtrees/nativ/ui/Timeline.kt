@@ -170,7 +170,7 @@ private fun TimelineItem(row: TimelineRow, onEdit: (FactJson, String?) -> Unit, 
         }
         Column(Modifier.weight(1f)) {
             Text(row.label, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-            if (fact.value.isNotEmpty()) Text(fact.value, style = MaterialTheme.typography.bodyMedium)
+            if (fact.value.isNotEmpty()) Text(if (fact.tag == "NAME") de.bgghome.webtrees.nativ.data.GedcomName.aus(fact.value).anzeige() else fact.value, style = MaterialTheme.typography.bodyMedium)
 
             val sub = listOfNotNull(fact.date?.text, fact.place?.name).joinToString(" · ")
             if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

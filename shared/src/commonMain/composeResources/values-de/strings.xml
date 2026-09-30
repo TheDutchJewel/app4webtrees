@@ -106,7 +106,6 @@
     </string-array>
     <string name="fact_new">Neues Ereignis</string>
     <string name="fact_choose_type">Art wählen</string>
-    <string name="fact_name_hint">Nachname zwischen Schrägstrichen: Vorname /Nachname/</string>
     <string name="fact_text">Text</string>
     <string name="fact_value_hint">Angabe (z. B. Beruf) – bei Geburt, Tod … leer lassen</string>
     <string name="fact_date">Datum</string>
@@ -919,4 +918,9 @@
     <string name="desk_family_no_partner">ohne Partner</string>
     <string name="nav_family">Familie</string>
     <string name="desk_family_add">hinzufügen</string>
+    <string name="desk_partner_add">Partner/in hinzufügen</string>
+    <string name="desk_child_add">Kind hinzufügen</string>
+    <string name="desk_partner_none">Noch keine Partnerschaft eingetragen.</string>
+    <string name="field_family_name">Familienname</string>
+    <string name="field_name_suffix">Namenszusatz (z. B. jun.)</string>
 </resources>

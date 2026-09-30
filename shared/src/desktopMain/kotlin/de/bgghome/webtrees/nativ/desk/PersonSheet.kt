@@ -175,7 +175,8 @@ private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppVi
             when (tab) {
                 0 -> FactTable(detail, canEdit, onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) }, onNew = { dialog = ProfileDialog.NewFact })
                 1 -> ParentsTab(detail, viewModel)
-                2 -> PartnersTab(detail, viewModel, onFamilyFact = { family -> dialog = ProfileDialog.NewFamilyFact(family) })
+                2 -> PartnersTab(detail, viewModel, onNewFact = { family -> dialog = ProfileDialog.NewFamilyFact(family) },
+                    onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) })
                 3 -> NotesTab(detail, openWeb)
                 4 -> SourcesTab(detail, openWeb)
                 6 -> Timeline(
@@ -239,30 +240,100 @@ private fun ParentsTab(detail: IndividualDetail, viewModel: AppViewModel) {
     }
 }
 
-/** Reiter Partner/Kinder: jede eigene Familie mit Partner, Heirat und Kindern. */
+/**
+ * Reiter Partner/Kinder als Arbeitsflaeche: links die Partnerschaften, rechts die Kinder der gewaehlten, darunter ihre
+ * Ereignisse (Heirat, Scheidung, Wohnort ...) zum Anlegen, Bearbeiten und Loeschen. Doppelklick auf Partner oder Kind
+ * zeigt dessen Blatt.
+ */
 @Composable
-private fun PartnersTab(detail: IndividualDetail, viewModel: AppViewModel, onFamilyFact: (String) -> Unit) {
-    val list = rememberLazyListState()
-    Box(Modifier.fillMaxSize()) {
-        LazyColumn(Modifier.fillMaxSize(), state = list) {
-            detail.spouseFamilies.forEach { fam ->
-                item { Heading(stringResource(Res.string.rel_partner)) }
-                item { fam.spouse?.let { PersonLine(it, viewModel) } ?: Text(unbekannterPartner(detail.person.sex), Modifier.padding(12.dp, 4.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic) }
-                item {
-                    val heirat = fam.marriage?.let { m -> listOfNotNull(m.date?.text?.takeIf(String::isNotBlank), m.place?.name?.takeIf(String::isNotBlank)).joinToString(", ") }.orEmpty()
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("⚭ " + heirat.ifBlank { "–" }, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-                        if (detail.canEdit) TextButton(onClick = { onFamilyFact(fam.xref) }) { Text(stringResource(Res.string.action_add_family_event), style = MaterialTheme.typography.labelMedium) }
-                    }
+private fun PartnersTab(
+    detail: IndividualDetail, viewModel: AppViewModel,
+    onNewFact: (String) -> Unit, onEdit: (FactRow) -> Unit, onDelete: (FactRow) -> Unit,
+) {
+    val familien = detail.spouseFamilies
+    var gewaehlt by remember(detail.person.xref) { mutableStateOf(0) }
+    val familie = familien.getOrNull(gewaehlt.coerceIn(0, (familien.size - 1).coerceAtLeast(0)))
+    val canEdit = detail.canEdit
+    val colors = MaterialTheme.colorScheme
+
+    Column(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxWidth().height(200.dp)) {
+            // ── Partner ──
+            Column(Modifier.weight(1f).fillMaxHeight()) {
+                KopfMitPlus(stringResource(Res.string.rel_partner), if (canEdit) stringResource(Res.string.desk_partner_add) else null) {
+                    Verwandtenwahl.vorwahl = "spouse"; viewModel.requestAddRelative(detail.person.xref)
                 }
-                item { Heading(stringResource(Res.string.desk_children)) }
-                items(fam.children) { PersonLine(it, viewModel) }
-                if (fam.children.isEmpty()) item { Text("–", Modifier.padding(12.dp, 4.dp)) }
+                val liste = rememberLazyListState()
+                Box(Modifier.weight(1f)) {
+                    LazyColumn(Modifier.fillMaxSize(), state = liste) {
+                        itemsIndexed(familien) { i, fam ->
+                            val sp = fam.spouse
+                            val jahr = fam.marriage?.date?.year?.takeIf { it > 0 }?.let { "   oo $it" }.orEmpty()
+                            val name = sp?.let { registerName(it, stringResource(Res.string.person_private), stringResource(Res.string.person_no_name)) + jahre(it).let { j -> if (j.isNotEmpty()) "  $j" else "" } }
+                                ?: unbekannterPartner(detail.person.sex)
+                            AuswahlZeile(name + jahr, i == gewaehlt, kursiv = sp == null,
+                                onClick = { gewaehlt = i }, onDoppel = sp?.takeIf { !it.isPrivate }?.let { { viewModel.select(it.xref) } })
+                        }
+                        if (familien.isEmpty()) item { Text("–", Modifier.padding(12.dp, 6.dp), color = colors.onSurfaceVariant) }
+                    }
+                    ListenLeiste(liste)
+                }
             }
-            if (detail.spouseFamilies.isEmpty()) item { Text("–", Modifier.padding(12.dp)) }
+            VerticalDivider(color = colors.outlineVariant)
+            // ── Kinder der gewaehlten Partnerschaft ──
+            Column(Modifier.weight(1f).fillMaxHeight()) {
+                KopfMitPlus(stringResource(Res.string.desk_children), if (canEdit) stringResource(Res.string.desk_child_add) else null) {
+                    Verwandtenwahl.vorwahl = "child"; Verwandtenwahl.familie = familie?.xref; viewModel.requestAddRelative(detail.person.xref)
+                }
+                val liste = rememberLazyListState()
+                Box(Modifier.weight(1f)) {
+                    LazyColumn(Modifier.fillMaxSize(), state = liste) {
+                        val kinder = familie?.children.orEmpty()
+                        items(kinder) { k ->
+                            AuswahlZeile(registerName(k, stringResource(Res.string.person_private), stringResource(Res.string.person_no_name)) + jahre(k).let { if (it.isNotEmpty()) "  $it" else "" },
+                                false, onClick = {}, onDoppel = if (k.isPrivate) null else { { viewModel.select(k.xref) } })
+                        }
+                        if (kinder.isEmpty()) item { Text("–", Modifier.padding(12.dp, 6.dp), color = colors.onSurfaceVariant) }
+                    }
+                    ListenLeiste(liste)
+                }
+            }
         }
-        ListenLeiste(list)
+        HorizontalDivider(color = colors.outlineVariant)
+        // ── Ereignisse der Partnerschaft ──
+        if (familie != null) {
+            val rows = familie.facts.filter { it.known }.map { FactRow(it, familie.xref, it.label) }
+            EreignisTabelle(rows, familie.xref, canEdit, onEdit, onDelete, onNew = { onNewFact(familie.xref) }, Modifier.weight(1f).fillMaxWidth())
+        } else {
+            Text(stringResource(Res.string.desk_partner_none), Modifier.padding(12.dp), color = colors.onSurfaceVariant)
+        }
     }
+}
+
+@Composable
+private fun KopfMitPlus(titel: String, plus: String?, onPlus: () -> Unit) {
+    Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant).padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(titel, Modifier.weight(1f).padding(vertical = 4.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+        if (plus != null) Tipp(plus) {
+            IconButton(onClick = onPlus, modifier = Modifier.size(28.dp)) { Icon(Icons.Default.Add, contentDescription = plus, Modifier.size(16.dp)) }
+        }
+    }
+}
+
+/** Zeile einer Auswahlliste: Klick waehlt, Doppelklick oeffnet (ohne [onDoppel] nicht). */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun AuswahlZeile(text: String, aktiv: Boolean, kursiv: Boolean = false, onClick: () -> Unit, onDoppel: (() -> Unit)?) {
+    val colors = MaterialTheme.colorScheme
+    Text(
+        text,
+        Modifier.fillMaxWidth().background(if (aktiv) colors.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent)
+            .fokusRahmen().combinedClickable(onDoubleClick = onDoppel, onClick = onClick).padding(horizontal = 12.dp, vertical = 5.dp),
+        style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis,
+        fontWeight = if (aktiv) FontWeight.SemiBold else FontWeight.Normal,
+        fontStyle = if (kursiv) androidx.compose.ui.text.font.FontStyle.Italic else null,
+        color = if (kursiv) colors.onSurfaceVariant else colors.onSurface,
+    )
 }
 
 /** Reiter Notizen: eigene Notizen und die an Ereignissen. Bearbeitet wird vorerst in webtrees. */
@@ -322,10 +393,20 @@ private fun FactTable(detail: IndividualDetail, canEdit: Boolean, onEdit: (FactR
                 FactRow(f, family.xref, family.spouse?.name?.let { withSpouse.replaceFirst("%s", f.label).replaceFirst("%s", it) } ?: f.label)
             }
         }
-    var selected by remember(detail.person.xref) { mutableStateOf(-1) }
+    EreignisTabelle(rows, detail.person.xref, canEdit, onEdit, onDelete, onNew, Modifier.fillMaxSize())
+}
+
+/** Ereignisse als Tabelle mit Neu/Bearbeiten/Loeschen; [schluessel] setzt die Auswahl zurueck (andere Person, andere Familie). */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun EreignisTabelle(
+    rows: List<FactRow>, schluessel: String, canEdit: Boolean,
+    onEdit: (FactRow) -> Unit, onDelete: (FactRow) -> Unit, onNew: () -> Unit, modifier: Modifier,
+) {
+    var selected by remember(schluessel) { mutableStateOf(-1) }
     val colors = MaterialTheme.colorScheme
 
-    Column(Modifier.fillMaxSize()) {
+    Column(modifier) {
         Row(Modifier.fillMaxWidth().background(colors.surfaceVariant).padding(horizontal = 8.dp, vertical = 5.dp)) {
             Text(stringResource(Res.string.desk_col_event), Modifier.weight(0.28f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
             Text(stringResource(Res.string.desk_col_date), Modifier.weight(0.22f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
@@ -337,7 +418,7 @@ private fun FactTable(detail: IndividualDetail, canEdit: Boolean, onEdit: (FactR
             itemsIndexed(rows) { i, row ->
                 val f = row.fact
                 val where = listOfNotNull(f.value.takeIf { it.isNotBlank() && f.tag != "NAME" }, f.place?.name?.takeIf { it.isNotBlank() }).joinToString(" · ")
-                    .ifEmpty { if (f.tag == "NAME") f.value else "" }
+                    .ifEmpty { if (f.tag == "NAME") de.bgghome.webtrees.nativ.data.GedcomName.aus(f.value).anzeige() else "" }
                 Row(
                     Modifier.fillMaxWidth()
                         .background(if (i == selected) colors.secondaryContainer else if (i % 2 == 1) colors.surfaceContainerLow else colors.surface)
