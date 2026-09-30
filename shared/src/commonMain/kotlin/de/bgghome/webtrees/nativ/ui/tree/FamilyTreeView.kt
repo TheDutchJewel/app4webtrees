@@ -67,6 +67,8 @@ import de.bgghome.webtrees.nativ.ui.treeColors
 import kotlinx.coroutines.launch
 
 private const val MIN_SCALE = 0.2f
+/** "Alles zeigen" darf weiter herausgehen als das Mausrad - ein Baum mit Geschwistern und Cousins ist oft breiter als fuenf Fenster. */
+private const val FIT_MIN_SCALE = 0.03f
 private const val MAX_SCALE = 2.5f
 
 /**
@@ -134,6 +136,8 @@ fun FamilyTreeView(
         // Neue Mittelperson -> in die Mitte ruecken, Zoom behalten.
         val focusKey = layout.focus.person?.xref
         var scale by remember { mutableFloatStateOf(initialScale) }
+        // Nach "Alles zeigen" unter MIN_SCALE: das Rad darf von dort aus weiterzoomen, ohne auf MIN_SCALE zu springen.
+        var minScale by remember { mutableFloatStateOf(MIN_SCALE) }
         // Nur ein Stufenwechsel setzt die Karten neu zusammen, nicht jeder Zoom-Schritt.
         val level by remember { derivedStateOf { levelFor(scale) } }
         var offset by remember(focusKey) {
@@ -150,14 +154,15 @@ fun FamilyTreeView(
         }
 
         fun zoomBy(factor: Float, around: Offset) {
-            val newScale = (scale * factor).coerceIn(MIN_SCALE, MAX_SCALE)
+            val newScale = (scale * factor).coerceIn(minScale, MAX_SCALE)
             val applied = newScale / scale
             offset = (offset - around) * applied + around
             scale = newScale
         }
 
         fun fitAll() {
-            val fit = minOf(viewW / (layout.width * density), viewH / (layout.height * density)).coerceIn(MIN_SCALE, 1f)
+            val fit = minOf(viewW / (layout.width * density), viewH / (layout.height * density)).coerceIn(FIT_MIN_SCALE, 1f)
+            minScale = minOf(MIN_SCALE, fit)
             scale = fit
             offset = Offset((viewW - layout.width * density * fit) / 2, (viewH - layout.height * density * fit) / 2)
         }
@@ -255,7 +260,7 @@ fun FamilyTreeView(
 
                 Canvas(Modifier.fillMaxSize()) {
                     // Linien werden beim Herauszoomen nicht duenner als ein Pixel - sonst verschwindet der Baum vor den Karten.
-                    val lineWidth = (1.3f * density / scale).coerceIn(1.3f * density, 4f * density)
+                    val lineWidth = (1.3f * density / scale).coerceIn(1.3f * density, maxOf(4f * density, 1f / scale))
                     val stroke = Stroke(width = lineWidth, cap = StrokeCap.Round, pathEffect = PathEffect.cornerPathEffect(10f * density))
 
                     // Generationsbaender: eine feine Linie zwischen je zwei Reihen, ueber die ganze Breite
@@ -325,7 +330,8 @@ private fun TreeCard(box: TreeBox, level: DetailLevel, isSelected: Boolean, show
                 .fillMaxSize()
                 // Mittelperson: hebt sich mit Schatten ab. Gewaehlte Karte (Profil-Panel): kraeftiger Rahmen.
                 .then(if (box.isFocus && level != DetailLevel.Box) Modifier.shadow(10.dp, shape) else Modifier)
-                .background(MaterialTheme.colorScheme.surface, shape)
+                // Stufe Kasten: ganz in der Geschlechtsfarbe, sonst verschwindet der duenne Rahmen beim Ueberblick
+                .background(if (level == DetailLevel.Box) gender else MaterialTheme.colorScheme.surface, shape)
                 .border(borderWidth.dp, borderColor, shape)
                 .clip(shape),
         ) {
