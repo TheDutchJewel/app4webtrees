@@ -897,4 +897,19 @@
     <string name="tipp_severity">Fehler sind Widersprüche in den Daten, Warnungen nur ungewöhnlich. Je Regel umstellbar.</string>
     <string name="tipp_ticks_export">Die Abhakliste als Datei sichern – für einen zweiten Rechner oder einen Mitforscher.</string>
     <string name="tipp_ticks_import">Eine gesicherte Abhakliste laden; sie ergänzt die vorhandene.</string>
+    <string name="desk_table_window">Personentabelle</string>
+    <string name="desk_table_count">%1$d von %2$d Personen</string>
+    <string name="desk_table_clear">Filter leeren</string>
+    <string name="desk_table_csv">Als CSV speichern …</string>
+    <string name="desk_table_none">Keine Person passt zu den Filtern.</string>
+    <string name="desk_table_hint">Klick auf einen Spaltenkopf sortiert, ein zweiter Klick dreht um. Doppelklick oder Eingabetaste: Person wird Proband. Rechtsklick: weitere Befehle.</string>
+    <string name="desk_table_col_id">ID</string>
+    <string name="desk_table_col_name">Name</string>
+    <string name="desk_table_col_sex">G.</string>
+    <string name="desk_table_col_birth">Geburt</string>
+    <string name="desk_table_col_birthplace">Geburtsort</string>
+    <string name="desk_table_col_death">Tod</string>
+    <string name="desk_table_col_deathplace">Sterbeort</string>
+    <string name="desk_table_col_occupation">Beruf</string>
+    <string name="tipp_table_filter">In die Felder unter den Spaltenköpfen tippen: Text findet Teile („hann“ findet Hannover). 1800-1850 bei Geburt oder Tod: Jahre von bis. ! = Feld leer, * = Feld ausgefüllt. Taufe steht mit ~, wenn die Geburt fehlt, Begräbnis mit □, wenn der Tod fehlt.</string>
 </resources>

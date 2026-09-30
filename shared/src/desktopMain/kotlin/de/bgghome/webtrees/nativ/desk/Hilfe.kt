@@ -128,7 +128,7 @@ class HilfeKapitel(val id: String, val titel: String, val bloecke: List<HilfeBlo
 
 object HilfeTexte {
     const val START = "start"
-    val REIHENFOLGE = listOf("start", "hauptfenster", "person", "suche", "tafeln", "listen", "buecher", "pruefung", "webtrees", "lokal", "tasten", "fragen")
+    val REIHENFOLGE = listOf("start", "hauptfenster", "person", "suche", "tabelle", "tafeln", "listen", "buecher", "pruefung", "webtrees", "lokal", "tasten", "fragen")
 
     /** Alle Kapitel in der Sprache des Systems; fehlt eines, kommt es englisch, zuletzt deutsch. */
     fun laden(sprache: String = java.util.Locale.getDefault().language): List<HilfeKapitel> = REIHENFOLGE.mapNotNull { id ->

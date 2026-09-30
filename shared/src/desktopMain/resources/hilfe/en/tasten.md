@@ -20,6 +20,7 @@
 | Ctrl+Shift+T | Ancestor chart |
 | Ctrl+Shift+P | Plausibility check |
 | Ctrl+1 / Ctrl+2 / Ctrl+3 | Section Home / Tree / Photos |
+| Ctrl+4 | Person table |
 | Ctrl+Q | Quit |
 
 ## Person sheet

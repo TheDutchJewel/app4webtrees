@@ -128,6 +128,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     var tafel by remember { mutableStateOf<TafelArt?>(null) }
     var buch by remember { mutableStateOf(false) }
     var pruefung by remember { mutableStateOf(false) }
+    var tabelle by remember { mutableStateOf(false) }
     val openSheet: (String) -> Unit = { xref -> viewModel.select(xref); sheetOpen = true }
 
     // Zurueck/Vor zwischen Zentralpersonen: das ViewModel kennt nur den Rueckweg, den Vorwaertsweg haelt der Desktop.
@@ -166,6 +167,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         farbkodierung = farbkodierung, onFarbkodierung = { farbkodierung = it; DeskLayout.prefs.putBoolean("farbkodierung", it) },
         symboltexte = symboltexte, onSymboltexte = { symboltexte = it; DeskLayout.prefs.putBoolean("symboltexte", it) },
         onMerkliste = { merkliste = true }, onTafel = { tafel = it }, onBuch = { buch = true }, onPruefung = { pruefung = true },
+        onTabelle = { tabelle = true },
     )
 
     // Noch nicht verbunden: auf den Verbinden-Link aus webtrees warten (Knopf "Mit wtWin verbinden" legt ihn in die
@@ -219,7 +221,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         Column(Modifier.fillMaxSize()) {
             if (layout == DeskLayout.Navigator) {
                 ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
-                    symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = onQuit)
+                    symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = onQuit)
             } else {
                 WorkspaceBar(state, viewModel)
             }
@@ -297,6 +299,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     tafel?.let { art -> if (state.root != null) TafelFenster(state, viewModel, art, onClose = { tafel = null }) }
     if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
     if (pruefung && state.tree != null) PruefFenster(state, viewModel, openSheet, onClose = { pruefung = false })
+    if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false })
 
     if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
 }
@@ -311,7 +314,7 @@ private fun FrameWindowScope.DeskMenuBar(
     nav: DeskNav, drucke: DeskDruck, onListe: (ListenArt) -> Unit, onHilfe: () -> Unit,
     farbkodierung: Boolean, onFarbkodierung: (Boolean) -> Unit,
     symboltexte: Boolean, onSymboltexte: (Boolean) -> Unit,
-    onMerkliste: () -> Unit, onTafel: (TafelArt) -> Unit, onBuch: () -> Unit, onPruefung: () -> Unit,
+    onMerkliste: () -> Unit, onTafel: (TafelArt) -> Unit, onBuch: () -> Unit, onPruefung: () -> Unit, onTabelle: () -> Unit,
 ) {
     val main = state.screen == Screen.Main
     val loggedIn = state.info?.user?.loggedIn == true
@@ -399,6 +402,7 @@ private fun FrameWindowScope.DeskMenuBar(
             Item(stringResource(Res.string.nav_home), shortcut = KeyShortcut(Key.One, ctrl = true), onClick = { viewModel.setSection(Section.Home) })
             Item(stringResource(Res.string.nav_tree), shortcut = KeyShortcut(Key.Two, ctrl = true), onClick = { viewModel.setSection(Section.Tree) })
             Item(stringResource(Res.string.nav_photos), shortcut = KeyShortcut(Key.Three, ctrl = true), onClick = { viewModel.setSection(Section.Photos) })
+            Item(stringResource(Res.string.desk_table_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Four, ctrl = true), onClick = onTabelle)
             Separator()
             Menu(stringResource(Res.string.tree_generations, state.ancestorGenerations)) {
                 (2..7).forEach { n ->
@@ -453,7 +457,7 @@ private const val TRENNER = 9f
 private fun ClassicToolbar(
     state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, onGoTo: () -> Unit, onSheet: () -> Unit, onAbout: () -> Unit,
     nav: DeskNav, drucke: DeskDruck, symboltexte: Boolean,
-    onMerkliste: () -> Unit, onListe: (ListenArt) -> Unit, onTafel: (TafelArt) -> Unit, onPruefung: () -> Unit, onQuit: () -> Unit,
+    onMerkliste: () -> Unit, onListe: (ListenArt) -> Unit, onTabelle: () -> Unit, onTafel: (TafelArt) -> Unit, onPruefung: () -> Unit, onQuit: () -> Unit,
 ) {
     val canEdit = state.tree?.canEdit == true
     val manager = state.tree?.role == "manager"
@@ -475,6 +479,8 @@ private fun ClassicToolbar(
         add(Knopf(Icons.Default.Person, stringResource(Res.string.home_start_person), enabled = state.home != null) { state.home?.let(viewModel::setRoot) })
         add(Trenner)
         add(Knopf(Icons.AutoMirrored.Filled.List, stringResource(Res.string.desk_list), enabled = state.root != null, menu = { close ->
+            DropdownMenuItem(text = { Text(stringResource(Res.string.desk_table_window)) }, onClick = { close(); onTabelle() })
+            HorizontalDivider()
             DropdownMenuItem(text = { Text(stringResource(Res.string.desk_list_ancestors)) }, onClick = { close(); onListe(ListenArt.Ahnen) })
             DropdownMenuItem(text = { Text(stringResource(Res.string.desk_list_descendants)) }, onClick = { close(); onListe(ListenArt.Stamm) })
             DropdownMenuItem(text = { Text(stringResource(Res.string.desk_list_events)) }, onClick = { close(); onListe(ListenArt.Ereignisse) })

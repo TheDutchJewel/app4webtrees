@@ -902,4 +902,19 @@
     <string name="tipp_severity">Errors are contradictions in the data, warnings are only unusual. Changeable per rule.</string>
     <string name="tipp_ticks_export">Save the tick list as a file – for a second computer or a fellow researcher.</string>
     <string name="tipp_ticks_import">Load a saved tick list; it is merged into the existing one.</string>
+    <string name="desk_table_window">Person table</string>
+    <string name="desk_table_count">%1$d of %2$d people</string>
+    <string name="desk_table_clear">Clear filters</string>
+    <string name="desk_table_csv">Save as CSV …</string>
+    <string name="desk_table_none">No person matches the filters.</string>
+    <string name="desk_table_hint">Click a column header to sort, click again to reverse. Double-click or Enter: show the person as focus. Right-click: more commands.</string>
+    <string name="desk_table_col_id">ID</string>
+    <string name="desk_table_col_name">Name</string>
+    <string name="desk_table_col_sex">S.</string>
+    <string name="desk_table_col_birth">Birth</string>
+    <string name="desk_table_col_birthplace">Birth place</string>
+    <string name="desk_table_col_death">Death</string>
+    <string name="desk_table_col_deathplace">Death place</string>
+    <string name="desk_table_col_occupation">Occupation</string>
+    <string name="tipp_table_filter">Type into the fields below the column headers: text finds parts ("hann" finds Hannover). 1800-1850 under birth or death: years from–to. ! = field empty, * = field filled. Baptism is shown with ~ when the birth is missing, burial with □ when the death is missing.</string>
 </resources>

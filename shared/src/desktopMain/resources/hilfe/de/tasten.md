@@ -20,6 +20,7 @@
 | Strg+Umschalt+T | Ahnentafel |
 | Strg+Umschalt+P | Plausibilitätsprüfung |
 | Strg+1 / Strg+2 / Strg+3 | Bereich Start / Baum / Fotos |
+| Strg+4 | Personentabelle |
 | Strg+Q | Beenden |
 
 ## Personenblatt
