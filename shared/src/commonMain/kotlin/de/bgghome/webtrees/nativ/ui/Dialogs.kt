@@ -168,12 +168,18 @@ data class RelativeTarget(
 }
 
 @Composable
-fun RelativeDialog(target: RelativeTarget, suggestPlaces: PlaceSuggest?, onDismiss: () -> Unit, onSave: (AddIndividualRequest) -> Unit) {
+fun RelativeDialog(
+    target: RelativeTarget, suggestPlaces: PlaceSuggest?, onDismiss: () -> Unit, onSave: (AddIndividualRequest) -> Unit,
+    /** Vorauswahl (father, mother ...), etwa vom leeren Feld "Vater unbekannt"; ohne sie die erste moegliche Beziehung. */
+    initialRelation: String? = null,
+    /** Vorauswahl der Familie fuer ein Kind (Familien-XREF); ohne sie die erste. */
+    initialFamily: String? = null,
+) {
     val person = target.person
     val ownSurname = person.sortName.substringBefore(',', "").trim()
 
-    var relation by remember { mutableStateOf(target.relations.first()) }
-    var family by remember { mutableStateOf(target.families.firstOrNull()?.first) }
+    var relation by remember { mutableStateOf(initialRelation?.takeIf { it in target.relations } ?: target.relations.first()) }
+    var family by remember { mutableStateOf(target.families.firstOrNull { it.first == initialFamily }?.first ?: target.families.firstOrNull()?.first) }
     var given by remember { mutableStateOf("") }
     // Naheliegender Nachname: der Vater heisst meist wie das Kind, das Kind meist wie der Vater.
     var surname by remember(relation) {

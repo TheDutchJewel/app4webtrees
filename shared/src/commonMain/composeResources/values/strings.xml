@@ -917,4 +917,11 @@
     <string name="desk_table_col_deathplace">Death place</string>
     <string name="desk_table_col_occupation">Occupation</string>
     <string name="tipp_table_filter">Type into the fields below the column headers: text finds parts ("hann" finds Hannover). 1800-1850 under birth or death: years from–to. ! = field empty, * = field filled. Baptism is shown with ~ when the birth is missing, burial with □ when the death is missing.</string>
+    <string name="desk_layout_family">Family view</string>
+    <string name="desk_family_parents_of">Parents of %1$s</string>
+    <string name="desk_family_children">Children (%1$d)</string>
+    <string name="desk_family_no_children">No children recorded.</string>
+    <string name="desk_family_no_partner">no partner</string>
+    <string name="nav_family">Family</string>
+    <string name="desk_family_add">add</string>
 </resources>

@@ -1,6 +1,6 @@
 # The main window
 
-Under **View › Layout** you choose between two layouts. Both show the same tree, arranged differently.
+Under **View › Layout** you choose between three layouts. All show the same tree, arranged differently.
 
 ## Navigator (default)
 
@@ -20,10 +20,21 @@ Three columns: the **person list** with a search field on the left (Ctrl+F jumps
 
 When zooming out a card shows less rather than smaller: first without picture and years, then only the given name, finally a box in the sex colour. Right-click in the list: as central person, profile, bookmark, open in webtrees.
 
+## Family view
+
+Like "Tree in the centre", but the middle shows the central person's **family**: at the top the parents of both partners, in the middle the couple with their marriage, below the children with their dates and marriages. If the person married more than once, each marriage has its own **tab**.
+
+- **A click** selects a person; the person panel on the right shows them.
+- **Double-click** makes them the central person – this is how you move through the families up (parents) and down (children).
+- **Right mouse button**: Show as focus, Add relative, Open in webtrees.
+- A missing parent shows "Father unknown" or "Mother unknown"; with edit rights, **+ add** creates them.
+
+The [person table](hilfe:tabelle) (Ctrl+4) shows everyone as a table.
+
 ## Sections: Home, Tree, Photos
 
 - **Home** (Ctrl+1): greeting, upcoming anniversaries, recent changes in the tree, the start person. Moderators see pending changes here and accept or reject them.
-- **Tree** (Ctrl+2): navigator or tree view.
+- **Tree** (Ctrl+2): navigator, tree view or family.
 - **Photos** (Ctrl+3): all pictures of the tree; a click opens the viewer. If the Collections module runs on the server, its archive appears here too.
 
 ## View

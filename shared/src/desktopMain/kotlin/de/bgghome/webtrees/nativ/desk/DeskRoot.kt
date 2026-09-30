@@ -223,7 +223,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                 ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
                     symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = onQuit)
             } else {
-                WorkspaceBar(state, viewModel)
+                WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family)
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Box(Modifier.fillMaxWidth().height(3.dp)) {
@@ -237,7 +237,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                 }
             } else Row(Modifier.weight(1f).fillMaxWidth()) {
                 // Vollbild (Knopf im Baum oder Esc zurueck): nur der Baum, ohne Personenliste und Personentafel
-                val vollbild = state.treeFullscreen && state.section != Section.Home && state.section != Section.Photos
+                val vollbild = layout == DeskLayout.TreeCentre && state.treeFullscreen && state.section != Section.Home && state.section != Section.Photos
                 if (!vollbild) {
                     PersonIndex(state, viewModel, openWeb, search, Modifier.width(280.dp).fillMaxHeight())
                     VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -246,7 +246,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                     when (state.section) {
                         Section.Home -> HomeSection(state, viewModel, openWeb)
                         Section.Photos -> PhotosSection(state, viewModel, openWeb)
-                        else -> DeskTree(state, viewModel, openWeb)
+                        else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb) else DeskTree(state, viewModel, openWeb)
                     }
                 }
                 if (!vollbild) {
@@ -286,8 +286,9 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         RelativeDialog(
             target = RelativeTarget.of(detail),
             suggestPlaces = viewModel.placeSuggestions(),
-            onDismiss = viewModel::addRelativeHandled,
-            onSave = { viewModel.addRelativeHandled(); viewModel.addRelative(it) },
+            onDismiss = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled() },
+            onSave = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled(); viewModel.addRelative(it) },
+            initialRelation = Verwandtenwahl.vorwahl, initialFamily = Verwandtenwahl.familie,
         )
     }
 
@@ -396,6 +397,7 @@ private fun FrameWindowScope.DeskMenuBar(
             Menu(stringResource(Res.string.desk_layout)) {
                 RadioButtonItem(stringResource(Res.string.desk_layout_navigator), selected = layout == DeskLayout.Navigator, onClick = { onLayout(DeskLayout.Navigator) })
                 RadioButtonItem(stringResource(Res.string.desk_layout_tree), selected = layout == DeskLayout.TreeCentre, onClick = { onLayout(DeskLayout.TreeCentre) })
+                RadioButtonItem(stringResource(Res.string.desk_layout_family), selected = layout == DeskLayout.Family, onClick = { onLayout(DeskLayout.Family) })
             }
             CheckboxItem(stringResource(Res.string.desk_toolbar_labels), checked = symboltexte, enabled = layout == DeskLayout.Navigator, onCheckedChange = onSymboltexte)
             Separator()
@@ -424,7 +426,7 @@ private fun FrameWindowScope.DeskMenuBar(
 
 /** Die waehlbaren Aufbauten des Hauptfensters; die Wahl bleibt in den Desktop-Einstellungen. */
 enum class DeskLayout {
-    Navigator, TreeCentre;
+    Navigator, TreeCentre, Family;
 
     companion object {
         val prefs = de.bgghome.webtrees.nativ.data.DesktopAblage("desk")
@@ -691,16 +693,16 @@ fun personentextKopieren(d: de.bgghome.webtrees.nativ.api.IndividualDetail) {
 // ── Arbeitsbereiche ──────────────────────────────────────────────────
 
 @Composable
-private fun WorkspaceBar(state: UiState, viewModel: AppViewModel) {
+private fun WorkspaceBar(state: UiState, viewModel: AppViewModel, familie: Boolean) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             TreePicker(state, viewModel)
             Spacer(Modifier.width(16.dp))
             Workspace(Icons.Default.Home, stringResource(Res.string.nav_home), state.section == Section.Home) { viewModel.setSection(Section.Home) }
-            Workspace(TreeIcon, stringResource(Res.string.nav_tree), state.section == Section.Tree || state.section == Section.Search) { viewModel.setSection(Section.Tree) }
+            Workspace(TreeIcon, stringResource(if (familie) Res.string.nav_family else Res.string.nav_tree), state.section == Section.Tree || state.section == Section.Search) { viewModel.setSection(Section.Tree) }
             Workspace(PhotoIcon, stringResource(Res.string.nav_photos), state.section == Section.Photos) { viewModel.setSection(Section.Photos) }
             Spacer(Modifier.weight(1f))
-            if (state.section == Section.Tree || state.section == Section.Search) {
+            if (!familie && (state.section == Section.Tree || state.section == Section.Search)) {
                 GenerationsChip(state, viewModel)
                 TreeSettings(state, viewModel)
             }

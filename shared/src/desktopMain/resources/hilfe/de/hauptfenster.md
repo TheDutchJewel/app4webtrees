@@ -1,6 +1,6 @@
 # Das Hauptfenster
 
-Unter **Ansicht › Aufbau** wählst du zwischen zwei Aufbauten. Beide zeigen denselben Stammbaum, nur anders angeordnet.
+Unter **Ansicht › Aufbau** wählst du zwischen drei Aufbauten. Alle zeigen denselben Stammbaum, nur anders angeordnet.
 
 ## Navigator (Standard)
 
@@ -20,10 +20,21 @@ Drei Spalten: links die **Personenliste** mit Suchfeld (Strg+F springt hinein), 
 
 Beim Herauszoomen zeigt eine Karte weniger statt kleiner: erst ohne Bild und Jahre, dann nur der Rufname, zuletzt ein Kasten in der Geschlechtsfarbe. Rechtsklick in der Liste: Als Proband, Profil, Merken, in webtrees öffnen.
 
+## Familienansicht
+
+Wie „Baum im Mittelpunkt“, aber in der Mitte die **Familie** des Probanden: oben die Eltern beider Partner, in der Mitte das Paar mit der Heirat, darunter die Kinder mit ihren Lebensdaten und Ehen. Hat der Proband mehrere Ehen, steht jede auf einem eigenen **Reiter**.
+
+- **Ein Klick** wählt eine Person, die Personentafel rechts zeigt sie.
+- **Doppelklick** macht sie zum Probanden – so gehst du durch die Familien nach oben (Eltern) und unten (Kinder).
+- **Rechte Maustaste**: Als Proband, Verwandte hinzufügen, in webtrees öffnen.
+- Fehlt ein Elternteil, steht dort „Vater unbekannt“ bzw. „Mutter unbekannt“; mit Bearbeitungsrecht legst du ihn über **+ hinzufügen** an.
+
+Alle Personen als Tabelle zeigt die [Personentabelle](hilfe:tabelle) (Strg+4).
+
 ## Bereiche: Start, Baum, Fotos
 
 - **Start** (Strg+1): Begrüßung, die nächsten Jahrestage, letzte Änderungen im Stammbaum, die Startperson. Moderatoren sehen hier ausstehende Änderungen und nehmen sie an oder verwerfen sie.
-- **Baum** (Strg+2): Navigator bzw. Baumansicht.
+- **Baum** (Strg+2): Navigator, Baumansicht bzw. Familie.
 - **Fotos** (Strg+3): alle Bilder des Stammbaums; ein Klick öffnet den Betrachter. Läuft auf dem Server das Modul Sammlungen, erscheint hier auch dessen Archiv.
 
 ## Ansicht
