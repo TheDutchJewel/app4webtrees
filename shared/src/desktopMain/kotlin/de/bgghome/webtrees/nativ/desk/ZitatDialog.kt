@@ -21,6 +21,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
@@ -85,6 +86,11 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
     var zitat by remember { mutableStateOf(alt?.text.orEmpty()) }
     var notiz by remember { mutableStateOf(alt?.notes?.firstOrNull().orEmpty()) }
     var speichert by remember { mutableStateOf(false) }
+    // Medien des Verweises (der Scan dieser Taufe); hochgeladen wird ohne Verknuepfung an die Person, angehaengt hier
+    val medien = remember { mutableStateListOf<de.bgghome.webtrees.nativ.api.MediaJson>().also { it.addAll(alt?.media.orEmpty()) } }
+    var medienWahl by remember { mutableStateOf(false) }
+    var medienFehler by remember { mutableStateOf<String?>(null) }
+    val medienGeaendert = medien.map { it.xref } != alt?.media.orEmpty().map { it.xref }
 
     val quelleGewaehlt = if (textQuelle) freitext.isNotBlank() else quelle.isNotBlank()
     val datumOk = datum.isBlank() || datumErkannt(datum)
@@ -100,6 +106,7 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
             date = datumGedcom(datum).takeIf { alt == null || datum != alt.date?.text.orEmpty() },
             text = zitat.trim().takeIf { alt == null || it != alt.text },
             note = notiz.trim().takeIf { alt == null || it != alt.notes.firstOrNull().orEmpty() },
+            media = medien.map { it.xref }.distinct().takeIf { alt == null && it.isNotEmpty() || alt != null && medienGeaendert },
         ).let { r -> if (alt == null) r.copy(page = r.page?.ifEmpty { null }, quality = r.quality?.ifEmpty { null }, date = r.date?.ifEmpty { null }, text = r.text?.ifEmpty { null }, note = r.note?.ifEmpty { null }) else r }
     }
 
@@ -161,6 +168,19 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
                 }
                 Field(zitat, { zitat = it }, Res.string.desk_citation_text, hint = Res.string.desk_cite_quote_hint, minLines = 3)
                 Field(notiz, { notiz = it }, Res.string.fact_note, minLines = 2)
+                MedienBearbeiten(medien, onEntfernen = { medien.remove(it) }, fehler = medienFehler,
+                    onDatei = {
+                        dateiOeffnen(scanDialogTitel())?.let { datei ->
+                            scope.launch {
+                                runCatching {
+                                    val bytes = withContext(Dispatchers.IO) { datei.readBytes() }
+                                    viewModel.client.uploadMedia(tree, ziel.record, bytes, datei.name, mimeVon(datei), datei.nameWithoutExtension, type = "document", link = false).media
+                                }.onSuccess { x -> if (x != null) medien += de.bgghome.webtrees.nativ.api.MediaJson(xref = x, title = datei.nameWithoutExtension, mime = mimeVon(datei)) }
+                                    .onFailure { medienFehler = it.message }
+                            }
+                        }
+                    },
+                    onVorhanden = { medienWahl = true })
             }
         },
         confirmButton = {
@@ -172,6 +192,7 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
         dismissButton = { TextButton(onClick = onDismiss, enabled = !speichert) { Text(stringResource(Res.string.action_cancel)) } },
     )
     if (neueQuelle) QuelleDialog(tree, null, viewModel, onDismiss = { neueQuelle = false }, onSaved = { quelle = it; quellenNeu++ })
+    if (medienWahl) MedienWahlDialog(tree, viewModel.client, medien.map { it.xref }.toSet(), onDismiss = { medienWahl = false }) { medien += it }
 }
 
 /**

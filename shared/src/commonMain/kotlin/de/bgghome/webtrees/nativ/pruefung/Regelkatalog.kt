@@ -142,6 +142,8 @@ class Voreinstellung(
                 mapOf("110" to 120.0, "111" to 10.0, "112" to 58.0, "113" to 10.0, "114" to 90.0, "115" to 12.0, "116" to 110.0,
                     "117" to 60.0, "119" to 40.0, "120" to 20.0, "121" to 5.0, "124" to 20.0, "126" to 7.0, "127" to 120.0, "512" to 300.0),
                 setOf("017", "022", "023", "211", "223", "224", "228", "310", "311", "420", "421", "511", "513")),
+            // Quellen: wie Ausgewogen, dazu die Quellenregeln (Ereignisse und Personen ohne Beleg), die sonst aus sind
+            Voreinstellung("quellen", "Quellen belegen", "Sources", emptyMap(), Regelkatalog.standardAus - setOf("420", "421")),
             // Kirchenbuch (18./19. Jh.): Taufe steht fuer die Geburt, Paten zaehlen, Reihenfolge der Kinder ist Darstellung
             Voreinstellung("kirchenbuch", "Kirchenbuch", "Parish register",
                 mapOf("111" to 14.0, "112" to 52.0, "113" to 16.0, "114" to 80.0, "118" to 9.0, "122" to 1.0, "126" to 12.0),

@@ -40,6 +40,8 @@ The [person table](hilfe:tabelle) (Ctrl+4) shows everyone as a table.
 
 With edit rights: **+ New source** (title, author, publication, abbreviation, repository with call number – also a new repository –, text, note), **Edit**, **Add scan or file …** (attaches the file to the source as a document) and **Delete** (with a warning if the source is still cited). **Remove unused …** lists all sources nobody cites, to tick and delete. In the citation dialog, **New source …** creates a source directly and **Source from file …** creates one from a scan: title from the file name, the file attached, the source selected right away.
 
+**Documents** are attached in two places, as in webtrees: to the **source** (the digitised parish register) or to the single **citation** (the scan of exactly this baptism). In both places you can **upload a file** or choose **existing media** of the tree; “unlink” or ✕ only removes the link, media object and file are kept.
+
 In the person sheet, the detail area below the event table (tab **Sources**) shows each citation with page, quality, date, quotation, notes and media; a click on the title opens the source here. A source without its own record ("according to Martha Meier") is shown in italics.
 
 With edit rights, the buttons below are **+ Cite source** (search a source in the manager or enter it as text, plus page, quality, date, quotation and note), **Edit**, **Remove**, **▲ ▼** (order) and **Copy to …** – the same citation for further events of this person, for parents, partners and children (as a general citation on the record) or for the partnership. Only what you enter is changed; everything else on the citation and the event is kept.

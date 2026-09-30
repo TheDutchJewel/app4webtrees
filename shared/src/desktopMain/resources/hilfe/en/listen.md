@@ -18,6 +18,7 @@ Open the **Create list** window via **Create › Ancestor list**, **Descendant l
 - **Surname list:** all surnames with count, period and the most frequent places.
 - **Place list:** all places with the surnames occurring there and the period.
 - **Family list:** all marriages with wedding and number of children, alphabetical or chronological.
+- **Sourced:** how well the tree is sourced – individuals and events with a source in percent, photos, per event type, and who has no source at all yet.
 - **Occupations and religions:** who had which occupation or belonged to which religion.
 - **Godparents:** all baptisms with their godparents in date order.
 

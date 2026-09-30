@@ -436,6 +436,8 @@ data class SourceRequest(
     val note: String? = null,
     val repository: String? = null,
     val callNumber: String? = null,
+    /** Die verknuepften Medienobjekte (Kennungen); ersetzt die Liste. */
+    val media: List<String>? = null,
 )
 
 @Serializable

@@ -1015,4 +1015,21 @@
     <string name="desk_cite_new_source">Neue Quelle …</string>
     <string name="desk_cite_from_file">Quelle aus Datei …</string>
     <string name="tipp_source_from_file">Legt aus einem Scan oder Foto (Urkunde, Kirchenbuchseite, Zeitungsanzeige) eine Quelle an: Titel aus dem Dateinamen, die Datei hängt als Dokument daran. Danach ist sie gewählt und lässt sich zitieren.</string>
+    <string name="desk_compl_with_photo">mit Foto</string>
+    <string name="desk_compl_with_source">mit Quelle</string>
+    <string name="desk_compl_partnerships">Partnerschaften</string>
+    <string name="desk_compl_with_marriage">mit Heirat</string>
+    <string name="desk_compl_events">Ereignisse</string>
+    <string name="desk_compl_by_event">Belegt je Ereignisart</string>
+    <string name="desk_compl_sourced">belegt</string>
+    <string name="desk_compl_without">Personen ohne jede Quelle: %1$d</string>
+    <string name="desk_list_sourced">Belegt durch Quellen</string>
+    <string name="desk_list_sourced_hint">Wie gut der Stammbaum belegt ist: Personen und Ereignisse mit Quelle, Fotos, je Ereignisart – und wer noch ganz ohne Quelle ist. Der Vergleichswert unter Forschern.</string>
+    <string name="desk_title_sourced">Belegt durch Quellen – %1$s</string>
+    <string name="desk_media_pick_title">Vorhandenes Medium wählen</string>
+    <string name="desk_media_pick_search">Titel suchen …</string>
+    <string name="desk_media_pick_count">%1$d Medien</string>
+    <string name="desk_media_upload">Datei hochladen …</string>
+    <string name="desk_media_existing">Vorhandenes Medium …</string>
+    <string name="desk_media_unlink">lösen</string>
 </resources>

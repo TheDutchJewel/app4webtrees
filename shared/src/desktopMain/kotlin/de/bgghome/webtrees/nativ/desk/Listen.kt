@@ -64,7 +64,7 @@ import org.jetbrains.compose.resources.stringResource
  * nach Saragossa, d'Aboville, Henry oder fortlaufend), Nachfahren je Generation. Dazu Ereignisliste und Personenblatt.
  */
 
-enum class ListenArt { Ahnen, Spitzenahnen, Stammlinie, Mutterstamm, Ahnenwertung, Stamm, Nachfahrenzahl, Ereignisse, Namen, Orte, Familien, Fakten, Taufpaten, Personenblatt }
+enum class ListenArt { Ahnen, Spitzenahnen, Stammlinie, Mutterstamm, Ahnenwertung, Stamm, Nachfahrenzahl, Ereignisse, Namen, Orte, Familien, Fakten, Taufpaten, Vollstaendigkeit, Personenblatt }
 
 enum class Nummerierung { Saragossa, Aboville, Henry, Fortlaufend }
 
@@ -298,6 +298,7 @@ suspend fun listenZeilen(art: ListenArt, client: WtClient, tree: String, treeTit
     ListenArt.Familien -> familienliste(ganzerBaum(client, tree), treeTitle, o)
     ListenArt.Fakten -> faktenliste(ganzerBaum(client, tree), treeTitle, o)
     ListenArt.Taufpaten -> taufpaten(ganzerBaum(client, tree), treeTitle, o)
+    ListenArt.Vollstaendigkeit -> vollstaendigkeit(ganzerBaum(client, tree), treeTitle)
     ListenArt.Personenblatt -> personenblattZeilen(client.individual(tree, root))
 }
 
@@ -317,6 +318,7 @@ private val listenTexte: Map<ListenArt, Pair<StringResource, StringResource>> = 
     ListenArt.Familien to (Res.string.desk_list_families to Res.string.desk_list_families_hint),
     ListenArt.Fakten to (Res.string.desk_list_facts to Res.string.desk_list_facts_hint),
     ListenArt.Taufpaten to (Res.string.desk_list_godparents to Res.string.desk_list_godparents_hint),
+    ListenArt.Vollstaendigkeit to (Res.string.desk_list_sourced to Res.string.desk_list_sourced_hint),
     ListenArt.Personenblatt to (Res.string.desk_list_sheet to Res.string.desk_list_sheet_hint),
 )
 
@@ -388,7 +390,7 @@ fun ListenFenster(start: ListenArt, state: UiState, viewModel: AppViewModel, onC
                     listOf(
                         Res.string.desk_chart_group_ancestors to listOf(ListenArt.Ahnen, ListenArt.Spitzenahnen, ListenArt.Stammlinie, ListenArt.Mutterstamm, ListenArt.Ahnenwertung),
                         Res.string.desk_chart_group_descendants to listOf(ListenArt.Stamm, ListenArt.Nachfahrenzahl),
-                        Res.string.desk_list_group_tree to listOf(ListenArt.Ereignisse, ListenArt.Namen, ListenArt.Orte, ListenArt.Familien, ListenArt.Fakten, ListenArt.Taufpaten, ListenArt.Personenblatt),
+                        Res.string.desk_list_group_tree to listOf(ListenArt.Ereignisse, ListenArt.Namen, ListenArt.Orte, ListenArt.Familien, ListenArt.Fakten, ListenArt.Taufpaten, ListenArt.Vollstaendigkeit, ListenArt.Personenblatt),
                     ).forEachIndexed { i, (gruppe, arten) ->
                         if (i > 0) Spacer(Modifier.height(8.dp))
                         ArtGruppe(stringResource(gruppe))
@@ -432,7 +434,7 @@ fun ListenFenster(start: ListenArt, state: UiState, viewModel: AppViewModel, onC
                             singleLine = true, modifier = Modifier.fillMaxWidth())
                     }
                     if (art !in setOf(ListenArt.Ahnenwertung, ListenArt.Nachfahrenzahl, ListenArt.Ereignisse, ListenArt.Personenblatt, ListenArt.Namen, ListenArt.Orte,
-                            ListenArt.Familien, ListenArt.Fakten, ListenArt.Taufpaten)) {
+                            ListenArt.Familien, ListenArt.Fakten, ListenArt.Taufpaten, ListenArt.Vollstaendigkeit)) {
                         Haken(stringResource(Res.string.desk_chart_places), o.orte) { o = o.copy(orte = it) }
                         Haken(stringResource(Res.string.desk_chart_full_dates), o.volleDaten, stringResource(Res.string.tipp_full_dates)) { o = o.copy(volleDaten = it) }
                     }

@@ -356,11 +356,12 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         post("AddIndividual", tree, emptyMap(), jsonBody(AddIndividualRequest.serializer(), request))
 
     /** [type]: Art der Datei ab API-Stufe 18 ("document" fuer Scans von Urkunden), sonst Foto. */
-    suspend fun uploadMedia(tree: String, xref: String, bytes: ByteArray, fileName: String, mime: String, title: String, type: String? = null): WriteResult {
+    /** [link] false (ab Stufe 18): nur das Medienobjekt anlegen; die Antwort nennt es in media, die App verknuepft es selbst. */
+    suspend fun uploadMedia(tree: String, xref: String, bytes: ByteArray, fileName: String, mime: String, title: String, type: String? = null, link: Boolean = true): WriteResult {
         val body = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("title", title)
-            .apply { if (type != null) addFormDataPart("type", type) }
+            .apply { if (type != null) addFormDataPart("type", type); if (!link) addFormDataPart("link", "false") }
             .addFormDataPart("file", fileName, bytes.toRequestBody(mime.toMediaType()))
             .build()
 

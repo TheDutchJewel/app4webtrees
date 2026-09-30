@@ -6,7 +6,7 @@
 
 The rules are grouped on the left: **Chronology**, **Age limits**, **Structure**, **Names**, **Sources**, **Places**. A click on a rule shows only its findings, **All findings** shows everything again.
 
-- **Preset:** from strict to generous; as soon as you change something it becomes "Own settings".
+- **Preset:** from strict to generous; "Sources" additionally enables rules 420 and 421 (events and individuals without a source). As soon as you change something it becomes "Own settings".
 - Per rule: **limit** (years or months, the default is shown), **severity** (error or warning), or switch the rule off.
 - **Estimate:** derive missing birth and death from baptism and burial so that the age rules apply.
 - **All rules and limits as default** resets, **Check again** recalculates with the current settings.

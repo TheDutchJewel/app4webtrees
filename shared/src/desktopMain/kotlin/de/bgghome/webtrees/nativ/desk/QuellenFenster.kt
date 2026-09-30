@@ -172,6 +172,10 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
                         d.exceptionOrNull() != null -> Text(d.exceptionOrNull()?.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
                         else -> QuelleDetail(d.getOrThrow(), viewModel, openWeb, canEdit,
                             onBearbeiten = { dialog = QuellenDialog.Bearbeiten(it) },
+                            onVorhanden = { dialog = QuellenDialog.Medium(it) },
+                            onMediumLoesen = { q, m ->
+                                scope.launch { runCatching { viewModel.client.saveSource(tree.orEmpty(), q.xref, de.bgghome.webtrees.nativ.api.SourceRequest(media = q.media.map { it.xref }.filter { it != m.xref }.distinct())) }.onSuccess { neuLaden() }.onFailure { fehler = it.message } }
+                            },
                             onLoeschen = { dialog = QuellenDialog.Loeschen(it) },
                             onDatei = { q ->
                                 dateiOeffnen(scanDialogTitel())?.let { datei ->
@@ -196,6 +200,9 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
                         onConfirm = { dialog = null; scope.launch { runCatching { viewModel.client.deleteRecord(t, q.xref) }.onSuccess { gewaehlt = null; neuLaden() }.onFailure { fehler = it.message } } },
                     )
                 }
+                is QuellenDialog.Medium -> MedienWahlDialog(t, viewModel.client, dlg.quelle.media.map { it.xref }.toSet(), onDismiss = { dialog = null }) { m ->
+                    scope.launch { runCatching { viewModel.client.saveSource(t, dlg.quelle.xref, de.bgghome.webtrees.nativ.api.SourceRequest(media = (dlg.quelle.media.map { it.xref } + m.xref).distinct())) }.onSuccess { neuLaden() }.onFailure { fehler = it.message } }
+                }
                 QuellenDialog.Unbenutzte -> UnbenutzteDialog(t, liste?.getOrNull()?.sources.orEmpty(), viewModel, onDismiss = { dialog = null }, onFertig = { gewaehlt = null; neuLaden() })
             }
         }
@@ -207,6 +214,7 @@ private sealed interface QuellenDialog {
     data class Bearbeiten(val quelle: SourceDetail) : QuellenDialog
     data class Loeschen(val quelle: SourceDetail) : QuellenDialog
     data object Unbenutzte : QuellenDialog
+    data class Medium(val quelle: SourceDetail) : QuellenDialog
 }
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
@@ -214,6 +222,7 @@ private sealed interface QuellenDialog {
 private fun QuelleDetail(
     q: SourceDetail, viewModel: AppViewModel, openWeb: (String) -> Unit, canEdit: Boolean = false,
     onBearbeiten: (SourceDetail) -> Unit = {}, onLoeschen: (SourceDetail) -> Unit = {}, onDatei: (SourceDetail) -> Unit = {},
+    onVorhanden: (SourceDetail) -> Unit = {}, onMediumLoesen: (SourceDetail, MediaJson) -> Unit = { _, _ -> },
 ) {
     val scroll = rememberScrollState()
     val farben = MaterialTheme.colorScheme
@@ -241,7 +250,11 @@ private fun QuelleDetail(
             Zeile(Res.string.desk_source_id, q.xref)
             if (q.text.isNotBlank()) { Abschnitt(Res.string.desk_source_text); Text(q.text, style = MaterialTheme.typography.bodyMedium) }
             if (q.notes.isNotEmpty()) { Abschnitt(Res.string.desk_tab_notes); q.notes.forEach { Text(it, style = MaterialTheme.typography.bodyMedium) } }
-            if (q.media.isNotEmpty()) { Abschnitt(Res.string.tab_media); MedienReihe(q.media, openWeb) }
+            if (q.media.isNotEmpty() || (canEdit && q.canEdit)) {
+                Abschnitt(Res.string.tab_media)
+                if (q.media.isNotEmpty()) MedienReihe(q.media, openWeb, onLoesen = if (canEdit && q.canEdit) ({ m -> onMediumLoesen(q, m) }) else null)
+                if (canEdit && q.canEdit) TextButton(onClick = { onVorhanden(q) }) { Text(stringResource(Res.string.desk_media_existing)) }
+            }
 
             Abschnitt(Res.string.desk_source_cited_by)
             if (q.individuals.isEmpty() && q.families.isEmpty()) Text(stringResource(Res.string.desk_source_unused), color = farben.onSurfaceVariant)
@@ -275,15 +288,20 @@ private fun Abschnitt(titel: StringResource) {
 /** Vorschaubilder von Scans und Fotos; ein Klick oeffnet die Datei. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit) {
+fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((MediaJson) -> Unit)? = null) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         media.forEach { m ->
-            Tipp(m.title) {
-                Box(Modifier.size(96.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant).clickable { openWeb(m.file.ifBlank { m.url }) },
-                    contentAlignment = Alignment.Center) {
-                    if (m.thumb != null) AsyncImage(model = m.thumb, contentDescription = m.title, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-                    else Text(m.title, Modifier.padding(6.dp), style = MaterialTheme.typography.labelSmall, maxLines = 4, overflow = TextOverflow.Ellipsis)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Tipp(m.title) {
+                    Box(Modifier.size(96.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant).clickable { openWeb(m.file.ifBlank { m.url }) },
+                        contentAlignment = Alignment.Center) {
+                        if (m.thumb != null) AsyncImage(model = m.thumb, contentDescription = m.title, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                        else Text(m.title, Modifier.padding(6.dp), style = MaterialTheme.typography.labelSmall, maxLines = 4, overflow = TextOverflow.Ellipsis)
+                    }
                 }
+                // Nur die Verknuepfung loesen - Medium und Datei bleiben, wie beim Loesen in webtrees
+                if (onLoesen != null) Text(stringResource(Res.string.desk_media_unlink), Modifier.clickable { onLoesen(m) }.padding(2.dp),
+                    style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

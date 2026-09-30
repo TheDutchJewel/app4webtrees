@@ -181,3 +181,49 @@ internal fun taufpaten(b: TreeExport, titel: String, o: ListenOptionen): List<Ze
         }
     }
 }
+
+/**
+ * Vollstaendigkeit: wie gut der Stammbaum belegt ist - Personen und Ereignisse mit Quelle (Anzahl und Anteil), je
+ * Ereignisart, dazu Fotos und Lebende; am Ende die Personen ohne jede Quelle. Der Vergleichswert unter Forschern.
+ */
+internal fun vollstaendigkeit(b: TreeExport, titel: String): List<Zeile> {
+    val personen = b.individuals.values.filter { !it.person.isPrivate }
+    fun prozent(n: Int, von: Int) = if (von == 0) "–" else "$n / " + String.format("%.1f %%", n * 100.0 / von)
+    fun hatQuelle(f: de.bgghome.webtrees.nativ.api.FactJson) = f.sources.isNotEmpty()
+    val mitQuelle = personen.filter { i -> i.facts.any(::hatQuelle) }
+    val mitFoto = personen.filter { it.media.any { m -> m.isImage } }
+    val lebend = personen.filter { !it.person.isDead }
+    val familien = b.families.values.filter { !it.isPrivate }
+    val ereignisTags = setOf("BIRT", "CHR", "BAPM", "DEAT", "BURI", "CREM", "OCCU", "RESI", "CONF", "EDUC", "EMIG", "IMMI", "NATU", "RELI")
+    val ereignisse = personen.flatMap { i -> i.facts.filter { it.tag in ereignisTags } } + familien.flatMap { f -> f.facts.filter { it.tag in setOf("MARR", "DIV", "ENGA", "MARB") } }
+    val anteile = listOf(0.34f, 0.22f, 0.22f, 0.22f)
+    return buildList {
+        add(Zeile(Texte.t(Res.string.desk_title_sourced, titel), gross = true))
+        add(Zeile(""))
+        add(Zeile("", spalten = listOf(Texte.t(Res.string.desk_col_persons), "${personen.size}", "", ""), anteile = anteile, fett = true))
+        add(Zeile("", spalten = listOf("   " + Texte.t(Res.string.desk_compl_with_photo), prozent(mitFoto.size, personen.size), "", ""), anteile = anteile))
+        add(Zeile("", spalten = listOf("   " + Texte.t(Res.string.desk_compl_with_source), prozent(mitQuelle.size, personen.size), "", ""), anteile = anteile))
+        add(Zeile("", spalten = listOf(Texte.t(Res.string.desk_col_living), "${lebend.size}", "", ""), anteile = anteile, fett = true))
+        add(Zeile("", spalten = listOf("   " + Texte.t(Res.string.desk_compl_with_photo), prozent(lebend.count { it.media.any { m -> m.isImage } }, lebend.size), "", ""), anteile = anteile))
+        add(Zeile("", spalten = listOf(Texte.t(Res.string.desk_compl_partnerships), "${familien.size}", "", ""), anteile = anteile, fett = true))
+        add(Zeile("", spalten = listOf("   " + Texte.t(Res.string.desk_compl_with_marriage), prozent(familien.count { f -> f.facts.any { it.tag == "MARR" } }, familien.size), "", ""), anteile = anteile))
+        add(Zeile("", spalten = listOf(Texte.t(Res.string.desk_compl_events), "${ereignisse.size}", "", ""), anteile = anteile, fett = true))
+        add(Zeile("", spalten = listOf("   " + Texte.t(Res.string.desk_compl_with_source), prozent(ereignisse.count(::hatQuelle), ereignisse.size), "", ""), anteile = anteile))
+        add(Zeile(""))
+        add(Zeile(Texte.t(Res.string.desk_compl_by_event), fett = true))
+        add(Zeile("", spalten = listOf(Texte.t(Res.string.desk_col_event), Texte.t(Res.string.desk_col_total), Texte.t(Res.string.desk_compl_sourced), Texte.t(Res.string.desk_col_share)), anteile = anteile, fett = true))
+        val arten = listOf("BIRT" to Res.string.desk_ev_birth, "CHR" to Res.string.desk_ev_baptism, "MARR" to Res.string.desk_ev_marriage, "DEAT" to Res.string.desk_ev_death,
+            "BURI" to Res.string.desk_ev_burial, "OCCU" to Res.string.desk_ev_occupation, "RELI" to Res.string.desk_ev_religion)
+        arten.forEach { (tag, name) ->
+            val e = ereignisse.filter { it.tag == tag || (tag == "CHR" && it.tag == "BAPM") || (tag == "BURI" && it.tag == "CREM") }
+            if (e.isNotEmpty()) {
+                val q = e.count(::hatQuelle)
+                add(Zeile("", spalten = listOf(Texte.t(name), "${e.size}", "$q", String.format("%.1f %%", q * 100.0 / e.size)), anteile = anteile))
+            }
+        }
+        val ohne = personen.filter { i -> i.facts.none(::hatQuelle) }.map { it.person }.sortedBy { it.sortName.ifBlank { it.name } }
+        add(Zeile(""))
+        add(Zeile(Texte.t(Res.string.desk_compl_without, ohne.size), fett = true))
+        ohne.forEach { p -> add(Zeile(registerName(p, "", "") + jahre(p).let { if (it.isNotEmpty()) "  $it" else "" }, einzug = 1)) }
+    }
+}

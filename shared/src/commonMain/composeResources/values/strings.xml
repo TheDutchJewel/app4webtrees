@@ -1020,4 +1020,21 @@
     <string name="desk_cite_new_source">New source …</string>
     <string name="desk_cite_from_file">Source from file …</string>
     <string name="tipp_source_from_file">Creates a source from a scan or photo (certificate, parish register page, newspaper notice): title from the file name, the file attached as a document. It is then selected and can be cited.</string>
+    <string name="desk_compl_with_photo">with photo</string>
+    <string name="desk_compl_with_source">with source</string>
+    <string name="desk_compl_partnerships">Partnerships</string>
+    <string name="desk_compl_with_marriage">with marriage</string>
+    <string name="desk_compl_events">Events</string>
+    <string name="desk_compl_by_event">Sourced per event type</string>
+    <string name="desk_compl_sourced">sourced</string>
+    <string name="desk_compl_without">Individuals without any source: %1$d</string>
+    <string name="desk_list_sourced">Sourced</string>
+    <string name="desk_list_sourced_hint">How well the tree is sourced: individuals and events with a source, photos, per event type – and who has no source at all yet.</string>
+    <string name="desk_title_sourced">Sourced – %1$s</string>
+    <string name="desk_media_pick_title">Choose existing media</string>
+    <string name="desk_media_pick_search">Search title …</string>
+    <string name="desk_media_pick_count">%1$d media objects</string>
+    <string name="desk_media_upload">Upload file …</string>
+    <string name="desk_media_existing">Existing media …</string>
+    <string name="desk_media_unlink">unlink</string>
 </resources>

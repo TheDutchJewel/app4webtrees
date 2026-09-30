@@ -6,7 +6,7 @@
 
 Die Regeln stehen links in Gruppen: **Chronologie**, **Altersgrenzen**, **Struktur**, **Namen**, **Quellen**, **Orte**. Ein Klick auf eine Regel zeigt nur ihre Treffer, **Alle Treffer** wieder alles.
 
-- **Voreinstellung:** von streng bis großzügig; sobald du etwas änderst, heißt sie „Eigene Einstellung“.
+- **Voreinstellung:** von streng bis großzügig; „Quellen belegen“ schaltet zusätzlich die Regeln 420 und 421 ein (Ereignisse und Personen ohne Quelle). Sobald du etwas änderst, heißt sie „Eigene Einstellung“.
 - Je Regel: **Grenze** (Jahre oder Monate, die Vorgabe steht dabei), **Schwere** (Fehler oder Warnung) oder die Regel ganz ausschalten.
 - **Schätzen:** fehlende Geburt und fehlenden Tod aus Taufe und Begräbnis ableiten, damit die Altersregeln greifen.
 - **Alle Regeln und Grenzen wie vorgegeben** setzt zurück, **Neu prüfen** rechnet mit den aktuellen Einstellungen.
