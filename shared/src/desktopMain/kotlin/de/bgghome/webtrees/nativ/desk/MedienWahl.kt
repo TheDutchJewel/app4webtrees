@@ -63,7 +63,7 @@ fun MedienWahlDialog(
     archive: ArchiveOverview? = null, rechteXref: String = "", onWahl: (MediaJson) -> Unit,
 ) {
     var reiter by remember { mutableStateOf(0) }
-    val archivDa = archive != null && archive.sammlungen.any { it.art == "ordner" }
+    val archivDa = archive != null && archive.sammlungen.any { it.art == "ordner" || it.art == "thematisch" }
     val alle = remember { mutableStateListOf<MediaJson>() }
     var laden by remember { mutableStateOf(true) }
     var suche by remember { mutableStateOf("") }
@@ -150,10 +150,10 @@ fun MedienBearbeiten(medien: List<MediaJson>, onEntfernen: (MediaJson) -> Unit, 
     }
 }
 
-/** Der Reiter "Aus dem Archiv": links die Ordner-Sammlungen, rechts die Dateien der gewaehlten mit Vorschau. */
+/** Der Reiter "Aus dem Archiv": links Ordner- und thematische Sammlungen, rechts die Dateien der gewaehlten mit Vorschau (Bilder und Dokumente). */
 @Composable
 private fun ArchivWahl(tree: String, client: WtClient, archive: ArchiveOverview, schonDa: Set<String>, rechteXref: String, onWahl: (MediaJson) -> Unit) {
-    val ordner = archive.sammlungen.filter { it.art == "ordner" }
+    val ordner = archive.sammlungen.filter { it.art == "ordner" || it.art == "thematisch" }
     var gewaehlt by remember { mutableStateOf(ordner.firstOrNull()?.slug) }
     val eintraege = remember { mutableStateListOf<ArchiveEntry>() }
     var laden by remember { mutableStateOf(false) }
@@ -167,7 +167,8 @@ private fun ArchivWahl(tree: String, client: WtClient, archive: ArchiveOverview,
         var seite = 1
         while (true) {
             val p = withContext(Dispatchers.IO) { runCatching { client.collection(tree, slug, "", seite, 200) } }.getOrElse { fehler = it.message; null } ?: break
-            eintraege += p.eintraege
+            // eintraege: Bilder; weitere: Dokumente (PDF ...) - fuer Quellen sind gerade die wichtig
+            eintraege += p.eintraege + p.weitere
             if (seite >= p.seiten) break
             seite++
         }
@@ -176,7 +177,7 @@ private fun ArchivWahl(tree: String, client: WtClient, archive: ArchiveOverview,
     Row(Modifier.fillMaxWidth().height(400.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Column(Modifier.width(170.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
             LazyColumn { items(ordner, key = { it.slug }) { o ->
-                Text(o.name.ifBlank { o.slug } + "  (${o.anzahl})", Modifier.fillMaxWidth().background(if (o.slug == gewaehlt) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface)
+                Text((if (o.art == "thematisch") "★ " else "") + o.name.ifBlank { o.slug } + "  (${o.anzahl})", Modifier.fillMaxWidth().background(if (o.slug == gewaehlt) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface)
                     .clickable { gewaehlt = o.slug }.padding(horizontal = 8.dp, vertical = 6.dp), style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
             } }
         }
