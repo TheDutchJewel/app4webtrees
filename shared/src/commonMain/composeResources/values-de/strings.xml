@@ -1036,4 +1036,10 @@
     <string name="desk_media_tab_archive">Aus dem Archiv</string>
     <string name="desk_media_in_tree">im Stammbaum</string>
     <string name="desk_media_archive_hint">Die Datei bleibt im Archiv. Ein Medienobjekt entsteht erst durch deine Auswahl – für Dateien, die noch keines haben.</string>
+    <string name="desk_mode_label">Eingabe</string>
+    <string name="desk_date_invalid">Kein gültiges Datum – bitte prüfen (z. B. 12.3.1850, März 1850, um 1850, vor 1850, zwischen 1850 und 1852)</string>
+    <string name="desk_date_as_text">Trotzdem als Text speichern</string>
+    <string name="desk_date_check">Datum prüfen</string>
+    <string name="desk_unsaved_intro">Diese Eingaben im einfachen Eingabemodus sind noch nicht gespeichert:</string>
+    <string name="desk_unsaved_date_block">Ein Datum darin ist ungültig. Bitte im Personenblatt korrigieren oder dort „Trotzdem als Text speichern“ wählen; hier geht nur Verwerfen oder Abbrechen.</string>
 </resources>

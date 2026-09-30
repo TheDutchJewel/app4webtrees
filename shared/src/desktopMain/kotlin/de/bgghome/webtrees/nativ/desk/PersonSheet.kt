@@ -126,13 +126,12 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
                 SheetHeader(detail)
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Row(Modifier.weight(1f).fillMaxWidth()) {
-                    SheetTabs(state, detail, viewModel, openWeb, Modifier.weight(1f).fillMaxHeight(), einfach)
+                    SheetTabs(state, detail, viewModel, openWeb, Modifier.weight(1f).fillMaxHeight(), einfach, onEinfach = { einfach = it; DeskLayout.prefs.putBoolean("blatt_einfach", it) })
                     VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     RelativesColumn(detail, viewModel, Modifier.width(260.dp).fillMaxHeight())
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                SheetFooter(state, detail, viewModel, canPrev = index > 0, canNext = index >= 0 && index < people.lastIndex, onStep = ::step, onFirst = { step(-index) }, onLast = { step(people.lastIndex - index) }, onClose = schliessen,
-                    einfach = einfach, onEinfach = { einfach = it; DeskLayout.prefs.putBoolean("blatt_einfach", it) })
+                SheetFooter(state, detail, viewModel, canPrev = index > 0, canNext = index >= 0 && index < people.lastIndex, onStep = ::step, onFirst = { step(-index) }, onLast = { step(people.lastIndex - index) }, onClose = schliessen)
                 if (schliessenFragen) UngespeichertDialog(viewModel, onWeiter = { schliessenFragen = false; onClose() }, onAbbrechen = { schliessenFragen = false })
             }
         } }
@@ -154,7 +153,7 @@ private fun SheetHeader(detail: IndividualDetail) {
 }
 
 @Composable
-private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppViewModel, openWeb: (String) -> Unit, modifier: Modifier, einfach: Boolean) {
+private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppViewModel, openWeb: (String) -> Unit, modifier: Modifier, einfach: Boolean, onEinfach: (Boolean) -> Unit) {
     val formular = Entwuerfe.fuer(detail.person.xref)
     LaunchedEffect(detail) { formular.abgleichen(detail) }
     var tab by remember { mutableStateOf(0) }
@@ -188,7 +187,21 @@ private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppVi
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (tab) {
-                0 -> if (einfach) EinfachDaten(formular, canEdit, viewModel) else FactTable(detail, canEdit, viewModel, onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) }, onNew = { dialog = ProfileDialog.NewFact })
+                // Der Umschalter gehoert zum Reiter Daten - nur hier wirkt er (Formular oder Tabelle)
+                0 -> Column(Modifier.fillMaxSize()) {
+                    Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)).padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(Res.string.desk_mode_label), Modifier.weight(1f), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Tipp(stringResource(Res.string.tipp_mode)) {
+                            Row(Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
+                                listOf(true to Res.string.desk_mode_simple, false to Res.string.desk_mode_full).forEach { (wert, text) ->
+                                    Text(stringResource(text), Modifier.background(if (einfach == wert) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent, MaterialTheme.shapes.small)
+                                        .clickable { onEinfach(wert) }.padding(horizontal = 10.dp, vertical = 4.dp), style = MaterialTheme.typography.labelLarge)
+                                }
+                            }
+                        }
+                    }
+                    Box(Modifier.weight(1f).fillMaxWidth()) { if (einfach) EinfachDaten(formular, canEdit, viewModel) else FactTable(detail, canEdit, viewModel, onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) }, onNew = { dialog = ProfileDialog.NewFact }) }
+                }
                 1 -> ParentsTab(detail, viewModel)
                 2 -> PartnersTab(detail, viewModel, onNewFact = { family -> dialog = ProfileDialog.NewFamilyFact(family) },
                     onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) })
@@ -666,7 +679,6 @@ private fun VerwandtenZeile(p: Person, viewModel: AppViewModel) {
 private fun SheetFooter(
     state: UiState, detail: IndividualDetail, viewModel: AppViewModel,
     canPrev: Boolean, canNext: Boolean, onStep: (Int) -> Unit, onFirst: () -> Unit, onLast: () -> Unit, onClose: () -> Unit,
-    einfach: Boolean, onEinfach: (Boolean) -> Unit,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -676,15 +688,6 @@ private fun SheetFooter(
         val titel = stringResource(Res.string.desk_title_sheet, detail.person.name)
         TextButton(onClick = { drucken(listenPdf(personenblattZeilen(detail), appName, baum), titel) }) { Text(stringResource(Res.string.desk_print)) }
         TextButton(onClick = { alsPdf(listenPdf(personenblattZeilen(detail), appName, baum), titel) }) { Text("PDF") }
-        Spacer(Modifier.width(12.dp))
-        Tipp(stringResource(Res.string.tipp_mode)) {
-            Row(Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
-                listOf(true to Res.string.desk_mode_simple, false to Res.string.desk_mode_full).forEach { (wert, text) ->
-                    Text(stringResource(text), Modifier.background(if (einfach == wert) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent, MaterialTheme.shapes.small)
-                        .clickable { onEinfach(wert) }.padding(horizontal = 10.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge)
-                }
-            }
-        }
         Spacer(Modifier.weight(1f))
         IconButton(onClick = onFirst, enabled = canPrev) { Text("⏮", fontSize = 16.sp) }
         IconButton(onClick = { onStep(-1) }, enabled = canPrev) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }

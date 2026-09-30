@@ -64,6 +64,19 @@ class EinfachFormularTest {
     }
 
     @Test
+    fun ungueltigesDatumBlockiertBisBestaetigt() {
+        val f = formular()
+        f.feld("DEAT").datum = "Frühjahr 1850"
+        assertFalse(f.speicherbar) // fordert zur Korrektur auf
+        f.feld("DEAT").datumAlsText = true
+        assertTrue(f.speicherbar) // nur auf Wunsch als Datumstext
+        assertEquals(FactRequest(tag = "DEAT", date = "(Frühjahr 1850)"), f.feld("DEAT").anfrage())
+        f.feld("DEAT").datum = "12.3.1850" // Korrektur hebt die Ausnahme auf
+        f.feld("DEAT").datumAlsText = false
+        assertTrue(f.speicherbar)
+    }
+
+    @Test
     fun unbekanntesDatumWirdDatumstext() {
         assertEquals("(Frühjahr 1850)", datumGedcom("Frühjahr 1850"))
         assertEquals("BET 1850 AND 1860", datumGedcom("zwischen 1850 und 1860"))

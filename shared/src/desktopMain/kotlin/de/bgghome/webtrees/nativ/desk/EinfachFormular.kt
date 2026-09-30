@@ -66,6 +66,9 @@ class EinfachFeld(val key: String, val tag: String, val record: String?, val art
     var vornamen by mutableStateOf(""); private var vornamenAlt = ""
     var familienname by mutableStateOf(""); private var familiennameAlt = ""
     private var zusatz = ""
+    /** Ein Datum, das das Programm nicht deuten kann, soll zur Korrektur auffordern; nur auf Wunsch geht es als Text durch. */
+    var datumAlsText by mutableStateOf(false)
+    val datumOk: Boolean get() = datumErkannt(datum) || datumAlsText
 
     val geaendert: Boolean
         get() = datum != datumAlt || ort != ortAlt || wert != wertAlt || vornamen != vornamenAlt || familienname != familiennameAlt
@@ -81,7 +84,7 @@ class EinfachFeld(val key: String, val tag: String, val record: String?, val art
         if (!warGeaendert) verwerfen()
     }
 
-    fun verwerfen() { datum = datumAlt; ort = ortAlt; wert = wertAlt; vornamen = vornamenAlt; familienname = familiennameAlt }
+    fun verwerfen() { datum = datumAlt; ort = ortAlt; wert = wertAlt; vornamen = vornamenAlt; familienname = familiennameAlt; datumAlsText = false }
 
     /** Nach erfolgreichem Speichern: das Eingetippte ist jetzt der Stand. */
     fun gespeichert() { datumAlt = datum; ortAlt = ort; wertAlt = wert; vornamenAlt = vornamen; familiennameAlt = familienname }
@@ -126,9 +129,14 @@ class EinfachFormular(val xref: String) {
     var speichert by mutableStateOf(false)
     var fehler by mutableStateOf(false)
     val geaendert: Boolean get() = felder.any { it.geaendert }
+    /** Erst speichern, wenn kein Datum mehr zur Korrektur ansteht. */
+    val speicherbar: Boolean get() = felder.all { it.datumOk }
+    /** Name der Person fuer die Rueckfrage beim Schliessen. */
+    var name: String = ""
 
     /** Felder aus dem Stand vom Server bilden bzw. auffrischen. */
     fun abgleichen(detail: IndividualDetail) {
+        name = detail.person.name
         val facts = detail.facts
         fun erstes(vararg tags: String): Pair<String, List<FactJson>> {
             val tag = tags.firstOrNull { t -> facts.any { it.tag == t } } ?: tags.first()
@@ -197,17 +205,29 @@ object Entwuerfe {
 @Composable
 fun UngespeichertDialog(viewModel: AppViewModel, onWeiter: () -> Unit, onAbbrechen: () -> Unit) {
     var speichert by remember { mutableStateOf(false) }
+    val offene = Entwuerfe.offene()
+    val blockiert = offene.any { !it.speicherbar }
     WtAlertDialog(
         onDismissRequest = onAbbrechen,
         title = { Text(stringResource(Res.string.desk_unsaved_title)) },
-        text = { Text(stringResource(Res.string.desk_unsaved_text, Entwuerfe.offene().size)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(Res.string.desk_unsaved_intro))
+                // Wo genau: je Person die geaenderten Felder des einfachen Eingabemodus
+                offene.forEach { f ->
+                    Text("• " + f.name.ifBlank { f.xref } + ": " + f.felder.filter { it.geaendert }.map { stringResource(titel(it.tag)) + (it.partner?.let { p -> " ($p)" } ?: "") }.joinToString(", "),
+                        style = MaterialTheme.typography.bodyMedium)
+                }
+                if (blockiert) Text(stringResource(Res.string.desk_unsaved_date_block), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+            }
+        },
         confirmButton = {
             Row {
                 TextButton(onClick = { Entwuerfe.alleVerwerfen(); onWeiter() }, enabled = !speichert) { Text(stringResource(Res.string.desk_unsaved_discard)) }
                 TextButton(onClick = {
                     speichert = true
                     Entwuerfe.alleSpeichern(viewModel) { fehler -> speichert = false; if (fehler) onAbbrechen() else onWeiter() }
-                }, enabled = !speichert) { Text(stringResource(Res.string.desk_unsaved_save)) }
+                }, enabled = !speichert && !blockiert) { Text(stringResource(Res.string.desk_unsaved_save)) }
             }
         },
         dismissButton = { TextButton(onClick = onAbbrechen, enabled = !speichert) { Text(stringResource(Res.string.action_cancel)) } },
@@ -254,9 +274,16 @@ fun EinfachDaten(formular: EinfachFormular, canEdit: Boolean, viewModel: AppView
                             FeldArt.Angabe -> Box(Modifier.weight(1f)) { Field(f.wert, { f.wert = it }, titel(f.tag)) }
                             FeldArt.Ereignis -> Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Column(Modifier.width(230.dp)) {
-                                    Field(f.datum, { f.datum = it }, Res.string.fact_date)
-                                    if (!datumErkannt(f.datum)) Text(stringResource(Res.string.desk_simple_date_text), style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.tertiary)
+                                    Field(f.datum, { f.datum = it; f.datumAlsText = false }, Res.string.fact_date)
+                                    if (!datumErkannt(f.datum)) {
+                                        if (f.datumAlsText) Text(stringResource(Res.string.desk_simple_date_text), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                                        else {
+                                            Text(stringResource(Res.string.desk_date_invalid), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                                            TextButton(onClick = { f.datumAlsText = true }, contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 6.dp, vertical = 0.dp)) {
+                                                Text(stringResource(Res.string.desk_date_as_text), style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        }
+                                    }
                                 }
                                 Box(Modifier.weight(1f)) { PlaceField(f.ort, { f.ort = it }, Res.string.fact_place, vorschlaege) }
                             }
@@ -270,13 +297,14 @@ fun EinfachDaten(formular: EinfachFormular, canEdit: Boolean, viewModel: AppView
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(6.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { formular.speichern(viewModel) }, enabled = formular.geaendert && !formular.speichert, shape = MaterialTheme.shapes.small) {
+                OutlinedButton(onClick = { formular.speichern(viewModel) }, enabled = formular.geaendert && !formular.speichert && formular.speicherbar, shape = MaterialTheme.shapes.small) {
                     Text(stringResource(Res.string.action_save))
                 }
                 TextButton(onClick = { formular.verwerfen() }, enabled = formular.geaendert && !formular.speichert) { Text(stringResource(Res.string.desk_simple_discard)) }
                 Spacer(Modifier.weight(1f))
                 when {
                     formular.speichert -> Text(stringResource(Res.string.desk_simple_saving), style = MaterialTheme.typography.bodySmall)
+                    !formular.speicherbar -> Text(stringResource(Res.string.desk_date_check), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                     formular.fehler -> Text(stringResource(Res.string.desk_simple_error), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                     formular.geaendert -> Text(stringResource(Res.string.desk_simple_unsaved), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                 }

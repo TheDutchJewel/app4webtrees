@@ -93,7 +93,8 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
     val medienGeaendert = medien.map { it.xref } != alt?.media.orEmpty().map { it.xref }
 
     val quelleGewaehlt = if (textQuelle) freitext.isNotBlank() else quelle.isNotBlank()
-    val datumOk = datum.isBlank() || datumErkannt(datum)
+    var datumAlsText by remember { mutableStateOf(false) }
+    val datumOk = datumErkannt(datum) || datumAlsText
 
     fun anfrage(): CitationRequest {
         val neuQuelle = if (textQuelle) freitext.trim() else quelle
@@ -163,8 +164,14 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
                     Auswahl(qualNamen[QUALITAETEN.indexOf(qual)], qualNamen) { w -> qual = QUALITAETEN[qualNamen.indexOf(w)] }
                 }
                 Column {
-                    Field(datum, { datum = it }, Res.string.desk_citation_date, hint = Res.string.date_hint)
-                    if (!datumOk) Text(stringResource(Res.string.desk_simple_date_text), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                    Field(datum, { datum = it; datumAlsText = false }, Res.string.desk_citation_date, hint = Res.string.date_hint)
+                    if (!datumErkannt(datum)) {
+                        if (datumAlsText) Text(stringResource(Res.string.desk_simple_date_text), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                        else Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(Res.string.desk_date_invalid), Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                            TextButton(onClick = { datumAlsText = true }) { Text(stringResource(Res.string.desk_date_as_text), style = MaterialTheme.typography.labelSmall) }
+                        }
+                    }
                 }
                 Field(zitat, { zitat = it }, Res.string.desk_citation_text, hint = Res.string.desk_cite_quote_hint, minLines = 3)
                 Field(notiz, { notiz = it }, Res.string.fact_note, minLines = 2)
@@ -184,7 +191,7 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
             }
         },
         confirmButton = {
-            TextButton(enabled = quelleGewaehlt && !speichert, onClick = {
+            TextButton(enabled = quelleGewaehlt && datumOk && !speichert, onClick = {
                 speichert = true
                 viewModel.saveCitations(listOf(ziel.record to anfrage())) { onDismiss() }
             }) { Text(stringResource(Res.string.action_save)) }

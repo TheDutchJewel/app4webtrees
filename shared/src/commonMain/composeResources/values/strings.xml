@@ -1041,4 +1041,10 @@
     <string name="desk_media_tab_archive">From the archive</string>
     <string name="desk_media_in_tree">in the tree</string>
     <string name="desk_media_archive_hint">The file stays in the archive. A media object is only created by your choice – for files that do not have one yet.</string>
+    <string name="desk_mode_label">Entry</string>
+    <string name="desk_date_invalid">Not a valid date – please check (e.g. 12 Mar 1850, March 1850, about 1850, before 1850, between 1850 and 1852)</string>
+    <string name="desk_date_as_text">Save as text anyway</string>
+    <string name="desk_date_check">Check the date</string>
+    <string name="desk_unsaved_intro">These entries in simple entry mode have not been saved yet:</string>
+    <string name="desk_unsaved_date_block">A date in them is invalid. Please correct it in the person sheet or choose “Save as text anyway” there; here only Discard or Cancel are possible.</string>
 </resources>

@@ -79,6 +79,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -245,11 +249,17 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                     else -> Navigator(state, viewModel, openSheet, openWeb, farben, zoom, onZoom = { zoom = it; DeskLayout.prefs.putString("zoom", it.toString()) })
                 }
             } else Row(Modifier.weight(1f).fillMaxWidth()) {
-                // Vollbild (Knopf im Baum oder Esc zurueck): nur der Baum, ohne Personenliste und Personentafel
-                val vollbild = layout == DeskLayout.TreeCentre && state.treeFullscreen && state.section != Section.Home && state.section != Section.Photos
+                // Vollbild (Knopf im Baum oder Esc zurueck): nur der Baum, ohne Personenliste und Personentafel.
+                // Fotos/Archiv brauchen die ganze Breite (wie im Aufbau Navigator) - dort ebenfalls ohne Seitenleisten.
+                val vollbild = (layout == DeskLayout.TreeCentre && state.treeFullscreen && state.section != Section.Home && state.section != Section.Photos) ||
+                    state.section == Section.Photos
+                // Breite der Seitenleisten: am Griff ziehbar, bleibt gespeichert
+                var linksBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_links", null)?.toFloatOrNull() ?: 280f) }
+                var rechtsBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_rechts", null)?.toFloatOrNull() ?: 400f) }
+                val dichte = LocalDensity.current.density
                 if (!vollbild) {
-                    PersonIndex(state, viewModel, openWeb, search, Modifier.width(280.dp).fillMaxHeight())
-                    VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    PersonIndex(state, viewModel, openWeb, search, Modifier.width(linksBreite.dp).fillMaxHeight())
+                    Ziehgriff(onZiehen = { linksBreite = (linksBreite + it / dichte).coerceIn(180f, 600f) }) { DeskLayout.prefs.putString("panel_links", linksBreite.toString()) }
                 }
                 Box(Modifier.weight(1f).fillMaxHeight()) {
                     when (state.section) {
@@ -259,8 +269,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                     }
                 }
                 if (!vollbild) {
-                    VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    Box(Modifier.width(400.dp).fillMaxHeight()) {
+                    Ziehgriff(onZiehen = { rechtsBreite = (rechtsBreite - it / dichte).coerceIn(260f, 720f) }) { DeskLayout.prefs.putString("panel_rechts", rechtsBreite.toString()) }
+                    Box(Modifier.width(rechtsBreite.dp).fillMaxHeight()) {
                         val detail = state.detail
                         if (detail != null) {
                             CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalSourceOpener provides (if (quellenApi) ({ x: String -> quellen = x }) else null)) {
@@ -435,6 +445,17 @@ private fun FrameWindowScope.DeskMenuBar(
             Item(stringResource(Res.string.desk_about, LocalAppName.current), onClick = onAbout)
         }
     }
+}
+
+/** Senkrechter Trennstrich, an dem sich die Breite der Seitenleiste ziehen laesst; [onEnde] speichert die Wahl. */
+@Composable
+private fun Ziehgriff(onZiehen: (Float) -> Unit, onEnde: () -> Unit) {
+    Box(
+        Modifier.fillMaxHeight().width(7.dp)
+            .pointerHoverIcon(PointerIcon.Hand)
+            .pointerInput(Unit) { detectHorizontalDragGestures(onDragEnd = onEnde, onDragCancel = onEnde) { _, dx -> onZiehen(dx) } },
+        contentAlignment = Alignment.Center,
+    ) { VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant) }
 }
 
 // ── Aufbau ───────────────────────────────────────────────────────────
