@@ -8,6 +8,7 @@ import kotlin.io.path.createTempDirectory
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /**
@@ -134,6 +135,81 @@ class LokaleEinrichtungTest {
                     assertEquals(setOf(zugang.baum, z2.baum), info.trees.map { it.name }.toSet(), info.toString())
                 } finally { s2.beenden() }
             } finally { server.beenden() }
+        } finally {
+            basis.deleteRecursively()
+            System.clearProperty("wtand.lokal")
+        }
+    }
+}
+
+/**
+ * Issue 1: GEDCOM-Dateien, wie andere Programme sie schreiben - Byte-Reihenfolge-Marke mit Windows-Zeilenenden, ANSI
+ * (Windows-1252) mit doppeltem Kennzeichen, UTF-16 - und eine Datei, die gar keine GEDCOM ist. Lebende Personen stehen
+ * mit Namen im Index (nicht "Private"), ein Fehlschlag laesst keinen halben Baum zurueck.
+ */
+class GedcomVariantenTest {
+    private val php = (System.getenv("WTAND_PHP") ?: "/usr/bin/php").let(::File)
+    private val zip = System.getenv("WTAND_WEBTREES_ZIP")?.let(::File)
+    private val api = System.getenv("WTAND_API_ZIP")?.let(::File)
+    private val basis = createTempDirectory("wtlokal").toFile()
+
+    private fun namen(): List<String> = ProcessBuilder(
+        php.absolutePath, "-r",
+        "\$d=new PDO('sqlite:data/webtrees.sqlite');foreach(\$d->query('SELECT n_full FROM wt_name') as \$r)echo \$r[0],PHP_EOL;",
+    ).directory(LokalOrte.webtrees).redirectErrorStream(true).start().inputStream.bufferedReader().readText().lines()
+
+    private fun baeume(): List<String> = ProcessBuilder(
+        php.absolutePath, "-r",
+        "\$d=new PDO('sqlite:data/webtrees.sqlite');foreach(\$d->query('SELECT gedcom_name FROM wt_gedcom WHERE gedcom_id>0') as \$r)echo \$r[0],PHP_EOL;",
+    ).directory(LokalOrte.webtrees).redirectErrorStream(true).start().inputStream.bufferedReader().readText().lines().filter { it.isNotBlank() }
+
+    private fun gefunden(server: LokalerServer, zugang: LokalerZugang, name: String): Int {
+        val client = de.bgghome.webtrees.nativ.api.WtClient(SpeicherAblage(), SpeicherAblage(), userAgent = "test")
+        client.baseUrl = server.adresse
+        return kotlinx.coroutines.runBlocking {
+            client.login(zugang.benutzer, zugang.passwort)
+            client.individuals(zugang.baum, name, 1).data.size
+        }
+    }
+
+    @Test fun varianten() {
+        val ged = File("../demo-tree/falkenrath.ged").takeIf { it.isFile } ?: File("demo-tree/falkenrath.ged")
+        if (!php.canExecute() || zip?.isFile != true || !ged.isFile) return
+        System.setProperty("wtand.lokal", basis.absolutePath)
+        val text = ged.readText()
+        val bom = File(basis, "bom.ged").apply { writeBytes("\uFEFF".toByteArray() + text.replace("\n", "\r\n").toByteArray()) }
+        val ansi = File(basis, "ansi.ged").apply {
+            writeBytes(text.replace("1 CHAR UTF-8", "1 CHAR ANSI").replace("0 TRLR", "0 @I1@ INDI\n1 NAME Doppelt /Kennzeichen/\n0 TRLR")
+                .toByteArray(java.nio.charset.Charset.forName("windows-1252")))
+        }
+        val utf16 = File(basis, "utf16.ged").apply { writeBytes(byteArrayOf(0xFF.toByte(), 0xFE.toByte()) + text.toByteArray(Charsets.UTF_16LE)) }
+        val keine = File(basis, "keine.ged").apply { writeText("Das ist keine GEDCOM-Datei.\n") }
+        try {
+            val (s1, z1) = LokaleEinrichtung(php, zip, api).einrichten("bom", bom)
+            try {
+                assertTrue(gefunden(s1, z1, "Krümmel") > 0, "Umlaut-Name nach BOM/CRLF nicht gefunden")
+                assertTrue("Private" !in namen(), "Lebende stehen als Private im Namensindex")
+            } finally { s1.beenden() }
+
+            val (s2, z2) = LokaleEinrichtung(php, zip, api).einrichten("ansi", ansi)
+            try {
+                assertEquals(z1.baum + "2", z2.baum)
+                assertTrue(gefunden(s2, z2, "Krümmel") > 0, "Umlaut-Name aus Windows-1252 nicht gefunden")
+                val log = LokalOrte.importProtokoll.readText()
+                assertTrue("CP1252" in log && "UEBERSPRUNGEN 1" in log && "@I1@" in log, log)
+            } finally { s2.beenden() }
+
+            val (s3, z3) = LokaleEinrichtung(php, zip, api).einrichten("utf16", utf16)
+            try {
+                assertTrue(gefunden(s3, z3, "Krümmel") > 0, "Umlaut-Name aus UTF-16 nicht gefunden")
+            } finally { s3.beenden() }
+
+            val vorher = baeume()
+            val e = assertFailsWith<IllegalStateException> { LokaleEinrichtung(php, zip, api).einrichten("keine", keine) }
+            assertTrue("0 HEAD" in e.message.orEmpty(), e.message)
+            assertEquals(vorher, baeume())
+            assertEquals(z3.baum, LokalerZugang.laden()?.baum)
+            assertTrue("FEHLGESCHLAGEN" in LokalOrte.importProtokoll.readText())
         } finally {
             basis.deleteRecursively()
             System.clearProperty("wtand.lokal")

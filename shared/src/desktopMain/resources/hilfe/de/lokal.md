@@ -6,6 +6,8 @@ Ohne Server legt wtWin den Stammbaum auf diesem Computer an. Im Hintergrund arbe
 
 Beim ersten Start rechts: einen Namen eingeben und **Stammbaum anlegen** (leer) oder **Aus GEDCOM-Datei übernehmen …**. Für den Umstieg exportierst du im bisherigen Programm eine GEDCOM-Datei (`.ged`) und wählst sie hier. Übernommen werden Personen, Familien, Ereignisse, Quellen und Notizen. Die GEDCOM-Datei selbst bleibt unverändert; ein zweiter Import legt einen weiteren Stammbaum daneben an und überschreibt nie.
 
+Die Datei darf in UTF-8 (mit oder ohne Byte-Reihenfolge-Marke), UTF-16, ANSEL oder ANSI vorliegen; der Zeichensatz wird wie beim Import in webtrees erkannt und gewandelt. Einzelne unbrauchbare Datensätze (etwa doppelte Kennzeichen) werden übersprungen und in `import.log` aufgeführt, der Rest kommt an.
+
 Fotos kommen aus der GEDCOM nicht mit. Du fügst sie im Programm hinzu oder kopierst sie später in den Medienordner (siehe unten) und verknüpfst sie in webtrees.
 
 ## Wo die Daten liegen
@@ -45,4 +47,4 @@ Der Stammbaum auf dem PC bleibt dabei erhalten, bis du den Ordner löschst.
 
 ## Wenn etwas nicht klappt
 
-Lässt sich der Stammbaum nicht anlegen, zeigt das Programm einen Hinweis mit dem Pfad zu `php.log`. Bitte melde das unter github.com/thobgg/app4webtrees/issues und hänge die Datei an. **Hilfe › Über wtWin** zeigt, ob PHP und webtrees gefunden wurden.
+Lässt sich der Stammbaum nicht anlegen, zeigt das Programm einen Hinweis mit dem Pfad zu `php.log`. Bitte melde das unter github.com/thobgg/app4webtrees/issues und hänge die Datei an, beim Übernehmen einer GEDCOM-Datei auch `import.log` aus demselben Ordner (Zeichensatz, übersprungene Datensätze, Abbruchgrund). **Hilfe › Über wtWin** zeigt, ob PHP und webtrees gefunden wurden.

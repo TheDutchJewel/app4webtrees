@@ -36,7 +36,8 @@ object LokalBetrieb {
     ).joinToString() + " – " + (System.getProperty("compose.application.resources.dir") ?: "-")
 
     /** Das Protokoll, auf das eine Fehlermeldung verweist. */
-    val protokoll: String get() = LokalOrte.protokoll.absolutePath
+    val protokoll: String get() = LokalOrte.protokoll.absolutePath +
+        (if (LokalOrte.importProtokoll.isFile) " (+ ${LokalOrte.importProtokoll.name})" else "")
 
     fun istLokal(baseUrl: String): Boolean = baseUrl.startsWith("http://127.0.0.1:")
 

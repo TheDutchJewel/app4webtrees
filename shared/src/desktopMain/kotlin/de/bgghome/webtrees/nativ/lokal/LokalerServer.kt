@@ -28,6 +28,8 @@ object LokalOrte {
     val router get() = File(basis, "router.php")
     val pidDatei get() = File(basis, "php.pid")
     val protokoll get() = File(basis, "php.log")
+    /** Was beim Uebernehmen einer GEDCOM-Datei geschah: Zeichensatz, uebersprungene Datensaetze, Abbruchgrund. */
+    val importProtokoll get() = File(basis, "import.log")
     /** Eingerichtet ist webtrees, sobald der Assistent die config.ini.php geschrieben hat. */
     val eingerichtet get() = File(webtrees, "data/config.ini.php").isFile
 }

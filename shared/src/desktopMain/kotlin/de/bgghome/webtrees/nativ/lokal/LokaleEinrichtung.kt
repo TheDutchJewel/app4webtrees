@@ -112,18 +112,55 @@ class LokaleEinrichtung(
             cli("user-setting", z.benutzer, "auto_accept", "1")
         }
         if (gedcom != null) {
-            schritt("„${gedcom.name}“ wird eingelesen …")
-            // Die Kommandozeile sieht nur Baeume, die ein Gast sehen darf: fuer den Import kurz freigeben.
-            sql("UPDATE wt_gedcom SET private=0 WHERE gedcom_name=?", baum)
             try {
-                cli("tree-import", baum, gedcom.absolutePath, pruefen = true)
-            } finally {
-                sql("UPDATE wt_gedcom SET private=1 WHERE gedcom_name=?", baum)
+                gedcomEinlesen(baum, gedcom, z.benutzer, schritt)
+            } catch (e: Exception) {
+                // Nichts Halbes stehen lassen: der eben angelegte Baum kommt weg (ausser es ist der allererste, dann bleibt
+                // er leer), der Zugang zeigt wieder auf den alten, der Server steht - der naechste Versuch faengt sauber an.
+                if (baum != zugang.baum) runCatching { einlesenSkript(z.benutzer, baum, "--loeschen") }
+                zugang.sichern()
+                server.beenden()
+                throw e
             }
             cli("site-setting", "DEFAULT_GEDCOM", baum)
         }
         schritt("Fertig.")
         return server to z
+    }
+
+    /**
+     * GEDCOM-Datei einlesen - nicht mit `tree-import`, sondern mit dem mitgelieferten Skript, das es so macht wie der
+     * Import im Browser (Issue 1): tree-import liest die Datei roh, und eine Byte-Reihenfolge-Marke oder ein einzelner
+     * unbrauchbarer Datensatz brechen alles ab, UTF-16 ergibt einen leeren Baum, ANSEL/ANSI Zeichensalat, und lebende
+     * Personen landen als "Private" im Namensindex, weil auf der Kommandozeile niemand angemeldet ist. Was das Skript
+     * meldet (Zeichensatz, uebersprungene Datensaetze), steht in import.log neben php.log.
+     */
+    private fun gedcomEinlesen(baum: String, gedcom: File, benutzer: String, schritt: (String) -> Unit) {
+        schritt("„${gedcom.name}“ wird eingelesen …")
+        // Kopie unter schlichtem Namen: der Weg zur Originaldatei (Netzlaufwerk, Sonderzeichen) geht so nie an PHP.
+        val kopie = File(LokalOrte.basis, "import.ged")
+        gedcom.copyTo(kopie, overwrite = true)
+        LokalOrte.importProtokoll.writeText("== ${gedcom.absolutePath} (${java.time.LocalDateTime.now().withNano(0)})\n")
+        try {
+            val aus = einlesenSkript(benutzer, baum, kopie.absolutePath) { zeile ->
+                if (zeile.startsWith("FORTSCHRITT ")) schritt("„${gedcom.name}“ wird eingelesen … ${zeile.substringAfter(' ')} Datensätze")
+            }
+            LokalOrte.importProtokoll.appendText(aus.lines().filterNot { it.startsWith("FORTSCHRITT ") }.joinToString("\n").trim() + "\n")
+        } catch (e: Exception) {
+            runCatching { LokalOrte.importProtokoll.appendText("FEHLGESCHLAGEN\n${e.message}\n") }
+            throw e
+        } finally {
+            kopie.delete()
+        }
+    }
+
+    /** Das Skript resources/lokal/gedcom-einlesen.php, neben router.php abgelegt und im webtrees-Ordner ausgefuehrt. */
+    private fun einlesenSkript(vararg args: String, zeile: ((String) -> Unit)? = null): String {
+        val quelle = checkNotNull(LokaleEinrichtung::class.java.classLoader?.getResourceAsStream("lokal/gedcom-einlesen.php")) {
+            "gedcom-einlesen.php fehlt im Paket"
+        }.use { it.readBytes() }
+        val skript = File(LokalOrte.basis, "gedcom-einlesen.php").apply { writeBytes(quelle) }
+        return php(skript.absolutePath, *args, pruefen = true, zeile = zeile)
     }
 
     /** Der webtrees-Assistent, Schritt 6 - wie im Browser, nur ohne Browser. */
@@ -162,18 +199,35 @@ class LokaleEinrichtung(
     private fun cli(vararg args: String, pruefen: Boolean = false): String =
         php("index.php", "--no-interaction", *args, pruefen = pruefen)
 
-    private fun php(vararg args: String, pruefen: Boolean = true): String {
+    /** PHP im webtrees-Ordner ausfuehren; [zeile] bekommt jede Ausgabezeile sofort (Fortschritt). */
+    private fun php(vararg args: String, pruefen: Boolean = true, zeile: ((String) -> Unit)? = null): String {
         val befehl = listOf(php.absolutePath, "-d", "memory_limit=1024M",
             "-d", "date.timezone=${java.util.TimeZone.getDefault().id}") +
             (if (args.first() == "-r") listOf(args[0], args[1], "--") + args.drop(2) else args.toList())
         val p = ProcessBuilder(befehl).directory(LokalOrte.webtrees).redirectErrorStream(true).start()
-        val aus = p.inputStream.bufferedReader().readText()
+        val aus = StringBuilder()
+        p.inputStream.bufferedReader().useLines { zeilen -> zeilen.forEach { aus.appendLine(it); zeile?.invoke(it) } }
         check(p.waitFor(120, TimeUnit.SECONDS)) { "PHP haengt: ${args.take(3)}" }
-        if (pruefen) check(p.exitValue() == 0) { "PHP ${args.take(3)}: ${aus.trim().take(400)}" }
-        return aus
+        // Der Fehler steht am Ende der Ausgabe, hinter Fortschrittsbalken und Fuellzeilen: das Ende zeigen, nicht den Anfang.
+        if (pruefen) check(p.exitValue() == 0) {
+            val was = args.take(3).joinToString(" ") { it.substringAfterLast('/').substringAfterLast('\\') }
+            "PHP $was:\n${kern(aus.toString()).takeLast(1200)}"
+        }
+        return aus.toString()
     }
 
+    /** Konsolenausgabe ohne Fortschrittsbalken, HTML-Reste und Fuellzeilen - fuer die Fehlermeldung. */
+    private fun kern(aus: String): String = aus
+        .replace(Regex("</?pre>"), "\n")
+        .lines()
+        .filterNot { it.matches(FORTSCHRITT) }
+        .joinToString("\n") { it.trimEnd() }
+        .replace(Regex("\n{3,}"), "\n\n")
+        .trim()
+
     companion object {
+        private val FORTSCHRITT = Regex("""\s*\d+/\d+ \[.*""")
+
         /** Windows-/Linux-Benutzername, auf das beschraenkt, was webtrees und Anmeldeformulare sicher vertragen. */
         fun benutzername(): String =
             System.getProperty("user.name").orEmpty().filter { it.isLetterOrDigit() || it in "._-" }.take(30).ifBlank { "ich" }

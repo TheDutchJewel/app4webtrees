@@ -118,7 +118,7 @@ private fun LokalAnlegen(viewModel: AppViewModel) {
                 fehler?.let {
                     // Verstaendlich oben, der rohe Text klein darunter (fuer die Fehlermeldung an uns)
                     Text(stringResource(Res.string.lokal_error, LokalBetrieb.protokoll), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
-                    Text(it.take(600), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                    Text(it.take(1500), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                 }
                 Text(
                     stringResource(Res.string.lokal_hint),

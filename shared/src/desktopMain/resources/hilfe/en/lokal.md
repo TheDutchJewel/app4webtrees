@@ -6,6 +6,8 @@ Without a server, wtWin creates the family tree on this computer. In the backgro
 
 On first start, on the right: enter a name and click **Create family tree** (empty) or **Import from GEDCOM file …**. To move over from another program, export a GEDCOM file (`.ged`) there and choose it here. Persons, families, events, sources and notes are imported. The GEDCOM file itself stays unchanged; a second import creates another tree next to it and never overwrites.
 
+The file may be UTF-8 (with or without byte order mark), UTF-16, ANSEL or ANSI; the character set is detected and converted as in the webtrees import. Single unusable records (such as duplicate IDs) are skipped and listed in `import.log`, the rest is imported.
+
 Photos do not come along from the GEDCOM. Add them in the program, or copy them into the media folder later (see below) and link them in webtrees.
 
 ## Where the data is
@@ -45,4 +47,4 @@ The tree on the PC is kept until you delete the folder.
 
 ## If something goes wrong
 
-If the tree cannot be created, the program shows a message with the path to `php.log`. Please report it at github.com/thobgg/app4webtrees/issues and attach the file. **Help › About wtWin** shows whether PHP and webtrees were found.
+If the tree cannot be created, the program shows a message with the path to `php.log`. Please report it at github.com/thobgg/app4webtrees/issues and attach the file, and when importing a GEDCOM file also `import.log` from the same folder (character set, skipped records, reason for failure). **Help › About wtWin** shows whether PHP and webtrees were found.
