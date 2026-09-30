@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +52,9 @@ private data class TimelineRow(
  *
  * @param onEdit / onDelete bekommen neben dem Ereignis die Familien-XREF, wenn es an einer Familie haengt
  */
+/** Desktop: eine Quelle in der Quellenverwaltung oeffnen; null (Handy, alte Server): Verweise nur als Text. */
+val LocalSourceOpener = staticCompositionLocalOf<((String) -> Unit)?> { null }
+
 @Composable
 fun Timeline(
     detail: IndividualDetail,
@@ -176,10 +180,15 @@ private fun TimelineItem(row: TimelineRow, onEdit: (FactJson, String?) -> Unit, 
             if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
             fact.notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            if (fact.sources.isNotEmpty()) {
+            // Je Verweis eine Zeile; am Desktop oeffnet ein Klick die Quelle (LocalSourceOpener), am Handy nur Text.
+            val oeffnen = LocalSourceOpener.current
+            fact.sources.forEach { q ->
+                val klickbar = oeffnen != null && !q.istText
                 Text(
-                    stringResource(Res.string.fact_sources, fact.sources.joinToString("; ") { it.mitSeite() }),
-                    style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    stringResource(Res.string.fact_sources, q.mitSeite()),
+                    modifier = if (klickbar) Modifier.clickable { oeffnen(q.xref) } else Modifier,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (klickbar) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

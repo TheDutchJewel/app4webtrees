@@ -40,6 +40,8 @@ Alle Personen als Tabelle zeigt die [Personentabelle](hilfe:tabelle) (Strg+4).
 
 Im Personenblatt zeigt der Detailbereich unter der Ereignistabelle (Reiter **Quellen**) jeden Verweis mit Seite, Qualität, Datum, Zitat, Notizen und Medien; ein Klick auf den Titel öffnet die Quelle hier. Eine Quelle ohne eigenen Eintrag („laut Martha Meier“) steht kursiv.
 
+In den Aufbauten **Baum im Mittelpunkt** und **Familienansicht** steht der Knopf **Quellen** in der Leiste oben; in der Personentafel rechts (Reiter Ereignisse) ist jeder Verweis anklickbar und öffnet die Quelle.
+
 Braucht api4webtrees mit API-Stufe 18; bei älteren Servern öffnet das Symbol wie bisher die Quellenliste von webtrees.
 
 ## Bereiche: Start, Baum, Fotos

@@ -70,6 +70,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -231,7 +232,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                     symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
                     onQuellen = if (quellenApi) ({ quellen = "" }) else null)
             } else {
-                WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family)
+                WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family, onQuellen = if (quellenApi) ({ quellen = "" }) else null)
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Box(Modifier.fillMaxWidth().height(3.dp)) {
@@ -262,7 +263,9 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                     Box(Modifier.width(400.dp).fillMaxHeight()) {
                         val detail = state.detail
                         if (detail != null) {
-                            ProfilePanel(state, detail, viewModel, openWeb, onClose = null)
+                            CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalSourceOpener provides (if (quellenApi) ({ x: String -> quellen = x }) else null)) {
+                                ProfilePanel(state, detail, viewModel, openWeb, onClose = null)
+                            }
                         } else {
                             Text(
                                 stringResource(Res.string.detail_choose), Modifier.align(Alignment.Center).padding(24.dp),
@@ -706,7 +709,7 @@ fun personentextKopieren(d: de.bgghome.webtrees.nativ.api.IndividualDetail) {
 // ── Arbeitsbereiche ──────────────────────────────────────────────────
 
 @Composable
-private fun WorkspaceBar(state: UiState, viewModel: AppViewModel, familie: Boolean) {
+private fun WorkspaceBar(state: UiState, viewModel: AppViewModel, familie: Boolean, onQuellen: (() -> Unit)?) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             TreePicker(state, viewModel)
@@ -714,6 +717,7 @@ private fun WorkspaceBar(state: UiState, viewModel: AppViewModel, familie: Boole
             Workspace(Icons.Default.Home, stringResource(Res.string.nav_home), state.section == Section.Home) { viewModel.setSection(Section.Home) }
             Workspace(TreeIcon, stringResource(if (familie) Res.string.nav_family else Res.string.nav_tree), state.section == Section.Tree || state.section == Section.Search) { viewModel.setSection(Section.Tree) }
             Workspace(PhotoIcon, stringResource(Res.string.nav_photos), state.section == Section.Photos) { viewModel.setSection(Section.Photos) }
+            if (onQuellen != null) Workspace(SourceIcon, stringResource(Res.string.desk_sources_window), false, onQuellen)
             Spacer(Modifier.weight(1f))
             if (!familie && (state.section == Section.Tree || state.section == Section.Search)) {
                 GenerationsChip(state, viewModel)
