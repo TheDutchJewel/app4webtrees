@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
@@ -174,6 +176,26 @@ private fun csv(zeilen: List<TabellenZeile>, titel: List<String>): String = buil
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PersonenTabelle(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, openWeb: (String) -> Unit, onClose: () -> Unit) {
+    // Die Tasten (Pfeile, Enter) gehoeren zum Fenster, ihr Ziel (die Zeilen) zum Inhalt: der Inhalt reicht seinen Handler herauf.
+    val tasten = remember { mutableStateOf<(KeyEvent) -> Boolean>({ false }) }
+    DialogWindow(
+        onCloseRequest = onClose, title = stringResource(Res.string.desk_table_window) + " – " + state.tree?.title.orEmpty(),
+        state = rememberDialogState(width = 1280.dp, height = 820.dp),
+        onPreviewKeyEvent = { e ->
+            if (e.type != KeyEventType.KeyDown) false else when (e.key) {
+                Key.Escape -> { onClose(); true }
+                Key.F1 -> { Hilfe.oeffnen("tabelle"); true }
+                else -> tasten.value(e)
+            }
+        },
+    ) {
+        DeskTheme { PersonenTabelleInhalt(state, viewModel, openSheet, openWeb) { tasten.value = it } }
+    }
+}
+
+/** Der Inhalt des Tabellenfensters, ohne das Fenster - so laesst er sich auch ohne Bildschirm zeichnen. */
+@Composable
+internal fun PersonenTabelleInhalt(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, openWeb: (String) -> Unit, tastenSetzen: ((KeyEvent) -> Boolean) -> Unit) {
     var fortschritt by remember { mutableStateOf(0 to 0) }
     var neu by remember { mutableStateOf(0) }
     val baum by produceState<Result<List<TabellenZeile>>?>(null, state.tree?.name, neu) {
@@ -212,13 +234,9 @@ fun PersonenTabelle(state: UiState, viewModel: AppViewModel, openSheet: (String)
         }
     }
 
-    DialogWindow(
-        onCloseRequest = onClose, title = stringResource(Res.string.desk_table_window) + " – " + state.tree?.title.orEmpty(),
-        state = rememberDialogState(width = 1280.dp, height = 820.dp),
-        onPreviewKeyEvent = { e ->
-            if (e.type != KeyEventType.KeyDown) false else when (e.key) {
-                Key.Escape -> { onClose(); true }
-                Key.F1 -> { Hilfe.oeffnen("tabelle"); true }
+    SideEffect {
+        tastenSetzen { e ->
+            when (e.key) {
                 Key.DirectionDown -> { schritt(1); true }
                 Key.DirectionUp -> { schritt(-1); true }
                 Key.PageDown -> { schritt(20); true }
@@ -226,9 +244,10 @@ fun PersonenTabelle(state: UiState, viewModel: AppViewModel, openSheet: (String)
                 Key.Enter -> { gewaehlt?.let(viewModel::setRoot); true }
                 else -> false
             }
-        },
-    ) {
-        DeskTheme {
+        }
+    }
+    run {
+        run {
             Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 // ── Kopf: Anzahl, Filter leeren, CSV ──
                 Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically,

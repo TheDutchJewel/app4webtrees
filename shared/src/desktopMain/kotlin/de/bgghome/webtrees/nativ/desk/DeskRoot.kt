@@ -709,7 +709,7 @@ fun personentextKopieren(d: de.bgghome.webtrees.nativ.api.IndividualDetail) {
 // ── Arbeitsbereiche ──────────────────────────────────────────────────
 
 @Composable
-private fun WorkspaceBar(state: UiState, viewModel: AppViewModel, familie: Boolean, onQuellen: (() -> Unit)?) {
+internal fun WorkspaceBar(state: UiState, viewModel: AppViewModel, familie: Boolean, onQuellen: (() -> Unit)?) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             TreePicker(state, viewModel)
@@ -776,7 +776,7 @@ private fun TreePicker(state: UiState, viewModel: AppViewModel) {
 // ── Personenliste links ──────────────────────────────────────────────
 
 @Composable
-private fun PersonIndex(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, focus: FocusRequester, modifier: Modifier) {
+internal fun PersonIndex(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, focus: FocusRequester, modifier: Modifier) {
     Surface(color = MaterialTheme.colorScheme.surface, modifier = modifier) {
         Column(Modifier.fillMaxSize()) {
             SearchField(state.query, viewModel::search, focus)
