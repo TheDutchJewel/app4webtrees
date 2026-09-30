@@ -35,6 +35,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,6 +52,7 @@ import de.bgghome.webtrees.nativ.api.EventJson
 import de.bgghome.webtrees.nativ.api.FamilyJson
 import de.bgghome.webtrees.nativ.api.IndividualDetail
 import de.bgghome.webtrees.nativ.api.Person
+import de.bgghome.webtrees.nativ.api.halfSiblings
 import de.bgghome.webtrees.nativ.res.*
 import de.bgghome.webtrees.nativ.ui.AppViewModel
 import de.bgghome.webtrees.nativ.ui.Avatar
@@ -104,7 +112,20 @@ fun DeskFamilie(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
         else withContext(Dispatchers.IO) { runCatching { viewModel.client.individual(tree, partnerXref) }.getOrNull() }
     }
 
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    // Tastatur: hoch Vater (mit Umschalt Mutter), runter das erste Kind, links/rechts die Geschwister, Tab der naechste Reiter
+    fun gehe(r: Richtung): Boolean { p?.let { zielPerson(it, familie, r) }?.let { viewModel.setRoot(it) }; return true }
+    val tasten = Modifier.tastenBereich(root) { e ->
+        if (e.type != KeyEventType.KeyDown || e.isAltPressed || e.isCtrlPressed) false else when (e.key) {
+            Key.DirectionUp -> gehe(if (e.isShiftPressed) Richtung.Mutter else Richtung.Vater)
+            Key.DirectionDown -> gehe(Richtung.Kind)
+            Key.DirectionLeft -> gehe(Richtung.GeschwisterZurueck)
+            Key.DirectionRight -> gehe(Richtung.GeschwisterVor)
+            Key.Tab -> { if (familien.size > 1) reiter = (reiter + 1) % familien.size; familien.size > 1 }
+            else -> false
+        }
+    }
+
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).then(tasten)) {
         val fehler = proband?.exceptionOrNull()
         when {
             root == null -> {}
@@ -151,6 +172,19 @@ private fun Familie(
                             Linie()
                         }
                     }
+                }
+            }
+
+            // ── Geschwister des Probanden (Halbgeschwister mit ½) ──
+            val voll = daten.proband.parentFamilies.flatMap { it.children }.filter { it.xref != p.xref }.distinctBy { it.xref }
+            val halb = daten.proband.halfSiblings().map { it.person }.filter { h -> voll.none { it.xref == h.xref } }
+            if (voll.isNotEmpty() || halb.isNotEmpty()) {
+                @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+                androidx.compose.foundation.layout.FlowRow(Modifier.fillMaxWidth().padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(stringResource(Res.string.desk_family_siblings_of, klarName(p)), style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 5.dp, end = 4.dp))
+                    (voll.map { it to false } + halb.map { it to true }).forEach { (g, istHalb) -> GeschwisterChip(g, istHalb, karte) }
                 }
             }
 
@@ -275,6 +309,22 @@ private fun PersonKarte(person: Person?, leer: String, gross: Boolean, a: Karten
                 }
             }
         }
+    }
+}
+
+/** Ein Geschwister als kleiner Reiter: Name und Jahre, Halbgeschwister mit ½. */
+@Composable
+private fun GeschwisterChip(g: Person, halb: Boolean, a: KartenAktionen) {
+    val text = (if (g.isPrivate) stringResource(Res.string.person_private) else klarName(g)) + (if (halb) " ½" else "") + jahre(g).let { if (it.isNotEmpty()) "  $it" else "" }
+    if (g.isPrivate) {
+        Text(text, Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small).padding(horizontal = 8.dp, vertical = 4.dp),
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        return
+    }
+    Anklickbar(g, a) { klick ->
+        Text(text, Modifier.background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.small)
+            .border(1.dp, if (g.xref == a.state.selected) MaterialTheme.colorScheme.primary else treeColors.forSex(g.sex).copy(alpha = 0.6f), MaterialTheme.shapes.small)
+            .then(klick).padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.bodySmall)
     }
 }
 

@@ -9,6 +9,8 @@ The toolbar on top, below it the **central person** with partners and children, 
 - **One click** on a person makes them the central person.
 - **Double-click** opens the [person sheet](hilfe:person).
 - **Right mouse button**: show as central person, edit, bookmark, open in webtrees.
+- **Siblings** are listed in the info box at the top left (half-siblings with ½); a click makes them the central person.
+- **Keyboard:** right arrow to the father (with Shift to the mother), left to the child, up/down through the siblings, Enter opens the sheet (see [Keyboard shortcuts](hilfe:tasten)).
 - **Generations** (2 to 7) and **zoom** (−, +, fit) are in the navigator itself; the choice is remembered.
 - A missing parent shows as "father unknown" or "mother unknown". With edit rights, **Add relative** creates the missing person.
 
@@ -28,6 +30,7 @@ Like "Tree in the centre", but the middle shows the central person's **family**:
 - **Double-click** makes them the central person – this is how you move through the families up (parents) and down (children).
 - **Right mouse button**: Show as focus, Add relative, Open in webtrees.
 - A missing parent shows "Father unknown" or "Mother unknown"; with edit rights, **+ add** creates them.
+- The central person's **siblings** are shown above the couple. **Keyboard:** up arrow to the father (with Shift to the mother), down to the child, left/right through the siblings, Tab to the next tab.
 
 The [person table](hilfe:tabelle) (Ctrl+4) shows everyone as a table.
 

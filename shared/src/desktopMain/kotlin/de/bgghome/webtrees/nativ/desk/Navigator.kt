@@ -7,6 +7,14 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import de.bgghome.webtrees.nativ.api.halfSiblings
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -172,7 +180,21 @@ fun Navigator(
     val g = state.ancestorGenerations.coerceIn(2, 7)
     val eng = chartMasse(g, familie, familien.isNotEmpty(), COL, SLOT_MIN)
     var stil by remember { mutableStateOf(NavStil.laden()) }
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    // Tastatur: rechts Vater (mit Umschalt Mutter), links das erste Kind, hoch/runter die Geschwister, Eingabe oeffnet das
+    // Blatt, Tab wechselt die Partnerschaft. Alt+Pfeile bleiben Zurueck/Vor.
+    fun gehe(r: Richtung): Boolean { detail?.let { zielPerson(it, familie, r) }?.let { viewModel.setRoot(it) }; return true }
+    val tasten = Modifier.tastenBereich(state.root) { e ->
+        if (e.type != KeyEventType.KeyDown || e.isAltPressed || e.isCtrlPressed) false else when (e.key) {
+            Key.DirectionRight -> gehe(if (e.isShiftPressed) Richtung.Mutter else Richtung.Vater)
+            Key.DirectionLeft -> gehe(Richtung.Kind)
+            Key.DirectionUp -> gehe(Richtung.GeschwisterZurueck)
+            Key.DirectionDown -> gehe(Richtung.GeschwisterVor)
+            Key.Enter -> { onOpenSheet(zentral.xref); true }
+            Key.Tab -> { if (familien.size > 1) gewaehlt = (fIndex + 1) % familien.size; familien.size > 1 }
+            else -> false
+        }
+    }
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).then(tasten)) {
     // Generationen, Stil und Zoom ueber der Tafel, rechts - im Navigator statt in der Symbolleiste
     // (dort fehlte bei 125 % Skalierung der Platz).
     TafelRegler(state.ancestorGenerations, viewModel::setAncestorGenerations, zoom, onZoom, stil) { stil = it; it.speichern() }
@@ -380,7 +402,8 @@ private fun Chart(
         }
 
         // Infokasten oben links
-        if (detail != null) InfoBox(detail, fIndex, Modifier.offset(0.dp, 0.dp).size(BOX_W * 2 + 56.dp, INFO_H - 12.dp), onOpen = { onOpenSheet(zentral.xref) })
+        if (detail != null) InfoBox(detail, fIndex, Modifier.offset(0.dp, 0.dp).size(BOX_W * 2 + 56.dp, INFO_H - 12.dp), onOpen = { onOpenSheet(zentral.xref) },
+            onPerson = { viewModel.setRoot(it) })
 
         // Kinder in eigenem Rollbereich: viele Kinder rollen, statt die Tafel zu verkleinern
         if (kinder.isNotEmpty()) {
@@ -441,7 +464,7 @@ private fun Chart(
 
 /** Infokasten: grosses Portraet, Name in Registerform, Geburt, Ehen mit roemischer Nummer, Tod, Beruf. */
 @Composable
-private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier, onOpen: () -> Unit) {
+private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier, onOpen: () -> Unit, onPerson: (String) -> Unit) {
     val p = detail.person
     val colors = MaterialTheme.colorScheme
     fun ort(f: FactJson?) = f?.let { listOfNotNull(it.date?.text?.takeIf(String::isNotBlank), it.place?.short?.takeIf(String::isNotBlank)).joinToString(" ") }.orEmpty()
@@ -472,6 +495,20 @@ private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier,
                 }, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = gewicht)
             }
             if (tod.isNotBlank()) Text("†  $tod", fontSize = 14.sp)
+            // Geschwister (Halbgeschwister mit ½): ein Klick macht sie zur Zentralperson
+            val voll = detail.parentFamilies.flatMap { it.children }.filter { it.xref != p.xref }.distinctBy { it.xref }
+            val halb = detail.halfSiblings().map { it.person }.filter { h -> voll.none { it.xref == h.xref } }
+            if (voll.isNotEmpty() || halb.isNotEmpty()) {
+                @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(Res.string.desk_siblings) + ":", fontSize = 13.sp, color = colors.onSurfaceVariant)
+                    (voll.map { it to false } + halb.map { it to true }).forEach { (g, istHalb) ->
+                        val text = (if (g.isPrivate) priv else klarName(g)) + (if (istHalb) " ½" else "") + jahre(g).let { if (it.isNotEmpty()) " ($it)" else "" }
+                        Text(text, fontSize = 13.sp, color = if (g.isPrivate) colors.onSurfaceVariant else colors.primary,
+                            modifier = if (g.isPrivate) Modifier else Modifier.clickable { onPerson(g.xref) })
+                    }
+                }
+            }
         }
     }
 }

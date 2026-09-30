@@ -9,6 +9,8 @@ Oben die Symbolleiste, darunter der **Proband** mit Partnern und Kindern, rechts
 - **Ein Klick** auf eine Person macht sie zum Probanden.
 - **Doppelklick** öffnet das [Personenblatt](hilfe:person).
 - **Rechte Maustaste**: Als Proband zeigen, Bearbeiten, Merken, in webtrees öffnen.
+- **Geschwister** stehen im Infokasten oben links (Halbgeschwister mit ½); ein Klick macht sie zum Probanden.
+- **Tastatur:** Pfeil rechts zum Vater (mit Umschalt zur Mutter), links zum Kind, hoch/runter durch die Geschwister, Eingabe öffnet das Blatt (siehe [Tastenkürzel](hilfe:tasten)).
 - **Generationen** (2 bis 7) und **Zoom** (−, +, Einpassen) stehen im Navigator selbst; die Wahl bleibt gespeichert.
 - Fehlt ein Elternteil, steht dort „Vater unbekannt“ oder „Mutter unbekannt“. Mit Bearbeitungsrecht legst du über **Verwandte hinzufügen** die fehlende Person an.
 
@@ -28,6 +30,7 @@ Wie „Baum im Mittelpunkt“, aber in der Mitte die **Familie** des Probanden: 
 - **Doppelklick** macht sie zum Probanden – so gehst du durch die Familien nach oben (Eltern) und unten (Kinder).
 - **Rechte Maustaste**: Als Proband, Verwandte hinzufügen, in webtrees öffnen.
 - Fehlt ein Elternteil, steht dort „Vater unbekannt“ bzw. „Mutter unbekannt“; mit Bearbeitungsrecht legst du ihn über **+ hinzufügen** an.
+- Über dem Paar stehen die **Geschwister** des Probanden. **Tastatur:** Pfeil hoch zum Vater (mit Umschalt zur Mutter), runter zum Kind, links/rechts durch die Geschwister, Tab zum nächsten Reiter.
 
 Alle Personen als Tabelle zeigt die [Personentabelle](hilfe:tabelle) (Strg+4).
 

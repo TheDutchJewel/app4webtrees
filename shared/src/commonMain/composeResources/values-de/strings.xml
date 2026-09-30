@@ -942,4 +942,5 @@
     <string name="desk_unsaved_text">Bei %1$d Person(en) sind Eingaben noch nicht gespeichert.</string>
     <string name="desk_unsaved_save">Speichern</string>
     <string name="desk_unsaved_discard">Verwerfen</string>
+    <string name="desk_family_siblings_of">Geschwister von %1$s:</string>
 </resources>

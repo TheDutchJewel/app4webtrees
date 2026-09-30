@@ -23,6 +23,25 @@
 | Strg+4 | Personentabelle |
 | Strg+Q | Beenden |
 
+## Navigator
+
+| Taste | Wirkung |
+| - | - |
+| Pfeil rechts / Umschalt+Pfeil rechts | Zum Vater / zur Mutter |
+| Pfeil links | Zum ersten Kind der gezeigten Partnerschaft |
+| Pfeil hoch / Pfeil runter | Voriges / nächstes Geschwister |
+| Tab | Nächste Partnerschaft |
+| Eingabe | Personenblatt öffnen |
+
+## Familienansicht
+
+| Taste | Wirkung |
+| - | - |
+| Pfeil hoch / Umschalt+Pfeil hoch | Zum Vater / zur Mutter |
+| Pfeil runter | Zum ersten Kind des gezeigten Reiters |
+| Pfeil links / Pfeil rechts | Voriges / nächstes Geschwister |
+| Tab | Nächster Reiter (Partnerschaft) |
+
 ## Personenblatt
 
 | Taste | Wirkung |

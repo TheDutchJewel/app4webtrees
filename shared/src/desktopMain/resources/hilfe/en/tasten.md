@@ -23,6 +23,25 @@
 | Ctrl+4 | Person table |
 | Ctrl+Q | Quit |
 
+## Navigator
+
+| Key | Action |
+| - | - |
+| Right arrow / Shift+Right arrow | To the father / to the mother |
+| Left arrow | To the first child of the partnership shown |
+| Up arrow / Down arrow | Previous / next sibling |
+| Tab | Next partnership |
+| Enter | Open the person sheet |
+
+## Family view
+
+| Key | Action |
+| - | - |
+| Up arrow / Shift+Up arrow | To the father / to the mother |
+| Down arrow | To the first child of the tab shown |
+| Left arrow / Right arrow | Previous / next sibling |
+| Tab | Next tab (partnership) |
+
 ## Person sheet
 
 | Key | Action |
