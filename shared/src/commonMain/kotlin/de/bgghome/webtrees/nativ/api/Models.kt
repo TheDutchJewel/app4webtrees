@@ -292,7 +292,12 @@ data class WriteResult(
     val media: String? = null,
     /** Route Citation: die neue Kennung des Ereignisses (Hash des Inhalts, aendert sich mit jedem Schreiben). */
     val factId: String? = null,
+    /** Route MediaFromFile: true, wenn es das Medienobjekt zu der Datei schon gab. */
+    val existing: Boolean? = null,
 )
+
+@Serializable
+data class MediaFromFileRequest(val file: String, val title: String? = null, val type: String? = null)
 
 /**
  * Quellenverweis anlegen, aendern, loeschen oder verschieben (Route Citation, ab Stufe 18). Null = nicht anfassen:

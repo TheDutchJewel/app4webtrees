@@ -270,6 +270,13 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     suspend fun saveSource(tree: String, xref: String?, request: SourceRequest): WriteResult =
         post("Source", tree, if (xref == null) emptyMap() else mapOf("xref" to xref), jsonBody(SourceRequest.serializer(), request))
 
+    /**
+     * Ab API-Stufe 18: Medienobjekt fuer eine Datei, die schon im Medienordner liegt (Archiv) - ohne Verknuepfung.
+     * [xref]: irgendein Datensatz des Baums, nur fuer die Rechtepruefung.
+     */
+    suspend fun mediaFromFile(tree: String, xref: String, file: String, title: String, type: String = "document"): WriteResult =
+        post("MediaFromFile", tree, mapOf("xref" to xref), jsonBody(MediaFromFileRequest.serializer(), MediaFromFileRequest(file, title, type)))
+
     suspend fun repositories(tree: String): RepositoryList = get("Repositories", tree, emptyMap(), RepositoryList.serializer())
 
     suspend fun saveRepository(tree: String, xref: String?, name: String): WriteResult =

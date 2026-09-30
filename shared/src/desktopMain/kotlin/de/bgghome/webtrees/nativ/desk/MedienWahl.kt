@@ -34,6 +34,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import de.bgghome.webtrees.nativ.api.MediaJson
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import de.bgghome.webtrees.nativ.api.ArchiveEntry
+import de.bgghome.webtrees.nativ.api.ArchiveOverview
 import de.bgghome.webtrees.nativ.api.WtClient
 import de.bgghome.webtrees.nativ.res.*
 import de.bgghome.webtrees.nativ.ui.Field
@@ -48,9 +52,18 @@ import org.jetbrains.compose.resources.stringResource
  * einem Medium, das der Stammbaum schon hat.
  */
 
-/** Ein vorhandenes Medium des Stammbaums waehlen: alle Medien mit Vorschaubild und Suche im Titel. */
+/**
+ * Ein vorhandenes Medium des Stammbaums waehlen: alle Medien mit Vorschaubild und Suche im Titel. Laeuft das Modul
+ * Sammlungen ([archive]), gibt es den Reiter "Aus dem Archiv": Ordner durchsehen, Datei waehlen - erst dann entsteht
+ * dafuer ein Medienobjekt (oder das vorhandene wird genommen). Die Datei bleibt im Archiv.
+ */
 @Composable
-fun MedienWahlDialog(tree: String, client: WtClient, schonDa: Set<String>, onDismiss: () -> Unit, onWahl: (MediaJson) -> Unit) {
+fun MedienWahlDialog(
+    tree: String, client: WtClient, schonDa: Set<String>, onDismiss: () -> Unit,
+    archive: ArchiveOverview? = null, rechteXref: String = "", onWahl: (MediaJson) -> Unit,
+) {
+    var reiter by remember { mutableStateOf(0) }
+    val archivDa = archive != null && archive.sammlungen.any { it.art == "ordner" }
     val alle = remember { mutableStateListOf<MediaJson>() }
     var laden by remember { mutableStateOf(true) }
     var suche by remember { mutableStateOf("") }
@@ -68,6 +81,17 @@ fun MedienWahlDialog(tree: String, client: WtClient, schonDa: Set<String>, onDis
         title = { Text(stringResource(Res.string.desk_media_pick_title)) },
         text = {
             Column(Modifier.width(560.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                if (archivDa) Row(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
+                    listOf(Res.string.desk_media_tab_tree, Res.string.desk_media_tab_archive).forEachIndexed { i, t ->
+                        Text(stringResource(t), Modifier.weight(1f).background(if (reiter == i) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface, MaterialTheme.shapes.small)
+                            .clickable { reiter = i }.padding(vertical = 6.dp), style = MaterialTheme.typography.labelLarge, fontWeight = if (reiter == i) FontWeight.SemiBold else FontWeight.Normal,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    }
+                }
+                if (reiter == 1 && archive != null) {
+                    ArchivWahl(tree, client, archive, schonDa, rechteXref) { onWahl(it); onDismiss() }
+                    return@Column
+                }
                 Field(suche, { suche = it }, Res.string.desk_media_pick_search)
                 Text(if (laden) stringResource(Res.string.desk_chart_loading_any) else stringResource(Res.string.desk_media_pick_count, treffer.size),
                     style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -124,4 +148,68 @@ fun MedienBearbeiten(medien: List<MediaJson>, onEntfernen: (MediaJson) -> Unit, 
         }
         fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
     }
+}
+
+/** Der Reiter "Aus dem Archiv": links die Ordner-Sammlungen, rechts die Dateien der gewaehlten mit Vorschau. */
+@Composable
+private fun ArchivWahl(tree: String, client: WtClient, archive: ArchiveOverview, schonDa: Set<String>, rechteXref: String, onWahl: (MediaJson) -> Unit) {
+    val ordner = archive.sammlungen.filter { it.art == "ordner" }
+    var gewaehlt by remember { mutableStateOf(ordner.firstOrNull()?.slug) }
+    val eintraege = remember { mutableStateListOf<ArchiveEntry>() }
+    var laden by remember { mutableStateOf(false) }
+    var fehler by remember { mutableStateOf<String?>(null) }
+    var beschaeftigt by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(gewaehlt) {
+        eintraege.clear(); fehler = null
+        val slug = gewaehlt ?: return@LaunchedEffect
+        laden = true
+        var seite = 1
+        while (true) {
+            val p = withContext(Dispatchers.IO) { runCatching { client.collection(tree, slug, "", seite, 200) } }.getOrElse { fehler = it.message; null } ?: break
+            eintraege += p.eintraege
+            if (seite >= p.seiten) break
+            seite++
+        }
+        laden = false
+    }
+    Row(Modifier.fillMaxWidth().height(400.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.width(170.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
+            LazyColumn { items(ordner, key = { it.slug }) { o ->
+                Text(o.name.ifBlank { o.slug } + "  (${o.anzahl})", Modifier.fillMaxWidth().background(if (o.slug == gewaehlt) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface)
+                    .clickable { gewaehlt = o.slug }.padding(horizontal = 8.dp, vertical = 6.dp), style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            } }
+        }
+        Box(Modifier.weight(1f).height(400.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
+            when {
+                fehler != null -> Text(fehler!!, Modifier.padding(8.dp), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                laden && eintraege.isEmpty() -> Text(stringResource(Res.string.desk_chart_loading_any), Modifier.padding(8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                else -> LazyColumn(Modifier.fillMaxWidth()) {
+                    items(eintraege.filter { it.xref == null || it.xref !in schonDa }, key = { it.pfad ?: it.datei }) { e ->
+                        Row(Modifier.fillMaxWidth().clickable(enabled = !beschaeftigt) {
+                            beschaeftigt = true
+                            scope.launch {
+                                runCatching {
+                                    val pfad = e.pfad ?: error("?")
+                                    val xref = e.xref ?: client.mediaFromFile(tree, rechteXref, pfad, e.titel.ifBlank { e.datei.substringBeforeLast('.') }).media ?: error("?")
+                                    MediaJson(xref = xref, title = e.titel.ifBlank { e.datei }, mime = if (e.istBild) "image/${e.format}" else "application/${e.format}", isImage = e.istBild, thumb = e.kachel)
+                                }.onSuccess(onWahl).onFailure { fehler = it.message; beschaeftigt = false }
+                            }
+                        }.padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(44.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant), contentAlignment = Alignment.Center) {
+                                if (e.kachel != null) AsyncImage(model = e.kachel, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(44.dp))
+                                else Text(e.format.take(4), style = MaterialTheme.typography.labelSmall)
+                            }
+                            Column(Modifier.padding(start = 10.dp).weight(1f)) {
+                                Text(e.titel.ifBlank { e.datei }, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(listOfNotNull(e.datei, e.datum.takeIf { it.isNotBlank() }, if (e.xref != null) stringResource(Res.string.desk_media_in_tree) else null).joinToString(" · "),
+                                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Text(stringResource(Res.string.desk_media_archive_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }

@@ -1037,4 +1037,8 @@
     <string name="desk_media_upload">Upload file …</string>
     <string name="desk_media_existing">Existing media …</string>
     <string name="desk_media_unlink">unlink</string>
+    <string name="desk_media_tab_tree">Media in the tree</string>
+    <string name="desk_media_tab_archive">From the archive</string>
+    <string name="desk_media_in_tree">in the tree</string>
+    <string name="desk_media_archive_hint">The file stays in the archive. A media object is only created by your choice – for files that do not have one yet.</string>
 </resources>

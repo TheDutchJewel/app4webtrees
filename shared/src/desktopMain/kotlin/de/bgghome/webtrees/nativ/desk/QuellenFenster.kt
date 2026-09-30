@@ -200,7 +200,8 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
                         onConfirm = { dialog = null; scope.launch { runCatching { viewModel.client.deleteRecord(t, q.xref) }.onSuccess { gewaehlt = null; neuLaden() }.onFailure { fehler = it.message } } },
                     )
                 }
-                is QuellenDialog.Medium -> MedienWahlDialog(t, viewModel.client, dlg.quelle.media.map { it.xref }.toSet(), onDismiss = { dialog = null }) { m ->
+                is QuellenDialog.Medium -> MedienWahlDialog(t, viewModel.client, dlg.quelle.media.map { it.xref }.toSet(), onDismiss = { dialog = null },
+                    archive = state.archive, rechteXref = dlg.quelle.xref) { m ->
                     scope.launch { runCatching { viewModel.client.saveSource(t, dlg.quelle.xref, de.bgghome.webtrees.nativ.api.SourceRequest(media = (dlg.quelle.media.map { it.xref } + m.xref).distinct())) }.onSuccess { neuLaden() }.onFailure { fehler = it.message } }
                 }
                 QuellenDialog.Unbenutzte -> UnbenutzteDialog(t, liste?.getOrNull()?.sources.orEmpty(), viewModel, onDismiss = { dialog = null }, onFertig = { gewaehlt = null; neuLaden() })

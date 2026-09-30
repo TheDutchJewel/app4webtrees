@@ -192,7 +192,8 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
         dismissButton = { TextButton(onClick = onDismiss, enabled = !speichert) { Text(stringResource(Res.string.action_cancel)) } },
     )
     if (neueQuelle) QuelleDialog(tree, null, viewModel, onDismiss = { neueQuelle = false }, onSaved = { quelle = it; quellenNeu++ })
-    if (medienWahl) MedienWahlDialog(tree, viewModel.client, medien.map { it.xref }.toSet(), onDismiss = { medienWahl = false }) { medien += it }
+    if (medienWahl) MedienWahlDialog(tree, viewModel.client, medien.map { it.xref }.toSet(), onDismiss = { medienWahl = false },
+        archive = viewModel.state.value.archive, rechteXref = ziel.record) { medien += it }
 }
 
 /**

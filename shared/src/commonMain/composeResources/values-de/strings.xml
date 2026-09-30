@@ -1032,4 +1032,8 @@
     <string name="desk_media_upload">Datei hochladen …</string>
     <string name="desk_media_existing">Vorhandenes Medium …</string>
     <string name="desk_media_unlink">lösen</string>
+    <string name="desk_media_tab_tree">Medien im Stammbaum</string>
+    <string name="desk_media_tab_archive">Aus dem Archiv</string>
+    <string name="desk_media_in_tree">im Stammbaum</string>
+    <string name="desk_media_archive_hint">Die Datei bleibt im Archiv. Ein Medienobjekt entsteht erst durch deine Auswahl – für Dateien, die noch keines haben.</string>
 </resources>
