@@ -83,6 +83,12 @@ class LokaleEinrichtungTest {
                 assertTrue(LokalOrte.eingerichtet, schritte.toString())
                 // Modul Sammlungen (Archiv) liegt neben api4webtrees und ist eingeschaltet: die Archiv-Uebersicht antwortet
                 if (sammlungen != null) assertTrue(File(LokalOrte.webtrees, "modules_v4/sammlungen/module.php").isFile, "Sammlungen fehlt")
+                // Merkdatei traegt die ZIP-Namen; ein aelterer Stand loest beim naechsten Start das Auffrischen aus
+                val marke = File(LokalOrte.webtrees, "modules_v4/.wtwin-paket")
+                assertTrue(marke.isFile && marke.readText().contains(api?.name ?: "api4webtrees"), "Merkdatei fehlt")
+                marke.writeText("alt")
+                LokaleEinrichtung.moduleAuffrischen(LokalOrte.webtrees, api, sammlungen)
+                assertTrue(marke.readText().contains(api?.name ?: "api4webtrees"), "Auffrischen hat die Merkdatei nicht erneuert")
                 val client = de.bgghome.webtrees.nativ.api.WtClient(
                     SpeicherAblage(), SpeicherAblage(),
                     userAgent = "test",

@@ -64,17 +64,7 @@ class LokaleEinrichtung(
             wt.deleteRecursively()
             check(tmp.renameTo(wt)) { "Konnte $tmp nicht nach $wt verschieben" }
         }
-        if (apiZip != null) {
-            schritt("api4webtrees wird eingerichtet …")
-            val modul = File(wt, "modules_v4/api4webtrees")
-            modul.deleteRecursively()
-            LokalerServer.entpacken(apiZip, File(wt, "modules_v4"), ohneOberordner = false)
-        }
-        if (sammlungenZip != null) {
-            schritt("Archiv (Sammlungen) wird eingerichtet …")
-            File(wt, "modules_v4/sammlungen").deleteRecursively()
-            LokalerServer.entpacken(sammlungenZip, File(wt, "modules_v4"), ohneOberordner = false)
-        }
+        moduleAuffrischen(wt, apiZip, sammlungenZip, schritt)
 
         val alt = LokalerZugang.laden()
         val server = LokalerServer(php)
@@ -226,6 +216,30 @@ class LokaleEinrichtung(
         .trim()
 
     companion object {
+        /**
+         * Die mitgelieferten Module (api4webtrees, Sammlungen) nach modules_v4 legen - beim Anlegen und bei jedem Start,
+         * wenn das Paket neuere ZIPs bringt als beim letzten Mal (Merkdatei .wtwin-paket mit den ZIP-Namen). So bekommt
+         * ein vorhandener Stammbaum auf diesem PC mit einer neuen Programmversion auch die neuen Module.
+         */
+        fun moduleAuffrischen(wt: File, apiZip: File?, sammlungenZip: File?, schritt: (String) -> Unit = {}) {
+            val module = File(wt, "modules_v4")
+            if (!module.isDirectory) return
+            val marke = File(module, ".wtwin-paket")
+            val stand = listOfNotNull(apiZip?.name, sammlungenZip?.name).joinToString("\n")
+            if (stand.isEmpty() || marke.takeIf { it.isFile }?.readText() == stand) return
+            if (apiZip != null) {
+                schritt("api4webtrees wird eingerichtet …")
+                File(module, "api4webtrees").deleteRecursively()
+                LokalerServer.entpacken(apiZip, module, ohneOberordner = false)
+            }
+            if (sammlungenZip != null) {
+                schritt("Archiv (Sammlungen) wird eingerichtet …")
+                File(module, "sammlungen").deleteRecursively()
+                LokalerServer.entpacken(sammlungenZip, module, ohneOberordner = false)
+            }
+            marke.writeText(stand)
+        }
+
         private val FORTSCHRITT = Regex("""\s*\d+/\d+ \[.*""")
 
         /** Windows-/Linux-Benutzername, auf das beschraenkt, was webtrees und Anmeldeformulare sicher vertragen. */

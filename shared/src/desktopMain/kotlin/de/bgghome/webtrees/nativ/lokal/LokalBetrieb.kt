@@ -64,6 +64,8 @@ object LokalBetrieb {
         val zugang = LokalerZugang.laden() ?: return
         val php = mitgeliefertesPhp() ?: return
         runCatching {
+            // Neue Programmversion, neue Module: vor dem Start auffrischen (nur wenn sich das Paket geaendert hat)
+            LokaleEinrichtung.moduleAuffrischen(LokalOrte.webtrees, apiZip(), sammlungenZip())
             val s = LokalerServer(php).also { server = it }
             s.starten(wunschPort = zugang.port)
             if (s.port != zugang.port) zugang.copy(port = s.port).sichern()
