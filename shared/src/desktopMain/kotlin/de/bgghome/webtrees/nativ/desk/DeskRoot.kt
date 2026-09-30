@@ -114,6 +114,8 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
+    // Beenden mit ungespeicherten Eingaben im Personenblatt: erst nachfragen (auch vom Fenster-X, siehe Main.kt).
+    val beenden: () -> Unit = { if (Entwuerfe.offen()) Entwuerfe.beendenAnfrage = true else onQuit() }
     val state by viewModel.state.collectAsState()
     val appName = LocalAppName.current
     val openWeb: (String) -> Unit = { openBrowser(it) }
@@ -162,7 +164,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         state, viewModel, openWeb, layout = layout, onLayout = { layout = it; DeskLayout.save(it) },
         onSearch = { if (layout == DeskLayout.Navigator) goTo = true else runCatching { search.requestFocus() } },
         onSheet = { (state.detail?.person?.xref ?: state.root)?.let(openSheet) },
-        onAbout = { about = true }, onQuit = onQuit,
+        onAbout = { about = true }, onQuit = beenden,
         nav = nav, drucke = drucke, onListe = { liste = it }, onHilfe = { Hilfe.oeffnen(if (state.screen == Screen.Main) "hauptfenster" else HilfeTexte.START) },
         farbkodierung = farbkodierung, onFarbkodierung = { farbkodierung = it; DeskLayout.prefs.putBoolean("farbkodierung", it) },
         symboltexte = symboltexte, onSymboltexte = { symboltexte = it; DeskLayout.prefs.putBoolean("symboltexte", it) },
@@ -192,6 +194,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         // Hilfe und "Ueber" stehen im Menue schon vor der Anmeldung
         HilfeFenster()
         if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
+        if (Entwuerfe.beendenAnfrage) UngespeichertDialog(viewModel, onWeiter = { Entwuerfe.beendenAnfrage = false; onQuit() }, onAbbrechen = { Entwuerfe.beendenAnfrage = false })
         return
     }
 
@@ -221,7 +224,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         Column(Modifier.fillMaxSize()) {
             if (layout == DeskLayout.Navigator) {
                 ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
-                    symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = onQuit)
+                    symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden)
             } else {
                 WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family)
             }
@@ -303,6 +306,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false })
 
     if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
+    if (Entwuerfe.beendenAnfrage) UngespeichertDialog(viewModel, onWeiter = { Entwuerfe.beendenAnfrage = false; onQuit() }, onAbbrechen = { Entwuerfe.beendenAnfrage = false })
 }
 
 // ── Menueleiste ──────────────────────────────────────────────────────

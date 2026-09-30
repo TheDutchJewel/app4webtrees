@@ -11,6 +11,8 @@ Oben Name, Lebensdaten und Bild. Darunter die Reiter:
 - **Eltern/Geschwister**: Eltern und Geschwister, auch Halbgeschwister. Ein Klick wechselt zur Person.
 - **Partner/Kinder**: links die Partnerschaften, rechts die Kinder der gewählten, darunter ihre Ereignisse (Heirat, Scheidung, Wohnort …) zum Anlegen, Bearbeiten und Löschen. Doppelklick auf Partner oder Kind zeigt dessen Blatt; **+** legt einen Partner bzw. ein Kind dieser Partnerschaft an.
 - **Name**: Vornamen, Familienname und Namenszusatz stehen beim Bearbeiten in eigenen Feldern.
+- **Einfach / Vollständig** (unten im Blatt): „Einfach“ zeigt im Reiter Daten ein Formular mit Name, Geburt, Taufe, Religion, Beruf, Heirat je Partnerschaft, Tod und Begräbnis zum direkten Eintippen; „Vollständig“ die Tabelle aller Ereignisse mit Alter und Merkern für Notiz und Quelle (Klick auf den Spaltenkopf sortiert).
+  Gespeichert wird nur, was du geändert hast; Quellen, Notizen und weitere Angaben am Ereignis bleiben erhalten. Gibt es ein Ereignis mehrfach, bearbeitet das Formular das erste. Ein Datum, das das Programm nicht deuten kann („Frühjahr 1850“), wird als Datumstext gespeichert. Nicht gespeicherte Eingaben gehen nicht verloren: Beim Schließen des Blatts und beim Beenden fragt das Programm nach.
 - **Notizen**, **Quellen**, **Medien**.
 - **Karte:** die Lebensstationen als Liste mit Links zu OpenStreetMap.
 

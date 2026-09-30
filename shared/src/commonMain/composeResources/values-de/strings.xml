@@ -923,4 +923,23 @@
     <string name="desk_partner_none">Noch keine Partnerschaft eingetragen.</string>
     <string name="field_family_name">Familienname</string>
     <string name="field_name_suffix">Namenszusatz (z. B. jun.)</string>
+    <string name="desk_col_age">Alter</string>
+    <string name="desk_ev_name">Name</string>
+    <string name="desk_ev_religion">Religion</string>
+    <string name="desk_ev_occupation">Beruf</string>
+    <string name="desk_ev_cremation">Einäscherung</string>
+    <string name="desk_simple_more">und %1$d weitere</string>
+    <string name="tipp_simple_more">Dieses Ereignis gibt es mehrfach. Das Formular bearbeitet das erste; die weiteren bleiben unverändert und stehen im Modus „Vollständig“.</string>
+    <string name="desk_simple_date_text">Nicht als Datum erkannt – wird als Datumstext gespeichert</string>
+    <string name="desk_simple_discard">Verwerfen</string>
+    <string name="desk_simple_saving">Speichert …</string>
+    <string name="desk_simple_error">Nicht alles gespeichert – die Eingaben stehen noch da, bitte erneut speichern.</string>
+    <string name="desk_simple_unsaved">Nicht gespeichert</string>
+    <string name="desk_mode_simple">Einfach</string>
+    <string name="desk_mode_full">Vollständig</string>
+    <string name="tipp_mode">Einfach: ein Formular mit Name, Geburt, Taufe, Religion, Beruf, Heirat, Tod und Begräbnis. Vollständig: alle Ereignisse als Tabelle.</string>
+    <string name="desk_unsaved_title">Nicht gespeicherte Eingaben</string>
+    <string name="desk_unsaved_text">Bei %1$d Person(en) sind Eingaben noch nicht gespeichert.</string>
+    <string name="desk_unsaved_save">Speichern</string>
+    <string name="desk_unsaved_discard">Verwerfen</string>
 </resources>

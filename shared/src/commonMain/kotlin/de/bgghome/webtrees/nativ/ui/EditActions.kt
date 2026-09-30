@@ -41,6 +41,44 @@ fun AppViewModel.saveFact(request: FactRequest, record: String? = null) = write(
     client.saveFact(tree, record ?: xref, request)
 }
 
+/**
+ * Mehrere Ereignisse einer Person nacheinander speichern (Eingabeformular am Desktop). [items]: Datensatz (null = die
+ * Person selbst, sonst die Familie) und Anfrage. Jedes gelungene meldet [onGespeichert] sofort - so legt ein Fehler
+ * mittendrin beim naechsten Versuch nichts doppelt an. Neu geladen wird am Ende, sobald etwas gespeichert wurde.
+ */
+fun AppViewModel.saveFacts(xref: String, items: List<Pair<String?, FactRequest>>, onGespeichert: (Int) -> Unit, onFertig: (fehler: Boolean) -> Unit) {
+    val tree = uiState.value.tree ?: return
+    uiState.update { it.copy(busy = true) }
+    viewModelScope.launch {
+        var gespeichert = 0
+        var wartet = false
+        var fehler: Exception? = null
+        for ((i, item) in items.withIndex()) {
+            try {
+                val result = client.saveFact(tree.name, item.first ?: xref, item.second)
+                wartet = wartet || result.pending
+                gespeichert++
+                onGespeichert(i)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                fehler = e
+                break
+            }
+        }
+        uiState.update { it.copy(busy = false, message = if (fehler == null) (if (wartet) text(Res.string.msg_pending, text(Res.string.msg_saved)) else text(Res.string.msg_saved)) else it.message) }
+        fehler?.let(::fail)
+        if (gespeichert > 0) {
+            uiState.update { it.copy(pedigree = null, descendants = null, mediaLoaded = false) }
+            if (uiState.value.selected == xref) select(xref)
+            loadPeople(reset = true)
+            loadAnniversaries()
+            loadPending()
+        }
+        onFertig(fehler != null)
+    }
+}
+
 fun AppViewModel.deleteFact(factId: String, record: String? = null) = write(Res.string.msg_deleted) { tree, xref ->
     client.deleteFact(tree, record ?: xref, factId)
 }

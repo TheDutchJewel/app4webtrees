@@ -928,4 +928,23 @@
     <string name="desk_partner_none">No partnership recorded yet.</string>
     <string name="field_family_name">Surname</string>
     <string name="field_name_suffix">Name suffix (e.g. Jr.)</string>
+    <string name="desk_col_age">Age</string>
+    <string name="desk_ev_name">Name</string>
+    <string name="desk_ev_religion">Religion</string>
+    <string name="desk_ev_occupation">Occupation</string>
+    <string name="desk_ev_cremation">Cremation</string>
+    <string name="desk_simple_more">and %1$d more</string>
+    <string name="tipp_simple_more">This event exists more than once. The form edits the first one; the others stay unchanged and are shown in “Full” mode.</string>
+    <string name="desk_simple_date_text">Not recognised as a date – saved as date text</string>
+    <string name="desk_simple_discard">Discard</string>
+    <string name="desk_simple_saving">Saving …</string>
+    <string name="desk_simple_error">Not everything was saved – your input is still there, please save again.</string>
+    <string name="desk_simple_unsaved">Not saved</string>
+    <string name="desk_mode_simple">Simple</string>
+    <string name="desk_mode_full">Full</string>
+    <string name="tipp_mode">Simple: one form with name, birth, baptism, religion, occupation, marriage, death and burial. Full: all events as a table.</string>
+    <string name="desk_unsaved_title">Unsaved input</string>
+    <string name="desk_unsaved_text">Input for %1$d person(s) has not been saved yet.</string>
+    <string name="desk_unsaved_save">Save</string>
+    <string name="desk_unsaved_discard">Discard</string>
 </resources>

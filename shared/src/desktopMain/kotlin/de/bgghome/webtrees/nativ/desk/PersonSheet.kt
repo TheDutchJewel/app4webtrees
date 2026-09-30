@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -91,14 +92,19 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
     }
     val gesamt = state.tree?.individuals ?: people.size
     val title = (detail?.person?.let { registerName(it, "", "") }.orEmpty()) + if (index >= 0 && state.query.isEmpty()) "  [${index + 1} von $gesamt]" else ""
+    // Einfacher Eingabemodus (Formular) oder vollstaendig (Tabelle); die Wahl bleibt gespeichert.
+    var einfach by remember { mutableStateOf(DeskLayout.prefs.getBoolean("blatt_einfach", false)) }
+    // Schliessen mit ungespeicherten Eingaben (auch bei anderen Personen): erst nachfragen.
+    var schliessenFragen by remember { mutableStateOf(false) }
+    val schliessen: () -> Unit = { if (Entwuerfe.offen()) schliessenFragen = true else onClose() }
 
     DialogWindow(
-        onCloseRequest = onClose,
+        onCloseRequest = schliessen,
         title = title,
         state = rememberDialogState(width = 1100.dp, height = 700.dp),
         onPreviewKeyEvent = { e ->
             if (e.type != KeyEventType.KeyDown) false else when (e.key) {
-                Key.Escape -> { onClose(); true }
+                Key.Escape -> { schliessen(); true }
                 Key.F1 -> { Hilfe.oeffnen("person"); true }
                 Key.PageUp -> { step(-1); true }
                 Key.PageDown -> { step(1); true }
@@ -115,12 +121,14 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
                 SheetHeader(detail)
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Row(Modifier.weight(1f).fillMaxWidth()) {
-                    SheetTabs(state, detail, viewModel, openWeb, Modifier.weight(1f).fillMaxHeight())
+                    SheetTabs(state, detail, viewModel, openWeb, Modifier.weight(1f).fillMaxHeight(), einfach)
                     VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     RelativesColumn(detail, viewModel, Modifier.width(260.dp).fillMaxHeight())
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                SheetFooter(state, detail, viewModel, canPrev = index > 0, canNext = index >= 0 && index < people.lastIndex, onStep = ::step, onFirst = { step(-index) }, onLast = { step(people.lastIndex - index) }, onClose = onClose)
+                SheetFooter(state, detail, viewModel, canPrev = index > 0, canNext = index >= 0 && index < people.lastIndex, onStep = ::step, onFirst = { step(-index) }, onLast = { step(people.lastIndex - index) }, onClose = schliessen,
+                    einfach = einfach, onEinfach = { einfach = it; DeskLayout.prefs.putBoolean("blatt_einfach", it) })
+                if (schliessenFragen) UngespeichertDialog(viewModel, onWeiter = { schliessenFragen = false; onClose() }, onAbbrechen = { schliessenFragen = false })
             }
         }
     }
@@ -141,7 +149,9 @@ private fun SheetHeader(detail: IndividualDetail) {
 }
 
 @Composable
-private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppViewModel, openWeb: (String) -> Unit, modifier: Modifier) {
+private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppViewModel, openWeb: (String) -> Unit, modifier: Modifier, einfach: Boolean) {
+    val formular = Entwuerfe.fuer(detail.person.xref)
+    LaunchedEffect(detail) { formular.abgleichen(detail) }
     var tab by remember { mutableStateOf(0) }
     var dialog by remember { mutableStateOf<ProfileDialog?>(null) }
     val canEdit = detail.canEdit
@@ -173,7 +183,7 @@ private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppVi
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (tab) {
-                0 -> FactTable(detail, canEdit, onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) }, onNew = { dialog = ProfileDialog.NewFact })
+                0 -> if (einfach) EinfachDaten(formular, canEdit, viewModel) else FactTable(detail, canEdit, onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) }, onNew = { dialog = ProfileDialog.NewFact })
                 1 -> ParentsTab(detail, viewModel)
                 2 -> PartnersTab(detail, viewModel, onNewFact = { family -> dialog = ProfileDialog.NewFamilyFact(family) },
                     onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) })
@@ -303,7 +313,7 @@ private fun PartnersTab(
         // ── Ereignisse der Partnerschaft ──
         if (familie != null) {
             val rows = familie.facts.filter { it.known }.map { FactRow(it, familie.xref, it.label) }
-            EreignisTabelle(rows, familie.xref, canEdit, onEdit, onDelete, onNew = { onNewFact(familie.xref) }, Modifier.weight(1f).fillMaxWidth())
+            EreignisTabelle(rows, familie.xref, canEdit, onEdit, onDelete, onNew = { onNewFact(familie.xref) }, Modifier.weight(1f).fillMaxWidth(), geburtJd(detail))
         } else {
             Text(stringResource(Res.string.desk_partner_none), Modifier.padding(12.dp), color = colors.onSurfaceVariant)
         }
@@ -393,24 +403,63 @@ private fun FactTable(detail: IndividualDetail, canEdit: Boolean, onEdit: (FactR
                 FactRow(f, family.xref, family.spouse?.name?.let { withSpouse.replaceFirst("%s", f.label).replaceFirst("%s", it) } ?: f.label)
             }
         }
-    EreignisTabelle(rows, detail.person.xref, canEdit, onEdit, onDelete, onNew, Modifier.fillMaxSize())
+    EreignisTabelle(rows, detail.person.xref, canEdit, onEdit, onDelete, onNew, Modifier.fillMaxSize(), geburtJd(detail))
 }
+
+/** Julianischer Tag der Geburt (sonst der Taufe) - fuer die Spalte Alter; 0 = unbekannt. */
+private fun geburtJd(detail: IndividualDetail): Int =
+    (detail.person.birth?.date?.jd?.takeIf { it > 0 } ?: detail.person.chr?.date?.jd?.takeIf { it > 0 }) ?: 0
+
+/** Alter in vollen Jahren am Tag des Ereignisses; null ohne beide Daten, bei Geburt/Taufe selbst oder vor der Geburt. */
+internal fun alterBeiEreignis(geburtJd: Int, fact: FactJson): Int? {
+    val jd = fact.date?.jd ?: 0
+    if (geburtJd <= 0 || jd <= 0 || fact.tag in setOf("BIRT", "CHR", "BAPM", "NAME", "SEX")) return null
+    return ((jd - geburtJd) / 365.2425).toInt().takeIf { it >= 0 }
+}
+
+/** Wonach die Ereignistabelle sortiert ist; null = Reihenfolge des Servers. */
+private enum class EreignisSortierung { Art, Datum, Ort, Alter }
 
 /** Ereignisse als Tabelle mit Neu/Bearbeiten/Loeschen; [schluessel] setzt die Auswahl zurueck (andere Person, andere Familie). */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun EreignisTabelle(
-    rows: List<FactRow>, schluessel: String, canEdit: Boolean,
-    onEdit: (FactRow) -> Unit, onDelete: (FactRow) -> Unit, onNew: () -> Unit, modifier: Modifier,
+    alleZeilen: List<FactRow>, schluessel: String, canEdit: Boolean,
+    onEdit: (FactRow) -> Unit, onDelete: (FactRow) -> Unit, onNew: () -> Unit, modifier: Modifier, geburtJd: Int = 0,
 ) {
     var selected by remember(schluessel) { mutableStateOf(-1) }
+    var sortierung by remember { mutableStateOf<EreignisSortierung?>(null) }
+    var absteigend by remember { mutableStateOf(false) }
     val colors = MaterialTheme.colorScheme
+    val rows = remember(alleZeilen, sortierung, absteigend) {
+        val s = sortierung ?: return@remember alleZeilen
+        // Ohne Wert (kein Datum, kein Ort) immer ans Ende, in beiden Richtungen
+        fun schluesselVon(r: FactRow): Comparable<*>? = when (s) {
+            EreignisSortierung.Art -> r.label.lowercase()
+            EreignisSortierung.Datum -> r.fact.date?.jd?.takeIf { it > 0 }
+            EreignisSortierung.Ort -> r.fact.place?.name?.takeIf { it.isNotBlank() }?.lowercase()
+            EreignisSortierung.Alter -> alterBeiEreignis(geburtJd, r.fact)
+        }
+        val (mit, ohne) = alleZeilen.partition { schluesselVon(it) != null }
+        @Suppress("UNCHECKED_CAST")
+        val sortiert = mit.sortedWith(compareBy { schluesselVon(it) as Comparable<Any> })
+        (if (absteigend) sortiert.reversed() else sortiert) + ohne
+    }
+    fun kopf(s: EreignisSortierung) { if (sortierung == s) absteigend = !absteigend else { sortierung = s; absteigend = false }; selected = -1 }
 
     Column(modifier) {
-        Row(Modifier.fillMaxWidth().background(colors.surfaceVariant).padding(horizontal = 8.dp, vertical = 5.dp)) {
-            Text(stringResource(Res.string.desk_col_event), Modifier.weight(0.28f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-            Text(stringResource(Res.string.desk_col_date), Modifier.weight(0.22f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-            Text(stringResource(Res.string.desk_col_place), Modifier.weight(0.5f), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+        Row(Modifier.fillMaxWidth().background(colors.surfaceVariant).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            @Composable
+            fun Kopf(text: String, s: EreignisSortierung, gewicht: Float) {
+                val pfeil = if (sortierung == s) (if (absteigend) " ▼" else " ▲") else ""
+                Text(text + pfeil, Modifier.weight(gewicht).clickable { kopf(s) }.padding(vertical = 5.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, maxLines = 1)
+            }
+            Kopf(stringResource(Res.string.desk_col_event), EreignisSortierung.Art, 0.26f)
+            Kopf(stringResource(Res.string.desk_col_date), EreignisSortierung.Datum, 0.2f)
+            Kopf(stringResource(Res.string.desk_col_place), EreignisSortierung.Ort, 0.44f)
+            Kopf(stringResource(Res.string.desk_col_age), EreignisSortierung.Alter, 0.06f)
+            Merker(Icons.Default.Create, stringResource(Res.string.desk_tab_notes))
+            Merker(Icons.Default.Info, stringResource(Res.string.desk_tab_sources))
         }
         val list = rememberLazyListState()
         Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -426,9 +475,13 @@ private fun EreignisTabelle(
                         .combinedClickable(onClick = { selected = i }, onDoubleClick = { if (canEdit) onEdit(row) })
                         .padding(horizontal = 8.dp, vertical = 5.dp),
                 ) {
-                    Text(row.label, Modifier.weight(0.28f), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(f.date?.text.orEmpty(), Modifier.weight(0.22f), style = MaterialTheme.typography.bodyMedium, maxLines = 1)
-                    Text(where, Modifier.weight(0.5f), style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(row.label, Modifier.weight(0.26f), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(f.date?.text.orEmpty(), Modifier.weight(0.2f), style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+                    Text(where, Modifier.weight(0.44f), style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(alterBeiEreignis(geburtJd, f)?.toString().orEmpty(), Modifier.weight(0.06f), style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onSurfaceVariant, maxLines = 1)
+                    MerkerWert(f.notes.isNotEmpty())
+                    MerkerWert(f.sources.isNotEmpty())
                 }
                 HorizontalDivider(color = colors.outlineVariant)
             }
@@ -443,6 +496,17 @@ private fun EreignisTabelle(
             }
         }
     }
+}
+
+/** Kopf einer schmalen Merkerspalte: nur das Symbol, der Name beim Ueberfahren. */
+@Composable
+private fun Merker(icon: androidx.compose.ui.graphics.vector.ImageVector, name: String) {
+    Tipp(name) { Box(Modifier.width(28.dp), contentAlignment = Alignment.Center) { Icon(icon, contentDescription = name, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) } }
+}
+
+@Composable
+private fun MerkerWert(da: Boolean) {
+    Box(Modifier.width(28.dp), contentAlignment = Alignment.Center) { if (da) Text("✓", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary) }
 }
 
 /** Rechts: Vater, Mutter, Geschwister, Partner, Kinder - jede Gruppe mit einer farbigen Kopfzeile. */
@@ -506,6 +570,7 @@ private fun VerwandtenZeile(p: Person, viewModel: AppViewModel) {
 private fun SheetFooter(
     state: UiState, detail: IndividualDetail, viewModel: AppViewModel,
     canPrev: Boolean, canNext: Boolean, onStep: (Int) -> Unit, onFirst: () -> Unit, onLast: () -> Unit, onClose: () -> Unit,
+    einfach: Boolean, onEinfach: (Boolean) -> Unit,
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -515,6 +580,15 @@ private fun SheetFooter(
         val titel = stringResource(Res.string.desk_title_sheet, detail.person.name)
         TextButton(onClick = { drucken(listenPdf(personenblattZeilen(detail), appName, baum), titel) }) { Text(stringResource(Res.string.desk_print)) }
         TextButton(onClick = { alsPdf(listenPdf(personenblattZeilen(detail), appName, baum), titel) }) { Text("PDF") }
+        Spacer(Modifier.width(12.dp))
+        Tipp(stringResource(Res.string.tipp_mode)) {
+            Row(Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
+                listOf(true to Res.string.desk_mode_simple, false to Res.string.desk_mode_full).forEach { (wert, text) ->
+                    Text(stringResource(text), Modifier.background(if (einfach == wert) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent, MaterialTheme.shapes.small)
+                        .clickable { onEinfach(wert) }.padding(horizontal = 10.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
         Spacer(Modifier.weight(1f))
         IconButton(onClick = onFirst, enabled = canPrev) { Text("⏮", fontSize = 16.sp) }
         IconButton(onClick = { onStep(-1) }, enabled = canPrev) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }

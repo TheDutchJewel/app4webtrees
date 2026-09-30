@@ -16,6 +16,7 @@ import de.bgghome.webtrees.nativ.DesktopPlattform
 import de.bgghome.webtrees.nativ.data.DesktopAblage
 import de.bgghome.webtrees.nativ.desk.DeskRoot
 import de.bgghome.webtrees.nativ.desk.DeskTheme
+import de.bgghome.webtrees.nativ.desk.Entwuerfe
 import de.bgghome.webtrees.nativ.lokal.LokalBetrieb
 import de.bgghome.webtrees.nativ.ui.AppViewModel
 import de.bgghome.webtrees.nativ.ui.LocalAppName
@@ -61,7 +62,8 @@ fun main(args: Array<String>) {
         val viewModel = remember { AppViewModel(plattform) }
         val state = remember { fenster.laden() }
         Window(
-            onCloseRequest = { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() },
+            // Ungespeicherte Eingaben im Personenblatt: das Hauptfenster fragt erst nach (Entwuerfe).
+            onCloseRequest = { if (Entwuerfe.offen()) Entwuerfe.beendenAnfrage = true else { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() } },
             title = plattform.appName,
             state = state,
         ) {

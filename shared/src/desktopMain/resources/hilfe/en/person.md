@@ -11,6 +11,8 @@ Name, dates and picture on top. Below, the tabs:
 - **Parents/Siblings**: parents and siblings, including half-siblings. A click switches to that person.
 - **Partners/Children**: the partnerships on the left, the children of the selected one on the right, below its events (marriage, divorce, residence …) to add, edit and delete. Double-click a partner or child to show their sheet; **+** adds a partner or a child of this partnership.
 - **Name**: given names, surname and name suffix have their own fields when editing.
+- **Simple / Full** (bottom of the sheet): “Simple” shows a form in the Data tab with name, birth, baptism, religion, occupation, marriage per partnership, death and burial to type into directly; “Full” shows the table of all events with age and markers for note and source (click a column header to sort).
+  Only what you changed is saved; sources, notes and other details of the event are kept. If an event exists more than once, the form edits the first. A date the program cannot interpret (“spring 1850”) is saved as date text. Unsaved input is never lost silently: closing the sheet or quitting asks first.
 - **Notes**, **Sources**, **Media**.
 - **Map:** the places of life as a list with links to OpenStreetMap.
 
