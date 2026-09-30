@@ -1042,4 +1042,5 @@
     <string name="desk_date_check">Datum prüfen</string>
     <string name="desk_unsaved_intro">Diese Eingaben im einfachen Eingabemodus sind noch nicht gespeichert:</string>
     <string name="desk_unsaved_date_block">Ein Datum darin ist ungültig. Bitte im Personenblatt korrigieren oder dort „Trotzdem als Text speichern“ wählen; hier geht nur Verwerfen oder Abbrechen.</string>
+    <string name="desk_simple_autosave">Wird beim Verlassen eines Feldes gespeichert.</string>
 </resources>

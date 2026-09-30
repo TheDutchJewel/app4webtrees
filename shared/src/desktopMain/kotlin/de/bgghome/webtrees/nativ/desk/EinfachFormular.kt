@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import de.bgghome.webtrees.nativ.api.FactJson
@@ -50,8 +51,9 @@ import org.jetbrains.compose.resources.stringResource
  *   ihr Datum anders geschrieben ist, als die Eingabe es erzeugen wuerde.
  * - Der Server aendert gezielt nur Datum, Ort bzw. Wert; Quellen, Notizen und weitere Unterangaben bleiben.
  * - Gibt es ein Ereignis mehrfach, bearbeitet das Formular das erste; die weiteren bleiben und sind vermerkt.
- * - Entwuerfe haengen an der Person, nicht an der Anzeige: wer im Hauptfenster eine andere Person waehlt, verliert
- *   nichts. Beim Schliessen des Blatts und beim Beenden fragt das Programm nach, solange etwas ungespeichert ist.
+ * - Gespeichert wird sofort beim Verlassen eines Feldes (Tab, Klick woanders), wie ueberall sonst im Programm - kein
+ *   Speichern-Knopf. Ein ungueltiges Datum bleibt rot stehen und geht nicht an den Server, bis es korrigiert oder
+ *   ausdruecklich als Text uebernommen ist; nur dafuer fragt das Programm beim Schliessen und Beenden nach.
  */
 
 /** Wie ein Feld aussieht: Name (Vornamen, Familienname), Ereignis (Datum, Ort) oder Angabe (ein Text). */
@@ -166,9 +168,10 @@ class EinfachFormular(val xref: String) {
         felder.clear(); felder.addAll(neu + verwaist)
     }
 
+    /** Alle geaenderten Felder mit gueltigem Datum speichern; ungueltige bleiben als Entwurf stehen. */
     fun speichern(viewModel: AppViewModel, onFertig: (fehler: Boolean) -> Unit = {}) {
-        val auftraege = felder.mapNotNull { f -> f.anfrage()?.let { f to it } }
-        if (auftraege.isEmpty()) { felder.forEach { if (it.geaendert) it.gespeichert() }; onFertig(false); return }
+        val auftraege = felder.filter { it.datumOk }.mapNotNull { f -> f.anfrage()?.let { f to it } }
+        if (auftraege.isEmpty()) { onFertig(false); return }
         speichert = true; fehler = false
         viewModel.saveFacts(xref, auftraege.map { (f, r) -> f.record to r },
             onGespeichert = { i -> auftraege[i].first.gespeichert() },
@@ -176,6 +179,14 @@ class EinfachFormular(val xref: String) {
     }
 
     fun verwerfen() = felder.forEach { it.verwerfen() }
+
+    /** Ein Feld beim Verlassen speichern, wenn es geaendert und gueltig ist. */
+    fun feldSpeichern(f: EinfachFeld, viewModel: AppViewModel) {
+        if (!f.geaendert || !f.datumOk || speichert) return
+        val anfrage = f.anfrage() ?: run { f.gespeichert(); return }
+        speichert = true; fehler = false
+        viewModel.saveFacts(xref, listOf(f.record to anfrage), onGespeichert = { f.gespeichert() }, onFertig = { e -> speichert = false; fehler = e })
+    }
 }
 
 /** Alle Entwuerfe dieses Programmlaufs, je Person. */
@@ -187,6 +198,11 @@ object Entwuerfe {
     fun fuer(xref: String): EinfachFormular = formulare.getOrPut(xref) { EinfachFormular(xref) }
     fun offene(): List<EinfachFormular> = formulare.values.filter { it.geaendert }
     fun offen(): Boolean = offene().isNotEmpty()
+    /** Beim Schliessen/Beenden: alles Gueltige still speichern; true, wenn danach noch ungueltige Eingaben offen sind. */
+    fun abschliessen(viewModel: AppViewModel): Boolean {
+        offene().forEach { it.speichern(viewModel) }
+        return formulare.values.any { f -> f.felder.any { it.geaendert && !it.datumOk } }
+    }
 
     /** Alle offenen Entwuerfe nacheinander speichern; [onFertig] mit true, wenn etwas schiefging. */
     fun alleSpeichern(viewModel: AppViewModel, onFertig: (fehler: Boolean) -> Unit) {
@@ -206,29 +222,22 @@ object Entwuerfe {
 fun UngespeichertDialog(viewModel: AppViewModel, onWeiter: () -> Unit, onAbbrechen: () -> Unit) {
     var speichert by remember { mutableStateOf(false) }
     val offene = Entwuerfe.offene()
-    val blockiert = offene.any { !it.speicherbar }
     WtAlertDialog(
         onDismissRequest = onAbbrechen,
         title = { Text(stringResource(Res.string.desk_unsaved_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(stringResource(Res.string.desk_unsaved_intro))
-                // Wo genau: je Person die geaenderten Felder des einfachen Eingabemodus
+                // Wo genau: je Person die Felder mit ungueltigem Datum (alles Gueltige ist schon gespeichert)
                 offene.forEach { f ->
-                    Text("• " + f.name.ifBlank { f.xref } + ": " + f.felder.filter { it.geaendert }.map { stringResource(titel(it.tag)) + (it.partner?.let { p -> " ($p)" } ?: "") }.joinToString(", "),
+                    Text("• " + f.name.ifBlank { f.xref } + ": " + f.felder.filter { it.geaendert && !it.datumOk }.map { stringResource(titel(it.tag)) + (it.partner?.let { p -> " ($p)" } ?: "") }.joinToString(", "),
                         style = MaterialTheme.typography.bodyMedium)
                 }
-                if (blockiert) Text(stringResource(Res.string.desk_unsaved_date_block), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.desk_unsaved_date_block), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
         },
         confirmButton = {
-            Row {
-                TextButton(onClick = { Entwuerfe.alleVerwerfen(); onWeiter() }, enabled = !speichert) { Text(stringResource(Res.string.desk_unsaved_discard)) }
-                TextButton(onClick = {
-                    speichert = true
-                    Entwuerfe.alleSpeichern(viewModel) { fehler -> speichert = false; if (fehler) onAbbrechen() else onWeiter() }
-                }, enabled = !speichert && !blockiert) { Text(stringResource(Res.string.desk_unsaved_save)) }
-            }
+            TextButton(onClick = { Entwuerfe.alleVerwerfen(); onWeiter() }, enabled = !speichert) { Text(stringResource(Res.string.desk_unsaved_discard)) }
         },
         dismissButton = { TextButton(onClick = onAbbrechen, enabled = !speichert) { Text(stringResource(Res.string.action_cancel)) } },
     )
@@ -255,7 +264,7 @@ fun EinfachDaten(formular: EinfachFormular, canEdit: Boolean, viewModel: AppView
             Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 formular.felder.forEach { f ->
                     val name = stringResource(titel(f.tag)) + (f.partner?.let { " – $it" } ?: "")
-                    Row(verticalAlignment = Alignment.Top) {
+                    Row(Modifier.onFocusChanged { st -> if (!st.hasFocus) formular.feldSpeichern(f, viewModel) }, verticalAlignment = Alignment.Top) {
                         Column(Modifier.width(150.dp).padding(top = 16.dp)) {
                             Text(name, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, maxLines = 2)
                             if (f.weitere > 0) Tipp(stringResource(Res.string.tipp_simple_more)) {
@@ -295,18 +304,16 @@ fun EinfachDaten(formular: EinfachFormular, canEdit: Boolean, viewModel: AppView
         }
         if (canEdit) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(6.dp), verticalAlignment = Alignment.CenterVertically,
+            // Kein Speichern-Knopf: gespeichert wird beim Verlassen des Feldes. Hier nur der Stand.
+            Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { formular.speichern(viewModel) }, enabled = formular.geaendert && !formular.speichert && formular.speicherbar, shape = MaterialTheme.shapes.small) {
-                    Text(stringResource(Res.string.action_save))
-                }
-                TextButton(onClick = { formular.verwerfen() }, enabled = formular.geaendert && !formular.speichert) { Text(stringResource(Res.string.desk_simple_discard)) }
-                Spacer(Modifier.weight(1f))
+                Text(stringResource(Res.string.desk_simple_autosave), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 when {
                     formular.speichert -> Text(stringResource(Res.string.desk_simple_saving), style = MaterialTheme.typography.bodySmall)
                     !formular.speicherbar -> Text(stringResource(Res.string.desk_date_check), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                     formular.fehler -> Text(stringResource(Res.string.desk_simple_error), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                     formular.geaendert -> Text(stringResource(Res.string.desk_simple_unsaved), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                    else -> Text(stringResource(Res.string.msg_saved), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

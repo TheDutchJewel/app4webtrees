@@ -101,7 +101,8 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
     var einfach by remember { mutableStateOf(DeskLayout.prefs.getBoolean("blatt_einfach", false)) }
     // Schliessen mit ungespeicherten Eingaben (auch bei anderen Personen): erst nachfragen.
     var schliessenFragen by remember { mutableStateOf(false) }
-    val schliessen: () -> Unit = { if (Entwuerfe.offen()) schliessenFragen = true else onClose() }
+    // Beim Schliessen: Gueltiges wird still gespeichert; nur ein ungueltiges Datum haelt auf
+    val schliessen: () -> Unit = { if (Entwuerfe.abschliessen(viewModel)) schliessenFragen = true else onClose() }
 
     DialogWindow(
         onCloseRequest = schliessen,

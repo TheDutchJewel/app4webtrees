@@ -1047,4 +1047,5 @@
     <string name="desk_date_check">Check the date</string>
     <string name="desk_unsaved_intro">These entries in simple entry mode have not been saved yet:</string>
     <string name="desk_unsaved_date_block">A date in them is invalid. Please correct it in the person sheet or choose “Save as text anyway” there; here only Discard or Cancel are possible.</string>
+    <string name="desk_simple_autosave">Saved when you leave a field.</string>
 </resources>

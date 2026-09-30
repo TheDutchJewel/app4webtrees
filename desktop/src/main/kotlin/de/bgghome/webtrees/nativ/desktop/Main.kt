@@ -63,7 +63,7 @@ fun main(args: Array<String>) {
         val state = remember { fenster.laden() }
         Window(
             // Ungespeicherte Eingaben im Personenblatt: das Hauptfenster fragt erst nach (Entwuerfe).
-            onCloseRequest = { if (Entwuerfe.offen()) Entwuerfe.beendenAnfrage = true else { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() } },
+            onCloseRequest = { if (Entwuerfe.abschliessen(viewModel)) Entwuerfe.beendenAnfrage = true else { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() } },
             title = plattform.appName,
             state = state,
         ) {

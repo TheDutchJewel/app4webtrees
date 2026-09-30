@@ -120,7 +120,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     // Beenden mit ungespeicherten Eingaben im Personenblatt: erst nachfragen (auch vom Fenster-X, siehe Main.kt).
-    val beenden: () -> Unit = { if (Entwuerfe.offen()) Entwuerfe.beendenAnfrage = true else onQuit() }
+    val beenden: () -> Unit = { if (Entwuerfe.abschliessen(viewModel)) Entwuerfe.beendenAnfrage = true else onQuit() }
     val state by viewModel.state.collectAsState()
     val appName = LocalAppName.current
     val openWeb: (String) -> Unit = { openBrowser(it) }
