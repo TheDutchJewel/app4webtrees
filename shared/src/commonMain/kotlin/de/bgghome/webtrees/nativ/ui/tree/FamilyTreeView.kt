@@ -296,7 +296,8 @@ fun FamilyTreeView(
         }
 
         Column(Modifier.align(Alignment.BottomEnd).padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (showFullscreen && (!compact || fullscreen)) ToolButton(if (fullscreen) "⤡" else "⤢", stringResource(Res.string.tree_fullscreen), onToggleFullscreen)
+            // Auch am Handy anbieten: dort bringt das Vollbild den meisten Platz.
+            if (showFullscreen) ToolButton(if (fullscreen) "⤡" else "⤢", stringResource(Res.string.tree_fullscreen), onToggleFullscreen)
             ToolButton("◎", stringResource(Res.string.tree_center)) { centerOn(layout.focus) }
             ToolButton("▣", stringResource(Res.string.tree_fit)) { fitAll() }
             if (!compact) {
