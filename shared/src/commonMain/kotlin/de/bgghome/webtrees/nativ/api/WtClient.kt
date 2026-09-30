@@ -260,6 +260,12 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     suspend fun anniversaries(tree: String, days: Int): AnniversaryList =
         get("Anniversaries", tree, mapOf("days" to days.toString()), AnniversaryList.serializer())
 
+    /** Ab API-Stufe 18: alle sichtbaren Quellen des Baums. */
+    suspend fun sources(tree: String): SourceList = get("Sources", tree, emptyMap(), SourceList.serializer())
+
+    /** Ab API-Stufe 18: eine Quelle mit allem, was sie zitiert. */
+    suspend fun source(tree: String, xref: String): SourceDetail = get("Source", tree, mapOf("xref" to xref), SourceDetail.serializer())
+
     suspend fun tags(tree: String, type: String): TagList =
         get("Tags", tree, mapOf("type" to type), TagList.serializer())
 

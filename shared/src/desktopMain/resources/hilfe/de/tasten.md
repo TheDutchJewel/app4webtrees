@@ -21,6 +21,7 @@
 | Strg+Umschalt+P | Plausibilitätsprüfung |
 | Strg+1 / Strg+2 / Strg+3 | Bereich Start / Baum / Fotos |
 | Strg+4 | Personentabelle |
+| Strg+5 | Quellen |
 | Strg+Q | Beenden |
 
 ## Navigator

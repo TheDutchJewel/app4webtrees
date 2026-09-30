@@ -34,6 +34,14 @@ Like "Tree in the centre", but the middle shows the central person's **family**:
 
 The [person table](hilfe:tabelle) (Ctrl+4) shows everyone as a table.
 
+## Sources
+
+**View › Sources** (Ctrl+5) or the **Sources** icon opens the source manager: all sources of the tree on the left with search and the number of citations, the selected source on the right with author, publication, repository and call number, text, notes, media and **Cited by** – every individual and family with the facts that carry the citation. A click selects the person, a double-click makes them the central person. Adding and changing sources is done via **Open in webtrees** for now.
+
+In the person sheet, the detail area below the event table (tab **Sources**) shows each citation with page, quality, date, quotation, notes and media; a click on the title opens the source here. A source without its own record ("according to Martha Meier") is shown in italics.
+
+Needs api4webtrees with API level 18; with older servers the icon opens the webtrees source list as before.
+
 ## Sections: Home, Tree, Photos
 
 - **Home** (Ctrl+1): greeting, upcoming anniversaries, recent changes in the tree, the start person. Moderators see pending changes here and accept or reject them.

@@ -950,4 +950,26 @@
     <string name="desk_detail_type">Art</string>
     <string name="desk_detail_no_notes">Keine Notiz an diesem Ereignis.</string>
     <string name="desk_detail_no_sources">Keine Quelle an diesem Ereignis.</string>
+    <string name="desk_sources_window">Quellen</string>
+    <string name="desk_sources_search">Quelle suchen …</string>
+    <string name="desk_sources_count">%1$d von %2$d Quellen</string>
+    <string name="desk_sources_choose">Links eine Quelle wählen.</string>
+    <string name="desk_source_author">Autor</string>
+    <string name="desk_source_publication">Publikation</string>
+    <string name="desk_source_abbreviation">Kurztitel</string>
+    <string name="desk_source_repository">Archiv</string>
+    <string name="desk_source_id">Kennung</string>
+    <string name="desk_source_text">Text der Quelle</string>
+    <string name="desk_source_cited_by">Zitiert von</string>
+    <string name="desk_source_unused">Diese Quelle zitiert niemand.</string>
+    <string name="desk_source_more">… und %1$d weitere</string>
+    <string name="desk_source_hint">Quellen anlegen und ändern folgt; bis dahin über „In webtrees öffnen“.</string>
+    <string name="desk_quality_0">unzuverlässig oder geschätzt</string>
+    <string name="desk_quality_1">fragwürdig</string>
+    <string name="desk_quality_2">Sekundärquelle</string>
+    <string name="desk_quality_3">Primärquelle</string>
+    <string name="desk_citation_page">Seite</string>
+    <string name="desk_citation_quality">Qualität</string>
+    <string name="desk_citation_date">Datum</string>
+    <string name="desk_citation_text">Zitat</string>
 </resources>

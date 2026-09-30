@@ -100,7 +100,16 @@ data class SourceRef(
     val title: String = "",
     /** Seitenangabe des Verweises (PAGE, "Taufen 1833, Nr. 19"), ab api4webtrees mit Seitenangabe; sonst leer. */
     val page: String = "",
+    /** Ab API-Stufe 18: Qualitaet (QUAY 0 unzuverlaessig ... 3 Primaerquelle), Datum und Text der Fundstelle (DATA), Notizen, Medien. */
+    val quality: Int? = null,
+    val date: DateJson? = null,
+    val text: String = "",
+    val notes: List<String> = emptyList(),
+    val media: List<MediaJson> = emptyList(),
 ) {
+    /** Eine Quelle ohne Datensatz ("laut Martha Meier"): nur Text, keine Quellenverwaltung. */
+    val istText: Boolean get() = xref.isEmpty()
+
     /** Titel und Seite in einer Zeile: "Kirchenbuch Bienenbuettel, Taufen 1833, Nr. 19". */
     fun mitSeite(): String = title.ifBlank { xref } + page.replace('\n', ' ').trim().let { if (it.isEmpty()) "" else ", $it" }
 }
@@ -327,3 +336,69 @@ data class AddIndividualRequest(
     val marriageDate: String? = null,
     val marriagePlace: String? = null,
 )
+
+// ── Quellen (ab API-Stufe 18) ─────────────────────────────────────────
+
+/** Eine Quelle in der Liste: Kopfdaten, erstes Archiv mit Signatur und wie oft sie zitiert wird. */
+@Serializable
+data class SourceSummary(
+    val xref: String,
+    val title: String = "",
+    val author: String = "",
+    val publication: String = "",
+    val abbreviation: String = "",
+    val repository: String = "",
+    val callNumber: String = "",
+    val canEdit: Boolean = false,
+    val url: String = "",
+    val uses: Int = 0,
+)
+
+@Serializable
+data class SourceList(val total: Int = 0, val sources: List<SourceSummary> = emptyList())
+
+@Serializable
+data class RepositoryRef(val xref: String = "", val name: String = "", val callNumber: String = "")
+
+/** Wer eine Quelle zitiert: die Person bzw. Familie und die Ereignisse mit dem Verweis. */
+@Serializable
+data class SourceUseFamily(val xref: String, val name: String = "", val husband: String? = null, val wife: String? = null, val facts: List<String> = emptyList())
+
+@Serializable
+data class SourceUsePerson(
+    val xref: String,
+    val name: String = "",
+    val sex: String = "U",
+    val isDead: Boolean = false,
+    @SerialName("private") val isPrivate: Boolean = false,
+    val lifespan: String = "",
+    val thumb: String? = null,
+    val url: String = "",
+    val facts: List<String> = emptyList(),
+) {
+    fun person() = Person(xref = xref, name = name, sex = sex, isDead = isDead, isPrivate = isPrivate, lifespan = lifespan, thumb = thumb, url = url)
+}
+
+@Serializable
+data class SourceDetail(
+    val xref: String,
+    val title: String = "",
+    val author: String = "",
+    val publication: String = "",
+    val abbreviation: String = "",
+    val repository: String = "",
+    val callNumber: String = "",
+    val canEdit: Boolean = false,
+    val url: String = "",
+    val text: String = "",
+    val notes: List<String> = emptyList(),
+    val media: List<MediaJson> = emptyList(),
+    val repositories: List<RepositoryRef> = emptyList(),
+    val individuals: List<SourceUsePerson> = emptyList(),
+    val families: List<SourceUseFamily> = emptyList(),
+    val moreIndividuals: Int = 0,
+    val moreFamilies: Int = 0,
+)
+
+/** Ab dieser Stufe kennt api4webtrees Quellen (Routen Sources/Source, vollstaendige Verweise). */
+const val API_SOURCES = 18

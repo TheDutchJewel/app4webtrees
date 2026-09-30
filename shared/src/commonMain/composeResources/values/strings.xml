@@ -955,4 +955,26 @@
     <string name="desk_detail_type">Type</string>
     <string name="desk_detail_no_notes">No note on this event.</string>
     <string name="desk_detail_no_sources">No source on this event.</string>
+    <string name="desk_sources_window">Sources</string>
+    <string name="desk_sources_search">Search sources …</string>
+    <string name="desk_sources_count">%1$d of %2$d sources</string>
+    <string name="desk_sources_choose">Select a source on the left.</string>
+    <string name="desk_source_author">Author</string>
+    <string name="desk_source_publication">Publication</string>
+    <string name="desk_source_abbreviation">Abbreviation</string>
+    <string name="desk_source_repository">Repository</string>
+    <string name="desk_source_id">Identifier</string>
+    <string name="desk_source_text">Text of the source</string>
+    <string name="desk_source_cited_by">Cited by</string>
+    <string name="desk_source_unused">Nobody cites this source.</string>
+    <string name="desk_source_more">… and %1$d more</string>
+    <string name="desk_source_hint">Adding and changing sources will follow; until then use “Open in webtrees”.</string>
+    <string name="desk_quality_0">unreliable or estimated</string>
+    <string name="desk_quality_1">questionable</string>
+    <string name="desk_quality_2">secondary source</string>
+    <string name="desk_quality_3">primary source</string>
+    <string name="desk_citation_page">Page</string>
+    <string name="desk_citation_quality">Quality</string>
+    <string name="desk_citation_date">Date</string>
+    <string name="desk_citation_text">Quotation</string>
 </resources>

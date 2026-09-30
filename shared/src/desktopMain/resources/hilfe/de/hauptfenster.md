@@ -34,6 +34,14 @@ Wie „Baum im Mittelpunkt“, aber in der Mitte die **Familie** des Probanden: 
 
 Alle Personen als Tabelle zeigt die [Personentabelle](hilfe:tabelle) (Strg+4).
 
+## Quellen
+
+**Ansicht › Quellen** (Strg+5) oder das Symbol **Quellen** öffnet die Quellenverwaltung: links alle Quellen des Stammbaums mit Suche und der Zahl der Verweise, rechts die gewählte Quelle mit Autor, Publikation, Archiv und Signatur, Text, Notizen, Medien und **Zitiert von** – allen Personen und Familien mit den Ereignissen, an denen die Quelle steht. Klick wählt die Person, Doppelklick macht sie zum Probanden. Anlegen und Ändern von Quellen geht vorerst über **In webtrees öffnen**.
+
+Im Personenblatt zeigt der Detailbereich unter der Ereignistabelle (Reiter **Quellen**) jeden Verweis mit Seite, Qualität, Datum, Zitat, Notizen und Medien; ein Klick auf den Titel öffnet die Quelle hier. Eine Quelle ohne eigenen Eintrag („laut Martha Meier“) steht kursiv.
+
+Braucht api4webtrees mit API-Stufe 18; bei älteren Servern öffnet das Symbol wie bisher die Quellenliste von webtrees.
+
 ## Bereiche: Start, Baum, Fotos
 
 - **Start** (Strg+1): Begrüßung, die nächsten Jahrestage, letzte Änderungen im Stammbaum, die Startperson. Moderatoren sehen hier ausstehende Änderungen und nehmen sie an oder verwerfen sie.

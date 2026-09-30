@@ -85,7 +85,7 @@ import java.time.LocalDate
 private data class FactRow(val fact: FactJson, val record: String?, val label: String)
 
 @Composable
-fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, onClose: () -> Unit) {
+fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, onClose: () -> Unit, onQuelle: ((String) -> Unit)? = null) {
     val detail = state.detail
     val people = state.people.filter { !it.isPrivate }
     val index = people.indexOfFirst { it.xref == state.selected }
@@ -116,7 +116,7 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
             }
         },
     ) {
-        DeskTheme {
+        DeskTheme { androidx.compose.runtime.CompositionLocalProvider(LocalQuelleOeffnen provides onQuelle, LocalOpenWeb provides openWeb) {
             Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 Box(Modifier.fillMaxWidth()) { if (state.loadingDetail) LinearProgressIndicator(Modifier.fillMaxWidth()) }
                 if (detail == null) return@Column
@@ -132,7 +132,7 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
                     einfach = einfach, onEinfach = { einfach = it; DeskLayout.prefs.putBoolean("blatt_einfach", it) })
                 if (schliessenFragen) UngespeichertDialog(viewModel, onWeiter = { schliessenFragen = false; onClose() }, onAbbrechen = { schliessenFragen = false })
             }
-        }
+        } }
     }
 }
 
@@ -544,18 +544,17 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier) {
                     1 -> if (f.notes.isEmpty()) Text(stringResource(Res.string.desk_detail_no_notes), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                         else f.notes.forEach { Text(it, style = MaterialTheme.typography.bodyMedium) }
                     else -> if (f.sources.isEmpty()) Text(stringResource(Res.string.desk_detail_no_sources), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-                        else f.sources.forEach { q ->
-                            Column(Modifier.padding(bottom = 4.dp)) {
-                                Text(q.title.ifBlank { q.xref }, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                if (q.page.isNotBlank()) Text(q.page, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
-                            }
-                        }
+                        else f.sources.forEach { q -> VerweisAnzeige(q, LocalQuelleOeffnen.current, LocalOpenWeb.current) }
                 }
             }
             SenkrechteLeiste(scroll)
         }
     }
 }
+
+/** Aus dem Personenblatt eine Quelle in der Quellenverwaltung oeffnen (null: Server kennt keine Quellen-Routen). */
+val LocalQuelleOeffnen = androidx.compose.runtime.staticCompositionLocalOf<((String) -> Unit)?> { null }
+val LocalOpenWeb = androidx.compose.runtime.staticCompositionLocalOf<(String) -> Unit> { {} }
 
 /** Kopf einer schmalen Merkerspalte: nur das Symbol, der Name beim Ueberfahren. */
 @Composable
