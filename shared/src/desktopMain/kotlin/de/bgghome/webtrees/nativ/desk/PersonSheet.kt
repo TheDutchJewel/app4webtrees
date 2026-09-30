@@ -67,6 +67,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.rememberDialogState
 import de.bgghome.webtrees.nativ.api.halfSiblings
+import de.bgghome.webtrees.nativ.api.SourceRef
+import de.bgghome.webtrees.nativ.ui.saveCitations
+import de.bgghome.webtrees.nativ.ui.ConfirmDialog
 import de.bgghome.webtrees.nativ.api.FactJson
 import de.bgghome.webtrees.nativ.api.IndividualDetail
 import de.bgghome.webtrees.nativ.api.Person
@@ -185,7 +188,7 @@ private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppVi
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (tab) {
-                0 -> if (einfach) EinfachDaten(formular, canEdit, viewModel) else FactTable(detail, canEdit, onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) }, onNew = { dialog = ProfileDialog.NewFact })
+                0 -> if (einfach) EinfachDaten(formular, canEdit, viewModel) else FactTable(detail, canEdit, viewModel, onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) }, onNew = { dialog = ProfileDialog.NewFact })
                 1 -> ParentsTab(detail, viewModel)
                 2 -> PartnersTab(detail, viewModel, onNewFact = { family -> dialog = ProfileDialog.NewFamilyFact(family) },
                     onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) })
@@ -315,7 +318,7 @@ private fun PartnersTab(
         // ── Ereignisse der Partnerschaft ──
         if (familie != null) {
             val rows = familie.facts.filter { it.known }.map { FactRow(it, familie.xref, it.label) }
-            EreignisTabelle(rows, familie.xref, canEdit, onEdit, onDelete, onNew = { onNewFact(familie.xref) }, Modifier.weight(1f).fillMaxWidth(), geburtJd(detail))
+            EreignisTabelle(rows, familie.xref, canEdit, onEdit, onDelete, onNew = { onNewFact(familie.xref) }, Modifier.weight(1f).fillMaxWidth(), geburtJd(detail), detail, viewModel)
         } else {
             Text(stringResource(Res.string.desk_partner_none), Modifier.padding(12.dp), color = colors.onSurfaceVariant)
         }
@@ -397,7 +400,7 @@ private fun SourcesTab(detail: IndividualDetail, openWeb: (String) -> Unit) {
 /** Die Daten als Tabelle: Ereignis, Datum, Ort oder Beschreibung. Doppelklick bearbeitet, Knoepfe darunter. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun FactTable(detail: IndividualDetail, canEdit: Boolean, onEdit: (FactRow) -> Unit, onDelete: (FactRow) -> Unit, onNew: () -> Unit) {
+private fun FactTable(detail: IndividualDetail, canEdit: Boolean, viewModel: AppViewModel, onEdit: (FactRow) -> Unit, onDelete: (FactRow) -> Unit, onNew: () -> Unit) {
     val withSpouse = stringResource(Res.string.fact_with_spouse, "%s", "%s")
     val rows = detail.facts.filter { it.known }.map { FactRow(it, null, it.label) } +
         detail.spouseFamilies.flatMap { family ->
@@ -405,7 +408,7 @@ private fun FactTable(detail: IndividualDetail, canEdit: Boolean, onEdit: (FactR
                 FactRow(f, family.xref, family.spouse?.name?.let { withSpouse.replaceFirst("%s", f.label).replaceFirst("%s", it) } ?: f.label)
             }
         }
-    EreignisTabelle(rows, detail.person.xref, canEdit, onEdit, onDelete, onNew, Modifier.fillMaxSize(), geburtJd(detail))
+    EreignisTabelle(rows, detail.person.xref, canEdit, onEdit, onDelete, onNew, Modifier.fillMaxSize(), geburtJd(detail), detail, viewModel)
 }
 
 /** Julianischer Tag der Geburt (sonst der Taufe) - fuer die Spalte Alter; 0 = unbekannt. */
@@ -428,6 +431,7 @@ private enum class EreignisSortierung { Art, Datum, Ort, Alter }
 private fun EreignisTabelle(
     alleZeilen: List<FactRow>, schluessel: String, canEdit: Boolean,
     onEdit: (FactRow) -> Unit, onDelete: (FactRow) -> Unit, onNew: () -> Unit, modifier: Modifier, geburtJd: Int = 0,
+    detail: IndividualDetail? = null, viewModel: AppViewModel? = null,
 ) {
     var selected by remember(schluessel) { mutableStateOf(-1) }
     var sortierung by remember { mutableStateOf<EreignisSortierung?>(null) }
@@ -491,7 +495,7 @@ private fun EreignisTabelle(
         ListenLeiste(list)
         }
         HorizontalDivider(color = colors.outlineVariant)
-        EreignisDetail(rows.getOrNull(selected), geburtJd, Modifier.fillMaxWidth().height(170.dp))
+        EreignisDetail(rows.getOrNull(selected), geburtJd, Modifier.fillMaxWidth().height(200.dp), canEdit, detail, viewModel)
         if (canEdit) {
             Row(Modifier.fillMaxWidth().padding(6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 OutlinedButton(shape = MaterialTheme.shapes.small, onClick = onNew) { Icon(Icons.Default.Add, null, Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text(stringResource(Res.string.action_add_event)) }
@@ -507,10 +511,18 @@ private fun EreignisTabelle(
  * Seitenangabe. Nur zum Lesen - geaendert wird wie bisher per Doppelklick bzw. "Bearbeiten".
  */
 @Composable
-private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier) {
+private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, canEdit: Boolean = false, detail: IndividualDetail? = null, viewModel: AppViewModel? = null) {
     var reiter by remember { mutableStateOf(0) }
     val colors = MaterialTheme.colorScheme
     val f = row?.fact
+    // Verweise bearbeiten (Stufe 2): nur mit Bearbeitungsrecht und einem Server ab API-Stufe 18 (LocalQuelleOeffnen gesetzt)
+    val schreiben = canEdit && detail != null && viewModel != null && LocalQuelleOeffnen.current != null
+    val record = row?.record ?: detail?.person?.xref.orEmpty()
+    var gewaehlt by remember(f?.id) { mutableStateOf(0) }
+    var zitat by remember { mutableStateOf<ZitatZiel?>(null) }
+    var kopieren by remember { mutableStateOf<SourceRef?>(null) }
+    var entfernen by remember { mutableStateOf<ZitatZiel?>(null) }
+    val tree = viewModel?.state?.value?.tree?.name.orEmpty()
     Column(modifier.background(colors.surface)) {
         Row(Modifier.fillMaxWidth().background(colors.surfaceVariant.copy(alpha = 0.5f))) {
             listOf(stringResource(Res.string.desk_detail_data), stringResource(Res.string.desk_tab_notes) + (f?.notes?.size?.takeIf { it > 0 }?.let { " ($it)" } ?: ""),
@@ -544,11 +556,37 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier) {
                     1 -> if (f.notes.isEmpty()) Text(stringResource(Res.string.desk_detail_no_notes), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                         else f.notes.forEach { Text(it, style = MaterialTheme.typography.bodyMedium) }
                     else -> if (f.sources.isEmpty()) Text(stringResource(Res.string.desk_detail_no_sources), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-                        else f.sources.forEach { q -> VerweisAnzeige(q, LocalQuelleOeffnen.current, LocalOpenWeb.current) }
+                        else f.sources.forEachIndexed { i, q ->
+                            Box(Modifier.fillMaxWidth().background(if (schreiben && i == gewaehlt) colors.secondaryContainer.copy(alpha = 0.5f) else androidx.compose.ui.graphics.Color.Transparent, MaterialTheme.shapes.extraSmall)
+                                .clickable { gewaehlt = i }.padding(horizontal = 4.dp)) {
+                                VerweisAnzeige(q, LocalQuelleOeffnen.current, LocalOpenWeb.current)
+                            }
+                        }
                 }
             }
             SenkrechteLeiste(scroll)
         }
+        if (reiter == 2 && schreiben && f != null) {
+            val q = f.sources.getOrNull(gewaehlt)
+            val ziel = q?.let { ZitatZiel(record, f.id, gewaehlt, it) }
+            Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 3.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = { zitat = ZitatZiel(record, f.id, null, null) }) { Text("+ " + stringResource(Res.string.desk_cite_add)) }
+                TextButton(onClick = { zitat = ziel }, enabled = ziel != null) { Text(stringResource(Res.string.action_edit)) }
+                TextButton(onClick = { entfernen = ziel }, enabled = ziel != null) { Text(stringResource(Res.string.desk_cite_remove)) }
+                TextButton(onClick = { ziel?.let { viewModel!!.saveCitations(listOf(record to zitatVerschieben(it, gewaehlt - 1))) { gewaehlt-- } } }, enabled = ziel != null && gewaehlt > 0) { Text("▲") }
+                TextButton(onClick = { ziel?.let { viewModel!!.saveCitations(listOf(record to zitatVerschieben(it, gewaehlt + 1))) { gewaehlt++ } } }, enabled = ziel != null && gewaehlt < f.sources.lastIndex) { Text("▼") }
+                TextButton(onClick = { kopieren = q }, enabled = q != null) { Text(stringResource(Res.string.desk_cite_copy)) }
+            }
+        }
+    }
+    zitat?.let { z -> ZitatDialog(z, tree, viewModel!!, onDismiss = { zitat = null }) }
+    kopieren?.let { q -> ZitatKopierenDialog(q, detail!!, f?.id.orEmpty(), viewModel!!, onDismiss = { kopieren = null }) }
+    entfernen?.let { z ->
+        ConfirmDialog(
+            title = stringResource(Res.string.desk_cite_remove), text = stringResource(Res.string.desk_cite_remove_text, z.alt?.title.orEmpty()),
+            confirm = stringResource(Res.string.desk_cite_remove), onDismiss = { entfernen = null },
+            onConfirm = { entfernen = null; viewModel!!.saveCitations(listOf(record to zitatLoeschen(z))) { gewaehlt = 0 } },
+        )
     }
 }
 

@@ -977,4 +977,26 @@
     <string name="desk_citation_quality">Quality</string>
     <string name="desk_citation_date">Date</string>
     <string name="desk_citation_text">Quotation</string>
+    <string name="desk_quality_none">not specified</string>
+    <string name="desk_cite_add">Cite source</string>
+    <string name="desk_cite_edit">Change citation</string>
+    <string name="desk_cite_from_list">Source from the manager</string>
+    <string name="desk_cite_as_text">Text only</string>
+    <string name="desk_cite_text_source">Source as text</string>
+    <string name="desk_cite_text_source_hint">e.g. “according to Martha Meier”</string>
+    <string name="desk_cite_new_source_hint">For now, create a new source in webtrees (Sources › Open in webtrees).</string>
+    <string name="desk_cite_page_hint">e.g. “Baptisms 1833, no. 19” or “p. 145”</string>
+    <string name="tipp_quality">How reliable the evidence is: primary source (photo or original of the entry), secondary source (transcript), questionable, unreliable or estimated.</string>
+    <string name="desk_cite_quote_hint">Transcript of the entry – makes the text searchable later</string>
+    <string name="desk_cite_copy_title">Copy citation to …</string>
+    <string name="desk_cite_copy_events">Events of this person</string>
+    <string name="desk_cite_copy_persons">Relatives (as general citation)</string>
+    <string name="desk_cite_copy_family">Partnership with %1$s</string>
+    <string name="desk_cite_copy_hint">Source, page, quality, date, quotation and note are copied. For relatives and partnerships the citation is attached to the record, not to an event.</string>
+    <string name="desk_cite_copy_action">Copy (%1$d)</string>
+    <string name="desk_cite_already">already there</string>
+    <string name="desk_cite_child">Child</string>
+    <string name="desk_cite_remove">Remove</string>
+    <string name="desk_cite_remove_text">Remove the citation of “%1$s” from this event? The source itself is kept.</string>
+    <string name="desk_cite_copy">Copy to …</string>
 </resources>

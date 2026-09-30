@@ -4,6 +4,7 @@ import org.jetbrains.compose.resources.StringResource
 import androidx.lifecycle.viewModelScope
 import de.bgghome.webtrees.nativ.res.*
 import de.bgghome.webtrees.nativ.api.AddIndividualRequest
+import de.bgghome.webtrees.nativ.api.CitationRequest
 import de.bgghome.webtrees.nativ.api.FactRequest
 import de.bgghome.webtrees.nativ.api.WriteResult
 import kotlinx.coroutines.CancellationException
@@ -73,6 +74,40 @@ fun AppViewModel.saveFacts(xref: String, items: List<Pair<String?, FactRequest>>
             if (uiState.value.selected == xref) select(xref)
             loadPeople(reset = true)
             loadAnniversaries()
+            loadPending()
+        }
+        onFertig(fehler != null)
+    }
+}
+
+/**
+ * Quellenverweise schreiben, auch mehrere nacheinander (Kopieren): [items] = Datensatz (Person oder Familie) und
+ * Anfrage. Bricht beim ersten Fehler ab, meldet dann aber trotzdem neu geladen, was schon gespeichert wurde.
+ */
+fun AppViewModel.saveCitations(items: List<Pair<String, CitationRequest>>, onFertig: (fehler: Boolean) -> Unit = {}) {
+    val tree = uiState.value.tree ?: return
+    val selected = uiState.value.selected
+    uiState.update { it.copy(busy = true) }
+    viewModelScope.launch {
+        var gespeichert = 0
+        var wartet = false
+        var fehler: Exception? = null
+        for ((xref, anfrage) in items) {
+            try {
+                wartet = wartet || client.citation(tree.name, xref, anfrage).pending
+                gespeichert++
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                fehler = e
+                break
+            }
+        }
+        uiState.update { it.copy(busy = false, message = if (fehler == null) (if (wartet) text(Res.string.msg_pending, text(Res.string.msg_saved)) else text(Res.string.msg_saved)) else it.message) }
+        fehler?.let(::fail)
+        if (gespeichert > 0) {
+            uiState.update { it.copy(pedigree = null, descendants = null) }
+            selected?.let { select(it) }
             loadPending()
         }
         onFertig(fehler != null)

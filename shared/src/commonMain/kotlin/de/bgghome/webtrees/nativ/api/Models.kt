@@ -290,6 +290,28 @@ data class WriteResult(
     val pending: Boolean = false,
     val family: String? = null,
     val media: String? = null,
+    /** Route Citation: die neue Kennung des Ereignisses (Hash des Inhalts, aendert sich mit jedem Schreiben). */
+    val factId: String? = null,
+)
+
+/**
+ * Quellenverweis anlegen, aendern, loeschen oder verschieben (Route Citation, ab Stufe 18). Null = nicht anfassen:
+ * nur genannte Teile werden ersetzt. [factId] null = allgemeiner Verweis am Datensatz; [index] null = neu anhaengen.
+ */
+@Serializable
+data class CitationRequest(
+    val factId: String? = null,
+    val index: Int? = null,
+    val delete: Boolean? = null,
+    val moveTo: Int? = null,
+    /** Kennung einer Quelle ("S1") oder freier Text ("laut Martha Meier"). */
+    val source: String? = null,
+    val page: String? = null,
+    val quality: String? = null,
+    val date: String? = null,
+    val text: String? = null,
+    val note: String? = null,
+    val media: List<String>? = null,
 )
 
 // ── Schreib-Anfragen ─────────────────────────────────────────────────

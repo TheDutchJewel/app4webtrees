@@ -321,6 +321,10 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     suspend fun saveFact(tree: String, xref: String, request: FactRequest): WriteResult =
         post("Fact", tree, mapOf("xref" to xref), jsonBody(FactRequest.serializer(), request))
 
+    /** Ab API-Stufe 18: Quellenverweis an einem Ereignis von [xref] (Person oder Familie) schreiben. */
+    suspend fun citation(tree: String, xref: String, request: CitationRequest): WriteResult =
+        post("Citation", tree, mapOf("xref" to xref), jsonBody(CitationRequest.serializer(), request))
+
     suspend fun deleteFact(tree: String, xref: String, factId: String): WriteResult =
         post("DeleteFact", tree, mapOf("xref" to xref), jsonBody(DeleteFactRequest.serializer(), DeleteFactRequest(factId)))
 

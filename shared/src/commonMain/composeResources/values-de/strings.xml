@@ -972,4 +972,26 @@
     <string name="desk_citation_quality">Qualität</string>
     <string name="desk_citation_date">Datum</string>
     <string name="desk_citation_text">Zitat</string>
+    <string name="desk_quality_none">keine Angabe</string>
+    <string name="desk_cite_add">Quelle zitieren</string>
+    <string name="desk_cite_edit">Quellenverweis ändern</string>
+    <string name="desk_cite_from_list">Quelle aus der Verwaltung</string>
+    <string name="desk_cite_as_text">Nur als Text</string>
+    <string name="desk_cite_text_source">Quelle als Text</string>
+    <string name="desk_cite_text_source_hint">z. B. „laut Erzählung von Martha Meier“</string>
+    <string name="desk_cite_new_source_hint">Eine neue Quelle legst du vorerst in webtrees an (Quellen › In webtrees öffnen).</string>
+    <string name="desk_cite_page_hint">z. B. „Taufen 1833, Nr. 19“ oder „S. 145“</string>
+    <string name="tipp_quality">Wie sicher der Beleg ist: Primärquelle (Foto oder Original des Eintrags), Sekundärquelle (Abschrift), fragwürdig, unzuverlässig oder geschätzt.</string>
+    <string name="desk_cite_quote_hint">Abschrift des Eintrags – so wird der Text später durchsuchbar</string>
+    <string name="desk_cite_copy_title">Quellenverweis kopieren zu …</string>
+    <string name="desk_cite_copy_events">Ereignisse dieser Person</string>
+    <string name="desk_cite_copy_persons">Verwandte (als allgemeiner Verweis)</string>
+    <string name="desk_cite_copy_family">Partnerschaft mit %1$s</string>
+    <string name="desk_cite_copy_hint">Kopiert werden Quelle, Seite, Qualität, Datum, Zitat und Notiz. Bei Verwandten und Partnerschaften hängt der Verweis am Datensatz, nicht an einem Ereignis.</string>
+    <string name="desk_cite_copy_action">Kopieren (%1$d)</string>
+    <string name="desk_cite_already">schon vorhanden</string>
+    <string name="desk_cite_child">Kind</string>
+    <string name="desk_cite_remove">Entfernen</string>
+    <string name="desk_cite_remove_text">Den Verweis auf „%1$s“ von diesem Ereignis entfernen? Die Quelle selbst bleibt erhalten.</string>
+    <string name="desk_cite_copy">Kopieren zu …</string>
 </resources>

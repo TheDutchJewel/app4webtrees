@@ -40,6 +40,8 @@ The [person table](hilfe:tabelle) (Ctrl+4) shows everyone as a table.
 
 In the person sheet, the detail area below the event table (tab **Sources**) shows each citation with page, quality, date, quotation, notes and media; a click on the title opens the source here. A source without its own record ("according to Martha Meier") is shown in italics.
 
+With edit rights, the buttons below are **+ Cite source** (search a source in the manager or enter it as text, plus page, quality, date, quotation and note), **Edit**, **Remove**, **▲ ▼** (order) and **Copy to …** – the same citation for further events of this person, for parents, partners and children (as a general citation on the record) or for the partnership. Only what you enter is changed; everything else on the citation and the event is kept.
+
 In the layouts **Tree in the centre** and **Family view** the **Sources** button is in the bar at the top; in the person panel on the right (tab Events) every citation is clickable and opens the source.
 
 Needs api4webtrees with API level 18; with older servers the icon opens the webtrees source list as before.
