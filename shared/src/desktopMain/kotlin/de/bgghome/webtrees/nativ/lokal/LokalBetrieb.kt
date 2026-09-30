@@ -19,6 +19,8 @@ object LokalBetrieb {
     }
     private fun webtreesZip() = paketDatei("webtrees-", "WTAND_WEBTREES_ZIP")
     private fun apiZip() = paketDatei("api4webtrees-", "WTAND_API_ZIP")
+    /** Modul Sammlungen (Archiv): mitgeliefert, damit Fotos und Dokumente nicht am Baum haengen muessen. */
+    private fun sammlungenZip() = paketDatei("sammlungen-", "WTAND_SAMMLUNGEN_ZIP")
 
     /** Bringt dieses Paket alles mit, um einen Stammbaum auf dem PC anzulegen? */
     val verfuegbar: Boolean get() = mitgeliefertesPhp() != null && webtreesZip() != null
@@ -46,7 +48,7 @@ object LokalBetrieb {
         val php = checkNotNull(mitgeliefertesPhp()) { "PHP fehlt im Paket" }
         val zip = checkNotNull(webtreesZip()) { "webtrees fehlt im Paket" }
         server?.beenden()
-        val (s, z) = LokaleEinrichtung(php, zip, apiZip()).einrichten(titel, gedcom, schritt = schritt)
+        val (s, z) = LokaleEinrichtung(php, zip, apiZip(), sammlungenZip()).einrichten(titel, gedcom, schritt = schritt)
         server = s
         return s.adresse to z
     }

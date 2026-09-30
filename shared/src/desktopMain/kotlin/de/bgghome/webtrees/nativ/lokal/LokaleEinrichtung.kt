@@ -37,7 +37,7 @@ data class LokalerZugang(val benutzer: String, val passwort: String, val baum: S
 }
 
 /**
- * "Neuen Stammbaum auf diesem PC anlegen" (Stufe 4): webtrees und api4webtrees entpacken, PHP starten, den
+ * "Neuen Stammbaum auf diesem PC anlegen" (Stufe 4): webtrees, api4webtrees und Sammlungen entpacken, PHP starten, den
  * Einrichtungsassistenten ausfuellen und den ersten Stammbaum anlegen - dieselben Schritte wie im
  * nas4webtrees-Image (nas4webtrees-entry.py: run_setup_wizard, first_run, make_private).
  */
@@ -45,6 +45,8 @@ class LokaleEinrichtung(
     private val php: File,
     private val webtreesZip: File,
     private val apiZip: File?,
+    /** Modul Sammlungen (Archiv); null = nicht im Paket. Wie api4webtrees: webtrees schaltet gefundene Module selbst ein. */
+    private val sammlungenZip: File? = null,
 ) {
     fun einrichten(
         titel: String,
@@ -67,6 +69,11 @@ class LokaleEinrichtung(
             val modul = File(wt, "modules_v4/api4webtrees")
             modul.deleteRecursively()
             LokalerServer.entpacken(apiZip, File(wt, "modules_v4"), ohneOberordner = false)
+        }
+        if (sammlungenZip != null) {
+            schritt("Archiv (Sammlungen) wird eingerichtet …")
+            File(wt, "modules_v4/sammlungen").deleteRecursively()
+            LokalerServer.entpacken(sammlungenZip, File(wt, "modules_v4"), ohneOberordner = false)
         }
 
         val alt = LokalerZugang.laden()

@@ -17,6 +17,10 @@ Fotos kommen aus der GEDCOM nicht mit. Du fügst sie im Programm hinzu oder kopi
 
 Darin liegt `webtrees/` mit dem Programm und `webtrees/data/` mit der Datenbank (SQLite) und dem Medienordner `media/`. Das Protokoll des PHP-Servers heißt `php.log`.
 
+## Archiv
+
+Der Stammbaum auf diesem PC bringt das Modul **Sammlungen** mit: Fotos und Dokumente liegen als Ordner unter `data/media`, müssen nicht an Personen hängen und erscheinen im Bereich **Fotos › Archiv** sowie in webtrees im Browser. Kirchenbuchscans aus dem Archiv lassen sich in der Quellenverwaltung als Quelle oder Verweis zuordnen.
+
 ## Sicherung
 
 Das Programm sichert nicht automatisch. Zwei Wege:

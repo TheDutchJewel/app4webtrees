@@ -17,6 +17,10 @@ Photos do not come along from the GEDCOM. Add them in the program, or copy them 
 
 Inside are `webtrees/` with the program and `webtrees/data/` with the database (SQLite) and the media folder `media/`. The PHP server's log is `php.log`.
 
+## Archive
+
+The family tree on this PC comes with the **Sammlungen** (collections) module: photos and documents live as folders under `data/media`, need not be attached to individuals, and appear under **Photos › Archive** as well as in webtrees in the browser. Parish register scans from the archive can be assigned as a source or citation in the source manager.
+
 ## Backup
 
 The program does not back up automatically. Two ways:

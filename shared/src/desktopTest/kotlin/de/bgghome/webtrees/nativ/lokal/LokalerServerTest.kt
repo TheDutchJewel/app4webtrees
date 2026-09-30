@@ -69,6 +69,7 @@ class LokaleEinrichtungTest {
     private val php = (System.getenv("WTAND_PHP") ?: "/usr/bin/php").let(::File)
     private val zip = System.getenv("WTAND_WEBTREES_ZIP")?.let(::File)
     private val api = System.getenv("WTAND_API_ZIP")?.let(::File)
+    private val sammlungen = System.getenv("WTAND_SAMMLUNGEN_ZIP")?.let(::File)
     private val basis = createTempDirectory("wtlokal").toFile()
 
     @Test fun einrichtenUndAnmelden() {
@@ -76,9 +77,11 @@ class LokaleEinrichtungTest {
         System.setProperty("wtand.lokal", basis.absolutePath)
         try {
             val schritte = mutableListOf<String>()
-            val (server, zugang) = LokaleEinrichtung(php, zip, api).einrichten("Familie Test") { schritte += it }
+            val (server, zugang) = LokaleEinrichtung(php, zip, api, sammlungen).einrichten("Familie Test") { schritte += it }
             try {
                 assertTrue(LokalOrte.eingerichtet, schritte.toString())
+                // Modul Sammlungen (Archiv) liegt neben api4webtrees und ist eingeschaltet: die Archiv-Uebersicht antwortet
+                if (sammlungen != null) assertTrue(File(LokalOrte.webtrees, "modules_v4/sammlungen/module.php").isFile, "Sammlungen fehlt")
                 val client = de.bgghome.webtrees.nativ.api.WtClient(
                     SpeicherAblage(), SpeicherAblage(),
                     userAgent = "test",
@@ -88,6 +91,11 @@ class LokaleEinrichtungTest {
                 println("Info: $info")
                 assertTrue(info.user.loggedIn && info.user.isAdmin, info.toString())
                 assertTrue(info.trees.single().autoAccept, info.toString())
+                if (sammlungen != null) {
+                    val archiv = kotlinx.coroutines.runBlocking { client.archive(info.trees.single().name) }
+                    println("Archiv: api=${archiv.api} darfHochladen=${archiv.darfHochladen}")
+                    assertTrue(archiv.api >= 1, "Archiv-Route antwortet nicht: $archiv")
+                }
                 // Zweiter Lauf (Neustart): nichts neu anlegen, derselbe Zugang.
                 server.beenden()
                 val (s2, z2) = LokaleEinrichtung(php, zip, api).einrichten("Familie Test")
