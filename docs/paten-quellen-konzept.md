@@ -154,21 +154,22 @@ bleiben.
 - Private Paten: nur „privat“, kein Name, auch nicht im Tooltip, in Listen, Büchern, Exporten.
 - Offline-Cache (`offline-konzept.md`): Antworten wie geliefert speichern – die API hat schon gefiltert.
 
-## 6. Abnahme mit dem Demo-Baum 1.2
+## 6. Abnahme mit dem Demo-Baum 1.3
 
-Vorher **Testsite neu importieren** (dort liegt noch der alte Stand mit 43 Quellen) und die 7 neuen
-Scans hochladen.
+Seit 1.3 (01.10.2026) stehen freie Paten/Trauzeugen als `2 _GODP` / `2 _WITN` (eine Zeile je Person, GEDCOM-L);
+die Notiz-Form `NOTE Paten: A; B` bleibt nur als Testfall (I140, I141, F60). Testsite ist mit 1.3 importiert.
 
 | Fall | Fundstelle | Erwartung in der App |
 | - | - | - |
 | nur verlinkte Paten | I22 | 2 klickbare Namen |
-| nur Text-Paten | I52 | Eggers, Lüders – passend zum Scan M130 |
-| gemischt + Notiz + Quelle am Paten | I21 | 2 verlinkt (I65 mit ⓘ „in Abwesenheit“ und ⧉) + 1 Text |
+| nur Text-Paten (`_GODP`) | I52, I144 | Eggers, Lüders – passend zum Scan M130 |
+| gemischt + Notiz + Quelle am Paten | I21, I28 | I21: 2 verlinkt (I65 mit ⓘ „in Abwesenheit“ und ⧉) + 1 Text (`_GODP`) |
+| alte Notiz-Form `NOTE Paten:` | I140, I141 (Trauzeugen F60) | wie `_GODP`; die Notiz erscheint nicht zusätzlich unter Notizen |
 | lebende Patin | I1 / I10 | als Gast „privat“, angemeldet „Ute Falkenrath (Patin)“ |
 | Gegenrichtung | I377 | Abschnitt „Pate bei“ mit allen Taufen |
 | alte Schreibweisen | I38, I41, I57 | wie Hauptform, „Pate“/„Patin“ |
 | `1 ASSO` | I58 | Paten an der Taufe, Hinweis „an der Person erfasst“ |
-| Trauzeugen | F3, F6 (gemischt), F38 (Text) | Zeile „Trauzeugen“ |
+| Trauzeugen | F3, F6 (gemischt), F38 (nur `_WITN`) | Zeile „Trauzeugen“ |
 | zwei Heiraten | F8 | „Heirat (standesamtlich)“ und „Heirat (kirchlich)“, beide bearbeitbar |
 | ohne Art | F10 | „Heirat“ |
 | Zitat aus Ereignis mit Rolle | Zitat an I62 | „aus Taufeintrag · Rolle Patin“ |
