@@ -4,12 +4,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/** Die Hilfekapitel: vollstaendig in beiden Sprachen, Markdown sauber zerlegt, alle inneren Links zeigen auf Kapitel. */
+/** Die Hilfekapitel: vollstaendig in allen Sprachen der App, Markdown sauber zerlegt, alle inneren Links zeigen auf Kapitel. */
 class HilfeTest {
 
     @Test
-    fun alleKapitelInBeidenSprachen() {
-        for (sprache in listOf("de", "en")) {
+    fun alleKapitelInAllenSprachen() {
+        for (sprache in de.bgghome.webtrees.nativ.Sprache.CODES) {
             val kapitel = HilfeTexte.laden(sprache)
             assertEquals(HilfeTexte.REIHENFOLGE, kapitel.map { it.id }, "Kapitel fehlen in $sprache")
             kapitel.forEach { k ->
@@ -18,13 +18,13 @@ class HilfeTest {
             }
         }
         // Unbekannte Sprache faellt auf Englisch zurueck
-        assertEquals("Getting started", HilfeTexte.laden("fr").first().titel)
+        assertEquals("Getting started", HilfeTexte.laden("pt").first().titel)
     }
 
     @Test
     fun innereLinksZeigenAufKapitel() {
         val ziel = Regex("\\]\\(hilfe:([a-z]+)\\)")
-        for (sprache in listOf("de", "en")) for (id in HilfeTexte.REIHENFOLGE) {
+        for (sprache in de.bgghome.webtrees.nativ.Sprache.CODES) for (id in HilfeTexte.REIHENFOLGE) {
             val text = HilfeTest::class.java.classLoader.getResourceAsStream("hilfe/$sprache/$id.md")!!.readBytes().toString(Charsets.UTF_8)
             ziel.findAll(text).forEach { m -> assertTrue(m.groupValues[1] in HilfeTexte.REIHENFOLGE, "$sprache/$id verweist auf unbekanntes Kapitel ${m.groupValues[1]}") }
         }

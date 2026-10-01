@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.rememberDialogState
+import de.bgghome.webtrees.nativ.Sprache
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.FactJson
 import de.bgghome.webtrees.nativ.api.TreeExport
@@ -63,6 +64,7 @@ import de.bgghome.webtrees.nativ.pruefung.Einheit
 import de.bgghome.webtrees.nativ.pruefung.FaktRef
 import de.bgghome.webtrees.nativ.pruefung.PruefErgebnis
 import de.bgghome.webtrees.nativ.pruefung.PruefOptionen
+import de.bgghome.webtrees.nativ.pruefung.PruefTexte
 import de.bgghome.webtrees.nativ.pruefung.Regel
 import de.bgghome.webtrees.nativ.pruefung.RegelGruppe
 import de.bgghome.webtrees.nativ.pruefung.Regelkatalog
@@ -131,8 +133,6 @@ private fun einheit(e: Einheit?, wert: Double = 2.0): String = when (e) {
 
 private fun zahl(d: Double) = if (d == d.toLong().toDouble()) d.toLong().toString() else d.toString()
 
-private val deutsch get() = java.util.Locale.getDefault().language == "de"
-
 private fun gruppenName(g: RegelGruppe) = when (g) {
     RegelGruppe.Chronologie -> Res.string.desk_check_group_chrono
     RegelGruppe.Alter -> Res.string.desk_check_group_age
@@ -170,7 +170,7 @@ internal fun pruefZeilen(
         val r = Regelkatalog.nachId.getValue(id)
         add(Zeile(""))
         val g = (grenzwerte[id] ?: r.grenzwert)?.let { "  [" + listOf(zahl(it), einheit(r.einheit, it)).filter(String::isNotBlank).joinToString(" ") + "]" }.orEmpty()
-        add(Zeile("$id  ${r.frage(deutsch)}$g  –  ${schwereText(schwere[id] ?: r.schwere)} (${liste.size})", fett = true))
+        add(Zeile("$id  ${PruefTexte.frage(r)}$g  –  ${schwereText(schwere[id] ?: r.schwere)} (${liste.size})", fett = true))
         liste.forEach { t ->
             val p = b.person(trefferPerson(t, b))
             add(Zeile("", spalten = listOf(p?.let(::registerName) ?: t.familie.orEmpty(), p?.lifespan.orEmpty(), t.text), anteile = anteile))
@@ -225,7 +225,7 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
     }
     val ergebnis by produceState<PruefErgebnis?>(null, baum, aus, grenzwerte, schaetzen) {
         val b = baum?.getOrNull() ?: run { value = null; return@produceState }
-        value = withContext(Dispatchers.Default) { pruefen(b, PruefOptionen(grenzwerte, aus, schaetzen)) }
+        value = withContext(Dispatchers.Default) { pruefen(b, PruefOptionen(grenzwerte, aus, schaetzen, texte = PruefTexte.ausRessourcen(Sprache.aktiv))) }
     }
     LaunchedEffect(aus) { PruefWahl.aus(aus) }
     // Nach dem Speichern eines Ereignisses: warten, bis das Programm fertig geschrieben hat, dann neu pruefen
@@ -252,9 +252,9 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
                 Column(Modifier.width(470.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(start = 12.dp, end = 12.dp, top = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Einstellung(stringResource(Res.string.desk_check_preset), stringResource(Res.string.tipp_preset)) {
-                            val namen = Voreinstellung.alle.associate { it.id to it.name(deutsch) } + ("eigene" to stringResource(Res.string.desk_check_preset_own))
-                            Auswahl(namen[voreinstellung] ?: namen.getValue("eigene"), Voreinstellung.alle.map { it.name(deutsch) }) { w ->
-                                Voreinstellung.alle.firstOrNull { it.name(deutsch) == w }?.let(::voreinstellungSetzen)
+                            val namen = Voreinstellung.alle.associate { it.id to PruefTexte.nameText(it) } + ("eigene" to stringResource(Res.string.desk_check_preset_own))
+                            Auswahl(namen[voreinstellung] ?: namen.getValue("eigene"), Voreinstellung.alle.map { namen.getValue(it.id) }) { w ->
+                                Voreinstellung.alle.firstOrNull { namen[it.id] == w }?.let(::voreinstellungSetzen)
                             }
                         }
                         Haken(stringResource(Res.string.desk_check_estimate), schaetzen, stringResource(Res.string.tipp_estimate)) { schaetzen = it; PruefWahl.schaetzen = it; eigene() }
@@ -272,7 +272,7 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
                                 items(Regelkatalog.alle.filter { it.gruppe == g }, key = { it.id }) { r ->
                                     val an = r.id !in aus
                                     val zahl = if (an) ergebnis?.treffer?.get(r.id)?.count { it.schluessel !in abgehakt } else null
-                                    RegelZeile(r, r.frage(deutsch), zahl, schwereVon(r.id) == Schwere.Fehler, gewaehlt == r.id, an,
+                                    RegelZeile(r, PruefTexte.frageText(r), zahl, schwereVon(r.id) == Schwere.Fehler, gewaehlt == r.id, an,
                                         onHaken = { aus = if (it) aus - r.id else aus + r.id; eigene() }) { gewaehlt = r.id }
                                     if (gewaehlt == r.id) RegelEinstellung(r, grenzwerte[r.id], schwereVon(r.id),
                                         onWert = { w ->
@@ -311,7 +311,7 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
                 // ── Treffer ──
                 Column(Modifier.weight(1f).fillMaxHeight().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     val r = gewaehlt?.let { Regelkatalog.nachId[it] }
-                    Text(r?.let { "${it.id}  ${it.frage(deutsch)}" } ?: stringResource(Res.string.desk_check_title, baumTitel),
+                    Text(r?.let { "${it.id}  ${PruefTexte.frageText(it)}" } ?: stringResource(Res.string.desk_check_title, baumTitel),
                         style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                     val e = ergebnis
                     val b = baum?.getOrNull()

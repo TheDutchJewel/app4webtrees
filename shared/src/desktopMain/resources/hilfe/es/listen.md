@@ -1,0 +1,27 @@
+# Listas
+
+La ventana **Crear lista** se abre con **Crear › Lista de antepasados**, **Lista de descendientes**, **Lista de eventos** o con el icono **Lista**. A la izquierda el tipo de lista con sus ajustes, a la derecha la vista previa de las páginas terminadas; abajo **Imprimir** y **Guardar como PDF …**.
+
+## A partir de la persona central
+
+- **Lista de antepasados:** todos los antepasados por generación con números Sosa-Stradonitz, hasta 12 generaciones; quien aparece más de una vez remite a su primer número (implexo).
+- **Antepasados más remotos:** los antepasados en los que termina la investigación, según las cuatro líneas de los abuelos.
+- **Línea paterna** y **Línea materna:** la línea del padre o de la madre generación por generación, con los cónyuges.
+- **Completitud de la ascendencia:** lo completa que está investigada cada generación, en forma de tabla con implexo.
+- **Lista de descendientes:** todos los descendientes con números, cónyuges y matrimonios, hasta 10 generaciones. Numeración según Saragossa, d’Aboville, Henry o correlativa.
+- **Descendientes por generación:** cuántos descendientes hay en cada generación: hombres, mujeres, vivos, portadores del apellido.
+- **Ficha personal:** todos los datos de la persona central en una página.
+
+## Sobre todo el árbol
+
+- **Lista de eventos:** nacimientos y defunciones de todas las personas visibles en orden cronológico; opcionalmente como **calendario de aniversarios** por mes y día, con filtro de lugar, p. ej. para la circular familiar.
+- **Apellidos:** todos los apellidos con su número, período y los lugares más frecuentes.
+- **Lugares:** todos los lugares con los apellidos que aparecen en ellos y el período.
+- **Familias:** todos los matrimonios con la boda y el número de hijos, por orden alfabético o cronológico.
+- **Documentación con fuentes:** lo bien documentado que está el árbol: personas y eventos con fuente en porcentaje, fotos, por tipo de evento, y quién no tiene todavía ninguna fuente.
+- **Profesiones y religiones:** quién tuvo qué profesión o perteneció a qué religión.
+- **Padrinos:** todos los bautismos con sus padrinos en orden cronológico; con api4webtrees 1.11 o posterior a partir de los padrinos vinculados y de los de texto libre («vinculados: 2 de 3» indica cuántos tienen registro propio); si no, a partir de la nota «Paten: …».
+
+Las listas sobre todo el árbol necesitan el árbol completo; el servidor debe tener api4webtrees 1.9 o posterior. Con el árbol genealógico en este PC siempre es así.
+
+La vista previa muestra las primeras páginas; si hay más, debajo aparece «… y n páginas más en el PDF». Cada página lleva abajo «Creado con wtWin el …».

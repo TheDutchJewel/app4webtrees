@@ -59,6 +59,7 @@ Needs api4webtrees with API level 18; with older servers the icon opens the webt
 ## View
 
 - **Appearance:** light, dark or like the system.
+- **Language:** like the system or fixed to German, English, French, Dutch or Spanish. Takes effect at once; labels from the server (event types, places) arrive in the new language with the next reload. Help and plausibility check switch as well.
 - **Colour coding:** colours the start person's ancestors by the four grandparent lines and their descendants in a fifth colour (after Mary Hill). Needs a start person.
 - **Show siblings and partners**, **Show cousins**: for the tree view.
 - **Generations:** how many ancestor generations the tree loads.

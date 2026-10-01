@@ -31,7 +31,7 @@ On the right of the start screen: enter a name and click **Create family tree**,
 
 ## Language
 
-The program follows the system language: German, otherwise English. Labels that come from the server (event names, relationships) appear in the program's language.
+The program follows the system language (German, English, French, Dutch or Spanish, otherwise English). Choose a fixed language under **View › Language**. Labels that come from the server (event names, relationships) appear in the program's language.
 
 ## Next
 

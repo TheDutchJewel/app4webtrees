@@ -1,5 +1,8 @@
 package de.bgghome.webtrees.nativ.lokal
 
+import de.bgghome.webtrees.nativ.Texte
+import de.bgghome.webtrees.nativ.res.Res
+import de.bgghome.webtrees.nativ.res.lokal_import_progress
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
@@ -133,7 +136,7 @@ class LokaleEinrichtung(
         LokalOrte.importProtokoll.writeText("== ${gedcom.absolutePath} (${java.time.LocalDateTime.now().withNano(0)})\n")
         try {
             val aus = einlesenSkript(benutzer, baum, kopie.absolutePath) { zeile ->
-                if (zeile.startsWith("FORTSCHRITT ")) schritt("„${gedcom.name}“ wird eingelesen … ${zeile.substringAfter(' ')} Datensätze")
+                if (zeile.startsWith("FORTSCHRITT ")) schritt(Texte.t(Res.string.lokal_import_progress, gedcom.name, zeile.substringAfter(' ')))
             }
             LokalOrte.importProtokoll.appendText(aus.lines().filterNot { it.startsWith("FORTSCHRITT ") }.joinToString("\n").trim() + "\n")
         } catch (e: Exception) {

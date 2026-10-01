@@ -27,6 +27,27 @@ class GedcomDateTest {
     }
 
     @Test
+    fun frenchDutchSpanishInput() {
+        assertEquals("12 MAR 1890", GedcomDate.fromInput("12 mars 1890"))
+        assertEquals("1 AUG 1890", GedcomDate.fromInput("1er août 1890".replace("1er", "1")))
+        assertEquals("FEB 1901", GedcomDate.fromInput("Février 1901"))
+        assertEquals("ABT 1850", GedcomDate.fromInput("vers 1850"))
+        assertEquals("BEF 12 DEC 1850", GedcomDate.fromInput("avant 12 décembre 1850"))
+        assertEquals("BET 1850 AND 1860", GedcomDate.fromInput("entre 1850 et 1860"))
+        assertEquals("3 MAR 1890", GedcomDate.fromInput("3 maart 1890"))
+        assertEquals("5 MAY 1890", GedcomDate.fromInput("5 mei 1890"))
+        assertEquals("ABT 1850", GedcomDate.fromInput("rond 1850"))
+        assertEquals("AFT 1850", GedcomDate.fromInput("na 1850"))
+        assertEquals("BET MAR 1850 AND 1851", GedcomDate.fromInput("tussen maart 1850 en 1851"))
+        assertEquals("12 JAN 1890", GedcomDate.fromInput("12 enero 1890"))
+        assertEquals("AUG 1901", GedcomDate.fromInput("agosto 1901"))
+        assertEquals("ABT 1850", GedcomDate.fromInput("hacia 1850"))
+        assertEquals("BEF 1850", GedcomDate.fromInput("antes de 1850"))
+        assertEquals("AFT 1850", GedcomDate.fromInput("después de 1850"))
+        assertEquals("BET 1850 AND 1860", GedcomDate.fromInput("entre 1850 y 1860"))
+    }
+
+    @Test
     fun englishInput() {
         assertEquals("12 MAR 1890", GedcomDate.fromInput("12 March 1890"))
         assertEquals("12 MAR 1890", GedcomDate.fromInput("March 12, 1890"))

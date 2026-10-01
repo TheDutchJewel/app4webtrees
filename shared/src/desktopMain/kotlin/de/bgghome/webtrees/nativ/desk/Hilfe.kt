@@ -130,8 +130,8 @@ object HilfeTexte {
     const val START = "start"
     val REIHENFOLGE = listOf("start", "hauptfenster", "person", "suche", "tabelle", "tafeln", "listen", "buecher", "pruefung", "webtrees", "lokal", "tasten", "fragen")
 
-    /** Alle Kapitel in der Sprache des Systems; fehlt eines, kommt es englisch, zuletzt deutsch. */
-    fun laden(sprache: String = java.util.Locale.getDefault().language): List<HilfeKapitel> = REIHENFOLGE.mapNotNull { id ->
+    /** Alle Kapitel in der gewaehlten Sprache; fehlt eines, kommt es englisch, zuletzt deutsch. */
+    fun laden(sprache: String = de.bgghome.webtrees.nativ.Sprache.aktiv): List<HilfeKapitel> = REIHENFOLGE.mapNotNull { id ->
         (lesen("hilfe/$sprache/$id.md") ?: lesen("hilfe/en/$id.md") ?: lesen("hilfe/de/$id.md"))?.let { kapitel(id, it) }
     }
 
@@ -249,7 +249,8 @@ fun HilfeFenster() {
         width = (prefs.getString("hilfe_breite", null)?.toFloatOrNull() ?: 960f).dp,
         height = (prefs.getString("hilfe_hoehe", null)?.toFloatOrNull() ?: 700f).dp,
     )
-    val kapitel = remember { HilfeTexte.laden() }
+    val sprache = de.bgghome.webtrees.nativ.Sprache.aktiv
+    val kapitel = remember(sprache) { HilfeTexte.laden(sprache) }
     var aktuell by remember { mutableStateOf(angefordert) }
     val zurueck = remember { mutableStateListOf<String>() }
     val vor = remember { mutableStateListOf<String>() }

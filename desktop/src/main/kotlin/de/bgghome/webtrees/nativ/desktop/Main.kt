@@ -13,6 +13,7 @@ import androidx.compose.ui.window.application
 import coil3.SingletonImageLoader
 import de.bgghome.webtrees.nativ.Desktop
 import de.bgghome.webtrees.nativ.DesktopPlattform
+import de.bgghome.webtrees.nativ.Sprache
 import de.bgghome.webtrees.nativ.data.DesktopAblage
 import de.bgghome.webtrees.nativ.desk.DeskRoot
 import de.bgghome.webtrees.nativ.desk.DeskTheme
@@ -31,6 +32,8 @@ import javax.swing.UIManager
  */
 fun main(args: Array<String>) {
     val plattform = DesktopPlattform().also { Desktop.plattform = it }
+    // Gewaehlte Sprache vor allem anderen, damit auch Startbildschirm und Meldungen schon darin erscheinen.
+    Sprache.start(plattform.settings)
 
     // Verbinden-Link aus webtrees als Startargument (wtwin://connect?…). Laeuft schon ein Fenster, bekommt es den Link.
     val startLink = args.firstOrNull { it.contains("://connect?") }
@@ -77,7 +80,9 @@ fun main(args: Array<String>) {
                 }
             }
             CompositionLocalProvider(LocalAppName provides plattform.appName) {
-                DeskTheme { DeskRoot(viewModel, onQuit = { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() }) }
+                Sprache.Umgebung {
+                    DeskTheme { DeskRoot(viewModel, onQuit = { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() }) }
+                }
             }
         }
     }

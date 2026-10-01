@@ -164,7 +164,7 @@ fun nachfahrenbuch(d: NachfahrenDaten, o: BuchOptionen, baum: String, app: Strin
     val jahre = eintraege.mapNotNull { d.details[it.xref]?.person?.birth?.date?.year?.takeIf { y -> y > 0 } }
     val bloecke = mutableListOf<Block>()
     bloecke += Titelblatt(titel, if (jahre.isNotEmpty()) "${jahre.min()} – ${jahre.max()}" else "",
-        Texte.t(Res.string.desk_book_date, LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+        Texte.t(Res.string.desk_book_date, LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM))),
         if (o.bilder) wurzel.thumb?.let { d.bilder[it] } else null)
     bloecke += Inhaltsverzeichnis
     if (o.vorwort.isNotBlank()) {

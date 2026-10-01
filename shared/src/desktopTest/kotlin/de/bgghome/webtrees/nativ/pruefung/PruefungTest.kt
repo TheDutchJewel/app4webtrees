@@ -81,7 +81,7 @@ class PruefungTest {
 
     @Test
     fun falkenrathWieDasPythonProgramm() {
-        val e = pruefen(gedcomAlsExport(falkenrath), aus = stufe2, jetzt = 2026, deutsch = true)
+        val e = pruefen(gedcomAlsExport(falkenrath), aus = stufe2, jetzt = 2026)
         val zahlen = e.treffer.filterValues { it.isNotEmpty() }.mapValues { it.value.size }
         assertEquals(mapOf("010" to 7, "016" to 1, "124" to 3, "223" to 2, "224" to 8), zahlen, e.treffer.filterValues { it.isNotEmpty() }.toString())
         assertEquals(listOf("I307", "I319", "I321", "I340", "I342", "I370", "I376"), e.treffer.getValue("010").map { it.person }.sortedBy { it!!.drop(1).toInt() })
@@ -145,7 +145,7 @@ class PruefungStufe2Test {
     fun schaetzenAusTaufe() {
         // Nur Taufe, keine Geburt: mit Schaetzen findet Regel 010 den Tod vor der Taufe, ohne nicht
         val b = TreeExport(1, mapOf("I1" to p("I1", "Anna", "Test", "F", emptyList(), emptyList(), f("c", "CHR", "5 MAY 1850"), f("d", "DEAT", "1 MAY 1850"))), emptyMap())
-        val mit = pruefen(b, PruefOptionen(aus = emptySet(), schaetzen = true, jetzt = 2026, deutsch = true)).treffer.getValue("010")
+        val mit = pruefen(b, PruefOptionen(aus = emptySet(), schaetzen = true, jetzt = 2026)).treffer.getValue("010")
         assertEquals(1, mit.size)
         assertTrue(mit.single().text.contains("~ 5 MAY 1850"))
         assertEquals(listOf(FaktRef("I1", "d"), FaktRef("I1", "c")), mit.single().fakten)
@@ -159,7 +159,7 @@ class PruefungStufe2Test {
             "I2" to p("I2", "Wilhelm", "Alt", "M", emptyList(), emptyList(), f("b", "BIRT", "1790"), f("d", "DEAT", "3 MAR 1849")),
             "I3" to p("I3", "Sophie", "Jung", "F", emptyList(), emptyList(), f("b", "BIRT", "1841")),
         ), emptyMap())
-        val e = pruefen(b, PruefOptionen(aus = emptySet(), jetzt = 2026, deutsch = true))
+        val e = pruefen(b, PruefOptionen(aus = emptySet(), jetzt = 2026))
         assertEquals(listOf("I1"), e.treffer.getValue("024").map { it.person })   // Pate Wilhelm Alt schon tot
         assertTrue(e.treffer.getValue("024").single().text.contains("Wilhelm Alt"))
         assertEquals(1, e.treffer.getValue("126").size)                             // Sophie Jung 9 Jahre alt
@@ -173,7 +173,7 @@ class PruefungStufe2Test {
             "I3" to p("I3", "Johann", "Maria", "F", emptyList(), emptyList(), f("b", "BIRT", "1 JAN 1830", "Celle, Niedersachsen", 52.62, 10.08),
                 f("c", "CHR", "2 JAN 1830", "Hamburg, Hamburg", 53.55, 9.99), f("d", "DEAT", "1890", "Hermannsbrug, Celle, Niedersachsen")),
         ), emptyMap())
-        val e = pruefen(b, PruefOptionen(aus = emptySet(), jetzt = 2026, deutsch = true))
+        val e = pruefen(b, PruefOptionen(aus = emptySet(), jetzt = 2026))
         assertEquals(1, e.treffer.getValue("228").size)          // Catharina Müller ≈ Katharina Mueller
         assertEquals(1, e.treffer.getValue("310").size)          // Nachname Maria
         assertEquals(1, e.treffer.getValue("330").size)          // Johann, weiblich
@@ -188,7 +188,7 @@ class PruefungStufe2Test {
         fun baum(tod: String) = TreeExport(1, mapOf("I1" to p("I1", "Anna", "Test", "F", emptyList(), emptyList(), f("b", "BIRT", "5 MAY 1850"), f("d", "DEAT", tod))), emptyMap())
         val t = pruefen(baum("1 MAY 1850"), PruefOptionen(jetzt = 2026)).treffer.getValue("010").single()
         // Fingerabdruck haengt nicht an der Sprache
-        assertEquals(t.fingerabdruck, pruefen(baum("1 MAY 1850"), PruefOptionen(jetzt = 2026, deutsch = false)).treffer.getValue("010").single().fingerabdruck)
+        assertEquals(t.fingerabdruck, pruefen(baum("1 MAY 1850"), PruefOptionen(jetzt = 2026, texte = { "en:$it" })).treffer.getValue("010").single().fingerabdruck)
         var liste = Abhakliste().umschalten("srv|t", t, "2026-09-27")
         assertTrue(t.schluessel in liste.fuer("srv|t"))
         liste = Abhakliste.ausJson(liste.alsJson())

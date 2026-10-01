@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import de.bgghome.webtrees.nativ.Sprache
 import de.bgghome.webtrees.nativ.ui.AppRoot
 import de.bgghome.webtrees.nativ.ui.AppViewModel
 import de.bgghome.webtrees.nativ.ui.connect
@@ -22,11 +23,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Nach Drehen oder Wechsel der Systemsprache setzt Android die Voreinstellung zurueck - die Wahl erneut anlegen.
+        Sprache.anwenden()
         enableEdgeToEdge()
         if (savedInstanceState == null) handleConnectLink(intent)
         setContent {
-            WtTheme {
-                AppRoot(viewModel)
+            Sprache.Umgebung {
+                WtTheme {
+                    AppRoot(viewModel)
+                }
             }
         }
     }

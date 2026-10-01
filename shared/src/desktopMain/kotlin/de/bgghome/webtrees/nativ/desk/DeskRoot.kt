@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Star
+import de.bgghome.webtrees.nativ.Sprache
 import de.bgghome.webtrees.nativ.Texte
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.MoreVert
@@ -417,6 +418,14 @@ private fun FrameWindowScope.DeskMenuBar(
                 RadioButtonItem(stringResource(Res.string.desk_light), selected = w == DeskErscheinung.Wahl.Hell, onClick = { DeskErscheinung.setzen(DeskErscheinung.Wahl.Hell) })
                 RadioButtonItem(stringResource(Res.string.desk_dark), selected = w == DeskErscheinung.Wahl.Dunkel, onClick = { DeskErscheinung.setzen(DeskErscheinung.Wahl.Dunkel) })
                 RadioButtonItem(stringResource(Res.string.desk_system), selected = w == DeskErscheinung.Wahl.System, onClick = { DeskErscheinung.setzen(DeskErscheinung.Wahl.System) })
+            }
+            Menu(stringResource(Res.string.menu_language)) {
+                // Wirkt sofort; Beschriftungen vom Server (Ereignisarten, Orte) kommen mit dem Neuladen nach.
+                val gewaehlt = Sprache.wahl.value
+                RadioButtonItem(stringResource(Res.string.language_system), selected = gewaehlt == null, onClick = { Sprache.setzen(null); viewModel.refresh() })
+                Sprache.ALLE.forEach { (code, name) ->
+                    RadioButtonItem(name, selected = gewaehlt == code, onClick = { Sprache.setzen(code); viewModel.refresh() })
+                }
             }
             Menu(stringResource(Res.string.desk_layout)) {
                 RadioButtonItem(stringResource(Res.string.desk_layout_navigator), selected = layout == DeskLayout.Navigator, onClick = { onLayout(DeskLayout.Navigator) })

@@ -93,9 +93,18 @@ data class BuchOptionen(
 private val MONATE = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
 
 private val MONATSNAMEN = listOf(
-    listOf("januar", "january", "jan"), listOf("februar", "february", "feb"), listOf("märz", "march", "mar"), listOf("april", "apr"),
-    listOf("mai", "may"), listOf("juni", "june", "jun"), listOf("juli", "july", "jul"), listOf("august", "aug"),
-    listOf("september", "sep"), listOf("oktober", "october", "okt", "oct"), listOf("november", "nov"), listOf("dezember", "december", "dez", "dec"),
+    listOf("januar", "january", "jan", "janvier", "januari", "enero", "ene"),
+    listOf("februar", "february", "feb", "février", "fevrier", "fév", "februari", "febrero"),
+    listOf("märz", "march", "mar", "mars", "maart", "mrt", "marzo"),
+    listOf("april", "apr", "avril", "avr", "abril", "abr"),
+    listOf("mai", "may", "mei", "mayo"),
+    listOf("juni", "june", "jun", "juin", "junio"),
+    listOf("juli", "july", "jul", "juillet", "juil", "julio"),
+    listOf("august", "aug", "août", "aout", "augustus", "agosto", "ago"),
+    listOf("september", "sep", "sept", "septembre", "septiembre"),
+    listOf("oktober", "october", "okt", "oct", "octobre", "octubre"),
+    listOf("november", "nov", "novembre", "noviembre"),
+    listOf("dezember", "december", "dez", "dec", "décembre", "decembre", "déc", "diciembre", "dic"),
 )
 
 /** Angezeigtes Datum ("12. Mai 1983", "May 12, 1983") in 12.05.1983 umsetzen, wenn es eindeutig ist. */
@@ -310,7 +319,7 @@ fun vorfahrenbuch(d: BuchDaten, o: BuchOptionen, baum: String, app: String): Buc
     }
 
     val bloecke = mutableListOf<Block>()
-    val datum = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+    val datum = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM))
     bloecke += Titelblatt(titel, if (jahre.isNotEmpty()) "${jahre.min()} – ${jahre.max()}" else "", Texte.t(Res.string.desk_book_date, datum),
         if (o.bilder) proband.thumb?.let { d.bilder[it] } else null)
     bloecke += Inhaltsverzeichnis

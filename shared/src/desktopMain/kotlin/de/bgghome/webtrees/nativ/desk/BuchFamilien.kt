@@ -148,7 +148,7 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
     val jahre = sortiert.flatMap { f -> (listOfNotNull(f.husband, f.wife) + f.children).mapNotNull { b.person(it)?.birth?.date?.year?.takeIf { y -> y > 0 } } }
     val bloecke = mutableListOf<Block>()
     bloecke += Titelblatt(titel, if (jahre.isNotEmpty()) "${jahre.min()} – ${jahre.max()}" else "",
-        Texte.t(Res.string.desk_book_date, LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))), null)
+        Texte.t(Res.string.desk_book_date, LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM))), null)
     bloecke += Inhaltsverzeichnis
     if (o.vorwort.isNotBlank()) {
         bloecke += Ueberschrift(Texte.t(Res.string.desk_book_preface), "vorwort")

@@ -59,6 +59,7 @@ Braucht api4webtrees mit API-Stufe 18; bei älteren Servern öffnet das Symbol w
 ## Ansicht
 
 - **Erscheinungsbild:** Hell, Dunkel oder wie das System.
+- **Sprache:** wie das System oder fest Deutsch, Englisch, Französisch, Niederländisch oder Spanisch. Wirkt sofort; die Beschriftungen des Servers (Ereignisarten, Orte) kommen mit dem nächsten Neuladen in der neuen Sprache. Hilfe und Plausibilitätsprüfung wechseln mit.
 - **Farbkodierung:** färbt die Vorfahren der Startperson nach den vier Großeltern-Linien und ihre Nachkommen in einer fünften Farbe (nach Mary Hill). Braucht eine Startperson.
 - **Geschwister und Partner zeigen**, **Cousins und Cousinen zeigen**: für die Baumansicht.
 - **Generationen:** wie viele Vorfahren-Generationen der Baum lädt.

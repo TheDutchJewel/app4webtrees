@@ -20,6 +20,7 @@ class WtApp : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         plattform = AndroidPlattform(this)
+        Sprache.start(plattform.settings)
 
         // Karte (osmdroid): Kacheln im eigenen Cache-Ordner, ehrliche Kennung gegenueber den OSM-Servern.
         Configuration.getInstance().apply {
@@ -27,6 +28,11 @@ class WtApp : Application(), SingletonImageLoader.Factory {
             osmdroidBasePath = File(cacheDir, "osmdroid")
             osmdroidTileCache = File(cacheDir, "osmdroid/tiles")
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        Sprache.anwenden()
     }
 
     // Bilder sind signierte webtrees-Routen und brauchen dieselbe Sitzung (Cookie) wie die API.

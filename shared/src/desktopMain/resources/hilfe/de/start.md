@@ -31,7 +31,7 @@ Rechts auf dem Startbildschirm: einen Namen eingeben und **Stammbaum anlegen**, 
 
 ## Sprache
 
-Das Programm folgt der Sprache des Systems: Deutsch, sonst Englisch. Beschriftungen, die vom Server kommen (Ereignisnamen, Verwandtschaft), erscheinen in der Sprache des Programms.
+Das Programm folgt der Sprache des Systems (Deutsch, Englisch, Französisch, Niederländisch oder Spanisch, sonst Englisch). Unter **Ansicht › Sprache** stellst du eine feste Sprache ein. Beschriftungen, die vom Server kommen (Ereignisnamen, Verwandtschaft), erscheinen in der Sprache des Programms.
 
 ## Weiter
 

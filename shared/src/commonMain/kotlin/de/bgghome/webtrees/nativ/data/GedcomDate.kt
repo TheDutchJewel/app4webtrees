@@ -24,12 +24,22 @@ object GedcomDate {
         // English (GEDCOM's own three-letter forms are among them)
         "january" to 1, "february" to 2, "march" to 3, "mar" to 3, "may" to 5, "june" to 6, "july" to 7,
         "october" to 10, "oct" to 10, "december" to 12, "dec" to 12,
+        // Français
+        "janvier" to 1, "janv" to 1, "février" to 2, "fevrier" to 2, "févr" to 2, "fév" to 2, "fev" to 2, "mars" to 3,
+        "avril" to 4, "avr" to 4, "juin" to 6, "juillet" to 7, "juil" to 7, "août" to 8, "aout" to 8,
+        "septembre" to 9, "octobre" to 10, "novembre" to 11, "décembre" to 12, "decembre" to 12, "déc" to 12,
+        // Nederlands
+        "januari" to 1, "februari" to 2, "maart" to 3, "mrt" to 3, "mei" to 5, "augustus" to 8, "oktober" to 10, "december" to 12,
+        // Español
+        "enero" to 1, "ene" to 1, "febrero" to 2, "marzo" to 3, "abril" to 4, "abr" to 4, "mayo" to 5, "junio" to 6,
+        "julio" to 7, "agosto" to 8, "ago" to 8, "septiembre" to 9, "setiembre" to 9, "set" to 9, "octubre" to 10,
+        "noviembre" to 11, "diciembre" to 12, "dic" to 12,
     )
 
     private val qualifiers = listOf(
-        listOf("um ", "ca. ", "ca ", "circa ", "etwa ", "about ", "around ", "abt. ") to "ABT",
-        listOf("vor ", "before ") to "BEF",
-        listOf("nach ", "after ") to "AFT",
+        listOf("um ", "ca. ", "ca ", "circa ", "etwa ", "about ", "around ", "abt. ", "vers ", "env. ", "environ ", "rond ", "omstreeks ", "ongeveer ", "hacia ", "aprox. ", "aproximadamente ") to "ABT",
+        listOf("vor ", "before ", "avant ", "voor ", "vóór ", "antes de ", "antes ") to "BEF",
+        listOf("nach ", "after ", "après ", "apres ", "na ", "después de ", "despues de ", "después ") to "AFT",
         listOf("ab ", "seit ", "since ") to "FROM",
         listOf("bis ", "until ") to "TO",
     )
@@ -41,7 +51,7 @@ object GedcomDate {
 
         val lower = text.lowercase()
 
-        Regex("^(?:zwischen|zw\\.?|between) (.+) (?:und|u\\.|and) (.+)$").find(lower)?.let {
+        Regex("^(?:zwischen|zw\\.?|between|entre|tussen) (.+) (?:und|u\\.|and|et|en|y) (.+)$").find(lower)?.let {
             return "BET " + simple(it.groupValues[1]) + " AND " + simple(it.groupValues[2])
         }
         Regex("^(\\d{3,4}) ?[-–] ?(\\d{3,4})$").find(lower)?.let {
@@ -72,14 +82,14 @@ object GedcomDate {
             if (month in 1..12) return "${months[month - 1]} ${m.groupValues[2]}"
         }
         // 12. März 1890 / 12 March 1890 / März 1890
-        Regex("^(?:(\\d{1,2})\\.? )?([a-zäöü]+)\\.? (\\d{3,4})$").find(t)?.let { m ->
+        Regex("^(?:(\\d{1,2})\\.? )?(\\p{L}+)\\.? (\\d{3,4})$").find(t)?.let { m ->
             monthNames[m.groupValues[2]]?.let { month ->
                 val day = m.groupValues[1]
                 return (if (day.isEmpty()) "" else "${day.toInt()} ") + "${months[month - 1]} ${m.groupValues[3]}"
             }
         }
         // March 12, 1890
-        Regex("^([a-z]+)\\.? (\\d{1,2}),? (\\d{3,4})$").find(t)?.let { m ->
+        Regex("^(\\p{L}+)\\.? (\\d{1,2}),? (\\d{3,4})$").find(t)?.let { m ->
             monthNames[m.groupValues[1]]?.let { month ->
                 return "${m.groupValues[2].toInt()} ${months[month - 1]} ${m.groupValues[3]}"
             }

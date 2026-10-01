@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
+import de.bgghome.webtrees.nativ.Sprache
 import de.bgghome.webtrees.nativ.res.*
 
 /** Ab dieser Breite: seitliche Leiste und Profil dauerhaft neben dem Baum (Tablet, aufgeklapptes Foldable). */
@@ -208,15 +209,19 @@ private fun MainScreen(state: UiState, viewModel: AppViewModel, openWeb: (String
 @Composable
 fun MainMenu(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit) {
     var open by remember { mutableStateOf(false) }
+    var spracheWaehlen by remember { mutableStateOf(false) }
 
     // Benachrichtigungen brauchen ab Android 13 eine Erlaubnis - sie wird erst beim Einschalten erfragt.
     val askNotifications = rememberNotificationPermission { viewModel.setReminders(true) }
+
+    if (spracheWaehlen) SpracheDialog(onDismiss = { spracheWaehlen = false }, onChosen = { viewModel.refresh() })
 
     Box {
         IconButton(onClick = { open = true }) { Icon(Icons.Default.MoreVert, contentDescription = stringResource(Res.string.action_menu)) }
 
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             DropdownMenuItem(text = { Text(stringResource(Res.string.action_reload)) }, onClick = { open = false; viewModel.refresh() })
+            DropdownMenuItem(text = { Text(stringResource(Res.string.menu_language_ellipsis)) }, onClick = { open = false; spracheWaehlen = true })
             if (viewModel.anniversariesSupported && viewModel.kannErinnern) {
                 DropdownMenuItem(
                     text = { Text(stringResource(if (state.reminders) Res.string.menu_reminders_off else Res.string.menu_reminders_on)) },

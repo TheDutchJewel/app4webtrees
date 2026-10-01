@@ -34,4 +34,9 @@ class Settings(private val prefs: Ablage) {
     var tree: String
         get() = prefs.getString("tree", "").orEmpty()
         set(value) = prefs.putString("tree", value)
+
+    /** Sprache der Oberflaeche ("de", "en", …); leer = wie das System (siehe Sprache). */
+    var language: String
+        get() = prefs.getString("language", "").orEmpty()
+        set(value) = prefs.putString("language", value)
 }

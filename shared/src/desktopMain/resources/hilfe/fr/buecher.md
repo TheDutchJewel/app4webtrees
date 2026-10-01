@@ -1,0 +1,25 @@
+# Livres
+
+**Créer › Créer un livre …** transforme l'arbre en un livre dans le style des livres de familles imprimés : chaque personne avec événements, sources, parrains et marraines et notes, renvois vers les parents et les enfants, portraits en marge, table des matières et index.
+
+## Trois livres
+
+- **Livre d'ascendance :** tous les ancêtres de la personne centrale par génération et numéro Sosa, avec dates, baptêmes, inhumations, sources et notes. Les quatre lignées des grands-parents en couleur dans la marge, en option.
+- **Livre de descendance :** tous les descendants génération par génération, avec conjoints, enfants et renvois ; numéros selon Saragossa, d'Aboville, Henry ou continus ; couleurs de branche pour chaque enfant du couple souche.
+- **Livre de familles :** une entrée par famille, par ordre alphabétique ou chronologique. Avec un **filtre de lieu**, il devient un livre des familles d'une commune. Nécessite l'arbre entier d'un seul tenant (api4webtrees 1.9 ou plus récent sur le serveur).
+
+## Réglages
+
+- **Données :** générations (2 à 12), notes, sources, abréger les noms de lieux, afficher en entier les ancêtres en double (au lieu de « voir n° »).
+- **Présentation :** images, code couleur, préface (votre propre texte sur la première page), tableau en page dépliante (A3, PDF seulement).
+- **Index :** noms, lieux, professions, sources, chacun renvoyant aux numéros des entrées.
+
+## Enregistrer
+
+**Enregistrer le livre** demande le format :
+
+- **PDF** avec signets et liens (un clic sur « voir n° » saute à l'entrée).
+- **DOCX** pour continuer le travail dans Word ou LibreOffice. Mettez-y une fois à jour la table des matières : cliquez dessus et appuyez sur F9 (LibreOffice : Outils › Actualiser › Index et tables).
+- **HTML** pour un site web, **TeX** pour la composition avec LaTeX, **Texte**.
+
+Pour les grands arbres, le chargement des personnes et des images prend un moment ; la fenêtre affiche la progression.
