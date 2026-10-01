@@ -333,6 +333,7 @@ internal fun ProfileDialogs(
         is ProfileDialog.NewFamilyFact -> FactDialog(
             fact = null, tags = state.familyTags, suggestPlaces = places, onDismiss = onDismiss,
             onSave = { onDismiss(); viewModel.saveFact(it, record = dialog.family) },
+            typErlaubt = (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_ASSOCIATES_WRITE,
         )
 
         ProfileDialog.PickFamily -> ChoiceDialog(
@@ -345,6 +346,7 @@ internal fun ProfileDialogs(
         is ProfileDialog.EditFact -> FactDialog(
             fact = dialog.fact, tags = state.tags, suggestPlaces = places, onDismiss = onDismiss,
             onSave = { onDismiss(); viewModel.saveFact(it, dialog.record) },
+            typErlaubt = (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_ASSOCIATES_WRITE,
         )
 
         is ProfileDialog.DeleteFact -> ConfirmDialog(

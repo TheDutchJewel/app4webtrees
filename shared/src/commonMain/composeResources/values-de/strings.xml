@@ -1058,4 +1058,25 @@
     <string name="marr_religious">kirchlich</string>
     <string name="marr_partners">eingetragene Partnerschaft</string>
     <string name="marr_common">ohne Trauschein</string>
+    <string name="marr_none">ohne Angabe</string>
+    <string name="assoc_edit_godparents">Paten bearbeiten …</string>
+    <string name="assoc_edit_witnesses">Trauzeugen bearbeiten …</string>
+    <string name="assoc_edit_others">Beteiligte bearbeiten …</string>
+    <string name="assoc_dialog_title">%1$s – %2$s</string>
+    <string name="assoc_add_person">Person aus dem Baum …</string>
+    <string name="assoc_add_free">Ohne Datensatz …</string>
+    <string name="assoc_free_hint">Name, Beruf, Ort – etwa „Friedrich Plate, Anbauer zu Celle“</string>
+    <string name="assoc_role_godparent">Pate/Patin</string>
+    <string name="assoc_role_witness">Zeuge/Zeugin</string>
+    <string name="assoc_role_other">Andere</string>
+    <string name="assoc_rela_hint">Rolle, z. B. Hebamme</string>
+    <string name="assoc_note_hint">Notiz zu dieser Person</string>
+    <string name="assoc_free_label">ohne Datensatz</string>
+    <string name="assoc_convert">Die %1$d an der Person erfassten Paten in die Taufe übernehmen</string>
+    <string name="assoc_none">Noch niemand eingetragen.</string>
+    <string name="assoc_up">Nach oben</string>
+    <string name="assoc_down">Nach unten</string>
+    <string name="assoc_remove">Entfernen</string>
+    <string name="assoc_add">Hinzufügen</string>
+    <string name="assoc_role">Rolle</string>
 </resources>

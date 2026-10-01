@@ -549,6 +549,7 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
     var zitat by remember { mutableStateOf<ZitatZiel?>(null) }
     var kopieren by remember { mutableStateOf<SourceRef?>(null) }
     var entfernen by remember { mutableStateOf<ZitatZiel?>(null) }
+    var patenFuer by remember { mutableStateOf<FactJson?>(null) }
     val tree = viewModel?.state?.value?.tree?.name.orEmpty()
     Column(modifier.background(colors.surface)) {
         Row(Modifier.fillMaxWidth().background(colors.surfaceVariant.copy(alpha = 0.5f))) {
@@ -584,6 +585,14 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
                             ?.let { Zeile(stringResource(Res.string.desk_detail_type), it) }
                         // Paten und Trauzeugen (ab API-Stufe 19): anklickbar, mit Notiz (i) und Quelle; "an der Person erfasst" nur fuer Redakteure
                         PatenZeilen(f, onPerson = { x -> viewModel?.select(x) }, zeigeLevel1 = canEdit, modifier = Modifier.padding(top = 4.dp))
+                        // Paten/Trauzeugen bearbeiten (Server ab API-Stufe 20): bei Taufe und Heirat immer, sonst wenn es schon Beteiligte gibt
+                        val apiStufe = viewModel?.state?.value?.info?.api ?: 0
+                        if (canEdit && viewModel != null && apiStufe >= de.bgghome.webtrees.nativ.api.API_ASSOCIATES_WRITE &&
+                            (f.tag in setOf("CHR", "BAPM", "MARR") || f.associates.isNotEmpty() || f.freeAssociates.isNotEmpty())) {
+                            TextButton(onClick = { patenFuer = f }, contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 0.dp)) {
+                                Text(patenKnopfText(f.tag))
+                            }
+                        }
                     }
                     1 -> if (f.notizenOhnePaten().isEmpty()) Text(stringResource(Res.string.desk_detail_no_notes), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                         else f.notizenOhnePaten().forEach { Text(it, style = MaterialTheme.typography.bodyMedium) }
@@ -612,6 +621,7 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
         }
     }
     zitat?.let { z -> ZitatDialog(z, tree, viewModel!!, onDismiss = { zitat = null }) }
+    patenFuer?.let { pf -> PatenDialog(pf, record, row?.label ?: pf.label, tree, viewModel!!, onDismiss = { patenFuer = null }) }
     kopieren?.let { q -> ZitatKopierenDialog(q, detail!!, f?.id.orEmpty(), viewModel!!, onDismiss = { kopieren = null }) }
     entfernen?.let { z ->
         ConfirmDialog(

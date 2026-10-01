@@ -338,6 +338,10 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         post("Fact", tree, mapOf("xref" to xref), jsonBody(FactRequest.serializer(), request))
 
     /** Ab API-Stufe 18: Quellenverweis an einem Ereignis von [xref] (Person oder Familie) schreiben. */
+    /** Paten/Trauzeugen eines Ereignisses schreiben (ab API-Stufe 20); die Antwort traegt die neue factId. */
+    suspend fun association(tree: String, xref: String, request: AssociationRequest): WriteResult =
+        post("Association", tree, mapOf("xref" to xref), jsonBody(AssociationRequest.serializer(), request))
+
     suspend fun citation(tree: String, xref: String, request: CitationRequest): WriteResult =
         post("Citation", tree, mapOf("xref" to xref), jsonBody(CitationRequest.serializer(), request))
 

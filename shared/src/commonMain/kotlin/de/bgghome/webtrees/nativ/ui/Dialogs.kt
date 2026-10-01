@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.ui
 
+import de.bgghome.webtrees.nativ.data.notizenOhnePaten
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,18 +72,23 @@ fun FactDialog(
     suggestPlaces: PlaceSuggest?,
     onDismiss: () -> Unit,
     onSave: (FactRequest) -> Unit,
+    /** Feld "Art" bei der Heirat (standesamtlich, kirchlich ...) - nur mit Server ab API-Stufe 20. */
+    typErlaubt: Boolean = false,
 ) {
     var tag by remember { mutableStateOf(tags.firstOrNull()) }
     var tagMenu by remember { mutableStateOf(false) }
     var value by remember { mutableStateOf(fact?.value.orEmpty()) }
     val date = rememberDateInput(gedcom = fact?.date?.gedcom.orEmpty(), displayText = fact?.date?.text.orEmpty())
     var place by remember { mutableStateOf(fact?.place?.name.orEmpty()) }
-    var note by remember { mutableStateOf(fact?.notes?.firstOrNull().orEmpty()) }
+    // Die Patenliste ("Paten: ...") ist keine gewoehnliche Notiz - sie wird ueber "Paten bearbeiten" gepflegt.
+    val originalNote = fact?.notizenOhnePaten()?.firstOrNull().orEmpty()
+    var note by remember { mutableStateOf(originalNote) }
+    val originalTyp = de.bgghome.webtrees.nativ.data.Heiratsart.aus(fact?.type.orEmpty())
+    var typ by remember { mutableStateOf(originalTyp) }
     // Name: Vornamen, Familienname und Zusatz getrennt; die Schraegstriche setzt das Programm selbst.
     val alterName = remember(fact) { de.bgghome.webtrees.nativ.data.GedcomName.aus(fact?.value.orEmpty()) }
     var name by remember(fact) { mutableStateOf(alterName) }
 
-    val originalNote = fact?.notes?.firstOrNull().orEmpty()
     val isNameOrNote = fact?.tag == "NAME" || fact?.tag == "NOTE" || (fact == null && tag?.tag == "NOTE")
 
     WtAlertDialog(
@@ -113,6 +119,12 @@ fun FactDialog(
                 if (!isNameOrNote) {
                     DateInput(date, Res.string.fact_date)
                     PlaceField(place, { place = it }, Res.string.fact_place, suggestPlaces, hint = Res.string.fact_place_hint)
+                    if (typErlaubt && (fact?.tag ?: tag?.tag) == "MARR") {
+                        Text(stringResource(Res.string.desk_detail_type), style = MaterialTheme.typography.labelMedium)
+                        val arten = listOf("" to stringResource(Res.string.marr_none)) +
+                            de.bgghome.webtrees.nativ.data.Heiratsart.entries.map { it.name to heiratsartText(it) }
+                        ChipRow(arten, typ?.name.orEmpty()) { key -> typ = de.bgghome.webtrees.nativ.data.Heiratsart.entries.firstOrNull { it.name == key } }
+                    }
                     Field(note, { note = it }, Res.string.fact_note, minLines = 2)
                 }
             }
@@ -128,6 +140,7 @@ fun FactDialog(
                                 date = date.result?.ifEmpty { null },
                                 place = place.trim().ifEmpty { null },
                                 note = note.trim().ifEmpty { null },
+                                type = typ?.takeIf { typErlaubt }?.let(::typSchluessel),
                             )
                         } else {
                             // Nur senden, was geaendert wurde - alles andere (Quellen, Koordinaten ...) bleibt auf dem Server unberuehrt.
@@ -137,6 +150,7 @@ fun FactDialog(
                                 date = if (date.changed) date.result else null,
                                 place = place.trim().takeIf { it != fact.place?.name.orEmpty() },
                                 note = note.trim().takeIf { it != originalNote },
+                                type = if (typErlaubt && typ != originalTyp) typ?.let(::typSchluessel) ?: "" else null,
                             )
                         }
                     )
@@ -312,4 +326,12 @@ internal fun WtAlertDialog(
     } else {
         AlertDialog(onDismissRequest = onDismissRequest, confirmButton = confirmButton, dismissButton = dismissButton, title = title, text = text)
     }
+}
+
+/** Die Heiratsart, wie der Server sie annimmt (er schreibt daraus webtrees' Form CIVIL, RELIGIOUS ...). */
+private fun typSchluessel(art: de.bgghome.webtrees.nativ.data.Heiratsart): String = when (art) {
+    de.bgghome.webtrees.nativ.data.Heiratsart.Standesamtlich -> "civil"
+    de.bgghome.webtrees.nativ.data.Heiratsart.Kirchlich -> "religious"
+    de.bgghome.webtrees.nativ.data.Heiratsart.Partnerschaft -> "partners"
+    de.bgghome.webtrees.nativ.data.Heiratsart.OhneTrauschein -> "common law"
 }

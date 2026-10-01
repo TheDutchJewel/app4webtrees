@@ -391,7 +391,33 @@ data class FactRequest(
     val date: String? = null,
     val place: String? = null,
     val note: String? = null,
+    /** Art (2 TYPE), ab API-Stufe 20; bei der Heirat civil, religious, partners oder "common law" - der Server schreibt webtrees' Form. */
+    val type: String? = null,
 )
+
+/**
+ * Paten, Trauzeugen und andere Beteiligte eines Ereignisses schreiben (Route Association, ab Stufe 20). null = nicht
+ * anfassen. [linked] ersetzt die verknuepften Personen in dieser Reihenfolge, [free] die ohne Datensatz (je eine Zeile
+ * _GODP/_WITN); [convertLevel1] holt "1 ASSO" der Person, die in [linked] stehen, in die Taufe.
+ */
+@Serializable
+data class AssociationRequest(
+    val factId: String,
+    val linked: List<LinkedAssociateRequest>? = null,
+    val free: List<FreeAssociateRequest>? = null,
+    val convertLevel1: Boolean? = null,
+)
+
+/** [role]: godparent, witness oder other (dann [rela] als Text, z. B. "Hebamme"); [note] null = Notiz nicht anfassen. */
+@Serializable
+data class LinkedAssociateRequest(val xref: String, val role: String, val rela: String? = null, val note: String? = null)
+
+/** [role]: godparent oder witness. */
+@Serializable
+data class FreeAssociateRequest(val text: String, val role: String)
+
+/** Ab dieser Stufe schreibt api4webtrees Paten/Trauzeugen (Route Association) und die Art eines Ereignisses. */
+const val API_ASSOCIATES_WRITE = 20
 
 @Serializable
 data class DeleteFactRequest(val factId: String)

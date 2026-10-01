@@ -1063,4 +1063,25 @@
     <string name="marr_religious">religious</string>
     <string name="marr_partners">registered partnership</string>
     <string name="marr_common">common-law</string>
+    <string name="marr_none">not stated</string>
+    <string name="assoc_edit_godparents">Edit godparents …</string>
+    <string name="assoc_edit_witnesses">Edit witnesses …</string>
+    <string name="assoc_edit_others">Edit associates …</string>
+    <string name="assoc_dialog_title">%1$s – %2$s</string>
+    <string name="assoc_add_person">Person from the tree …</string>
+    <string name="assoc_add_free">Without a record …</string>
+    <string name="assoc_free_hint">Name, occupation, place – e.g. “Friedrich Plate, farmer at Celle”</string>
+    <string name="assoc_role_godparent">Godparent</string>
+    <string name="assoc_role_witness">Witness</string>
+    <string name="assoc_role_other">Other</string>
+    <string name="assoc_rela_hint">Role, e.g. midwife</string>
+    <string name="assoc_note_hint">Note on this person</string>
+    <string name="assoc_free_label">without record</string>
+    <string name="assoc_convert">Move the %1$d godparent(s) recorded at the person into the baptism</string>
+    <string name="assoc_none">No one entered yet.</string>
+    <string name="assoc_up">Move up</string>
+    <string name="assoc_down">Move down</string>
+    <string name="assoc_remove">Remove</string>
+    <string name="assoc_add">Add</string>
+    <string name="assoc_role">Role</string>
 </resources>

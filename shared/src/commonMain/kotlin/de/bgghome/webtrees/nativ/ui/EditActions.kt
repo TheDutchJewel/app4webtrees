@@ -114,6 +114,32 @@ fun AppViewModel.saveCitations(items: List<Pair<String, CitationRequest>>, onFer
     }
 }
 
+/** Paten/Trauzeugen eines Ereignisses an [record] (Person oder Familie) schreiben, danach die Person neu laden. */
+fun AppViewModel.saveAssociation(record: String, request: de.bgghome.webtrees.nativ.api.AssociationRequest, onFertig: (fehler: Boolean) -> Unit = {}) {
+    val tree = uiState.value.tree ?: return
+    val selected = uiState.value.selected
+    uiState.update { it.copy(busy = true) }
+    viewModelScope.launch {
+        var fehler: Exception? = null
+        var wartet = false
+        try {
+            wartet = client.association(tree.name, record, request).pending
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            fehler = e
+        }
+        uiState.update { it.copy(busy = false, message = if (fehler == null) (if (wartet) text(Res.string.msg_pending, text(Res.string.msg_saved)) else text(Res.string.msg_saved)) else it.message) }
+        fehler?.let(::fail)
+        if (fehler == null) {
+            uiState.update { it.copy(pedigree = null, descendants = null) }
+            selected?.let { select(it) }
+            loadPending()
+        }
+        onFertig(fehler != null)
+    }
+}
+
 fun AppViewModel.deleteFact(factId: String, record: String? = null) = write(Res.string.msg_deleted) { tree, xref ->
     client.deleteFact(tree, record ?: xref, factId)
 }
