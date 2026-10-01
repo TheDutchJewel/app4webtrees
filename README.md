@@ -13,6 +13,8 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), zum Testen"></a>
 </p>
 
+<p align="center"><b>Neu in 1.33: fünf Sprachen.</b> wtWin, wtTux und wtAnd sprechen jetzt auch Englisch, Französisch, Niederländisch und Spanisch – umschaltbar unter Ansicht › Sprache (am Handy im Menü), mit Hilfe und Plausibilitätsprüfung in jeder Sprache.</p>
+
 <p align="center"><b>Neu in 1.31/1.32: Paten und Trauzeugen.</b> Unter Taufe und Heirat stehen die Paten bzw. Trauzeugen – verknüpfte anklickbar, frei eingetragene als Text (auch aus den GEDCOM-L-Feldern _GODP/_WITN). Bei jeder Person steht, wo sie selbst Pate oder Zeuge war. Ab 1.32 lassen sie sich im Personenblatt auch eintragen – aus dem Baum oder ohne Datensatz, wie im Kirchenbuch –, dazu die Heiratsart. Braucht <a href="https://github.com/thobgg/api4webtrees/releases">api4webtrees 1.12</a> auf dem Server.</p>
 
 <p align="center"><b>Neu in 1.26: der Stammbaum auf dem PC – ohne Server.</b> wtWin (unter Linux wtTux) installieren, GEDCOM-Datei aus dem bisherigen Programm wählen – fertig. Kein Server, kein Passwort, kein Internet; webtrees läuft unsichtbar im Hintergrund.</p>
