@@ -35,8 +35,8 @@ parsen **kein** GEDCOM und keine Notiztexte selbst – auch nicht `Paten: …`.
    (`notizenOhnePaten()`); fehlt `noteKinds` (alte API), bleiben alle Notizen stehen.
 5. **Verbreitete Programme** schreiben freie Paten nicht als NOTE, sondern als `2 _GODP <Text>` unter CHR/BAPM und Trauzeugen als
    `2 _WITN` unter MARR (GEDCOM-L, webtrees kennt beide). Die API liefert sie seit bc92a89 ebenfalls in
-   `freeAssociates` (zuerst `_GODP`/`_WITN`, dann NOTE-Einträge). dort bleibt bei
-   Falkenrath 1.2 der Reiter „Taufpaten › Text“ leer, weil dort nur `_GODP` gelesen wird.
+   `freeAssociates` (zuerst `_GODP`/`_WITN`, dann NOTE-Einträge). Programme, die nur `_GODP` lesen,
+   zeigen bei Falkenrath 1.2 (Notiz-Form) keine freien Paten.
 6. `associatedIn[]` hat für Familien zusätzlich `husband`/`wife` (XREF, nur wenn sichtbar, sonst null), damit
    „Trauzeuge bei Heirat A & B“ zu einer Person führt (die App öffnet den Mann, sonst die Frau).
 7. Android: `associatedIn` erscheint als Zeilen im Lebenslauf („Patin bei: Taufe von …“, anklickbar) – keine eigene
