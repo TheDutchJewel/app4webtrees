@@ -24,7 +24,7 @@ import kotlin.test.Test
  * Personenblatt) und den Abschnitt "Patenschaften" fuer Personen des Testservers als PNG. Laeuft nur mit gesetztem
  * WT_PATENBILDER (Zielordner), sonst sofort fertig:
  *
- *   WT_PATENBILDER=/pfad WT_XREFS="I21 I58 I377" WT_USER=admin WT_PASS=... ./gradlew :shared:desktopTest --tests '*PatenBilderErzeugen*'
+ *   WT_PATENBILDER=/pfad WT_XREFS="I21 I58 I377" [WT_BILD=1640:1500:2:560] WT_USER=admin WT_PASS=... ./gradlew :shared:desktopTest --tests '*PatenBilderErzeugen*'
  *
  * WT_URL (Vorgabe http://192.168.178.48:8377), WT_BAUM (Vorgabe falkenrath); ohne WT_USER als Gast.
  */
@@ -52,10 +52,12 @@ class PatenBilderErzeugen {
             val detail = runBlocking { client.individual(baum, xref) }
             println("$xref: ${detail.person.name}, associatedIn=${detail.associatedIn.size}, Paten an Fakten=" +
                 detail.facts.count { it.associates.isNotEmpty() || it.freeAssociates.isNotEmpty() })
-            ImageComposeScene(width = 820, height = 900, density = Density(1.25f)) {
+            // Groesse anpassbar fuer README/Homepage: WT_BILD="Breite_px:Hoehe_px:Dichte:Lebenslauf_dp"
+            val (bw, bh, dichte, lauf) = (System.getenv("WT_BILD") ?: "820:900:1.25:560").split(':')
+            ImageComposeScene(width = bw.toInt(), height = bh.toInt(), density = Density(dichte.toFloat())) {
                 DeskTheme {
                     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                        Column(Modifier.height(560.dp)) { Timeline(detail, canEdit = false, onEdit = { _, _ -> }, onDelete = { _, _ -> }, onPerson = {}) }
+                        Column(Modifier.height(lauf.toInt().dp)) { Timeline(detail, canEdit = false, onEdit = { _, _ -> }, onDelete = { _, _ -> }, onPerson = {}) }
                         Patenschaften(detail) {}
                     }
                 }

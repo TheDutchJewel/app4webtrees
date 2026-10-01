@@ -13,6 +13,8 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), zum Testen"></a>
 </p>
 
+<p align="center"><b>Neu in 1.31: Paten und Trauzeugen.</b> Unter Taufe und Heirat stehen die Paten bzw. Trauzeugen – verknüpfte anklickbar, frei eingetragene als Text (auch aus den GEDCOM-L-Feldern _GODP/_WITN). Bei jeder Person steht, wo sie selbst Pate oder Zeuge war. Standesamtliche und kirchliche Trauung erscheinen getrennt. Braucht <a href="https://github.com/thobgg/api4webtrees/releases">api4webtrees 1.11</a> auf dem Server.</p>
+
 <p align="center"><b>Neu in 1.26: der Stammbaum auf dem PC – ohne Server.</b> wtWin (unter Linux wtTux) installieren, GEDCOM-Datei aus dem bisherigen Programm wählen – fertig. Kein Server, kein Passwort, kein Internet; webtrees läuft unsichtbar im Hintergrund.</p>
 
 <p align="center">
@@ -28,6 +30,11 @@
 | <img src="docs/screenshots/windows-personenblatt.jpg" alt="wtWin: Personenblatt von Frieda Behnke" width="100%"> | <img src="docs/screenshots/desktop-baum-mittelpunkt.jpg" alt="wtTux: Aufbau Baum im Mittelpunkt mit Personenliste, Sanduhr-Baum und Personentafel" width="100%"> |
 | :-: | :-: |
 | **Personenblatt** – Ereignisse als Tabelle, die Familie daneben, Drucken und PDF | **Aufbau „Baum im Mittelpunkt“** (Ansicht › Aufbau) – links die Personenliste, in der Mitte der Baum als Sanduhr, rechts die Personentafel |
+
+<p align="center">
+  <img src="docs/screenshots/desktop-paten.jpg" alt="Lebenslauf von Heinrich Falkenrath: Paten an der Taufe, Trauzeugen an der Heirat, darunter seine eigenen Patenschaften und Trauzeugenschaften" width="100%">
+  <br><b>Paten und Trauzeugen</b> (ab 1.31) – unter Taufe und Heirat, verknüpfte Paten führen zur Person, ⓘ zeigt die Notiz zum Paten, das Symbol daneben die Quelle; darunter, wo die Person selbst Pate oder Zeuge war. Im Lebenslauf am Handy genauso.
+</p>
 
 <p align="center">
   <img src="docs/screenshots/desktop-tafel-fenster.jpg" alt="wtTux: Fenster Tafel erstellen mit Ahnenkreis über sieben Generationen" width="100%">
@@ -100,6 +107,8 @@ App kommt, landet als ausstehende Änderung in derselben webtrees-Installation, 
   frei verschieben und zoomen, Zweige nach oben aufklappen, jede Person zum Probanden machen. Beim Herauszoomen
   zeigt eine Karte weniger statt kleiner: erst ohne Porträt und Jahre, dann nur der Rufname, zuletzt ein Kasten in der
   Geschlechtsfarbe, die Schrift bleibt lesbar
+- **Paten und Trauzeugen** (ab 1.31, mit api4webtrees 1.11): unter Taufe und Heirat, verknüpfte antippen öffnet die
+  Person; dazu bei jeder Person „Pate bei …“ und „Zeuge bei …“. Standesamtliche und kirchliche Trauung getrennt
 - **Profil:** Lebenslauf als Zeitleiste (mit Heirat und Geburten der Kinder), Verwandtschaft zur eigenen Person
   („Großvater väterlicherseits"), Fotos, Familie, Karte der Lebensstationen (OpenStreetMap)
 - **Bearbeiten:** Ereignisse anlegen, ändern, löschen – auch Heirat und andere Familienereignisse; Verwandte direkt im
@@ -127,7 +136,8 @@ Alles, was (noch) nicht nativ geht, öffnet die App als webtrees-Seite in dersel
 
 webtrees hat keine Schnittstelle für Apps. Die App spricht deshalb mit dem Modul
 **[api4webtrees](https://github.com/thobgg/api4webtrees)**, das auf dem eigenen webtrees-Server (2.2.x)
-nach `modules_v4/` kopiert wird. Der webtrees-Kern bleibt unverändert.
+nach `modules_v4/` kopiert wird. Der webtrees-Kern bleibt unverändert. Paten und Trauzeugen erscheinen ab
+api4webtrees 1.11; mit einem älteren Modul läuft alles andere wie bisher.
 
 Optional: Mit dem Modul **[Sammlungen](https://github.com/thobgg/webtrees-sammlungen)** ab Version 1.6 zeigt die App
 zusätzlich das Archiv. Fehlt es, fehlt nur der Reiter.
