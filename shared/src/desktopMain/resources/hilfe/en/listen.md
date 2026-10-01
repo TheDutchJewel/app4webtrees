@@ -20,7 +20,7 @@ Open the **Create list** window via **Create › Ancestor list**, **Descendant l
 - **Family list:** all marriages with wedding and number of children, alphabetical or chronological.
 - **Sourced:** how well the tree is sourced – individuals and events with a source in percent, photos, per event type, and who has no source at all yet.
 - **Occupations and religions:** who had which occupation or belonged to which religion.
-- **Godparents:** all baptisms with their godparents in date order.
+- **Godparents:** all baptisms with their godparents in date order; with api4webtrees 1.11 or newer from the linked and the free-text godparents (“linked: 2 of 3” tells how many have their own record), otherwise from the note “Paten: …”.
 
 Lists across the whole tree need the tree in one piece; the server must run api4webtrees 1.9 or later. With the family tree on this PC that is always the case.
 

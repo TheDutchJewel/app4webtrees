@@ -1,6 +1,6 @@
 # Plausibilitätsprüfung
 
-**Erstellen › Plausibilitätsprüfung …** (Strg+Umschalt+P) oder das Symbol **Prüfung** prüft den ganzen Stammbaum, soweit du ihn sehen darfst, mit 61 Regeln. **Fehler** sind Widersprüche in den Daten (Tod vor Geburt, eigener Vorfahr), **Warnungen** sind ungewöhnlich, aber möglich (Mutter sehr jung, Pate schon gestorben, mögliche Dublette, Ortsvariante).
+**Erstellen › Plausibilitätsprüfung …** (Strg+Umschalt+P) oder das Symbol **Prüfung** prüft den ganzen Stammbaum, soweit du ihn sehen darfst, mit 61 Regeln. **Fehler** sind Widersprüche in den Daten (Tod vor Geburt, eigener Vorfahr), **Warnungen** sind ungewöhnlich, aber möglich (Mutter sehr jung, Pate schon gestorben, mögliche Dublette, Ortsvariante). Die Patenregeln (024, 126) nehmen mit api4webtrees ab 1.11 die verknüpften Paten und Trauzeugen direkt und suchen frei eingetragene über den Namen; mit einem älteren Modul lesen sie die Notiz „Paten: …“.
 
 ## Regeln und Grenzen
 

@@ -7,7 +7,9 @@ The person sheet opens with a **double-click** on a person, with **Ctrl+E** or v
 Name, dates and picture on top. Below, the tabs:
 
 - **Data:** all events as a table (event, date, place / description), plus age at death.
-- **Life:** the timeline with marriage, births of the children and the age at each event.
+- **Life:** the timeline with marriage, births of the children and the age at each event. It also lists the events where the person was a godparent or witness (“Godmother at: Christening of …”); a click leads to the child or the couple.
+- **Godparents and witnesses:** below baptism and marriage a line “Godparents:” or “Witnesses:” appears – in the timeline, in the detail area of the data table, in the family view and on index cards. Godparents with their own record are underlined and clickable, those without (from a note “Paten: …” or the GEDCOM-L field _GODP) appear as text. ⓘ unfolds a note about the godparent, the source icon opens the source. Living godparents you are not allowed to see show only as “Private”. Below the data table the section **Godparent and witness roles** lists all baptisms and marriages where the person was a godparent or witness; a click on the heading folds it away. Both need api4webtrees 1.11 or newer; with an older module the godparent note simply stays a note.
+- **Type of marriage:** civil and religious marriage appear as separate events with their type; lists and the check use the civil one when both exist.
 - **Parents/Siblings**: parents and siblings, including half-siblings. A click switches to that person.
 - **Partners/Children**: the partnerships on the left, the children of the selected one on the right, below its events (marriage, divorce, residence …) to add, edit and delete. Double-click a partner or child to show their sheet; **+** adds a partner or a child of this partnership.
 - **Name**: given names, surname and name suffix have their own fields when editing.

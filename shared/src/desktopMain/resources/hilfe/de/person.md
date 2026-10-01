@@ -7,7 +7,9 @@ Das Personenblatt öffnet sich mit **Doppelklick** auf eine Person, mit **Strg+E
 Oben Name, Lebensdaten und Bild. Darunter die Reiter:
 
 - **Daten:** alle Ereignisse als Tabelle (Ereignis, Datum, Ort / Beschreibung), dazu Alter beim Tod.
-- **Lebenslauf:** die Zeitleiste mit Heirat, Geburten der Kinder und dem jeweiligen Alter.
+- **Lebenslauf:** die Zeitleiste mit Heirat, Geburten der Kinder und dem jeweiligen Alter. Dazu die Ereignisse, bei denen die Person selbst Pate oder Trauzeuge war („Patin bei: Taufe von …“); ein Klick führt zum Täufling bzw. zum Paar.
+- **Paten und Trauzeugen:** unter Taufe und Heirat steht die Zeile „Paten:“ bzw. „Trauzeugen:“ – im Lebenslauf, im Detailbereich der Datentabelle, in der Familienansicht und auf Karteikarten. Paten mit eigenem Datensatz sind unterstrichen und anklickbar, Paten ohne Datensatz (aus einer Notiz „Paten: …“ oder dem GEDCOM-L-Feld _GODP) stehen als Text. ⓘ klappt eine Notiz zum Paten auf, das Quellensymbol öffnet die Quelle. Lebende Paten, die du nicht sehen darfst, erscheinen nur als „Privat“. Unter der Datentabelle listet der Abschnitt **Patenschaften und Trauzeugenschaften** alle Taufen und Heiraten auf, bei denen die Person Pate oder Zeuge war; ein Klick auf die Überschrift klappt ihn zu. Beides braucht api4webtrees ab 1.11; mit einem älteren Modul bleibt die Patennotiz einfach eine Notiz.
+- **Heiratsart:** standesamtliche und kirchliche Trauung erscheinen als getrennte Ereignisse mit ihrer Art; Listen und Prüfung nehmen die standesamtliche, wenn es beide gibt.
 - **Eltern/Geschwister**: Eltern und Geschwister, auch Halbgeschwister. Ein Klick wechselt zur Person.
 - **Partner/Kinder**: links die Partnerschaften, rechts die Kinder der gewählten, darunter ihre Ereignisse (Heirat, Scheidung, Wohnort …) zum Anlegen, Bearbeiten und Löschen. Doppelklick auf Partner oder Kind zeigt dessen Blatt; **+** legt einen Partner bzw. ein Kind dieser Partnerschaft an.
 - **Name**: Vornamen, Familienname und Namenszusatz stehen beim Bearbeiten in eigenen Feldern.

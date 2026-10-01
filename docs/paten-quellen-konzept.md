@@ -20,6 +20,30 @@ parsen **kein** GEDCOM und keine Notiztexte selbst – auch nicht `Paten: …`.
 
 **Ältere API (Stufe < 19):** Felder fehlen → Apps verhalten sich wie heute (Paten nur aus der Notiz). Kein Fehler.
 
+## Abweichungen in der Umsetzung (01.10.2026, API 1.11.0 fc532bb/bc92a89, App-Schritt 2)
+
+1. `1 ASSO` an der Person erscheint in `associates` der Taufe mit `level1: true` **und** bleibt als eigener Fakt `ASSO`
+   in `facts[]` (Abwärtskompatibilität). Die App blendet den ASSO-Fakt aus, wenn seine Person schon an einer Taufe
+   steht (`ohneDoppelteAsso()` in `data/Paten.kt`) – in Lebenslauf, Datentabelle, Karteikarte, Druck.
+2. `type` kommt in webtrees-Kanonform groß (`CIVIL`, `RELIGIOUS`, leer ohne TYPE). Das `label` des Fakts enthält die
+   Art bereits („Standesamtliche Heirat“), `typeLabel` ist dieselbe Übersetzung. Die App hängt die Art nur an, wenn
+   das Label sie nicht schon enthält (`artZusatz()`), Fallback-Übersetzung ohne Rücksicht auf Groß-/Kleinschreibung
+   (`Heiratsart.aus()`); Kurzform „(standesamtlich)“ nur bei mehreren Heiraten einer Familie (Buch, Karteikarte).
+3. Datenschutz: Gäste bekommen lebende Paten **gar nicht** (Eintrag fehlt), Mitglieder sehen Vertrauliche als
+   `private: true` ohne Namen → „Privat“. Die App rät nie Namen.
+4. `noteKinds[]` parallel zu `notes[]`; die App zeigt Notizen mit Kind `associates` nicht mehr unter Notizen
+   (`notizenOhnePaten()`); fehlt `noteKinds` (alte API), bleiben alle Notizen stehen.
+5. **Verbreitete Programme** schreiben freie Paten nicht als NOTE, sondern als `2 _GODP <Text>` unter CHR/BAPM und Trauzeugen als
+   `2 _WITN` unter MARR (GEDCOM-L, webtrees kennt beide). Die API liefert sie seit bc92a89 ebenfalls in
+   `freeAssociates` (zuerst `_GODP`/`_WITN`, dann NOTE-Einträge). dort bleibt bei
+   Falkenrath 1.2 der Reiter „Taufpaten › Text“ leer, weil dort nur `_GODP` gelesen wird.
+6. `associatedIn[]` hat für Familien zusätzlich `husband`/`wife` (XREF, nur wenn sichtbar, sonst null), damit
+   „Trauzeuge bei Heirat A & B“ zu einer Person führt (die App öffnet den Mann, sonst die Frau).
+7. Android: `associatedIn` erscheint als Zeilen im Lebenslauf („Patin bei: Taufe von …“, anklickbar) – keine eigene
+   Karte; am Desktop zusätzlich der Abschnitt unter der Datentabelle (standardmäßig ausgeklappt, Zustand gemerkt).
+8. Nicht in Schritt 2: die sechs neuen Prüfregeln aus Abschnitt 4 (nur Regeln 024/126 umgestellt) und der Hinweis
+   „an der Person erfasst“ im Lebenslauf (nur im Detailbereich des Personenblatts, Redakteure).
+
 ## 1. Modelle (`shared/…/api/Models.kt`)
 
 | Neu/geändert | Felder |

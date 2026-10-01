@@ -20,7 +20,7 @@ Das Fenster **Liste erstellen** öffnest du über **Erstellen › Ahnenliste**, 
 - **Familienliste:** alle Ehen mit Heirat und Kinderzahl, alphabetisch oder chronologisch.
 - **Berufe und Konfessionen:** wer welchen Beruf hatte bzw. welcher Konfession angehörte.
 - **Belegt durch Quellen:** wie gut der Stammbaum belegt ist – Personen und Ereignisse mit Quelle in Prozent, Fotos, je Ereignisart, und wer noch ganz ohne Quelle ist. Der Vergleichswert unter Forschern.
-- **Taufpaten:** alle Taufen mit ihren Paten, zeitlich geordnet.
+- **Taufpaten:** alle Taufen mit ihren Paten, zeitlich geordnet; mit api4webtrees ab 1.11 aus den verknüpften und den frei eingetragenen Paten („verlinkt: 2 von 3“ zeigt, wie viele einen eigenen Datensatz haben), sonst aus der Notiz „Paten: …“.
 
 Listen über den ganzen Stammbaum brauchen den Baum am Stück; dafür muss auf dem Server api4webtrees ab Version 1.9 laufen. Beim Stammbaum auf diesem PC ist das immer der Fall.
 
