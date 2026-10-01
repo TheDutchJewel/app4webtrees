@@ -105,7 +105,10 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
             val ort = ortText(e.place?.name, o.orteKuerzen)
             val zeichen = when (e.tag) { "DIV" -> "⚮"; "ENGA" -> "⚬"; else -> "∞" }
             val quelle = if (o.quellen && e.sources.isNotEmpty()) " (${Texte.t(Res.string.desk_book_source)}: ${e.sources.joinToString("; ") { it.mitSeite() }})" else ""
-            listOf(zeichen, buchDatum(e.date), ort).filter(String::isNotBlank).joinToString(" ") + quelle
+            // Heiratsart bei mehreren Heiraten ("∞ 1924 Celle (standesamtlich)"), Trauzeugen ab API-Stufe 19
+            val art = if (ehe.count { it.tag == "MARR" } > 1) heiratsartKlammer(e) else ""
+            val zeugen = patenZeilenText(e).takeIf { it.isNotEmpty() }?.let { " (" + it.joinToString("; ") + ")" }.orEmpty()
+            listOf(zeichen, buchDatum(e.date), ort).filter(String::isNotBlank).joinToString(" ") + art + zeugen + quelle
         }
         // Weder Heirat noch zweiter Ehepartner bekannt (z. B. unbekannte Mutter): keine leere Zeile mit "∞" und "?"
         if (eheText.isNotBlank() || zweiter != null) {

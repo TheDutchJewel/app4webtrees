@@ -2,6 +2,8 @@ package de.bgghome.webtrees.nativ.desk
 
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.FactJson
+import de.bgghome.webtrees.nativ.data.notizenOhnePaten
+import de.bgghome.webtrees.nativ.data.ohneDoppelteAsso
 import de.bgghome.webtrees.nativ.api.IndividualDetail
 import de.bgghome.webtrees.nativ.api.Person
 import de.bgghome.webtrees.nativ.api.WtClient
@@ -143,7 +145,7 @@ internal fun karteikartenAnhaengen(
         }
         w.text(p.name.ifBlank { "?" }, s.fett, 18f, max = textMax)
         leben(p).takeIf(String::isNotBlank)?.let { w.text(it, s.normal, 11f, farbe = Color(0x55, 0x55, 0x55), max = textMax) }
-        val fakten = det.facts.filter { it.known }
+        val fakten = det.facts.filter { it.known }.ohneDoppelteAsso()
         fakten.filter { it.tag == "NAME" && it.value.isNotBlank() && it.value.replace("/", "").trim() != p.name }.forEach {
             w.text(listOfNotNull(it.type.takeIf(String::isNotBlank), it.value.replace("/", "").trim()).joinToString(": "), s.normal, 9.5f, farbe = Color(0x55, 0x55, 0x55), max = textMax)
         }
@@ -157,7 +159,8 @@ internal fun karteikartenAnhaengen(
             ereignisse.forEach { f ->
                 val rest = ereignisZeile(f)
                 w.text(f.label.ifBlank { f.tag } + if (rest.isNotBlank()) ": $rest" else "")
-                f.notes.filter(String::isNotBlank).forEach { n -> w.text(n.replace(Regex("\\s*\\n\\s*"), " "), g = 9f, einzug = 14f, farbe = Color(0x55, 0x55, 0x55)) }
+                f.notizenOhnePaten().filter(String::isNotBlank).forEach { n -> w.text(n.replace(Regex("\\s*\\n\\s*"), " "), g = 9f, einzug = 14f, farbe = Color(0x55, 0x55, 0x55)) }
+                patenZeilenText(f).forEach { n -> w.text(n, g = 9f, einzug = 14f, farbe = Color(0x55, 0x55, 0x55)) }
             }
         }
         // Eltern
@@ -171,7 +174,10 @@ internal fun karteikartenAnhaengen(
         if (det.spouseFamilies.isNotEmpty()) {
             w.abschnitt(Texte.t(Res.string.desk_card_families))
             det.spouseFamilies.forEach { f ->
-                val heirat = f.marriage?.let { e -> listOf(buchDatum(e.date), e.place?.name.orEmpty()).filter(String::isNotBlank).joinToString(", ") }.orEmpty()
+                // Alle Heiraten (standesamtlich und kirchlich), sonst die Kurzform der Familie
+                val heiraten = f.facts.filter { it.tag == "MARR" }
+                val heirat = if (heiraten.isEmpty()) f.marriage?.let { e -> listOf(buchDatum(e.date), e.place?.name.orEmpty()).filter(String::isNotBlank).joinToString(", ") }.orEmpty()
+                    else heiraten.joinToString("; ") { h -> listOf(buchDatum(h.date), h.place?.name.orEmpty()).filter(String::isNotBlank).joinToString(", ") + if (heiraten.size > 1) heiratsartKlammer(h) else "" }
                 w.text("⚭ " + (f.spouse?.let(::mitLeben) ?: "?") + heirat.takeIf(String::isNotBlank)?.let { " – $it" }.orEmpty(), s.fett, 10f)
                 f.children.forEach { k -> w.text(mitLeben(k), g = 9.5f, einzug = 14f) }
             }

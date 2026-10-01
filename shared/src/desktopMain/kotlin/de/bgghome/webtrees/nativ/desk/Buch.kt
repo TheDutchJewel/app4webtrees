@@ -3,6 +3,7 @@ package de.bgghome.webtrees.nativ.desk
 import org.apache.pdfbox.pdmodel.PDDocument
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.DateJson
+import de.bgghome.webtrees.nativ.data.notizenOhnePaten
 import de.bgghome.webtrees.nativ.api.FactJson
 import de.bgghome.webtrees.nativ.api.IndividualDetail
 import de.bgghome.webtrees.nativ.api.Person
@@ -184,7 +185,8 @@ internal fun personText(p: Person, det: IndividualDetail, o: BuchOptionen, n: Lo
         if (ort.isNotBlank()) reg.orte.getOrPut(ort) { sortedMapOf(String.CASE_INSENSITIVE_ORDER) }.getOrPut(p.surname.ifBlank { "?" }) { sortedSetOf() } += n
         val zeichen = EREIGNIS_ZEICHEN[f.tag] ?: "${f.label}:"
         val wert = if (EREIGNIS_ZEICHEN.containsKey(f.tag)) "" else f.value.takeIf(String::isNotBlank)?.let { " $it" }.orEmpty()
-        val paten = if (f.tag in setOf("CHR", "BAPM")) f.notes.firstOrNull { it.startsWith("Paten") }?.let { " ($it)" }.orEmpty() else ""
+        // Paten ab API-Stufe 19 aus den verlinkten und freien Eintraegen, sonst aus der Notiz "Paten: ..."
+        val paten = if (f.tag in setOf("CHR", "BAPM")) (patenZeilenText(f).takeIf { it.isNotEmpty() }?.joinToString("; ") ?: f.notes.firstOrNull { it.startsWith("Paten") })?.let { " ($it)" }.orEmpty() else ""
         return listOf("$zeichen$wert", buchDatum(f.date), ort).filter(String::isNotBlank).joinToString(" ") + paten + quelle(f)
     }
     // Lebensdaten in fester Reihenfolge, andere Ereignisse (Wohnort, Auswanderung ...) dazwischen
@@ -203,7 +205,7 @@ internal fun notizBloecke(t: PersonText, o: BuchOptionen): List<Block> = if (!o.
     fun notiz(text: String) = text.split(Regex("\\n\\s*\\n")).map { it.trim().replace(Regex("\\s*\\n\\s*"), " ") }.filter(String::isNotBlank)
         .forEach { add(Absatz(listOf(Lauf(it, Stil.Kursiv)), einzug = 1)) }
     t.fakten.filter { it.tag == "NOTE" && it.value.isNotBlank() }.forEach { notiz(it.value) }
-    t.ereignisse.flatMap { f -> f.notes.filter { !it.startsWith("Paten") } }.forEach(::notiz)
+    t.ereignisse.flatMap { f -> f.notizenOhnePaten().filter { !it.startsWith("Paten") } }.forEach(::notiz)
 }
 
 /** Kurzdaten fuer Partner und Kinder: "* 1839 Celle, † 1912 Celle". */

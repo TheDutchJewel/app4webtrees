@@ -2,6 +2,8 @@ package de.bgghome.webtrees.nativ.desk
 
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.halfSiblings
+import de.bgghome.webtrees.nativ.data.notizenOhnePaten
+import de.bgghome.webtrees.nativ.data.ohneDoppelteAsso
 import de.bgghome.webtrees.nativ.api.FactJson
 import de.bgghome.webtrees.nativ.api.IndividualDetail
 import de.bgghome.webtrees.nativ.api.Person
@@ -150,7 +152,10 @@ fun personenblattZeilen(d: IndividualDetail): List<Zeile> = buildList {
     listOf(p.lifespan, d.relationship.replaceFirstChar { it.uppercase() }).filter(String::isNotBlank).joinToString(" · ").takeIf(String::isNotBlank)?.let { add(Zeile(it)) }
     add(Zeile(""))
     add(Zeile(Texte.t(Res.string.desk_tab_data), fett = true))
-    d.facts.filter { it.known && it.tag != "NOTE" }.forEach { f -> add(Zeile("${f.label}: ${ereignis(f)}".trimEnd(':', ' '), 1)) }
+    d.facts.filter { it.known && it.tag != "NOTE" }.ohneDoppelteAsso().forEach { f ->
+        add(Zeile("${f.label}: ${ereignis(f)}".trimEnd(':', ' '), 1))
+        patenZeilenText(f).forEach { add(Zeile(it, 2)) }
+    }
     d.parentFamilies.firstOrNull()?.let { fam ->
         add(Zeile("")); add(Zeile(Texte.t(Res.string.desk_tab_parents), fett = true))
         fam.husband?.let { add(Zeile("${Texte.t(Res.string.rel_father)}: ${kurz(it)}", 1)) }
@@ -161,9 +166,12 @@ fun personenblattZeilen(d: IndividualDetail): List<Zeile> = buildList {
     if (d.spouseFamilies.isNotEmpty()) {
         add(Zeile("")); add(Zeile(Texte.t(Res.string.desk_tab_partners), fett = true))
         d.spouseFamilies.forEach { fam ->
-            val heirat = fam.marriage?.let { m -> listOfNotNull(m.date?.text?.takeIf(String::isNotBlank), m.place?.name?.takeIf(String::isNotBlank)).joinToString(", ") }.orEmpty()
+            val heiraten = fam.facts.filter { it.tag == "MARR" }
+            val heirat = if (heiraten.isEmpty()) fam.marriage?.let { m -> listOfNotNull(m.date?.text?.takeIf(String::isNotBlank), m.place?.name?.takeIf(String::isNotBlank)).joinToString(", ") }.orEmpty()
+                else heiraten.joinToString("; ") { h -> listOfNotNull(h.date?.text?.takeIf(String::isNotBlank), h.place?.name?.takeIf(String::isNotBlank)).joinToString(", ") + if (heiraten.size > 1) heiratsartKlammer(h) else "" }
             val wer = fam.spouse?.let(::kurz) ?: Texte.t(when (p.sex) { "M" -> Res.string.desk_unknown_mother; "F" -> Res.string.desk_unknown_father; else -> Res.string.desk_unknown_partner })
             add(Zeile(listOfNotNull(wer, heirat.takeIf(String::isNotBlank)?.let { "⚭ $it" }).joinToString("  "), 1, fett = true))
+            heiraten.forEach { h -> patenZeilenText(h).forEach { add(Zeile(it, 2)) } }
             fam.children.forEach { add(Zeile(kurz(it), 2)) }
         }
     }
@@ -176,7 +184,7 @@ fun personenblattZeilen(d: IndividualDetail): List<Zeile> = buildList {
 /** Notizen einer Person: eigene NOTE-Eintraege und die Notizen an Ereignissen, jeweils mit dem Ereignis davor. */
 fun notizenVon(d: IndividualDetail): List<Pair<String, String>> =
     d.facts.filter { it.tag == "NOTE" && it.value.isNotBlank() }.map { "" to it.value } +
-        (d.facts + d.spouseFamilies.flatMap { it.facts }).filter { it.tag != "NOTE" }.flatMap { f -> f.notes.filter(String::isNotBlank).map { f.label to it } }
+        (d.facts + d.spouseFamilies.flatMap { it.facts }).filter { it.tag != "NOTE" }.flatMap { f -> f.notizenOhnePaten().filter(String::isNotBlank).map { f.label to it } }
 
 /** Quellen einer Person: Titel und die Ereignisse, die sie belegen (mit Seitenangabe in Klammern). */
 fun quellenVon(d: IndividualDetail): List<Pair<String, List<String>>> =

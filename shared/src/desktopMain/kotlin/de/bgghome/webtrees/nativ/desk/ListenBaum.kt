@@ -2,6 +2,11 @@ package de.bgghome.webtrees.nativ.desk
 
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.DateJson
+import de.bgghome.webtrees.nativ.data.hatPaten
+import de.bgghome.webtrees.nativ.data.hauptHeirat
+import de.bgghome.webtrees.nativ.data.patenGruppen
+import de.bgghome.webtrees.nativ.data.patenNotiz
+import de.bgghome.webtrees.nativ.data.patenText
 import de.bgghome.webtrees.nativ.api.ExportFamily
 import de.bgghome.webtrees.nativ.api.FactJson
 import de.bgghome.webtrees.nativ.api.Person
@@ -48,7 +53,7 @@ internal fun ereignislisteBaum(b: TreeExport, titel: String, o: ListenOptionen):
         }
     }
     if ("MARR" in o.ereignisse) b.families.values.filter { !it.isPrivate }.forEach { f ->
-        val m = f.facts.firstOrNull { it.tag == "MARR" }?.let { it.date to it.place } ?: (f.marriage?.date to f.marriage?.place)
+        val m = f.facts.hauptHeirat()?.let { it.date to it.place } ?: (f.marriage?.date to f.marriage?.place)
         if ((m.first?.jd ?: 0) > 0 && ortPasst(m.second?.name, o.ortFilter)) {
             val wer = listOfNotNull(b.person(f.husband)?.let(::registerName), b.person(f.wife)?.let(::registerName)).joinToString(" ∞ ")
             liste += E(m.first!!.jd, m.first, "MARR", wer, m.second?.name.orEmpty())
@@ -125,7 +130,7 @@ internal fun ortsliste(b: TreeExport, titel: String, o: ListenOptionen): List<Ze
 // ── Familien, Fakten, Paten ──
 
 internal fun familienliste(b: TreeExport, titel: String, o: ListenOptionen): List<Zeile> {
-    fun heirat(f: ExportFamily) = f.facts.firstOrNull { it.tag == "MARR" }?.let { it.date to it.place } ?: (f.marriage?.date to f.marriage?.place)
+    fun heirat(f: ExportFamily) = f.facts.hauptHeirat()?.let { it.date to it.place } ?: (f.marriage?.date to f.marriage?.place)
     val familien = b.families.values.filter { !it.isPrivate && (it.husband != null || it.wife != null) }
         .filter { f -> o.ortFilter.isBlank() || ortPasst(heirat(f).second?.name, o.ortFilter) }
     fun name(f: ExportFamily) = (b.person(f.husband) ?: b.person(f.wife))?.let(::registerName).orEmpty()
@@ -162,12 +167,19 @@ internal fun faktenliste(b: TreeExport, titel: String, o: ListenOptionen): List<
     }
 }
 
-/** Taufen mit Paten: vorerst aus dem Pateneintrag der Taufe ("Paten: ..."), chronologisch. */
+/**
+ * Taufen mit Paten, chronologisch: ab API-Stufe 19 aus den verlinkten und freien Paten der Taufe (mit Zaehler
+ * "verlinkt: 2 von 3"), bei aelteren Modulen aus der Notiz "Paten: ...".
+ */
 internal fun taufpaten(b: TreeExport, titel: String, o: ListenOptionen): List<Zeile> {
-    class T(val f: FactJson, val p: Person, val paten: String)
+    class T(val f: FactJson, val p: Person, val paten: String, val verlinkt: Int, val gesamt: Int)
+    val privat = Texte.t(Res.string.person_private)
     val taufen = b.individuals.values.filter { !it.person.isPrivate }.flatMap { i ->
         i.facts.filter { it.tag in setOf("CHR", "BAPM") && ortPasst(it.place?.name, o.ortFilter) }.mapNotNull { f ->
-            f.notes.firstOrNull { it.startsWith("Paten") }?.let { T(f, i.person, it.substringAfter(':').trim()) }
+            if (f.hatPaten) {
+                val alle = f.patenGruppen().flatMap { it.eintraege }
+                T(f, i.person, f.patenText(privat), alle.count { it.verlinkt }, alle.size)
+            } else f.patenNotiz()?.let { T(f, i.person, it, 0, 0) }
         }
     }.sortedBy { it.f.date?.jd?.takeIf { j -> j > 0 } ?: Int.MAX_VALUE }
     return buildList {
@@ -178,6 +190,7 @@ internal fun taufpaten(b: TreeExport, titel: String, o: ListenOptionen): List<Ze
             add(Zeile(""))
             add(Zeile("${buchDatum(t.f.date)}   ${registerName(t.p)}" + ersterOrt(t.f.place?.name).let { if (it.isNotBlank()) ", $it" else "" }, fett = true))
             add(Zeile("${Texte.t(Res.string.desk_col_godparents)}: ${t.paten}", 1))
+            if (t.gesamt > 0) add(Zeile(Texte.t(Res.string.assoc_linked_count, t.verlinkt, t.gesamt), 1))
         }
     }
 }

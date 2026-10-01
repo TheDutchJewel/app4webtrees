@@ -1,6 +1,8 @@
 package de.bgghome.webtrees.nativ.pruefung
 
 import de.bgghome.webtrees.nativ.api.FactJson
+import de.bgghome.webtrees.nativ.data.hatPaten
+import de.bgghome.webtrees.nativ.data.hauptHeirat
 import de.bgghome.webtrees.nativ.api.TreeExport
 import java.security.MessageDigest
 import java.text.Normalizer
@@ -126,7 +128,8 @@ internal fun modellAus(b: TreeExport, schaetzen: Boolean, deutsch: Boolean = tru
         )
     }
     val familien = b.families.mapValues { (x, f) ->
-        val marr = erstes(f.facts, "MARR")
+        // standesamtliche Heirat bevorzugt (bei zwei Heiraten), sonst die erste mit lesbarem Datum
+        val marr = f.facts.hauptHeirat()?.let { h -> datumAus(h)?.let { it to h } } ?: erstes(f.facts, "MARR")
         PFamilie(x, f.husband?.takeIf { it in personen }, f.wife?.takeIf { it in personen },
             marr?.first ?: f.marriage?.date?.let { d -> PruefDatum.aus(d.gedcom.ifBlank { d.year.takeIf { it > 0 }?.toString().orEmpty() }, d.text) },
             marr?.second, f.children.filter { it in personen }, f.facts)
@@ -497,16 +500,24 @@ private class Regeln(val m: PModell, val jetzt: Int, val deutsch: Boolean) {
 
     private val patenListe: List<Pair<Ereignis, PPerson>> by lazy {
         val out = ArrayList<Pair<Ereignis, PPerson>>()
+        // Freitext "A, Beruf zu Ort; B" oder "A und B": Namen heraussuchen und nur eindeutige Treffer nehmen
+        fun ausText(ev: Ereignis, selbst: Set<String>, namen: String) {
+            namen.split(',', ';', '/').flatMap { it.split(" und ", " and ") }.map { it.trim().trimEnd('.') }.filter { it.contains(' ') }.forEach { n ->
+                val kandidaten = nachName[n.lowercase()].orEmpty().filter { it.xref !in selbst }
+                // nur eindeutige Namen: bei zwei gleichnamigen Personen bleibt offen, wer gemeint ist
+                if (kandidaten.size == 1) out += ev to kandidaten.single()
+            }
+        }
         fun auswerten(ev: Ereignis, selbst: Set<String>) {
+            if (ev.fakt.hatPaten) {
+                // ab API-Stufe 19: verlinkte Paten direkt, freie ueber den Namen; private bleiben aussen vor
+                ev.fakt.associates.filter { !it.isPrivate && it.xref !in selbst }.forEach { a -> m.p[a.xref]?.let { out += ev to it } }
+                ev.fakt.freeAssociates.forEach { fa -> ausText(ev, selbst, fa.name ?: fa.text) }
+                return
+            }
+            // aeltere Module: die Notiz "Paten: ..." selbst lesen
             ev.fakt.notes.forEach { note ->
-                note.lines().forEach { zeile ->
-                    val namen = PATEN.find(zeile)?.groupValues?.get(2) ?: return@forEach
-                    namen.split(',', ';', '/').flatMap { it.split(" und ", " and ") }.map { it.trim().trimEnd('.') }.filter { it.contains(' ') }.forEach { n ->
-                        val kandidaten = nachName[n.lowercase()].orEmpty().filter { it.xref !in selbst }
-                        // nur eindeutige Namen: bei zwei gleichnamigen Personen bleibt offen, wer gemeint ist
-                        if (kandidaten.size == 1) out += ev to kandidaten.single()
-                    }
-                }
+                note.lines().forEach { zeile -> PATEN.find(zeile)?.groupValues?.get(2)?.let { ausText(ev, selbst, it) } }
             }
         }
         personen.forEach { p ->

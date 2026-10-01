@@ -15,6 +15,7 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import de.bgghome.webtrees.nativ.api.halfSiblings
+import de.bgghome.webtrees.nativ.data.hauptHeirat
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -482,7 +483,7 @@ private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier,
             if (beruf.isNotBlank()) Text(beruf, fontSize = 14.sp, color = colors.onSurfaceVariant)
             if (geburt.isNotBlank()) Text("*  $geburt", fontSize = 14.sp)
             detail.spouseFamilies.forEachIndexed { i, fam ->
-                val wann = ort(fam.facts.firstOrNull { it.tag == "MARR" })
+                val wann = ort(fam.facts.hauptHeirat())
                 val sp = fam.spouse
                 val nummer = "⚭ ${roemisch.getOrElse(i) { "${i + 1}." }}  "
                 val zusatz = if (wann.isNotBlank()) "  ($wann)" else ""
