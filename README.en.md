@@ -13,7 +13,7 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), for testing"></a>
 </p>
 
-<p align="center"><b>New in 1.31: godparents and witnesses.</b> Below baptism and marriage the godparents or witnesses appear – linked ones clickable, free-text ones as text (also from the GEDCOM-L fields _GODP/_WITN). Every person shows where they were a godparent or witness themselves. Civil and religious marriage appear separately. Needs <a href="https://github.com/thobgg/api4webtrees/releases">api4webtrees 1.11</a> on the server.</p>
+<p align="center"><b>New in 1.31/1.32: godparents and witnesses.</b> Below baptism and marriage the godparents or witnesses appear – linked ones clickable, free-text ones as text (also from the GEDCOM-L fields _GODP/_WITN). Every person shows where they were a godparent or witness themselves. From 1.32 they can also be entered in the person sheet – from the tree or without a record, as in the church register – together with the type of marriage. Needs <a href="https://github.com/thobgg/api4webtrees/releases">api4webtrees 1.12</a> on the server.</p>
 
 <p align="center"><b>New in 1.26: the family tree on your PC – no server needed.</b> Install wtWin (wtTux on Linux), choose the GEDCOM file from your previous program – done. No server, no password, no internet; webtrees runs invisibly in the background.</p>
 
@@ -34,6 +34,11 @@
 <p align="center">
   <img src="docs/screenshots/desktop-paten.jpg" alt="Timeline of Heinrich Falkenrath: godparents at the christening, witnesses at the marriage, below his own godparent and witness roles" width="100%">
   <br><b>Godparents and witnesses</b> (from 1.31) – below baptism and marriage, linked godparents lead to the person, ⓘ shows the note about the godparent, the icon next to it the source; below, where the person was a godparent or witness. The same in the phone timeline.
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/desktop-paten-dialog.jpg" alt="Edit godparents dialog: a linked godmother with a note, a godparent without a record, buttons to add a person from the tree or without a record" width="70%">
+  <br><b>Entering godparents</b> (from 1.32) – in the person sheet at baptism or marriage: a person from the tree or without a record, order, role and note. Stored as webtrees does, people without a record as GEDCOM-L _GODP/_WITN.
 </p>
 
 <p align="center">
@@ -108,7 +113,8 @@ the app arrives as a pending change in the same webtrees installation, under its
   than smaller: first without portrait and years, then just the given name, finally a box in the sex colour, with
   the text staying readable
 - **Godparents and witnesses** (from 1.31, with api4webtrees 1.11): below baptism and marriage, tap a linked one to open
-  the person; every person also shows “godparent at …” and “witness at …”. Civil and religious marriage separately
+  the person; every person also shows “godparent at …” and “witness at …”. Civil and religious marriage separately.
+  Entering them and choosing the type of marriage on the PC with wtWin/wtTux (from 1.32, with api4webtrees 1.12)
 - **Profile:** life as a timeline (including marriage and births of children), relationship to yourself
   (“paternal grandfather”), photos, family, map of the stations of a life (OpenStreetMap)
 - **Editing:** add, change and delete events – also marriages and other family events; add relatives right in the tree
@@ -137,8 +143,8 @@ Whatever is not native (yet) opens as the webtrees page in the same session.
 
 webtrees has no interface for apps. The app therefore talks to the module
 **[api4webtrees](https://github.com/thobgg/api4webtrees)**, which you copy into `modules_v4/` of your own
-webtrees server (2.2.x). The webtrees core stays untouched. Godparents and witnesses need api4webtrees 1.11 or newer;
-with an older module everything else works as before.
+webtrees server (2.2.x). The webtrees core stays untouched. Godparents and witnesses are shown from api4webtrees 1.11
+and can be entered from 1.12; with an older module everything else works as before.
 
 Optional: with the **[Sammlungen](https://github.com/thobgg/webtrees-sammlungen)** module, version 1.6 or newer, the
 app also shows the archive. Without it, only that tab is missing.

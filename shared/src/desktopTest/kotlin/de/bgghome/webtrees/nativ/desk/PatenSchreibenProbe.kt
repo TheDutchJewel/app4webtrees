@@ -98,8 +98,9 @@ class PatenSchreibenProbe {
                         PatenDialog(zurueck, x, "Kindstaufe", suche = { emptyList() }, onSpeichern = { _, _ -> }, onDismiss = {})
                     } }
                 }.use { scene ->
-                    scene.render(); scene.render(16_000_000L)
-                    File(ziel, "paten-dialog.png").writeBytes(scene.render(32_000_000L).encodeToData(EncodedImageFormat.PNG)!!.bytes)
+                    // Die Einblend-Animation des Dialogs auslaufen lassen, sonst liegt das Bild halb im Grau
+                    scene.render(); (1..40).forEach { scene.render(it * 25_000_000L) }
+                    File(ziel, "paten-dialog.png").writeBytes(scene.render(1_100_000_000L).encodeToData(EncodedImageFormat.PNG)!!.bytes)
                 }
                 assertTrue(File(ziel, "paten-dialog.png").length() > 0)
             }
