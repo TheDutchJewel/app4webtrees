@@ -1043,4 +1043,19 @@
     <string name="desk_unsaved_intro">Diese Eingaben im einfachen Eingabemodus sind noch nicht gespeichert:</string>
     <string name="desk_unsaved_date_block">Ein Datum darin ist ungültig. Bitte im Personenblatt korrigieren oder dort „Trotzdem als Text speichern“ wählen; hier geht nur Verwerfen oder Abbrechen.</string>
     <string name="desk_simple_autosave">Wird beim Verlassen eines Feldes gespeichert.</string>
+
+    <!-- Paten und Trauzeugen (api4webtrees API-Stufe 19) -->
+    <string name="assoc_godparents">Paten</string>
+    <string name="assoc_witnesses">Trauzeugen</string>
+    <string name="assoc_others">Beteiligte</string>
+    <string name="assoc_level1">an der Person erfasst</string>
+    <string name="assoc_in_role">%1$s bei</string>
+    <string name="assoc_in_of">%1$s von %2$s</string>
+    <string name="assoc_section">Patenschaften und Trauzeugenschaften</string>
+    <string name="assoc_linked_count">verlinkt: %1$d von %2$d</string>
+    <string name="assoc_note">Notiz</string>
+    <string name="marr_civil">standesamtlich</string>
+    <string name="marr_religious">kirchlich</string>
+    <string name="marr_partners">eingetragene Partnerschaft</string>
+    <string name="marr_common">ohne Trauschein</string>
 </resources>

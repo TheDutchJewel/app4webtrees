@@ -47,6 +47,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import de.bgghome.webtrees.nativ.data.hatPaten
+import de.bgghome.webtrees.nativ.ui.PatenZeilen
+import de.bgghome.webtrees.nativ.ui.faktLabelMitArt
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.EventJson
 import de.bgghome.webtrees.nativ.api.FamilyJson
@@ -208,16 +211,32 @@ private fun Familie(
                 Column(Modifier.width(190.dp).padding(horizontal = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     if (familie != null) {
                         Text("⚭", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        val datum = familie.marriage?.date?.text.orEmpty(); val ort = familie.marriage?.place?.name.orEmpty()
-                        if (datum.isNotBlank()) Text(datum, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
-                        if (ort.isNotBlank()) Text(ort, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        // Alle Heiraten der Familie (standesamtlich und kirchlich), nicht nur die erste; ohne MARR-Fakt die Kurzform
+                        val heiraten = familie.facts.filter { it.tag == "MARR" }
+                        if (heiraten.isEmpty()) {
+                            val datum = familie.marriage?.date?.text.orEmpty(); val ort = familie.marriage?.place?.name.orEmpty()
+                            if (datum.isNotBlank()) Text(datum, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+                            if (ort.isNotBlank()) Text(ort, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        } else heiraten.forEachIndexed { i, h ->
+                            if (i > 0) Spacer(Modifier.height(4.dp))
+                            if (heiraten.size > 1 || h.type.isNotBlank()) Text(faktLabelMitArt(h), style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            val datum = h.date?.text.orEmpty(); val ort = h.place?.name.orEmpty()
+                            if (datum.isNotBlank()) Text(datum, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+                            if (ort.isNotBlank()) Text(ort, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        }
                     } else {
                         Text(stringResource(Res.string.desk_family_no_partner), style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
                     }
                 }
                 Box(Modifier.weight(1f)) { PersonKarte(frau, unbekannterPartner("M"), true, karte, if (familie == null) p.xref else null, "spouse") }
+            }
+
+            // ── Trauzeugen der Heiraten (ab API-Stufe 19), verlinkte anklickbar ──
+            familie?.facts?.filter { it.tag == "MARR" && it.hatPaten }?.forEach { h ->
+                PatenZeilen(h, onPerson = viewModel::select, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
             }
 
             // ── Kinder ──

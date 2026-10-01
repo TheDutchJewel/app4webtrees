@@ -1048,4 +1048,19 @@
     <string name="desk_unsaved_intro">These entries in simple entry mode have not been saved yet:</string>
     <string name="desk_unsaved_date_block">A date in them is invalid. Please correct it in the person sheet or choose “Save as text anyway” there; here only Discard or Cancel are possible.</string>
     <string name="desk_simple_autosave">Saved when you leave a field.</string>
+
+    <!-- Godparents and witnesses (api4webtrees API level 19) -->
+    <string name="assoc_godparents">Godparents</string>
+    <string name="assoc_witnesses">Witnesses</string>
+    <string name="assoc_others">Associates</string>
+    <string name="assoc_level1">recorded at the person</string>
+    <string name="assoc_in_role">%1$s at</string>
+    <string name="assoc_in_of">%1$s of %2$s</string>
+    <string name="assoc_section">Godparent and witness roles</string>
+    <string name="assoc_linked_count">linked: %1$d of %2$d</string>
+    <string name="assoc_note">Note</string>
+    <string name="marr_civil">civil</string>
+    <string name="marr_religious">religious</string>
+    <string name="marr_partners">registered partnership</string>
+    <string name="marr_common">common-law</string>
 </resources>

@@ -2,6 +2,13 @@ package de.bgghome.webtrees.nativ.desk
 
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.height
+import de.bgghome.webtrees.nativ.data.artZusatz
+import de.bgghome.webtrees.nativ.data.Heiratsart
+import de.bgghome.webtrees.nativ.data.notizenOhnePaten
+import de.bgghome.webtrees.nativ.data.ohneDoppelteAsso
+import de.bgghome.webtrees.nativ.ui.PatenZeilen
+import de.bgghome.webtrees.nativ.ui.faktLabelMitArt
+import de.bgghome.webtrees.nativ.ui.heiratsartText
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.horizontalScroll
@@ -331,7 +338,7 @@ private fun PartnersTab(
         HorizontalDivider(color = colors.outlineVariant)
         // ── Ereignisse der Partnerschaft ──
         if (familie != null) {
-            val rows = familie.facts.filter { it.known }.map { FactRow(it, familie.xref, it.label) }
+            val rows = familie.facts.filter { it.known }.map { FactRow(it, familie.xref, faktLabelMitArt(it)) }
             EreignisTabelle(rows, familie.xref, canEdit, onEdit, onDelete, onNew = { onNewFact(familie.xref) }, Modifier.weight(1f).fillMaxWidth(), geburtJd(detail), detail, viewModel)
         } else {
             Text(stringResource(Res.string.desk_partner_none), Modifier.padding(12.dp), color = colors.onSurfaceVariant)
@@ -416,13 +423,19 @@ private fun SourcesTab(detail: IndividualDetail, openWeb: (String) -> Unit) {
 @Composable
 private fun FactTable(detail: IndividualDetail, canEdit: Boolean, viewModel: AppViewModel, onEdit: (FactRow) -> Unit, onDelete: (FactRow) -> Unit, onNew: () -> Unit) {
     val withSpouse = stringResource(Res.string.fact_with_spouse, "%s", "%s")
-    val rows = detail.facts.filter { it.known }.map { FactRow(it, null, it.label) } +
+    // 1 ASSO an der Person steht ab API-Stufe 19 schon bei der Taufe - den eigenen Fakt dann nicht doppelt zeigen.
+    val rows = detail.facts.filter { it.known }.ohneDoppelteAsso().map { FactRow(it, null, faktLabelMitArt(it)) } +
         detail.spouseFamilies.flatMap { family ->
             family.facts.filter { it.known }.map { f ->
-                FactRow(f, family.xref, family.spouse?.name?.let { withSpouse.replaceFirst("%s", f.label).replaceFirst("%s", it) } ?: f.label)
+                val label = faktLabelMitArt(f)
+                FactRow(f, family.xref, family.spouse?.name?.let { withSpouse.replaceFirst("%s", label).replaceFirst("%s", it) } ?: label)
             }
         }
-    EreignisTabelle(rows, detail.person.xref, canEdit, onEdit, onDelete, onNew, Modifier.fillMaxSize(), geburtJd(detail), detail, viewModel)
+    Column(Modifier.fillMaxSize()) {
+        EreignisTabelle(rows, detail.person.xref, canEdit, onEdit, onDelete, onNew, Modifier.weight(1f).fillMaxWidth(), geburtJd(detail), detail, viewModel)
+        // Wo die Person selbst Pate oder Trauzeuge ist (ab API-Stufe 19; bei aelteren Modulen fehlt der Abschnitt)
+        Patenschaften(detail, viewModel::select)
+    }
 }
 
 /** Julianischer Tag der Geburt (sonst der Taufe) - fuer die Spalte Alter; 0 = unbekannt. */
@@ -500,7 +513,7 @@ private fun EreignisTabelle(
                     Text(where, Modifier.weight(0.44f), style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     Text(alterBeiEreignis(geburtJd, f)?.toString().orEmpty(), Modifier.weight(0.06f), style = MaterialTheme.typography.bodyMedium,
                         color = colors.onSurfaceVariant, maxLines = 1)
-                    MerkerWert(f.notes.isNotEmpty())
+                    MerkerWert(f.notizenOhnePaten().isNotEmpty())
                     MerkerWert(f.sources.isNotEmpty())
                 }
                 HorizontalDivider(color = colors.outlineVariant)
@@ -539,7 +552,7 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
     val tree = viewModel?.state?.value?.tree?.name.orEmpty()
     Column(modifier.background(colors.surface)) {
         Row(Modifier.fillMaxWidth().background(colors.surfaceVariant.copy(alpha = 0.5f))) {
-            listOf(stringResource(Res.string.desk_detail_data), stringResource(Res.string.desk_tab_notes) + (f?.notes?.size?.takeIf { it > 0 }?.let { " ($it)" } ?: ""),
+            listOf(stringResource(Res.string.desk_detail_data), stringResource(Res.string.desk_tab_notes) + (f?.notizenOhnePaten()?.size?.takeIf { it > 0 }?.let { " ($it)" } ?: ""),
                 stringResource(Res.string.desk_tab_sources) + (f?.sources?.size?.takeIf { it > 0 }?.let { " ($it)" } ?: "")).forEachIndexed { i, t ->
                 Text(t, Modifier.clickable { reiter = i }.background(if (reiter == i) colors.surface else androidx.compose.ui.graphics.Color.Transparent)
                     .padding(horizontal = 12.dp, vertical = 5.dp), style = MaterialTheme.typography.labelLarge,
@@ -565,10 +578,15 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
                         Zeile(stringResource(Res.string.fact_place), f.place?.name.orEmpty())
                         Zeile(stringResource(Res.string.desk_detail_value),
                             if (f.tag == "NAME") de.bgghome.webtrees.nativ.data.GedcomName.aus(f.value).anzeige() else f.value)
-                        if (f.type.isNotBlank()) Zeile(stringResource(Res.string.desk_detail_type), f.type)
+                        val civil = heiratsartText(Heiratsart.Standesamtlich); val reli = heiratsartText(Heiratsart.Kirchlich)
+                        val partners = heiratsartText(Heiratsart.Partnerschaft); val common = heiratsartText(Heiratsart.OhneTrauschein)
+                        f.artZusatz { when (it) { Heiratsart.Standesamtlich -> civil; Heiratsart.Kirchlich -> reli; Heiratsart.Partnerschaft -> partners; Heiratsart.OhneTrauschein -> common } }
+                            ?.let { Zeile(stringResource(Res.string.desk_detail_type), it) }
+                        // Paten und Trauzeugen (ab API-Stufe 19): anklickbar, mit Notiz (i) und Quelle; "an der Person erfasst" nur fuer Redakteure
+                        PatenZeilen(f, onPerson = { x -> viewModel?.select(x) }, zeigeLevel1 = canEdit, modifier = Modifier.padding(top = 4.dp))
                     }
-                    1 -> if (f.notes.isEmpty()) Text(stringResource(Res.string.desk_detail_no_notes), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-                        else f.notes.forEach { Text(it, style = MaterialTheme.typography.bodyMedium) }
+                    1 -> if (f.notizenOhnePaten().isEmpty()) Text(stringResource(Res.string.desk_detail_no_notes), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+                        else f.notizenOhnePaten().forEach { Text(it, style = MaterialTheme.typography.bodyMedium) }
                     else -> if (f.sources.isEmpty()) Text(stringResource(Res.string.desk_detail_no_sources), color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                         else f.sources.forEachIndexed { i, q ->
                             Box(Modifier.fillMaxWidth().background(if (schreiben && i == gewaehlt) colors.secondaryContainer.copy(alpha = 0.5f) else androidx.compose.ui.graphics.Color.Transparent, MaterialTheme.shapes.extraSmall)

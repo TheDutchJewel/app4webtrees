@@ -127,7 +127,66 @@ data class FactJson(
     val place: PlaceJson? = null,
     val notes: List<String> = emptyList(),
     val sources: List<SourceRef> = emptyList(),
+    /** Ab API-Stufe 19 (sonst leer/null): verlinkte Paten/Zeugen, freie aus Notizen, Art je Notiz, TYPE uebersetzt. */
+    val associates: List<Associate> = emptyList(),
+    val freeAssociates: List<FreeAssociate> = emptyList(),
+    /** Parallel zu [notes]: "note" oder "associates" (die Notiz steckt schon in [freeAssociates]); leer bei aelteren Modulen. */
+    val noteKinds: List<String> = emptyList(),
+    val typeLabel: String? = null,
 )
+
+/**
+ * Pate, Trauzeuge oder sonst Beteiligter mit eigenem Datensatz (2 _ASSO am Ereignis, 1 ASSO an der Person).
+ * [role] ist normalisiert (godparent, witness, other), [rela] der Rohwert, [label] die Uebersetzung ("Patin").
+ * [isPrivate]: Name und Geschlecht fehlen, die App zeigt nur "privat". [level1]: an der Person statt an der Taufe erfasst.
+ */
+@Serializable
+data class Associate(
+    val xref: String = "",
+    val name: String? = null,
+    val sex: String? = null,
+    val rela: String = "",
+    val role: String = "other",
+    val label: String = "",
+    @SerialName("private") val isPrivate: Boolean = false,
+    val level1: Boolean = false,
+    val notes: List<String> = emptyList(),
+    val sources: List<SourceRef> = emptyList(),
+)
+
+/** Pate/Zeuge ohne Datensatz aus einer Notiz "Paten: A, Beruf zu Ort; B": [name] bis zum Komma, [detail] der Rest; alte Schreibweise ohne ";" nur [text]. */
+@Serializable
+data class FreeAssociate(
+    val role: String = "other",
+    val name: String? = null,
+    val detail: String? = null,
+    val text: String = "",
+)
+
+/** Wo eine Person Pate oder Zeuge ist (Gegenrichtung): das Ereignis ([tag], [label]) am Datensatz [record] (INDI oder FAM). */
+@Serializable
+data class AssociatedIn(
+    val record: String = "",
+    val recordType: String = "INDI",
+    val name: String = "",
+    val tag: String = "",
+    val label: String = "",
+    val factId: String = "",
+    val date: DateJson? = null,
+    val place: PlaceJson? = null,
+    val rela: String = "",
+    val role: String = "other",
+    /** Die Rolle uebersetzt ("Pate", "Zeugin"). */
+    val label2: String = "",
+    val level1: Boolean = false,
+    val url: String = "",
+    /** Bei Familien (erbeten, noch nicht im Modul): die Partner, damit der Eintrag zu einer Person fuehrt. */
+    val husband: String? = null,
+    val wife: String? = null,
+)
+
+/** Ab dieser Stufe liefert api4webtrees Paten und Trauzeugen (associates, freeAssociates, associatedIn, typeLabel). */
+const val API_ASSOCIATES = 19
 
 @Serializable
 data class MediaJson(
@@ -178,6 +237,8 @@ data class IndividualDetail(
     /** Familien der Eltern mit anderen Partnern, ihre Kinder sind die Halbgeschwister (api4webtrees ab 1.8.0, Stufe 12). */
     val stepFamilies: List<FamilyJson> = emptyList(),
     val media: List<MediaJson> = emptyList(),
+    /** Wo die Person Pate oder Zeuge ist (ab API-Stufe 19, sonst leer), nach Datum. */
+    val associatedIn: List<AssociatedIn> = emptyList(),
 )
 
 /** Ein Halbgeschwister und ob es ueber den Vater verwandt ist (sonst ueber die Mutter). */

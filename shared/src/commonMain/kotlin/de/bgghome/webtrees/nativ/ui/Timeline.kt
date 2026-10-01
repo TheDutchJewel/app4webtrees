@@ -30,6 +30,8 @@ import de.bgghome.webtrees.nativ.api.DateJson
 import de.bgghome.webtrees.nativ.api.FactJson
 import de.bgghome.webtrees.nativ.api.IndividualDetail
 import de.bgghome.webtrees.nativ.api.Person
+import de.bgghome.webtrees.nativ.data.notizenOhnePaten
+import de.bgghome.webtrees.nativ.data.ohneDoppelteAsso
 
 /** Eine Zeile der Zeitleiste: eigenes Ereignis, Familienereignis (Heirat) oder Geburt eines Kindes. */
 private data class TimelineRow(
@@ -44,6 +46,8 @@ private data class TimelineRow(
     val record: String? = null,
     /** Beim Tod: das erreichte Alter, unter der Jahreszahl */
     val age: String? = null,
+    /** Bei "Pate bei ...": die Person, zu der ein Tipp fuehrt (null: nicht anklickbar, z. B. Familie ohne Partner-XREF). */
+    val link: String? = null,
 )
 
 /**
@@ -82,11 +86,12 @@ private fun buildTimeline(detail: IndividualDetail, canEdit: Boolean): List<Time
     val birth = detail.facts.firstOrNull { it.tag == "BIRT" }?.date
 
     // Geschlecht steckt in der Farbe des Portraets; unbekannte Hersteller-Tags (_INET ...) sagen dem Leser nichts.
-    detail.facts.filter { it.tag != "SEX" && it.known }.forEach { fact ->
+    // 1 ASSO an der Person steht ab API-Stufe 19 schon bei der Taufe - den eigenen Fakt dann nicht doppelt zeigen.
+    detail.facts.filter { it.tag != "SEX" && it.known }.ohneDoppelteAsso().forEach { fact ->
         val key = if (fact.tag == "NAME") Int.MIN_VALUE else fact.date?.jd?.takeIf { it > 0 } ?: last
         if (fact.tag != "NAME") last = key
 
-        val label = fact.label + if (fact.type.isNotEmpty()) " · ${fact.type}" else ""
+        val label = faktLabelMitArt(fact)
         val age = if (fact.tag == "DEAT") ageAt(birth, fact.date) else null
         // Der Sperrvermerk (RESN) haengt an Rechten - vorerst nur in webtrees aendern.
         add(TimelineRow(key, fact.date?.year?.takeIf { it != 0 }, label, fact, editable = canEdit && fact.tag != "RESN", age = age))
@@ -95,7 +100,8 @@ private fun buildTimeline(detail: IndividualDetail, canEdit: Boolean): List<Time
     detail.spouseFamilies.forEach { family ->
         // Heirat, Scheidung ... stehen in webtrees bei der Familie; geschrieben wird dann an die Familie, nicht an die Person.
         family.facts.forEach { fact ->
-            val label = family.spouse?.name?.let { stringResource(Res.string.fact_with_spouse, fact.label, it) } ?: fact.label
+            val mitArt = faktLabelMitArt(fact)
+            val label = family.spouse?.name?.let { stringResource(Res.string.fact_with_spouse, mitArt, it) } ?: mitArt
             add(
                 TimelineRow(
                     fact.date?.jd?.takeIf { it > 0 } ?: Int.MAX_VALUE, fact.date?.year?.takeIf { it != 0 }, label, fact,
@@ -134,6 +140,14 @@ private fun buildTimeline(detail: IndividualDetail, canEdit: Boolean): List<Time
             }
         }
     }
+    // Wo die Person selbst Pate oder Trauzeuge ist (ab API-Stufe 19): "Patin bei: Taufe von Heinrich Falkenrath"
+    detail.associatedIn.forEach { a ->
+        val wo = if (a.recordType == "FAM") a.label + " " + a.name else stringResource(Res.string.assoc_in_of, a.label, a.name)
+        val label = stringResource(Res.string.assoc_in_role, a.label2.ifBlank { a.role }) + ": " + wo
+        val fact = FactJson(id = "assoc-" + a.factId, tag = a.tag, date = a.date, place = a.place)
+        val link = if (a.recordType == "FAM") a.husband ?: a.wife else a.record
+        add(TimelineRow(a.date?.jd?.takeIf { it > 0 } ?: Int.MAX_VALUE, a.date?.year?.takeIf { it != 0 }, label, fact, editable = false, link = link))
+    }
 }.sortedBy { it.sortKey }
 
 /**
@@ -160,7 +174,7 @@ private fun TimelineItem(row: TimelineRow, onEdit: (FactJson, String?) -> Unit, 
 
     Row(
         Modifier.fillMaxWidth()
-            .then(if (child != null && !child.isPrivate) Modifier.clickable { onPerson(child.xref) } else Modifier)
+            .then(if (child != null && !child.isPrivate) Modifier.clickable { onPerson(child.xref) } else if (row.link != null) Modifier.clickable { onPerson(row.link) } else Modifier)
             .padding(start = 16.dp, top = 10.dp, bottom = 10.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -179,7 +193,9 @@ private fun TimelineItem(row: TimelineRow, onEdit: (FactJson, String?) -> Unit, 
             val sub = listOfNotNull(fact.date?.text, fact.place?.name).joinToString(" · ")
             if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
-            fact.notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            fact.notizenOhnePaten().forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            // Paten und Trauzeugen (ab API-Stufe 19): verlinkte anklickbar, freie als Text
+            PatenZeilen(fact, onPerson)
             // Je Verweis eine Zeile; am Desktop oeffnet ein Klick die Quelle (LocalSourceOpener), am Handy nur Text.
             val oeffnen = LocalSourceOpener.current
             fact.sources.forEach { q ->
