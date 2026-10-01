@@ -22,8 +22,8 @@ class ComposeRessourcenTest {
     }
 
     @Test fun platzhalter() {
-        val s = Texte.t(Res.string.home_greeting, "Thomas")
-        assertTrue(s.contains("Thomas"), "Platzhalter nicht ersetzt: $s")
+        val s = Texte.t(Res.string.home_greeting, "Anna")
+        assertTrue(s.contains("Anna"), "Platzhalter nicht ersetzt: $s")
         assertTrue(!s.contains("%1"), "Platzhalter stehen geblieben: $s")
     }
 
