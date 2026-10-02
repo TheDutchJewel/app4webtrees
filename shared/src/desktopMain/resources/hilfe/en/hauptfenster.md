@@ -65,6 +65,8 @@ With edit rights **Edit** opens the place data: GOV identifier (with **Search GO
 
 Place names in the person panel and on the person sheet can be clicked, and every filled place field has a place icon – both open the place directly in the place manager.
 
+With edit rights you write the note directly in the **Notes** tab, attach photos and documents in the **Media** tab (upload a file, an existing media object or one from the archive; **unlink** only removes the link) and cite a source for the place in the **Sources** tab. Everything goes into the location record; if there is none yet, wtWin creates it. The first photo at the location record becomes the picture at the top of the place page.
+
 ## Sections: Home, Tree, Photos
 
 - **Home** (Ctrl+1): greeting, upcoming anniversaries, recent changes in the tree, the start person. Moderators see pending changes here and accept or reject them.

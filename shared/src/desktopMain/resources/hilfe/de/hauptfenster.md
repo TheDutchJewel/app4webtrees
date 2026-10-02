@@ -65,6 +65,8 @@ Mit Bearbeitungsrecht öffnet **Bearbeiten** die Ortsdaten: GOV-Kennung (mit **I
 
 Ortsnamen in der Personentafel und im Personenblatt sind anklickbar, und hinter jedem ausgefüllten Ortsfeld steht ein Ortssymbol – beides öffnet den Ort direkt in der Ortsverwaltung.
 
+Mit Bearbeitungsrecht schreibst du die Notiz direkt im Reiter **Notizen**, hängst im Reiter **Medien** Fotos und Dokumente an (Datei hochladen, vorhandenes Medium oder aus dem Archiv; **lösen** nimmt nur die Verknüpfung weg) und zitierst im Reiter **Quellen** eine Quelle für den Ort. Alles landet im Ortsdatensatz; gibt es noch keinen, legt wtWin ihn an. Das erste Foto am Ortsdatensatz wird zum Titelbild der Ortsseite.
+
 ## Bereiche: Start, Baum, Fotos
 
 - **Start** (Strg+1): Begrüßung, die nächsten Jahrestage, letzte Änderungen im Stammbaum, die Startperson. Moderatoren sehen hier ausstehende Änderungen und nehmen sie an oder verwerfen sie.

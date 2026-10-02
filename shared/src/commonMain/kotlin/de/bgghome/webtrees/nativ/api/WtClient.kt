@@ -305,6 +305,7 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
                 put("lng", kotlinx.serialization.json.JsonPrimitive(r.lng))
             }
             if (r.mapData) put("mapData", kotlinx.serialization.json.JsonPrimitive(true))
+            r.media?.let { m -> put("media", kotlinx.serialization.json.JsonArray(m.map { kotlinx.serialization.json.JsonPrimitive(it) })) }
         }
         return post("Place", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()))
     }

@@ -132,6 +132,7 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
         DeskTheme {
             OrteInhalt(liste, detail, gewaehlt, { gewaehlt = it }, suche, { suche = it }, viewModel, openWeb,
                 onBearbeiten = if (darf) ({ bearbeiten = it }) else null, meldung = verweise,
+                pflege = if (darf) OrtPflege(tree.orEmpty(), viewModel, state.archive) { neu++ } else null,
                 onUmbenennen = if (darfUmbenennen) ({ von, nach -> vorschau(von, nach) }) else null)
             umbenennen?.let { v ->
                 UmbenennenDialog(v, onDismiss = { umbenennen = null }) {
@@ -166,7 +167,7 @@ internal fun OrteInhalt(
     liste: Result<PlaceSummaryList>?, detail: Result<PlaceDetail>?, gewaehlt: String?, onWahl: (String) -> Unit,
     suche: String, onSuche: (String) -> Unit, viewModel: AppViewModel?, openWeb: (String) -> Unit, reiterStart: Int = 0,
     onBearbeiten: ((PlaceDetail) -> Unit)? = null, meldung: String? = null, onUmbenennen: ((String, String) -> Unit)? = null,
-    karteStart: Boolean = false,
+    karteStart: Boolean = false, pflege: OrtPflege? = null,
 ) {
     // Rechts entweder der gewaehlte Ort oder die Karte aller Orte
     var karte by remember { mutableStateOf(karteStart) }
@@ -236,7 +237,7 @@ internal fun OrteInhalt(
                 gewaehlt == null -> Text(stringResource(Res.string.desk_places_choose), Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 detail == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 detail.exceptionOrNull() != null -> Text(detail.exceptionOrNull()?.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
-                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart, onBearbeiten, onUmbenennen)
+                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart, onBearbeiten, onUmbenennen, pflege)
             }
             meldung?.let { Text(it, Modifier.align(Alignment.BottomStart).padding(12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
         }
@@ -250,7 +251,7 @@ private enum class OrtReiter(val titel: StringResource) {
 
 @Composable
 private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String) -> Unit, openWeb: (String) -> Unit, reiterStart: Int,
-                      onBearbeiten: ((PlaceDetail) -> Unit)?, onUmbenennen: ((String, String) -> Unit)? = null) {
+                      onBearbeiten: ((PlaceDetail) -> Unit)?, onUmbenennen: ((String, String) -> Unit)? = null, pflege: OrtPflege? = null) {
     var reiter by remember(o.name) { mutableStateOf(OrtReiter.entries[reiterStart]) }
     val loc = o.location
     // Wie viel in einem Reiter steht - 0 = leer (der Reiter bleibt, steht aber blasser)
@@ -296,7 +297,7 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
                 val n = anzahl(r)
                 val text = stringResource(r.titel) + if (n > 0 && r != OrtReiter.Daten && r != OrtReiter.Koordinaten) " ($n)" else ""
                 Tab(selected = r == reiter, onClick = { reiter = r }, text = {
-                    Text(text, maxLines = 1, color = if (n == 0) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface)
+                    Text(text, maxLines = 1, color = if (n == 0 && pflege == null) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.onSurface)
                 })
             }
         }
@@ -304,18 +305,9 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
             when (reiter) {
                 OrtReiter.Personen -> Rollbar { Personen(o, viewModel) }
                 OrtReiter.Daten -> Rollbar { Daten(o, onWahl, openWeb, viewModel?.client?.userAgent) }
-                OrtReiter.Notizen -> Rollbar {
-                    val notes = loc?.notes.orEmpty()
-                    if (notes.isEmpty()) Leer() else notes.forEach { SelectionContainer { Text(it, style = MaterialTheme.typography.bodyMedium) } }
-                }
-                OrtReiter.Quellen -> Rollbar {
-                    val q = loc?.sources.orEmpty()
-                    if (q.isEmpty()) Leer() else q.forEach { s ->
-                        Row { Text(s.title ?: s.xref.orEmpty(), Modifier.width(360.dp), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                            Text(s.page.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                    }
-                }
-                OrtReiter.Medien -> Rollbar { val m = loc?.media.orEmpty(); if (m.isEmpty()) Leer() else MedienReihe(m, openWeb) }
+                OrtReiter.Notizen -> Rollbar { OrtNotizen(o, pflege) }
+                OrtReiter.Quellen -> Rollbar { OrtQuellen(o, pflege) }
+                OrtReiter.Medien -> Rollbar { OrtMedien(o, pflege, openWeb) }
                 OrtReiter.Koordinaten -> Koordinaten(o, openWeb)
             }
         }
@@ -662,4 +654,96 @@ private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Uni
     }
     Text(stringResource(Res.string.desk_place_external_note), style = MaterialTheme.typography.labelSmall, color = farben.outline)
     HorizontalDivider(Modifier.padding(vertical = 6.dp), color = farben.outlineVariant)
+}
+
+/** Was die Reiter zum Schreiben brauchen - nur mit Bearbeitungsrecht und Server ab API-Stufe 22. */
+class OrtPflege(val tree: String, val viewModel: AppViewModel, val archive: de.bgghome.webtrees.nativ.api.ArchiveOverview?, val onGeaendert: () -> Unit) {
+    /** Der _LOC des Orts - fehlt er, wird er angelegt (leer, nur mit dem Namen). */
+    suspend fun locXref(o: PlaceDetail): String = o.location?.xref
+        ?: withContext(Dispatchers.IO) { viewModel.client.savePlace(tree, de.bgghome.webtrees.nativ.api.PlaceRequest(o.name)).xref }
+}
+
+/** Notiz am Ortsdatensatz direkt schreiben; weitere Notizen (z. B. Notiz-Datensaetze) darunter nur lesend. */
+@Composable
+private fun OrtNotizen(o: PlaceDetail, pflege: OrtPflege?) {
+    val notizen = o.location?.notes.orEmpty()
+    if (pflege == null) {
+        if (notizen.isEmpty()) Leer() else notizen.forEach { SelectionContainer { Text(it, style = MaterialTheme.typography.bodyMedium) } }
+        return
+    }
+    val alt = notizen.firstOrNull().orEmpty()
+    var text by remember(o.name, alt) { mutableStateOf(alt) }
+    var speichert by remember { mutableStateOf(false) }
+    var fehler by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    OutlinedTextField(text, { text = it }, Modifier.fillMaxWidth(), minLines = 8,
+        label = { Text(stringResource(Res.string.fact_note)) })
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = {
+            speichert = true; fehler = null
+            scope.launch {
+                runCatching { withContext(Dispatchers.IO) { pflege.viewModel.client.savePlace(pflege.tree, de.bgghome.webtrees.nativ.api.PlaceRequest(o.name, note = text.trim())) } }
+                    .onSuccess { pflege.onGeaendert() }.onFailure { fehler = it.message ?: "?" }
+                speichert = false
+            }
+        }, enabled = text.trim() != alt.trim() && !speichert, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.action_save)) }
+        fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+    }
+    notizen.drop(1).forEach { SelectionContainer { Text(it, Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodyMedium) } }
+}
+
+/** Quellen am Ortsdatensatz; mit Bearbeitungsrecht "Quelle zitieren" (allgemeiner Verweis am _LOC). */
+@Composable
+private fun OrtQuellen(o: PlaceDetail, pflege: OrtPflege?) {
+    val q = o.location?.sources.orEmpty()
+    if (q.isEmpty() && pflege == null) Leer()
+    q.forEach { s ->
+        Row { Text(s.title ?: s.xref.orEmpty(), Modifier.width(360.dp), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            Text(s.page.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    }
+    if (pflege == null) return
+    var ziel by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    OutlinedButton(onClick = { scope.launch { runCatching { pflege.locXref(o) }.onSuccess { ziel = it } } }, shape = MaterialTheme.shapes.small) {
+        Text("+ " + stringResource(Res.string.desk_cite_add))
+    }
+    ziel?.let { x -> ZitatDialog(ZitatZiel(x, null, null, null), pflege.tree, pflege.viewModel, onDismiss = { ziel = null; pflege.onGeaendert() }) }
+}
+
+/** Fotos und Dokumente am Ortsdatensatz: Datei hochladen, vorhandenes Medium (auch aus dem Archiv) verknuepfen, loesen. */
+@Composable
+private fun OrtMedien(o: PlaceDetail, pflege: OrtPflege?, openWeb: (String) -> Unit) {
+    val m = o.location?.media.orEmpty()
+    if (m.isEmpty() && pflege == null) { Leer(); return }
+    val scope = rememberCoroutineScope()
+    var fehler by remember { mutableStateOf<String?>(null) }
+    var waehlen by remember { mutableStateOf<String?>(null) }
+    fun medienSetzen(neu: List<String>) {
+        if (pflege == null) return
+        scope.launch {
+            runCatching { withContext(Dispatchers.IO) { pflege.viewModel.client.savePlace(pflege.tree, de.bgghome.webtrees.nativ.api.PlaceRequest(o.name, media = neu.distinct())) } }
+                .onSuccess { pflege.onGeaendert() }.onFailure { fehler = it.message ?: "?" }
+        }
+    }
+    if (m.isNotEmpty()) MedienReihe(m, openWeb, onLoesen = if (pflege != null) ({ x -> medienSetzen(m.map { it.xref }.filter { it != x.xref }) }) else null)
+    if (pflege != null) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = {
+            dateiOeffnen(scanDialogTitel())?.let { datei ->
+                scope.launch {
+                    runCatching {
+                        val x = pflege.locXref(o)
+                        val bytes = withContext(Dispatchers.IO) { datei.readBytes() }
+                        withContext(Dispatchers.IO) { pflege.viewModel.client.uploadMedia(pflege.tree, x, bytes, datei.name, mimeVon(datei), titelAusDatei(datei)) }
+                    }.onSuccess { pflege.onGeaendert() }.onFailure { fehler = it.message ?: "?" }
+                }
+            }
+        }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_source_add_file)) }
+        OutlinedButton(onClick = { scope.launch { runCatching { pflege.locXref(o) }.onSuccess { waehlen = it }.onFailure { fehler = it.message } } },
+            shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_media_existing)) }
+    }
+    fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+    if (pflege != null) waehlen?.let { x ->
+        MedienWahlDialog(pflege.tree, pflege.viewModel.client, m.map { it.xref }.toSet(), onDismiss = { waehlen = null },
+            archive = pflege.archive, rechteXref = x) { neu -> waehlen = null; medienSetzen(m.map { it.xref } + neu.xref) }
+    }
 }

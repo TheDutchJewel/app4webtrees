@@ -299,6 +299,8 @@ data class PlaceRequest(
     val lat: Double? = null,
     val lng: Double? = null,
     val mapData: Boolean = false,
+    /** Die verknuepften Medienobjekte (Kennungen); ersetzt die Liste. null = nicht anfassen. */
+    val media: List<String>? = null,
 )
 
 /** Ein Ort der Ortsliste - der PLAC-Text, wie er an sichtbaren Ereignissen steht. */

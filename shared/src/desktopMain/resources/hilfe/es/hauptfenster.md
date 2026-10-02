@@ -65,6 +65,8 @@ Con permiso de edición, **Editar** abre los datos del lugar: identificador GOV 
 
 Los nombres de lugar en el panel de la persona y en la hoja de la persona se pueden pulsar, y cada campo de lugar relleno tiene un icono de lugar: ambos abren el lugar directamente en el gestor de lugares.
 
+Con permiso de edición, la nota se escribe directamente en la pestaña **Notas**, en la pestaña **Medios** se añaden fotos y documentos (subir un archivo, un medio existente o uno del archivo; **desvincular** solo quita el vínculo) y en la pestaña **Fuentes** se cita una fuente para el lugar. Todo va al registro de lugar; si aún no existe, wtWin lo crea. La primera foto del registro de lugar pasa a ser la imagen de la parte superior de la página del lugar.
+
 ## Secciones: Inicio, Árbol, Fotos
 
 - **Inicio** (Ctrl+1): saludo, próximos aniversarios, cambios recientes en el árbol, la persona de inicio. Los moderadores ven aquí los cambios pendientes y los aceptan o rechazan.
