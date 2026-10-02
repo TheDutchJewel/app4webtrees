@@ -249,7 +249,8 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
         DeskTheme {
             Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 // ── Einstellungen und Regeln ──
-                Column(Modifier.width(470.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface)) {
+                val pruefBreite = rememberBreite("pruef_liste", 470f)
+                Column(Modifier.width(pruefBreite.value.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(start = 12.dp, end = 12.dp, top = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Einstellung(stringResource(Res.string.desk_check_preset), stringResource(Res.string.tipp_preset)) {
                             val namen = Voreinstellung.alle.associate { it.id to PruefTexte.nameText(it) } + ("eigene" to stringResource(Res.string.desk_check_preset_own))
@@ -306,7 +307,7 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
                         }
                     }
                 }
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Trenner(pruefBreite, "pruef_liste", 300f, 900f)
 
                 // ── Treffer ──
                 Column(Modifier.weight(1f).fillMaxHeight().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -380,7 +380,8 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
         DeskTheme {
             Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 // Tafelarten
-                Column(Modifier.width(210.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface).padding(vertical = 8.dp)) {
+                val artBreite = rememberBreite("tafel_arten", 210f)
+                Column(Modifier.width(artBreite.value.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface).padding(vertical = 8.dp)) {
                     listOf(
                         Res.string.desk_chart_group_ancestors to listOf(TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Faecher, TafelArt.Kreis, TafelArt.Zeitleiste, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester),
                         Res.string.desk_chart_group_descendants to listOf(TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Cousins),
@@ -391,9 +392,10 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                         arten.forEach { a -> ArtEintrag(stringResource(artTexte.getValue(a).first), art == a) { art = a } }
                     }
                 }
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Trenner(artBreite, "tafel_arten", 160f, 400f)
                 // Einstellungen: oben das Noetigste, darunter aufklappbare Gruppen (28.09.2026)
-                Column(Modifier.width(330.dp).fillMaxHeight().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                val einstBreite = rememberBreite("tafel_einstellungen", 330f)
+                Column(Modifier.width(einstBreite.value.dp).fillMaxHeight().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(artTexte.getValue(art).first), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                     Text(stringResource(artTexte.getValue(art).second), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -610,7 +612,7 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
                     }
                     Knopf(stringResource(Res.string.action_close), true, onClose)
                 }
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Trenner(einstBreite, "tafel_einstellungen", 240f, 600f)
                 // Vorschau
                 BoxWithConstraints(Modifier.weight(1f).fillMaxHeight().background(androidx.compose.ui.graphics.Color(0xFF8C8F8E)).padding(16.dp), contentAlignment = Alignment.Center) {
                     val dichte = LocalDensity.current

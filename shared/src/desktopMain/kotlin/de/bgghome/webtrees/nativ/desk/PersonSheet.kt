@@ -135,8 +135,9 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Row(Modifier.weight(1f).fillMaxWidth()) {
                     SheetTabs(state, detail, viewModel, openWeb, Modifier.weight(1f).fillMaxHeight(), einfach, onEinfach = { einfach = it; DeskLayout.prefs.putBoolean("blatt_einfach", it) })
-                    VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    RelativesColumn(detail, viewModel, Modifier.width(260.dp).fillMaxHeight())
+                    val verwandteBreite = rememberBreite("blatt_verwandte", 260f)
+                    Trenner(verwandteBreite, "blatt_verwandte", 200f, 520f, rechts = true)
+                    RelativesColumn(detail, viewModel, Modifier.width(verwandteBreite.value.dp).fillMaxHeight())
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 SheetFooter(state, detail, viewModel, canPrev = index > 0, canNext = index >= 0 && index < people.lastIndex, onStep = ::step, onFirst = { step(-index) }, onLast = { step(people.lastIndex - index) }, onClose = schliessen)

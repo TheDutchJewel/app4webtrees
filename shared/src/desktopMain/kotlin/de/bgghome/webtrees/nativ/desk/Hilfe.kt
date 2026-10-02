@@ -289,8 +289,9 @@ fun HilfeFenster() {
                 }
                 HorizontalDivider(color = farben.outlineVariant)
                 Row(Modifier.weight(1f).fillMaxWidth()) {
-                    Inhalt(kapitel, aktuell, suche, Modifier.width(260.dp).fillMaxHeight(), onWahl = ::gehe)
-                    VerticalDivider(color = farben.outlineVariant)
+                    val hilfeBreite = rememberBreite("hilfe_inhalt", 260f)
+                    Inhalt(kapitel, aktuell, suche, Modifier.width(hilfeBreite.value.dp).fillMaxHeight(), onWahl = ::gehe)
+                    Trenner(hilfeBreite, "hilfe_inhalt", 160f, 520f)
                     val k = kapitel.firstOrNull { it.id == aktuell } ?: kapitel.firstOrNull()
                     Box(Modifier.weight(1f).fillMaxHeight()) {
                         val rollen = rememberScrollState()

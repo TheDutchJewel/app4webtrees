@@ -142,7 +142,8 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
     ) {
         DeskTheme {
             Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                Column(Modifier.width(200.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface).padding(vertical = 8.dp)) {
+                val artBreite = rememberBreite("buch_arten", 200f)
+                Column(Modifier.width(artBreite.value.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface).padding(vertical = 8.dp)) {
                     ArtGruppe(stringResource(Res.string.desk_book_group_standard))
                     ArtEintrag(stringResource(Res.string.desk_book_ancestor_book), art == BuchArt.Vorfahren) { art = BuchArt.Vorfahren; o = o.copy(generationen = o.generationen.coerceAtMost(12)) }
                     ArtEintrag(stringResource(Res.string.desk_book_descendant_book), nachfahren) { art = BuchArt.Nachfahren; o = o.copy(generationen = o.generationen.coerceAtMost(10)) }
@@ -150,8 +151,9 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                     ArtGruppe(stringResource(Res.string.desk_book_group_complete))
                     ArtEintrag(stringResource(Res.string.desk_book_family_book), familien) { art = BuchArt.Familien }
                 }
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Column(Modifier.width(340.dp).fillMaxHeight().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Trenner(artBreite, "buch_arten", 160f, 400f)
+                val einstBreite = rememberBreite("buch_einstellungen", 340f)
+                Column(Modifier.width(einstBreite.value.dp).fillMaxHeight().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(stringResource(when (art) { BuchArt.Nachfahren -> Res.string.desk_book_descendant_book; BuchArt.Familien -> Res.string.desk_book_family_book; else -> Res.string.desk_book_ancestor_book }),
                         style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                     Text(stringResource(when (art) { BuchArt.Nachfahren -> Res.string.desk_book_descendant_hint; BuchArt.Familien -> Res.string.desk_book_family_hint; else -> Res.string.desk_book_ancestor_hint }),
@@ -211,7 +213,7 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                     Spacer(Modifier.height(4.dp))
                     Knopf(stringResource(Res.string.action_close), true, onClose)
                 }
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Trenner(einstBreite, "buch_einstellungen", 240f, 600f)
                 BoxWithConstraints(Modifier.weight(1f).fillMaxHeight().background(androidx.compose.ui.graphics.Color(0xFF8C8F8E)), contentAlignment = Alignment.TopCenter) {
                     val px = with(LocalDensity.current) { (maxWidth - 48.dp).roundToPx() }
                     LaunchedEffect(px) { breitePx = px.coerceAtLeast(300) }

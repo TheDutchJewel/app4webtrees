@@ -72,6 +72,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -477,12 +478,52 @@ private fun FrameWindowScope.DeskMenuBar(
 }
 
 /** Senkrechter Trennstrich, an dem sich die Breite der Seitenleiste ziehen laesst; [onEnde] speichert die Wahl. */
+
+/**
+ * Mauszeiger ↔ fuer Trennstriche. Java kennt keinen Doppelpfeil (E_RESIZE ist unter Linux ein Pfeil nach rechts), also
+ * selbst gezeichnet: schwarz mit weissem Rand, sichtbar auf hellem und dunklem Grund.
+ */
+private val doppelpfeil: PointerIcon by lazy {
+    runCatching {
+        val tk = java.awt.Toolkit.getDefaultToolkit()
+        val groesse = tk.getBestCursorSize(32, 32).let { if (it.width < 16) java.awt.Dimension(32, 32) else it }
+        val w = groesse.width; val h = groesse.height
+        val bild = java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB)
+        val g = bild.createGraphics()
+        g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON)
+        val cy = h / 2.0; val l = w * 0.12; val r = w * 0.88; val spitze = w * 0.24; val halb = h * 0.2; val schaft = h * 0.06
+        val pfeil = java.awt.geom.Path2D.Double().apply {
+            moveTo(l, cy); lineTo(l + spitze, cy - halb); lineTo(l + spitze, cy - schaft); lineTo(r - spitze, cy - schaft)
+            lineTo(r - spitze, cy - halb); lineTo(r, cy); lineTo(r - spitze, cy + halb); lineTo(r - spitze, cy + schaft)
+            lineTo(l + spitze, cy + schaft); lineTo(l + spitze, cy + halb); closePath()
+        }
+        g.color = java.awt.Color.WHITE; g.stroke = java.awt.BasicStroke(w / 10f, java.awt.BasicStroke.CAP_ROUND, java.awt.BasicStroke.JOIN_ROUND); g.draw(pfeil)
+        g.color = java.awt.Color.BLACK; g.fill(pfeil)
+        g.dispose()
+        PointerIcon(tk.createCustomCursor(bild, java.awt.Point(w / 2, h / 2), "doppelpfeil"))
+    }.getOrElse { PointerIcon(java.awt.Cursor(java.awt.Cursor.E_RESIZE_CURSOR)) }
+}
+
+/** Breite einer Seitenleiste in dp, in den Desktop-Einstellungen unter [name] gemerkt. */
+@Composable
+internal fun rememberBreite(name: String, vorgabe: Float): MutableState<Float> =
+    remember { mutableStateOf(DeskLayout.prefs.getString(name, null)?.toFloatOrNull() ?: vorgabe) }
+
+/** Ziehbarer Trennstrich fuer [breite]; [rechts]: die Leiste liegt rechts vom Strich (Ziehen nach links macht sie breiter). */
+@Composable
+internal fun Trenner(breite: MutableState<Float>, name: String, min: Float, max: Float, rechts: Boolean = false) {
+    val dichte = LocalDensity.current.density
+    Ziehgriff(onZiehen = { breite.value = (breite.value + (if (rechts) -it else it) / dichte).coerceIn(min, max) }) {
+        DeskLayout.prefs.putString(name, breite.value.toString())
+    }
+}
+
 @Composable
 internal fun Ziehgriff(onZiehen: (Float) -> Unit, onEnde: () -> Unit) {
     Box(
         Modifier.fillMaxHeight().width(7.dp)
-            // Pfeil links-rechts wie an Fenstergrenzen, keine Hand - hier wird verschoben, nicht geklickt
-            .pointerHoverIcon(PointerIcon(java.awt.Cursor(java.awt.Cursor.E_RESIZE_CURSOR)))
+            // Doppelpfeil links-rechts - hier wird verschoben, nicht geklickt
+            .pointerHoverIcon(doppelpfeil)
             .pointerInput(Unit) { detectHorizontalDragGestures(onDragEnd = onEnde, onDragCancel = onEnde) { _, dx -> onZiehen(dx) } },
         contentAlignment = Alignment.Center,
     ) { VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant) }

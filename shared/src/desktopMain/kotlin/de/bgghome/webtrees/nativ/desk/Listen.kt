@@ -397,7 +397,8 @@ fun ListenFenster(start: ListenArt, state: UiState, viewModel: AppViewModel, onC
     ) {
         DeskTheme {
             Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                Column(Modifier.width(210.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface).padding(vertical = 8.dp)) {
+                val artBreite = rememberBreite("liste_arten", 210f)
+                Column(Modifier.width(artBreite.value.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface).padding(vertical = 8.dp)) {
                     listOf(
                         Res.string.desk_chart_group_ancestors to listOf(ListenArt.Ahnen, ListenArt.Spitzenahnen, ListenArt.Stammlinie, ListenArt.Mutterstamm, ListenArt.Ahnenwertung),
                         Res.string.desk_chart_group_descendants to listOf(ListenArt.Stamm, ListenArt.Nachfahrenzahl),
@@ -408,8 +409,9 @@ fun ListenFenster(start: ListenArt, state: UiState, viewModel: AppViewModel, onC
                         arten.forEach { a -> ArtEintrag(stringResource(listenTexte.getValue(a).first), art == a) { art = a } }
                     }
                 }
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Column(Modifier.width(320.dp).fillMaxHeight().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Trenner(artBreite, "liste_arten", 160f, 400f)
+                val einstBreite = rememberBreite("liste_einstellungen", 320f)
+                Column(Modifier.width(einstBreite.value.dp).fillMaxHeight().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(listenTexte.getValue(art).first), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                     Text(stringResource(listenTexte.getValue(art).second), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -466,7 +468,7 @@ fun ListenFenster(start: ListenArt, state: UiState, viewModel: AppViewModel, onC
                     Spacer(Modifier.height(4.dp))
                     Knopf(stringResource(Res.string.action_close), true, onClose)
                 }
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Trenner(einstBreite, "liste_einstellungen", 240f, 600f)
                 BoxWithConstraints(Modifier.weight(1f).fillMaxHeight().background(androidx.compose.ui.graphics.Color(0xFF8C8F8E)), contentAlignment = Alignment.TopCenter) {
                     val px = with(LocalDensity.current) { (maxWidth - 48.dp).roundToPx() }
                     LaunchedEffect(px) { breitePx = px.coerceAtLeast(300) }
