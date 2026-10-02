@@ -1217,7 +1217,7 @@
     <string name="desk_place_edit">Edit place data</string>
     <string name="desk_place_lat">Latitude</string>
     <string name="desk_place_lng">Longitude</string>
-    <string name="desk_place_coords_hint">Decimal, e.g. 53.778417 – south and west negative</string>
+    <string name="desk_place_coords_hint">Decimal (53.778417) or degrees, minutes, seconds (53° 46′ 42″ N) – south and west with S/W or negative</string>
     <string name="desk_place_search_coords">Find coordinates …</string>
     <string name="desk_place_search_title">Coordinate search for %1$s</string>
     <string name="desk_place_search_button">Search</string>
@@ -1271,4 +1271,13 @@
     <string name="desk_place_postal">Postal code</string>
     <string name="desk_place_region">State/region</string>
     <string name="desk_place_country">Country</string>
+    <string name="desk_place_from_clipboard">From clipboard</string>
+    <string name="desk_place_clipboard_none">The clipboard holds no coordinates (e.g. 53.778417, 20.480111 or 53° 46′ 42″ N, 20° 28′ 48″ E).</string>
+    <string name="desk_place_take_coords">Use coordinates</string>
+    <string name="desk_place_take_address">Use postal code, region and country</string>
+    <string name="desk_place_center">Centre map</string>
+    <string name="desk_place_person_hint_sheet">Click: select in the main window · double-click: open person sheet</string>
+    <string name="desk_place_person_hint">Click: select in the main window · double-click: make central person</string>
+    <string name="desk_list_places_notes">Notes</string>
+    <string name="desk_list_places_sources">Sources</string>
 </resources>

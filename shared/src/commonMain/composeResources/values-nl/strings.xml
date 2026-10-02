@@ -1193,7 +1193,7 @@
     <string name="desk_place_edit">Plaatsgegevens bewerken</string>
     <string name="desk_place_lat">Breedte</string>
     <string name="desk_place_lng">Lengte</string>
-    <string name="desk_place_coords_hint">Decimaal, bijv. 53.778417 – zuid en west negatief</string>
+    <string name="desk_place_coords_hint">Decimaal (53.778417) of graden, minuten, seconden (53° 46′ 42″ N) – zuid en west met Z/W of negatief</string>
     <string name="desk_place_search_coords">Coördinaten zoeken …</string>
     <string name="desk_place_search_title">Coördinaten zoeken voor %1$s</string>
     <string name="desk_place_search_button">Zoeken</string>
@@ -1247,4 +1247,13 @@
     <string name="desk_place_postal">Postcode</string>
     <string name="desk_place_region">Provincie/regio</string>
     <string name="desk_place_country">Land</string>
+    <string name="desk_place_from_clipboard">Uit klembord</string>
+    <string name="desk_place_clipboard_none">Het klembord bevat geen coördinaten (bijv. 53.778417, 20.480111 of 53° 46′ 42″ N, 20° 28′ 48″ O).</string>
+    <string name="desk_place_take_coords">Coördinaten overnemen</string>
+    <string name="desk_place_take_address">Postcode, regio en land overnemen</string>
+    <string name="desk_place_center">Kaart centreren</string>
+    <string name="desk_place_person_hint_sheet">Klik: kiezen in het hoofdvenster · dubbelklik: persoonsblad openen</string>
+    <string name="desk_place_person_hint">Klik: kiezen in het hoofdvenster · dubbelklik: tot proband maken</string>
+    <string name="desk_list_places_notes">Notities</string>
+    <string name="desk_list_places_sources">Bronnen</string>
 </resources>

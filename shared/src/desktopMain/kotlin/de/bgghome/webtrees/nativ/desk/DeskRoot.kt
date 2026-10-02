@@ -331,7 +331,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
             if (sheetOpen && state.detail != null) PersonSheet(state, viewModel, openWeb, onClose = { sheetOpen = false }, onQuelle = if (quellenApi) ({ quellen = it }) else null)
         }
         quellen?.let { start -> if (state.tree != null) QuellenFenster(state, viewModel, start, openWeb, onClose = { quellen = null }) }
-        orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null }) }
+        orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null }, onBlatt = openSheet) }
         if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
         liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
         HilfeFenster()

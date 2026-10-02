@@ -88,7 +88,7 @@ import kotlin.math.roundToInt
  */
 
 @Composable
-fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb: (String) -> Unit, onClose: () -> Unit) {
+fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb: (String) -> Unit, onClose: () -> Unit, onBlatt: ((String) -> Unit)? = null) {
     val tree = state.tree?.name
     var neu by remember { mutableStateOf(0) }
     val liste by produceState<Result<PlaceSummaryList>?>(null, tree, neu) {
@@ -132,7 +132,7 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
         DeskTheme {
             OrteInhalt(liste, detail, gewaehlt, { gewaehlt = it }, suche, { suche = it }, viewModel, openWeb,
                 onBearbeiten = if (darf) ({ bearbeiten = it }) else null, meldung = verweise,
-                pflege = if (darf) OrtPflege(tree.orEmpty(), viewModel, state.archive) { neu++ } else null, onClose = onClose,
+                pflege = if (darf) OrtPflege(tree.orEmpty(), viewModel, state.archive) { neu++ } else null, onClose = onClose, onBlatt = onBlatt,
                 onUmbenennen = if (darfUmbenennen) ({ von, nach -> vorschau(von, nach) }) else null)
             umbenennen?.let { v ->
                 UmbenennenDialog(v, onDismiss = { umbenennen = null }) {
@@ -167,7 +167,7 @@ internal fun OrteInhalt(
     liste: Result<PlaceSummaryList>?, detail: Result<PlaceDetail>?, gewaehlt: String?, onWahl: (String) -> Unit,
     suche: String, onSuche: (String) -> Unit, viewModel: AppViewModel?, openWeb: (String) -> Unit, reiterStart: Int = 0,
     onBearbeiten: ((PlaceDetail) -> Unit)? = null, meldung: String? = null, onUmbenennen: ((String, String) -> Unit)? = null,
-    karteStart: Boolean = false, pflege: OrtPflege? = null, onClose: (() -> Unit)? = null,
+    karteStart: Boolean = false, pflege: OrtPflege? = null, onClose: (() -> Unit)? = null, onBlatt: ((String) -> Unit)? = null,
 ) {
     // Rechts entweder der gewaehlte Ort oder die Karte aller Orte
     var karte by remember { mutableStateOf(karteStart) }
@@ -246,7 +246,7 @@ internal fun OrteInhalt(
                 gewaehlt == null -> Text(stringResource(Res.string.desk_places_choose), Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 detail == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 detail.exceptionOrNull() != null -> Text(detail.exceptionOrNull()?.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
-                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart, onBearbeiten, onUmbenennen, pflege)
+                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart, onBearbeiten, onUmbenennen, pflege, onBlatt)
             }
             meldung?.let { Text(it, Modifier.align(Alignment.BottomStart).padding(12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
         }
@@ -260,7 +260,7 @@ private enum class OrtReiter(val titel: StringResource) {
 
 @Composable
 private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String) -> Unit, openWeb: (String) -> Unit, reiterStart: Int,
-                      onBearbeiten: ((PlaceDetail) -> Unit)?, onUmbenennen: ((String, String) -> Unit)? = null, pflege: OrtPflege? = null) {
+                      onBearbeiten: ((PlaceDetail) -> Unit)?, onUmbenennen: ((String, String) -> Unit)? = null, pflege: OrtPflege? = null, onBlatt: ((String) -> Unit)? = null) {
     var reiter by remember(o.name) { mutableStateOf(OrtReiter.entries[reiterStart]) }
     val loc = o.location
     // Wie viel in einem Reiter steht - 0 = leer (der Reiter bleibt, steht aber blasser)
@@ -312,7 +312,7 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (reiter) {
-                OrtReiter.Personen -> Rollbar { Personen(o, viewModel) }
+                OrtReiter.Personen -> Rollbar { Personen(o, viewModel, onBlatt) }
                 OrtReiter.Daten -> Rollbar { Daten(o, onWahl, openWeb, viewModel?.client?.userAgent) }
                 OrtReiter.Notizen -> Rollbar { OrtNotizen(o, pflege) }
                 OrtReiter.Quellen -> Rollbar { OrtQuellen(o, pflege, openWeb) }
@@ -340,16 +340,23 @@ private fun ereignisse(f: List<PlaceEvent>) = f.joinToString(", ") { e -> listOf
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun Personen(o: PlaceDetail, viewModel: AppViewModel?) {
+private fun Personen(o: PlaceDetail, viewModel: AppViewModel?, onBlatt: ((String) -> Unit)? = null) {
     val farben = MaterialTheme.colorScheme
     if (o.individuals.isEmpty() && o.families.isEmpty()) Leer()
+    val bedienung = stringResource(if (onBlatt != null) Res.string.desk_place_person_hint_sheet else Res.string.desk_place_person_hint)
     o.individuals.forEach { p ->
-        Row(Modifier.fillMaxWidth().fokusRahmen()
-            .combinedClickable(enabled = !p.isPrivate && viewModel != null, onDoubleClick = { viewModel?.setRoot(p.xref) }) { viewModel?.select(p.xref) }
-            .padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(registerName(p.person(), stringResource(Res.string.person_private), stringResource(Res.string.person_no_name)) + jahre(p.person()).let { if (it.isNotEmpty()) "  $it" else "" },
-                Modifier.width(340.dp), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(ereignisse(p.facts), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+        val name = registerName(p.person(), stringResource(Res.string.person_private), stringResource(Res.string.person_no_name))
+        // Beim Darueberfahren: Name, Lebensdaten, die Ereignisse hier und wie man die Person oeffnet
+        val tipp = listOf(p.name.ifBlank { name }, p.lifespan, ereignisse(p.facts), bedienung).filter(String::isNotBlank).joinToString("\n")
+        Tipp(tipp) {
+            Row(Modifier.fillMaxWidth().fokusRahmen()
+                .combinedClickable(enabled = !p.isPrivate && viewModel != null,
+                    onDoubleClick = { if (onBlatt != null) onBlatt(p.xref) else viewModel?.setRoot(p.xref) }) { viewModel?.select(p.xref) }
+                .padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(name + jahre(p.person()).let { if (it.isNotEmpty()) "  $it" else "" },
+                    Modifier.width(340.dp), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(ereignisse(p.facts), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+            }
         }
     }
     if (o.moreIndividuals > 0) Text(stringResource(Res.string.desk_source_more, o.moreIndividuals), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
@@ -435,6 +442,12 @@ private fun Koordinaten(o: PlaceDetail, openWeb: (String) -> Unit) {
                 OutlinedButton(onClick = { openWeb("https://www.openstreetmap.org/?mlat=$lat&mlon=$lng#map=13/$lat/$lng") }, shape = MaterialTheme.shapes.small) {
                     Text("OpenStreetMap")
                 }
+                OutlinedButton(onClick = { openWeb("https://www.bing.com/maps?cp=$lat~$lng&lvl=13&sp=point.${lat}_${lng}") }, shape = MaterialTheme.shapes.small) {
+                    Text("Bing Maps")
+                }
+                OutlinedButton(onClick = { openWeb("https://www.google.com/maps/search/?api=1&query=$lat,$lng") }, shape = MaterialTheme.shapes.small) {
+                    Text("Google Maps")
+                }
             }
         }
         HorizontalDivider(color = farben.outlineVariant)
@@ -443,6 +456,11 @@ private fun Koordinaten(o: PlaceDetail, openWeb: (String) -> Unit) {
             val w = constraints.maxWidth; val h = constraints.maxHeight
             LaunchedEffect(o.name, w, h) { zustand.passeEin(listOf(GeoPunkt(lat, lng)), w, h, einzelZoom = 12, maxZoom = 15) }
             KachelKarte(zustand, KachelEbene.STANDARD, Modifier.fillMaxSize(), pins = listOf(KartenPin(lat, lng, farbe = farben.primary, radiusDp = 9f)))
+            // Nach Verschieben und Zoomen: den Ort wieder in die Mitte
+            androidx.compose.material3.TextButton(onClick = { zustand.setze(lat, lng, 12) },
+                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).background(farben.surface.copy(alpha = 0.9f), MaterialTheme.shapes.small)) {
+                Text(stringResource(Res.string.desk_place_center), style = MaterialTheme.typography.labelMedium)
+            }
         }
     }
 }

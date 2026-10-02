@@ -67,6 +67,8 @@ Place names in the person panel and on the person sheet can be clicked, and ever
 
 With edit rights you write the note directly in the **Notes** tab, attach photos and documents in the **Media** tab (upload a file, an existing media object or one from the archive; **unlink** only removes the link) and cite a source for the place in the **Sources** tab. Everything goes into the location record; if there is none yet, wtWin creates it. The first photo at the location record becomes the picture at the top of the place page.
 
+Coordinates can be typed as decimals or in degrees, minutes, seconds; **From clipboard** takes a copied pair, for example from Wikipedia. With **Find coordinates …** two ticks decide whether a result supplies the coordinates and/or postal code, region and country. In the **Coordinates** tab buttons open the place in OpenStreetMap, Bing Maps or Google Maps; **Centre map** brings it back to the middle. In the **People** tab the mouse pointer shows life dates and events; a double-click opens the person sheet.
+
 ## Sections: Home, Tree, Photos
 
 - **Home** (Ctrl+1): greeting, upcoming anniversaries, recent changes in the tree, the start person. Moderators see pending changes here and accept or reject them.

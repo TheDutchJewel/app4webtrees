@@ -67,6 +67,8 @@ Los nombres de lugar en el panel de la persona y en la hoja de la persona se pue
 
 Con permiso de edición, la nota se escribe directamente en la pestaña **Notas**, en la pestaña **Medios** se añaden fotos y documentos (subir un archivo, un medio existente o uno del archivo; **desvincular** solo quita el vínculo) y en la pestaña **Fuentes** se cita una fuente para el lugar. Todo va al registro de lugar; si aún no existe, wtWin lo crea. La primera foto del registro de lugar pasa a ser la imagen de la parte superior de la página del lugar.
 
+Las coordenadas se escriben en decimal o en grados, minutos, segundos; **Desde el portapapeles** toma un par copiado, por ejemplo de Wikipedia. En **Buscar coordenadas …** dos casillas deciden si un resultado aporta las coordenadas y/o código postal, región y país. En la pestaña **Coordenadas**, botones abren el lugar en OpenStreetMap, Bing Maps o Google Maps; **Centrar mapa** lo devuelve al centro. En la pestaña **Personas** el puntero muestra fechas y eventos; un doble clic abre la hoja de la persona.
+
 ## Secciones: Inicio, Árbol, Fotos
 
 - **Inicio** (Ctrl+1): saludo, próximos aniversarios, cambios recientes en el árbol, la persona de inicio. Los moderadores ven aquí los cambios pendientes y los aceptan o rechazan.

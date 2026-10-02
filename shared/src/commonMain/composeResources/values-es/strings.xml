@@ -1212,7 +1212,7 @@
     <string name="desk_place_edit">Editar datos del lugar</string>
     <string name="desk_place_lat">Latitud</string>
     <string name="desk_place_lng">Longitud</string>
-    <string name="desk_place_coords_hint">Decimal, p. ej. 53.778417 – sur y oeste negativos</string>
+    <string name="desk_place_coords_hint">Decimal (53.778417) o grados, minutos, segundos (53° 46′ 42″ N): sur y oeste con S/W o negativos</string>
     <string name="desk_place_search_coords">Buscar coordenadas …</string>
     <string name="desk_place_search_title">Búsqueda de coordenadas para %1$s</string>
     <string name="desk_place_search_button">Buscar</string>
@@ -1266,4 +1266,13 @@
     <string name="desk_place_postal">Código postal</string>
     <string name="desk_place_region">Estado/región</string>
     <string name="desk_place_country">País</string>
+    <string name="desk_place_from_clipboard">Desde el portapapeles</string>
+    <string name="desk_place_clipboard_none">El portapapeles no contiene coordenadas (p. ej. 53.778417, 20.480111 o 53° 46′ 42″ N, 20° 28′ 48″ E).</string>
+    <string name="desk_place_take_coords">Usar coordenadas</string>
+    <string name="desk_place_take_address">Usar código postal, región y país</string>
+    <string name="desk_place_center">Centrar mapa</string>
+    <string name="desk_place_person_hint_sheet">Clic: seleccionar en la ventana principal · doble clic: abrir la hoja de la persona</string>
+    <string name="desk_place_person_hint">Clic: seleccionar en la ventana principal · doble clic: convertir en persona central</string>
+    <string name="desk_list_places_notes">Notas</string>
+    <string name="desk_list_places_sources">Fuentes</string>
 </resources>

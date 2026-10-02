@@ -1212,7 +1212,7 @@
     <string name="desk_place_edit">Ortsdaten bearbeiten</string>
     <string name="desk_place_lat">Breite</string>
     <string name="desk_place_lng">Länge</string>
-    <string name="desk_place_coords_hint">Dezimal, z. B. 53.778417 – Süden und Westen negativ</string>
+    <string name="desk_place_coords_hint">Dezimal (53.778417) oder Grad, Minuten, Sekunden (53° 46′ 42″ N) – Süden und Westen mit S/W oder negativ</string>
     <string name="desk_place_search_coords">Koordinaten suchen …</string>
     <string name="desk_place_search_title">Koordinatensuche für %1$s</string>
     <string name="desk_place_search_button">Suchen</string>
@@ -1266,4 +1266,13 @@
     <string name="desk_place_postal">Postleitzahl</string>
     <string name="desk_place_region">Bundesland/Region</string>
     <string name="desk_place_country">Land</string>
+    <string name="desk_place_from_clipboard">Aus Zwischenablage</string>
+    <string name="desk_place_clipboard_none">In der Zwischenablage stehen keine Koordinaten (z. B. 53.778417, 20.480111 oder 53° 46′ 42″ N, 20° 28′ 48″ O).</string>
+    <string name="desk_place_take_coords">Koordinaten übernehmen</string>
+    <string name="desk_place_take_address">Postleitzahl, Region und Land übernehmen</string>
+    <string name="desk_place_center">Karte zentrieren</string>
+    <string name="desk_place_person_hint_sheet">Klick: im Hauptfenster wählen · Doppelklick: Personenblatt öffnen</string>
+    <string name="desk_place_person_hint">Klick: im Hauptfenster wählen · Doppelklick: zum Probanden machen</string>
+    <string name="desk_list_places_notes">Notizen</string>
+    <string name="desk_list_places_sources">Quellen</string>
 </resources>

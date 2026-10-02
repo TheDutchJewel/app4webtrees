@@ -67,6 +67,8 @@ Les noms de lieux dans le panneau de la personne et sur la fiche de la personne 
 
 Avec le droit de modification, vous écrivez la note directement dans l’onglet **Notes**, joignez photos et documents dans l’onglet **Médias** (téléverser un fichier, un média existant ou un élément des archives ; **détacher** supprime seulement le lien) et citez une source pour le lieu dans l’onglet **Sources**. Tout va dans la fiche de lieu ; s’il n’y en a pas encore, wtWin la crée. La première photo de la fiche de lieu devient l’image en haut de la page du lieu.
 
+Les coordonnées se saisissent en décimal ou en degrés, minutes, secondes ; **Depuis le presse-papiers** reprend une paire copiée, par exemple depuis Wikipédia. Avec **Rechercher les coordonnées …**, deux cases indiquent si un résultat fournit les coordonnées et/ou code postal, région et pays. Dans l’onglet **Coordonnées**, des boutons ouvrent le lieu dans OpenStreetMap, Bing Maps ou Google Maps ; **Centrer la carte** le ramène au milieu. Dans l’onglet **Personnes**, le pointeur montre dates et événements ; un double-clic ouvre la fiche de la personne.
+
 ## Sections : Accueil, Arbre, Photos
 
 - **Accueil** (Ctrl+1) : message d'accueil, anniversaires à venir, modifications récentes de l'arbre, la personne de départ. Les modérateurs voient ici les modifications en attente et les acceptent ou les refusent.

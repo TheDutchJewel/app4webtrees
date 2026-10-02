@@ -67,6 +67,8 @@ Plaatsnamen in het personenpaneel en op het persoonsblad zijn klikbaar, en elk i
 
 Met bewerkrechten schrijf je de notitie direct in het tabblad **Notities**, voeg je in het tabblad **Media** foto’s en documenten toe (bestand uploaden, bestaand medium of uit het archief; **loskoppelen** verwijdert alleen de koppeling) en citeer je in het tabblad **Bronnen** een bron voor de plaats. Alles komt in het locatierecord; bestaat dat nog niet, dan maakt wtWin het aan. De eerste foto bij het locatierecord wordt de afbeelding bovenaan de plaatspagina.
 
+Coördinaten kun je decimaal of in graden, minuten, seconden invoeren; **Uit klembord** neemt een gekopieerd paar over, bijvoorbeeld uit Wikipedia. Bij **Coördinaten zoeken …** bepalen twee vinkjes of een resultaat de coördinaten en/of postcode, regio en land invult. In het tabblad **Coördinaten** openen knoppen de plaats in OpenStreetMap, Bing Maps of Google Maps; **Kaart centreren** zet hem terug in het midden. In het tabblad **Personen** toont de muisaanwijzer levensdata en gebeurtenissen; een dubbelklik opent het persoonsblad.
+
 ## Onderdelen: Start, Boom, Foto's
 
 - **Start** (Ctrl+1): begroeting, komende gedenkdagen, recente wijzigingen in de stamboom, de startpersoon. Moderators zien hier openstaande wijzigingen en keuren ze goed of af.

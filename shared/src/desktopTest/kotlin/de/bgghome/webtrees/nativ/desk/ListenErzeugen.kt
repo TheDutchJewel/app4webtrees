@@ -39,7 +39,7 @@ class ListenErzeugen {
             val t = auftrag.split(':')
             val art = ListenArt.valueOf(t[0])
             // Art:Xref:Generationen[:Nummerierung] oder fuer Baumlisten Art:-:-:Schalter (kal, chrono, RELI, ort=Celle, ev=BIRT+CHR,
-            // Ortsliste: nurorte, personen, details)
+            // Ortsliste: nurorte, personen, details, notizen, quellen)
             val schalter = t.getOrNull(3)?.split(',').orEmpty()
             val o = ListenOptionen(generationen = t.getOrNull(2)?.toIntOrNull() ?: 6,
                 nummerierung = t.getOrNull(3)?.let { runCatching { Nummerierung.valueOf(it) }.getOrNull() } ?: Nummerierung.Saragossa,
@@ -47,7 +47,7 @@ class ListenErzeugen {
                 ortFilter = schalter.firstOrNull { it.startsWith("ort=") }?.substringAfter('=').orEmpty(),
                 ereignisse = schalter.firstOrNull { it.startsWith("ev=") }?.substringAfter('=')?.split('+')?.toSet() ?: setOf("BIRT", "MARR", "DEAT"),
                 ortsArt = when { "nurorte" in schalter -> OrtslistenArt.NurOrte; "personen" in schalter -> OrtslistenArt.Personen; else -> OrtslistenArt.Familiennamen },
-                ortsDetails = "details" in schalter)
+                ortsDetails = "details" in schalter, ortsNotizen = "notizen" in schalter, ortsQuellen = "quellen" in schalter)
             val zeilen = runBlocking { listenZeilen(art, client, baum, titel, t[1], o) }
             val bytes = ByteArrayOutputStream().also { out -> listenPdf(zeilen, "wtTux", titel).use { it.save(out) } }.toByteArray()
             val name = "liste-" + auftrag.replace(':', '-').lowercase()

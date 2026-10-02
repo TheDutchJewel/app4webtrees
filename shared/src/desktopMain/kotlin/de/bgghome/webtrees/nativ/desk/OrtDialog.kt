@@ -67,13 +67,13 @@ import java.util.concurrent.TimeUnit
  */
 
 /** Ein Treffer der Ortssuche. */
-internal data class OrtTreffer(val name: String, val lat: Double, val lng: Double)
+internal data class OrtTreffer(val name: String, val lat: Double, val lng: Double, val plz: String? = null, val region: String? = null, val land: String? = null)
 
 /** Nominatim (OpenStreetMap): hoechstens 10 Treffer, wahrscheinlichste zuerst. Ehrlicher User-Agent ist Pflicht. */
 internal fun nominatim(frage: String, userAgent: String, sprache: String = Locale.getDefault().language): List<OrtTreffer> {
     val url = "https://nominatim.openstreetmap.org/search".toHttpUrl().newBuilder()
         .addQueryParameter("q", frage).addQueryParameter("format", "jsonv2").addQueryParameter("limit", "10")
-        .addQueryParameter("accept-language", sprache).build()
+        .addQueryParameter("accept-language", sprache).addQueryParameter("addressdetails", "1").build()
     val client = OkHttpClient.Builder().callTimeout(15, TimeUnit.SECONDS).build()
     client.newCall(Request.Builder().url(url).header("User-Agent", userAgent).build()).execute().use { antwort ->
         if (!antwort.isSuccessful) error("OpenStreetMap: HTTP ${antwort.code}")
@@ -82,13 +82,47 @@ internal fun nominatim(frage: String, userAgent: String, sprache: String = Local
             val lat = o["lat"]?.jsonPrimitive?.contentOrNull?.toDoubleOrNull()
             val lng = o["lon"]?.jsonPrimitive?.contentOrNull?.toDoubleOrNull()
             val name = o["display_name"]?.jsonPrimitive?.contentOrNull
-            if (lat == null || lng == null || name == null) null else OrtTreffer(name, lat, lng)
+            val adr = o["address"] as? kotlinx.serialization.json.JsonObject
+            fun a(k: String) = adr?.get(k)?.jsonPrimitive?.contentOrNull
+            if (lat == null || lng == null || name == null) null else OrtTreffer(name, lat, lng, a("postcode"), a("state"), a("country"))
         }
     }
 }
 
-/** "53,778417" oder "53.778417" -> 53.778417; leer -> null */
-internal fun grad(text: String): Double? = text.trim().replace(',', '.').takeIf { it.isNotEmpty() }?.toDoubleOrNull()
+/**
+ * Eine Koordinate als Zahl: dezimal ("53.778417", "53,778417", "-8.5") oder in Grad, Minuten, Sekunden
+ * ("53° 46′ 42,3″ N", "53 46 42.3", "N53.778"). Sueden und Westen (S, W, Süd, West) werden negativ. Leer -> null.
+ */
+internal fun grad(text: String): Double? {
+    val t = text.trim()
+    if (t.isEmpty()) return null
+    t.replace(',', '.').toDoubleOrNull()?.let { return it }
+    val zahlen = Regex("\\d+(?:[.,]\\d+)?").findAll(t).map { it.value.replace(',', '.').toDouble() }.toList()
+    if (zahlen.isEmpty() || zahlen.size > 3) return null
+    val wert = zahlen[0] + (zahlen.getOrNull(1) ?: 0.0) / 60 + (zahlen.getOrNull(2) ?: 0.0) / 3600
+    val sued = Regex("(?i)(^|[^a-zäöü])(s|w|z|süd|sued|zuid|west|south)([^a-zäöü]|$)").containsMatchIn(t)
+    return if (sued || t.startsWith("-")) -wert else wert
+}
+
+/**
+ * Breite und Laenge aus einem kopierten Text: "53.778417, 20.480111", "53,7784; 20,4801" oder wie in der Wikipedia
+ * "53° 46′ 42″ N, 20° 28′ 48″ O". Null, wenn es nicht genau zwei Koordinaten sind.
+ */
+internal fun koordinatenPaar(text: String): Pair<Double, Double>? {
+    val t = text.trim().replace('\n', ' ')
+    Regex("^\\s*(-?\\d+(?:\\.\\d+)?)\\s*[,;\\s]\\s*(-?\\d+(?:\\.\\d+)?)\\s*$").find(t)?.let { m ->
+        return m.groupValues[1].toDouble() to m.groupValues[2].toDouble()
+    }
+    Regex("^\\s*(-?\\d+(?:,\\d+)?)\\s*[;\\s]\\s*(-?\\d+(?:,\\d+)?)\\s*$").find(t)?.let { m ->
+        return m.groupValues[1].replace(',', '.').toDouble() to m.groupValues[2].replace(',', '.').toDouble()
+    }
+    // Grad/Minuten/Sekunden: nach der Himmelsrichtung der Breite (N oder S) teilen
+    val trenner = Regex("(?i)(^|[^a-zäöü])(n|s|z|nord|noord|süd|sued|zuid|north|south)([^a-zäöü]|$)").find(t) ?: return null
+    val ende = trenner.range.last + if (trenner.groupValues[3].isEmpty()) 1 else 0
+    val breite = grad(t.substring(0, ende)) ?: return null
+    val laenge = grad(t.substring(ende).trim().trimStart(',', ';').trim()) ?: return null
+    return if (breite in -90.0..90.0 && laenge in -180.0..180.0) breite to laenge else null
+}
 
 @Composable
 fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolean, openWeb: (String) -> Unit,
@@ -109,6 +143,11 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
     var mapData by remember { mutableStateOf(istAdmin) }
     var suche by remember { mutableStateOf<String?>(null) }
     var treffer by remember { mutableStateOf<List<OrtTreffer>?>(null) }
+    // Was ein Treffer uebernimmt: Koordinaten immer vorgeschlagen, die Anschrift nur, wenn dort noch nichts steht
+    var nimmKoord by remember { mutableStateOf(true) }
+    var nimmAdresse by remember { mutableStateOf(loc?.postalCode.isNullOrBlank() && loc?.region.isNullOrBlank() && loc?.country.isNullOrBlank()) }
+    var hinweis by remember { mutableStateOf<String?>(null) }
+    val keineInAblage = stringResource(Res.string.desk_place_clipboard_none)
     var sucht by remember { mutableStateOf(false) }
     var speichert by remember { mutableStateOf(false) }
     var fehler by remember { mutableStateOf<String?>(null) }
@@ -149,8 +188,16 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                     OutlinedTextField(lat, { lat = it }, Modifier.weight(1f), label = { Text(stringResource(Res.string.desk_place_lat)) }, singleLine = true, isError = !koordOk)
                     OutlinedTextField(lng, { lng = it }, Modifier.weight(1f), label = { Text(stringResource(Res.string.desk_place_lng)) }, singleLine = true, isError = !koordOk)
                 }
-                Text(stringResource(if (koordOk) Res.string.desk_place_coords_hint else Res.string.desk_place_invalid_coords), style = MaterialTheme.typography.bodySmall,
-                    color = if (koordOk) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(if (koordOk) Res.string.desk_place_coords_hint else Res.string.desk_place_invalid_coords), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall,
+                        color = if (koordOk) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error)
+                    TextButton(onClick = {
+                        val text = runCatching { java.awt.Toolkit.getDefaultToolkit().systemClipboard.getData(java.awt.datatransfer.DataFlavor.stringFlavor) as String }.getOrNull()
+                        val paar = text?.let(::koordinatenPaar)
+                        if (paar == null) hinweis = keineInAblage else { lat = dezimalEinzeln(paar.first); lng = dezimalEinzeln(paar.second); hinweis = null }
+                    }) { Text(stringResource(Res.string.desk_place_from_clipboard)) }
+                }
+                hinweis?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
                 if (b != null && l != null && koordOk) {
                     val zustand = remember { KartenZustand() }
                     BoxWithConstraints(Modifier.fillMaxWidth().height(180.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
@@ -172,6 +219,10 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                             Text(stringResource(Res.string.desk_place_search_button))
                         }
                     }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(nimmKoord, { nimmKoord = it }); Text(stringResource(Res.string.desk_place_take_coords), style = MaterialTheme.typography.bodySmall)
+                        Checkbox(nimmAdresse, { nimmAdresse = it }); Text(stringResource(Res.string.desk_place_take_address), style = MaterialTheme.typography.bodySmall)
+                    }
                     when {
                         sucht -> Text("…")
                         treffer?.isEmpty() == true -> Text(stringResource(Res.string.desk_place_search_none), color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -179,7 +230,10 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                             treffer.orEmpty().forEach { t ->
                                 val aktiv = grad(lat) == t.lat && grad(lng) == t.lng
                                 Row(Modifier.fillMaxWidth().background(if (aktiv) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface)
-                                    .fokusRahmen().clickable { lat = dezimalEinzeln(t.lat); lng = dezimalEinzeln(t.lng) }.padding(horizontal = 8.dp, vertical = 5.dp)) {
+                                    .fokusRahmen().clickable {
+                                        if (nimmKoord) { lat = dezimalEinzeln(t.lat); lng = dezimalEinzeln(t.lng) }
+                                        if (nimmAdresse) { t.plz?.let { plz = it }; t.region?.let { region = it }; t.land?.let { land = it } }
+                                    }.padding(horizontal = 8.dp, vertical = 5.dp)) {
                                     Text(t.name, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
                                     Text(stringResource(Res.string.desk_place_take), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                                 }

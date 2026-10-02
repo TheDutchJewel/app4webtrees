@@ -67,6 +67,8 @@ Ortsnamen in der Personentafel und im Personenblatt sind anklickbar, und hinter 
 
 Mit Bearbeitungsrecht schreibst du die Notiz direkt im Reiter **Notizen**, hängst im Reiter **Medien** Fotos und Dokumente an (Datei hochladen, vorhandenes Medium oder aus dem Archiv; **lösen** nimmt nur die Verknüpfung weg) und zitierst im Reiter **Quellen** eine Quelle für den Ort. Alles landet im Ortsdatensatz; gibt es noch keinen, legt wtWin ihn an. Das erste Foto am Ortsdatensatz wird zum Titelbild der Ortsseite.
 
+Koordinaten nimmt das Feld dezimal oder in Grad, Minuten, Sekunden an; **Aus Zwischenablage** übernimmt ein kopiertes Paar, etwa aus der Wikipedia. Bei **Koordinaten suchen …** legst du mit zwei Haken fest, ob ein Treffer die Koordinaten und/oder Postleitzahl, Region und Land übernimmt. Im Reiter **Koordinaten** öffnen Knöpfe den Ort in OpenStreetMap, Bing Maps oder Google Maps; **Karte zentrieren** holt ihn zurück in die Mitte. Im Reiter **Personen** zeigt der Mauszeiger Lebensdaten und Ereignisse; ein Doppelklick öffnet das Personenblatt.
+
 ## Bereiche: Start, Baum, Fotos
 
 - **Start** (Strg+1): Begrüßung, die nächsten Jahrestage, letzte Änderungen im Stammbaum, die Startperson. Moderatoren sehen hier ausstehende Änderungen und nehmen sie an oder verwerfen sie.

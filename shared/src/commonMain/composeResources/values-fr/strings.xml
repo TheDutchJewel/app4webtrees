@@ -1212,7 +1212,7 @@
     <string name="desk_place_edit">Modifier les données du lieu</string>
     <string name="desk_place_lat">Latitude</string>
     <string name="desk_place_lng">Longitude</string>
-    <string name="desk_place_coords_hint">Décimal, p. ex. 53.778417 – sud et ouest négatifs</string>
+    <string name="desk_place_coords_hint">Décimal (53.778417) ou degrés, minutes, secondes (53° 46′ 42″ N) – sud et ouest avec S/W ou négatifs</string>
     <string name="desk_place_search_coords">Rechercher les coordonnées …</string>
     <string name="desk_place_search_title">Recherche de coordonnées pour %1$s</string>
     <string name="desk_place_search_button">Rechercher</string>
@@ -1266,4 +1266,13 @@
     <string name="desk_place_postal">Code postal</string>
     <string name="desk_place_region">Région</string>
     <string name="desk_place_country">Pays</string>
+    <string name="desk_place_from_clipboard">Depuis le presse-papiers</string>
+    <string name="desk_place_clipboard_none">Le presse-papiers ne contient pas de coordonnées (p. ex. 53.778417, 20.480111 ou 53° 46′ 42″ N, 20° 28′ 48″ E).</string>
+    <string name="desk_place_take_coords">Reprendre les coordonnées</string>
+    <string name="desk_place_take_address">Reprendre code postal, région et pays</string>
+    <string name="desk_place_center">Centrer la carte</string>
+    <string name="desk_place_person_hint_sheet">Clic : sélectionner dans la fenêtre principale · double-clic : ouvrir la fiche</string>
+    <string name="desk_place_person_hint">Clic : sélectionner dans la fenêtre principale · double-clic : en faire la personne centrale</string>
+    <string name="desk_list_places_notes">Notes</string>
+    <string name="desk_list_places_sources">Sources</string>
 </resources>

@@ -100,7 +100,8 @@ internal fun namensliste(b: TreeExport, titel: String): List<Zeile> {
     }
 }
 
-internal fun ortsliste(b: TreeExport, titel: String, o: ListenOptionen, details: List<de.bgghome.webtrees.nativ.api.PlaceSummary>? = null): List<Zeile> {
+internal fun ortsliste(b: TreeExport, titel: String, o: ListenOptionen, details: List<de.bgghome.webtrees.nativ.api.PlaceSummary>? = null,
+                       daten: Map<String, de.bgghome.webtrees.nativ.api.LocationJson> = emptyMap()): List<Zeile> {
     // Ort (voller Name wie am Ereignis, gleichnamige Orte bleiben getrennt) -> Person -> Ereignisse dort
     class Treffer(val person: Person, val label: String, val jahr: Int)
     val orte = sortedMapOf<String, MutableList<Treffer>>(String.CASE_INSENSITIVE_ORDER)
@@ -119,6 +120,13 @@ internal fun ortsliste(b: TreeExport, titel: String, o: ListenOptionen, details:
     fun detailText(ort: String): String? = zusatz[ort.lowercase()]?.let { d ->
         listOfNotNull(d.gov?.let { "GOV $it" }, d.lat?.let { la -> d.lng?.let { lo -> dezimal(la, lo) } }).joinToString(" · ").ifBlank { null }
     }
+    // Notizen und Quellen vom Ortsdatensatz, je eine eingerueckte Zeile
+    val quelleWort = Texte.t(Res.string.desk_book_source)
+    fun ortsZusatz(ort: String, einzug: Int): List<Zeile> {
+        val l = daten[ort.lowercase()] ?: return emptyList()
+        return (if (o.ortsNotizen) l.notes.map { Zeile(it, einzug = einzug) } else emptyList()) +
+            (if (o.ortsQuellen) l.sources.map { q -> Zeile("$quelleWort: " + listOfNotNull(q.title ?: q.xref, q.page).joinToString(", "), einzug = einzug) } else emptyList())
+    }
     return buildList {
         add(Zeile(Texte.t(Res.string.desk_title_places, titel), gross = true))
         add(Zeile(Texte.t(Res.string.desk_list_count_places, orte.size)))
@@ -130,6 +138,7 @@ internal fun ortsliste(b: TreeExport, titel: String, o: ListenOptionen, details:
                 orte.forEach { (ort, t) ->
                     add(Zeile("", spalten = listOf(ort, "${t.size}", "${t.map { it.person.xref }.toSet().size}", zeitraum(t.map { it.jahr })), anteile = anteile))
                     detailText(ort)?.let { add(Zeile(it, einzug = 1)) }
+                    addAll(ortsZusatz(ort, 1))
                 }
             }
             OrtslistenArt.Familiennamen -> {
@@ -138,6 +147,7 @@ internal fun ortsliste(b: TreeExport, titel: String, o: ListenOptionen, details:
                 orte.forEach { (ort, t) ->
                     add(Zeile("")); add(Zeile(ort, fett = true))
                     detailText(ort)?.let { add(Zeile(it)) }
+                    addAll(ortsZusatz(ort, 0))
                     t.groupBy { it.person.surname.ifBlank { "?" } }.toSortedMap(String.CASE_INSENSITIVE_ORDER).forEach { (name, e) ->
                         add(Zeile("", spalten = listOf("", name, "${e.map { it.person.xref }.toSet().size}", zeitraum(e.map { it.jahr })), anteile = anteile))
                     }
@@ -147,6 +157,7 @@ internal fun ortsliste(b: TreeExport, titel: String, o: ListenOptionen, details:
                 orte.forEach { (ort, t) ->
                     add(Zeile("")); add(Zeile(ort, fett = true))
                     detailText(ort)?.let { add(Zeile(it)) }
+                    addAll(ortsZusatz(ort, 0))
                     t.groupBy { it.person.xref }.values.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { registerName(it.first().person) }).forEach { e ->
                         val p = e.first().person
                         // Als Textzeile, damit viele Ereignisse umbrechen statt kleiner zu werden
