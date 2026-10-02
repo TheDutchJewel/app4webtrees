@@ -481,7 +481,8 @@ private fun FrameWindowScope.DeskMenuBar(
 internal fun Ziehgriff(onZiehen: (Float) -> Unit, onEnde: () -> Unit) {
     Box(
         Modifier.fillMaxHeight().width(7.dp)
-            .pointerHoverIcon(PointerIcon.Hand)
+            // Pfeil links-rechts wie an Fenstergrenzen, keine Hand - hier wird verschoben, nicht geklickt
+            .pointerHoverIcon(PointerIcon(java.awt.Cursor(java.awt.Cursor.E_RESIZE_CURSOR)))
             .pointerInput(Unit) { detectHorizontalDragGestures(onDragEnd = onEnde, onDragCancel = onEnde) { _, dx -> onZiehen(dx) } },
         contentAlignment = Alignment.Center,
     ) { VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant) }
