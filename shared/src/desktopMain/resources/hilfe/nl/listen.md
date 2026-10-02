@@ -16,7 +16,7 @@ Open het venster **Lijst maken** via **Maken › Voorouderlijst**, **Nakomelinge
 
 - **Gebeurtenissenlijst:** geboorten en overlijdens van alle zichtbare personen in datumvolgorde; desgewenst als **gedenkdagenkalender** op maand en dag, met plaatsfilter, bijv. voor de familienieuwsbrief.
 - **Achternamen:** alle achternamen met aantal, periode en de meest voorkomende plaatsen.
-- **Plaatsen:** alle plaatsen met de achternamen die er voorkomen en de periode.
+- **Plaatsen:** alle plaatsen zoals ze bij de gebeurtenissen staan – **alleen plaatsen** (gebeurtenissen, personen, periode), **met familienamen** of **met personen** en hun gebeurtenissen daar. **Plaatsdetails** voegt GOV-code en coördinaten uit het plaatsenbeheer toe.
 - **Gezinnen:** alle huwelijken met trouwdatum en aantal kinderen, alfabetisch of chronologisch.
 - **Gedocumenteerd met bronnen:** hoe goed de stamboom met bronnen is onderbouwd – personen en gebeurtenissen met een bron in procenten, foto's, per soort gebeurtenis, en wie nog helemaal geen bron heeft.
 - **Beroepen en religies:** wie welk beroep had of tot welke religie behoorde.

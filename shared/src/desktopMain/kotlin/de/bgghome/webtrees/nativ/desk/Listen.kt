@@ -68,6 +68,9 @@ enum class ListenArt { Ahnen, Spitzenahnen, Stammlinie, Mutterstamm, Ahnenwertun
 
 enum class Nummerierung { Saragossa, Aboville, Henry, Fortlaufend }
 
+/** Ortsliste: nur die Orte mit Zahlen, je Ort die Familiennamen, oder je Ort die Personen mit ihren Ereignissen dort. */
+enum class OrtslistenArt { NurOrte, Familiennamen, Personen }
+
 data class ListenOptionen(
     val generationen: Int = 6,
     val orte: Boolean = true,
@@ -83,6 +86,9 @@ data class ListenOptionen(
     val ortFilter: String = "",
     val fakt: String = "OCCU",
     val chronologisch: Boolean = false,
+    val ortsArt: OrtslistenArt = OrtslistenArt.Familiennamen,
+    /** Ortsliste: GOV-Kennung und Koordinaten je Ort (aus der Ortsverwaltung, ab API-Stufe 21). */
+    val ortsDetails: Boolean = false,
 )
 
 private val vorfahrenArten = setOf(ListenArt.Ahnen, ListenArt.Spitzenahnen, ListenArt.Stammlinie, ListenArt.Mutterstamm, ListenArt.Ahnenwertung)
@@ -294,7 +300,9 @@ suspend fun listenZeilen(art: ListenArt, client: WtClient, tree: String, treeTit
     // Mit Export (Stufe 17) alle Ereignisse und Filter, sonst wie bisher Geburten und Todesfaelle aus der Personenliste
     ListenArt.Ereignisse -> BaumSpeicher.holen(client, tree, Int.MAX_VALUE / 64)?.let { ereignislisteBaum(it, treeTitle, o) } ?: ereignisliste(client, tree, treeTitle)
     ListenArt.Namen -> namensliste(ganzerBaum(client, tree), treeTitle)
-    ListenArt.Orte -> ortsliste(ganzerBaum(client, tree), treeTitle, o)
+    ListenArt.Orte -> ortsliste(ganzerBaum(client, tree), treeTitle, o,
+        // Ortsdetails aus der Ortsverwaltung; kennt der Server sie nicht, eben ohne
+        if (o.ortsDetails) runCatching { client.placeList(tree).places }.getOrNull() else null)
     ListenArt.Familien -> familienliste(ganzerBaum(client, tree), treeTitle, o)
     ListenArt.Fakten -> faktenliste(ganzerBaum(client, tree), treeTitle, o)
     ListenArt.Taufpaten -> taufpaten(ganzerBaum(client, tree), treeTitle, o)
@@ -339,12 +347,15 @@ private object ListenWahl {
         ereignisse = prefs.getString(k(art, "ev"), null)?.split(',')?.filter(String::isNotBlank)?.toSet() ?: setOf("BIRT", "MARR", "DEAT"),
         kalender = prefs.getBoolean(k(art, "kal"), false), ortFilter = prefs.getString(k(art, "ort"), null).orEmpty(),
         fakt = prefs.getString(k(art, "fakt"), null) ?: "OCCU", chronologisch = prefs.getBoolean(k(art, "chrono"), false),
+        ortsArt = OrtslistenArt.entries.firstOrNull { it.name == prefs.getString(k(art, "ortsart"), null) } ?: OrtslistenArt.Familiennamen,
+        ortsDetails = prefs.getBoolean(k(art, "ortsdetails"), false),
     )
     fun sichern(art: ListenArt, o: ListenOptionen) {
         prefs.putString(k(art, "gen"), o.generationen.toString()); prefs.putBoolean(k(art, "orte"), o.orte); prefs.putBoolean(k(art, "voll"), o.volleDaten)
         prefs.putBoolean(k(art, "partner"), o.partner); prefs.putBoolean(k(art, "namen"), o.namenstraeger); prefs.putString(k(art, "nr"), o.nummerierung.name)
         prefs.putString(k(art, "ev"), o.ereignisse.joinToString(",")); prefs.putBoolean(k(art, "kal"), o.kalender); prefs.putString(k(art, "ort"), o.ortFilter)
         prefs.putString(k(art, "fakt"), o.fakt); prefs.putBoolean(k(art, "chrono"), o.chronologisch)
+        prefs.putString(k(art, "ortsart"), o.ortsArt.name); prefs.putBoolean(k(art, "ortsdetails"), o.ortsDetails)
     }
 }
 
@@ -423,6 +434,15 @@ fun ListenFenster(start: ListenArt, state: UiState, viewModel: AppViewModel, onC
                             Haken(stringResource(name), tag in o.ereignisse) { an -> o = o.copy(ereignisse = if (an) o.ereignisse + tag else o.ereignisse - tag) }
                         }
                         Haken(stringResource(Res.string.desk_list_calendar), o.kalender, stringResource(Res.string.tipp_calendar)) { o = o.copy(kalender = it) }
+                    }
+                    if (art == ListenArt.Orte) {
+                        val arten = listOf(OrtslistenArt.NurOrte to stringResource(Res.string.desk_list_places_only),
+                            OrtslistenArt.Familiennamen to stringResource(Res.string.desk_list_places_surnames),
+                            OrtslistenArt.Personen to stringResource(Res.string.desk_list_places_persons))
+                        Einstellung(stringResource(Res.string.desk_list_places_kind)) {
+                            Auswahl(arten.first { it.first == o.ortsArt }.second, arten.map { it.second }) { w -> o = o.copy(ortsArt = arten.first { it.second == w }.first) }
+                        }
+                        Haken(stringResource(Res.string.desk_list_places_details), o.ortsDetails, stringResource(Res.string.tipp_place_details)) { o = o.copy(ortsDetails = it) }
                     }
                     if (art == ListenArt.Familien) Haken(stringResource(Res.string.desk_book_sort_chrono), o.chronologisch) { o = o.copy(chronologisch = it) }
                     if (art == ListenArt.Fakten) Einstellung(stringResource(Res.string.desk_list_fact)) {

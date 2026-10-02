@@ -366,7 +366,7 @@
     <string name="desk_list_names">Noms de famille</string>
     <string name="desk_list_names_hint">Tous les noms de famille avec leur nombre, la période et les lieux les plus fréquents.</string>
     <string name="desk_list_places">Lieux</string>
-    <string name="desk_list_places_hint">Tous les lieux avec les noms de famille qu’on y trouve et la période.</string>
+    <string name="desk_list_places_hint">Tous les lieux – avec les seuls chiffres, avec les noms de famille qui y figurent ou avec les personnes et leurs événements.</string>
     <string name="desk_list_families">Familles</string>
     <string name="desk_list_families_hint">Tous les mariages avec la date et le nombre d’enfants, par ordre alphabétique ou chronologique.</string>
     <string name="desk_list_facts">Professions et religions</string>
@@ -1238,4 +1238,10 @@
     <string name="desk_place_merge_do">Fusionner</string>
     <string name="desk_place_renamed">Terminé : %1$d événements modifiés.</string>
     <string name="desk_place_open">Ouvrir le lieu dans la gestion des lieux</string>
+    <string name="desk_list_places_kind">Liste</string>
+    <string name="desk_list_places_only">Lieux seulement</string>
+    <string name="desk_list_places_surnames">Avec les noms de famille</string>
+    <string name="desk_list_places_persons">Avec les personnes</string>
+    <string name="desk_list_places_details">Détails des lieux</string>
+    <string name="tipp_place_details">Identifiant GOV et coordonnées de chaque lieu depuis la gestion des lieux (serveur à partir du niveau d’API 21).</string>
 </resources>

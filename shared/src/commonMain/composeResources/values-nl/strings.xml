@@ -358,7 +358,7 @@
     <string name="desk_list_names">Achternamen</string>
     <string name="desk_list_names_hint">Alle achternamen met aantal, periode en de meest voorkomende plaatsen.</string>
     <string name="desk_list_places">Plaatsen</string>
-    <string name="desk_list_places_hint">Alle plaatsen met de achternamen die er voorkomen en de periode.</string>
+    <string name="desk_list_places_hint">Alle plaatsen – alleen met aantallen, met de familienamen die er voorkomen of met de personen en hun gebeurtenissen.</string>
     <string name="desk_list_families">Gezinnen</string>
     <string name="desk_list_families_hint">Alle huwelijken met datum en aantal kinderen, alfabetisch of chronologisch.</string>
     <string name="desk_list_facts">Beroepen en religies</string>
@@ -1219,4 +1219,10 @@
     <string name="desk_place_merge_do">Samenvoegen</string>
     <string name="desk_place_renamed">Klaar: %1$d gebeurtenissen gewijzigd.</string>
     <string name="desk_place_open">Plaats openen in het plaatsenbeheer</string>
+    <string name="desk_list_places_kind">Lijst</string>
+    <string name="desk_list_places_only">Alleen plaatsen</string>
+    <string name="desk_list_places_surnames">Met familienamen</string>
+    <string name="desk_list_places_persons">Met personen</string>
+    <string name="desk_list_places_details">Plaatsdetails</string>
+    <string name="tipp_place_details">GOV-code en coördinaten per plaats uit het plaatsenbeheer (server vanaf API-niveau 21).</string>
 </resources>

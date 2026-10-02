@@ -366,7 +366,7 @@
     <string name="desk_list_names">Apellidos</string>
     <string name="desk_list_names_hint">Todos los apellidos con su número, período y los lugares más frecuentes.</string>
     <string name="desk_list_places">Lugares</string>
-    <string name="desk_list_places_hint">Todos los lugares con los apellidos que aparecen en ellos y el período.</string>
+    <string name="desk_list_places_hint">Todos los lugares: solo con cifras, con los apellidos que aparecen allí o con las personas y sus eventos.</string>
     <string name="desk_list_families">Familias</string>
     <string name="desk_list_families_hint">Todos los matrimonios con fecha y número de hijos, en orden alfabético o cronológico.</string>
     <string name="desk_list_facts">Profesiones y religiones</string>
@@ -1238,4 +1238,10 @@
     <string name="desk_place_merge_do">Fusionar</string>
     <string name="desk_place_renamed">Hecho: %1$d eventos cambiados.</string>
     <string name="desk_place_open">Abrir el lugar en el gestor de lugares</string>
+    <string name="desk_list_places_kind">Lista</string>
+    <string name="desk_list_places_only">Solo lugares</string>
+    <string name="desk_list_places_surnames">Con apellidos</string>
+    <string name="desk_list_places_persons">Con personas</string>
+    <string name="desk_list_places_details">Detalles de lugares</string>
+    <string name="tipp_place_details">Identificador GOV y coordenadas de cada lugar del gestor de lugares (servidor desde el nivel de API 21).</string>
 </resources>

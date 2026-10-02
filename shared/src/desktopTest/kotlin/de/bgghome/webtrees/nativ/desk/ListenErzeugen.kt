@@ -38,13 +38,16 @@ class ListenErzeugen {
         (System.getenv("WT_LISTEN") ?: "Ahnen:I1:6").split(' ').filter(String::isNotBlank).forEach { auftrag ->
             val t = auftrag.split(':')
             val art = ListenArt.valueOf(t[0])
-            // Art:Xref:Generationen[:Nummerierung] oder fuer Baumlisten Art:-:-:Schalter (kal, chrono, RELI, ort=Celle, ev=BIRT+CHR)
+            // Art:Xref:Generationen[:Nummerierung] oder fuer Baumlisten Art:-:-:Schalter (kal, chrono, RELI, ort=Celle, ev=BIRT+CHR,
+            // Ortsliste: nurorte, personen, details)
             val schalter = t.getOrNull(3)?.split(',').orEmpty()
             val o = ListenOptionen(generationen = t.getOrNull(2)?.toIntOrNull() ?: 6,
                 nummerierung = t.getOrNull(3)?.let { runCatching { Nummerierung.valueOf(it) }.getOrNull() } ?: Nummerierung.Saragossa,
                 kalender = "kal" in schalter, chronologisch = "chrono" in schalter, fakt = if ("RELI" in schalter) "RELI" else "OCCU",
                 ortFilter = schalter.firstOrNull { it.startsWith("ort=") }?.substringAfter('=').orEmpty(),
-                ereignisse = schalter.firstOrNull { it.startsWith("ev=") }?.substringAfter('=')?.split('+')?.toSet() ?: setOf("BIRT", "MARR", "DEAT"))
+                ereignisse = schalter.firstOrNull { it.startsWith("ev=") }?.substringAfter('=')?.split('+')?.toSet() ?: setOf("BIRT", "MARR", "DEAT"),
+                ortsArt = when { "nurorte" in schalter -> OrtslistenArt.NurOrte; "personen" in schalter -> OrtslistenArt.Personen; else -> OrtslistenArt.Familiennamen },
+                ortsDetails = "details" in schalter)
             val zeilen = runBlocking { listenZeilen(art, client, baum, titel, t[1], o) }
             val bytes = ByteArrayOutputStream().also { out -> listenPdf(zeilen, "wtTux", titel).use { it.save(out) } }.toByteArray()
             val name = "liste-" + auftrag.replace(':', '-').lowercase()

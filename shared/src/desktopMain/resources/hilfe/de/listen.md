@@ -16,7 +16,7 @@ Das Fenster **Liste erstellen** öffnest du über **Erstellen › Ahnenliste**, 
 
 - **Ereignisliste:** Geburten und Todesfälle aller sichtbaren Personen, zeitlich geordnet; wahlweise als **Jahrestagskalender** nach Monat und Tag, mit Ortsfilter, etwa für die Familienzeitung.
 - **Namensliste:** alle Familiennamen mit Anzahl, Zeitraum und den häufigsten Orten.
-- **Ortsliste:** alle Orte mit den Familiennamen, die dort vorkommen, und dem Zeitraum.
+- **Ortsliste:** alle Orte, wie sie an den Ereignissen stehen – **nur Orte** (Ereignisse, Personen, Zeitraum), **mit Familiennamen** oder **mit Personen** und ihren Ereignissen dort. **Ortsdetails** fügt GOV-Kennung und Koordinaten aus der Ortsverwaltung hinzu.
 - **Familienliste:** alle Ehen mit Heirat und Kinderzahl, alphabetisch oder chronologisch.
 - **Berufe und Konfessionen:** wer welchen Beruf hatte bzw. welcher Konfession angehörte.
 - **Belegt durch Quellen:** wie gut der Stammbaum belegt ist – Personen und Ereignisse mit Quelle in Prozent, Fotos, je Ereignisart, und wer noch ganz ohne Quelle ist. Der Vergleichswert unter Forschern.

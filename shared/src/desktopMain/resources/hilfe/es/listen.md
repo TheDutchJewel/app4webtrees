@@ -16,7 +16,7 @@ La ventana **Crear lista** se abre con **Crear › Lista de antepasados**, **Lis
 
 - **Lista de eventos:** nacimientos y defunciones de todas las personas visibles en orden cronológico; opcionalmente como **calendario de aniversarios** por mes y día, con filtro de lugar, p. ej. para la circular familiar.
 - **Apellidos:** todos los apellidos con su número, período y los lugares más frecuentes.
-- **Lugares:** todos los lugares con los apellidos que aparecen en ellos y el período.
+- **Lugares:** todos los lugares tal como figuran en los eventos: **solo lugares** (eventos, personas, período), **con apellidos** o **con personas** y sus eventos allí. **Detalles de lugares** añade el identificador GOV y las coordenadas del gestor de lugares.
 - **Familias:** todos los matrimonios con la boda y el número de hijos, por orden alfabético o cronológico.
 - **Documentación con fuentes:** lo bien documentado que está el árbol: personas y eventos con fuente en porcentaje, fotos, por tipo de evento, y quién no tiene todavía ninguna fuente.
 - **Profesiones y religiones:** quién tuvo qué profesión o perteneció a qué religión.

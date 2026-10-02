@@ -16,7 +16,7 @@ Ouvrez la fenêtre **Créer une liste** par **Créer › Liste d'ascendance**, *
 
 - **Liste des événements :** naissances et décès de toutes les personnes visibles par ordre de date ; en option comme **calendrier des anniversaires** par mois et jour, avec un filtre de lieu, p. ex. pour la lettre de famille.
 - **Noms de famille :** tous les noms de famille avec leur nombre, la période et les lieux les plus fréquents.
-- **Lieux :** tous les lieux avec les noms de famille qu'on y trouve et la période.
+- **Lieux :** tous les lieux tels qu’ils figurent dans les événements – **lieux seulement** (événements, personnes, période), **avec les noms de famille** ou **avec les personnes** et leurs événements à cet endroit. **Détails des lieux** ajoute l’identifiant GOV et les coordonnées de la gestion des lieux.
 - **Familles :** tous les mariages avec la noce et le nombre d'enfants, par ordre alphabétique ou chronologique.
 - **Sources renseignées :** dans quelle mesure l'arbre est sourcé – individus et événements avec une source en pourcentage, photos, par type d'événement, et qui n'a encore aucune source.
 - **Professions et religions :** qui exerçait quelle profession ou appartenait à quelle religion.

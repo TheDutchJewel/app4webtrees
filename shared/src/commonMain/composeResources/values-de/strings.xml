@@ -366,7 +366,7 @@
     <string name="desk_list_names">Namensliste</string>
     <string name="desk_list_names_hint">Alle Familiennamen mit Anzahl, Zeitraum und den häufigsten Orten.</string>
     <string name="desk_list_places">Ortsliste</string>
-    <string name="desk_list_places_hint">Alle Orte mit den Familiennamen, die dort vorkommen, und dem Zeitraum.</string>
+    <string name="desk_list_places_hint">Alle Orte – nur mit Zahlen, mit den Familiennamen, die dort vorkommen, oder mit den Personen und ihren Ereignissen.</string>
     <string name="desk_list_families">Familienliste</string>
     <string name="desk_list_families_hint">Alle Ehen mit Heirat und Kinderzahl, alphabetisch oder chronologisch.</string>
     <string name="desk_list_facts">Berufe und Konfessionen</string>
@@ -1238,4 +1238,10 @@
     <string name="desk_place_merge_do">Zusammenführen</string>
     <string name="desk_place_renamed">Erledigt: %1$d Ereignisse geändert.</string>
     <string name="desk_place_open">Ort in der Ortsverwaltung öffnen</string>
+    <string name="desk_list_places_kind">Liste</string>
+    <string name="desk_list_places_only">Nur Orte</string>
+    <string name="desk_list_places_surnames">Mit Familiennamen</string>
+    <string name="desk_list_places_persons">Mit Personen</string>
+    <string name="desk_list_places_details">Ortsdetails</string>
+    <string name="tipp_place_details">GOV-Kennung und Koordinaten je Ort aus der Ortsverwaltung (Server ab API-Stufe 21).</string>
 </resources>

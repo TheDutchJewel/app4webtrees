@@ -371,7 +371,7 @@
     <string name="desk_list_names">Surnames</string>
     <string name="desk_list_names_hint">All surnames with count, period and the most frequent places.</string>
     <string name="desk_list_places">Places</string>
-    <string name="desk_list_places_hint">All places with the surnames found there and the period.</string>
+    <string name="desk_list_places_hint">All places – only with counts, with the surnames found there, or with the individuals and their events.</string>
     <string name="desk_list_families">Families</string>
     <string name="desk_list_families_hint">All marriages with date and number of children, alphabetical or chronological.</string>
     <string name="desk_list_facts">Occupations and religions</string>
@@ -1243,4 +1243,10 @@
     <string name="desk_place_merge_do">Merge</string>
     <string name="desk_place_renamed">Done: %1$d events changed.</string>
     <string name="desk_place_open">Open the place in the place manager</string>
+    <string name="desk_list_places_kind">List</string>
+    <string name="desk_list_places_only">Places only</string>
+    <string name="desk_list_places_surnames">With surnames</string>
+    <string name="desk_list_places_persons">With individuals</string>
+    <string name="desk_list_places_details">Place details</string>
+    <string name="tipp_place_details">GOV identifier and coordinates of each place from the place manager (server with API level 21 or later).</string>
 </resources>

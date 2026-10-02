@@ -16,7 +16,7 @@ Open the **Create list** window via **Create › Ancestor list**, **Descendant l
 
 - **Event list:** births and deaths of all visible persons in date order; optionally as an **anniversary calendar** by month and day, with a place filter, e.g. for the family newsletter.
 - **Surname list:** all surnames with count, period and the most frequent places.
-- **Place list:** all places with the surnames occurring there and the period.
+- **Place list:** all places as written at the events – **places only** (events, individuals, period), **with surnames** or **with individuals** and their events there. **Place details** adds GOV identifier and coordinates from the place manager.
 - **Family list:** all marriages with wedding and number of children, alphabetical or chronological.
 - **Sourced:** how well the tree is sourced – individuals and events with a source in percent, photos, per event type, and who has no source at all yet.
 - **Occupations and religions:** who had which occupation or belonged to which religion.

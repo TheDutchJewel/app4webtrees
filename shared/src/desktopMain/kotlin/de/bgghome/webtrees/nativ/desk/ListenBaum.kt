@@ -100,28 +100,60 @@ internal fun namensliste(b: TreeExport, titel: String): List<Zeile> {
     }
 }
 
-internal fun ortsliste(b: TreeExport, titel: String, o: ListenOptionen): List<Zeile> {
-    // Ort -> Nachname -> (Personen, Jahre der Ereignisse dort)
-    val orte = sortedMapOf<String, MutableMap<String, Pair<MutableSet<String>, MutableList<Int>>>>(String.CASE_INSENSITIVE_ORDER)
-    b.individuals.values.filter { !it.person.isPrivate }.forEach { i ->
-        i.facts.filter { it.place != null && ortPasst(it.place?.name, o.ortFilter) }.forEach { f ->
-            val ort = ersterOrt(f.place?.name).ifBlank { return@forEach }
-            val e = orte.getOrPut(ort) { sortedMapOf(String.CASE_INSENSITIVE_ORDER) }.getOrPut(i.person.surname.ifBlank { "?" }) { mutableSetOf<String>() to mutableListOf() }
-            e.first += i.person.xref; e.second += (f.date?.year ?: 0)
-        }
+internal fun ortsliste(b: TreeExport, titel: String, o: ListenOptionen, details: List<de.bgghome.webtrees.nativ.api.PlaceSummary>? = null): List<Zeile> {
+    // Ort (voller Name wie am Ereignis, gleichnamige Orte bleiben getrennt) -> Person -> Ereignisse dort
+    class Treffer(val person: Person, val label: String, val jahr: Int)
+    val orte = sortedMapOf<String, MutableList<Treffer>>(String.CASE_INSENSITIVE_ORDER)
+    fun merken(p: Person?, f: FactJson) {
+        if (p == null || p.isPrivate) return
+        val ort = f.place?.name?.trim().orEmpty().ifBlank { return }
+        if (!ortPasst(ort, o.ortFilter)) return
+        orte.getOrPut(ort) { mutableListOf() } += Treffer(p, f.label, f.date?.year ?: 0)
     }
-    val anteile = listOf(0.06f, 0.40f, 0.20f, 0.34f)
+    b.individuals.values.forEach { i -> i.facts.forEach { merken(i.person, it) } }
+    // Heiraten und andere Familienereignisse zaehlen fuer beide Partner
+    b.families.values.filter { !it.isPrivate }.forEach { fam -> fam.facts.forEach { f -> merken(b.person(fam.husband), f); merken(b.person(fam.wife), f) } }
+
+    val zusatz = details?.associateBy { it.name.lowercase() }.orEmpty()
+    fun zeitraum(j: List<Int>) = j.filter { it > 0 }.let { if (it.isEmpty()) "" else if (it.min() == it.max()) "${it.min()}" else "${it.min()}–${it.max()}" }
+    fun detailText(ort: String): String? = zusatz[ort.lowercase()]?.let { d ->
+        listOfNotNull(d.gov?.let { "GOV $it" }, d.lat?.let { la -> d.lng?.let { lo -> dezimal(la, lo) } }).joinToString(" · ").ifBlank { null }
+    }
     return buildList {
         add(Zeile(Texte.t(Res.string.desk_title_places, titel), gross = true))
         add(Zeile(Texte.t(Res.string.desk_list_count_places, orte.size)))
         add(Zeile(""))
-        add(Zeile("", spalten = listOf("", Texte.t(Res.string.desk_col_surname), Texte.t(Res.string.desk_col_persons), Texte.t(Res.string.desk_col_period)), anteile = anteile, fett = true))
-        orte.forEach { (ort, namen) ->
-            add(Zeile("")); add(Zeile(ort, fett = true))
-            namen.forEach { (name, e) ->
-                val j = e.second.filter { it > 0 }
-                val zeit = if (j.isEmpty()) "" else if (j.min() == j.max()) "${j.min()}" else "${j.min()}–${j.max()}"
-                add(Zeile("", spalten = listOf("", name, "${e.first.size}", zeit), anteile = anteile))
+        when (o.ortsArt) {
+            OrtslistenArt.NurOrte -> {
+                val anteile = listOf(0.62f, 0.12f, 0.11f, 0.15f)
+                add(Zeile("", spalten = listOf("", Texte.t(Res.string.desk_place_events), Texte.t(Res.string.desk_col_persons), Texte.t(Res.string.desk_col_period)), anteile = anteile, fett = true))
+                orte.forEach { (ort, t) ->
+                    add(Zeile("", spalten = listOf(ort, "${t.size}", "${t.map { it.person.xref }.toSet().size}", zeitraum(t.map { it.jahr })), anteile = anteile))
+                    detailText(ort)?.let { add(Zeile(it, einzug = 1)) }
+                }
+            }
+            OrtslistenArt.Familiennamen -> {
+                val anteile = listOf(0.06f, 0.40f, 0.20f, 0.34f)
+                add(Zeile("", spalten = listOf("", Texte.t(Res.string.desk_col_surname), Texte.t(Res.string.desk_col_persons), Texte.t(Res.string.desk_col_period)), anteile = anteile, fett = true))
+                orte.forEach { (ort, t) ->
+                    add(Zeile("")); add(Zeile(ort, fett = true))
+                    detailText(ort)?.let { add(Zeile(it)) }
+                    t.groupBy { it.person.surname.ifBlank { "?" } }.toSortedMap(String.CASE_INSENSITIVE_ORDER).forEach { (name, e) ->
+                        add(Zeile("", spalten = listOf("", name, "${e.map { it.person.xref }.toSet().size}", zeitraum(e.map { it.jahr })), anteile = anteile))
+                    }
+                }
+            }
+            OrtslistenArt.Personen -> {
+                orte.forEach { (ort, t) ->
+                    add(Zeile("")); add(Zeile(ort, fett = true))
+                    detailText(ort)?.let { add(Zeile(it)) }
+                    t.groupBy { it.person.xref }.values.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { registerName(it.first().person) }).forEach { e ->
+                        val p = e.first().person
+                        // Als Textzeile, damit viele Ereignisse umbrechen statt kleiner zu werden
+                        add(Zeile("${registerName(p)} (${leben(p)}): " +
+                            e.joinToString(", ") { listOf(it.label, if (it.jahr > 0) "${it.jahr}" else "").filter(String::isNotBlank).joinToString(" ") }, einzug = 1))
+                    }
+                }
             }
         }
     }
