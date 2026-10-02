@@ -301,6 +301,9 @@ data class PlaceRequest(
     val mapData: Boolean = false,
     /** Die verknuepften Medienobjekte (Kennungen); ersetzt die Liste. null = nicht anfassen. */
     val media: List<String>? = null,
+    val postalCode: String? = null,
+    val region: String? = null,
+    val country: String? = null,
 )
 
 /** Ein Ort der Ortsliste - der PLAC-Text, wie er an sichtbaren Ereignissen steht. */
@@ -362,6 +365,9 @@ data class LocationJson(
     val xref: String,
     val name: String = "",
     val gov: String? = null,
+    val postalCode: String? = null,
+    val region: String? = null,
+    val country: String? = null,
     val lat: Double? = null,
     val lng: Double? = null,
     val notes: List<String> = emptyList(),

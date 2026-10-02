@@ -1263,4 +1263,7 @@
     <string name="desk_place_loading">Lädt aus GOV und Wikimedia …</string>
     <string name="desk_place_external_note">Ortsname und GOV-Kennung gehen an gov.genealogy.net und Wikimedia; die Antworten bleiben 7 Tage auf diesem PC.</string>
     <string name="desk_place_search_suffix">Suche</string>
+    <string name="desk_place_postal">Postleitzahl</string>
+    <string name="desk_place_region">Bundesland/Region</string>
+    <string name="desk_place_country">Land</string>
 </resources>

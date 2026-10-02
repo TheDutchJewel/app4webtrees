@@ -1244,4 +1244,7 @@
     <string name="desk_place_loading">Laden uit GOV en Wikimedia …</string>
     <string name="desk_place_external_note">Plaatsnaam en GOV-code gaan naar gov.genealogy.net en Wikimedia; de antwoorden blijven 7 dagen op deze pc.</string>
     <string name="desk_place_search_suffix">zoeken</string>
+    <string name="desk_place_postal">Postcode</string>
+    <string name="desk_place_region">Provincie/regio</string>
+    <string name="desk_place_country">Land</string>
 </resources>

@@ -306,7 +306,7 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
                 OrtReiter.Personen -> Rollbar { Personen(o, viewModel) }
                 OrtReiter.Daten -> Rollbar { Daten(o, onWahl, openWeb, viewModel?.client?.userAgent) }
                 OrtReiter.Notizen -> Rollbar { OrtNotizen(o, pflege) }
-                OrtReiter.Quellen -> Rollbar { OrtQuellen(o, pflege) }
+                OrtReiter.Quellen -> Rollbar { OrtQuellen(o, pflege, openWeb) }
                 OrtReiter.Medien -> Rollbar { OrtMedien(o, pflege, openWeb) }
                 OrtReiter.Koordinaten -> Koordinaten(o, openWeb)
             }
@@ -389,6 +389,9 @@ private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) ->
         if (loc == null) Text(stringResource(Res.string.desk_place_no_record), style = MaterialTheme.typography.bodyMedium, color = farben.onSurfaceVariant)
         else Text(listOf(loc.name, loc.xref).filter(String::isNotBlank).joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
     }
+    // Postleitzahl, Region, Land - so wie andere Programme sie am Ortsdatensatz ablegen
+    listOf(Res.string.desk_place_postal to loc?.postalCode, Res.string.desk_place_region to loc?.region, Res.string.desk_place_country to loc?.country)
+        .forEach { (label, wert) -> if (!wert.isNullOrBlank()) Zeile(label) { SelectionContainer { Text(wert, style = MaterialTheme.typography.bodyMedium) } } }
     loc?.gov?.let { gov ->
         Zeile(Res.string.desk_place_gov) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -694,12 +697,19 @@ private fun OrtNotizen(o: PlaceDetail, pflege: OrtPflege?) {
 
 /** Quellen am Ortsdatensatz; mit Bearbeitungsrecht "Quelle zitieren" (allgemeiner Verweis am _LOC). */
 @Composable
-private fun OrtQuellen(o: PlaceDetail, pflege: OrtPflege?) {
+private fun OrtQuellen(o: PlaceDetail, pflege: OrtPflege?, openWeb: ((String) -> Unit)? = null) {
     val q = o.location?.sources.orEmpty()
     if (q.isEmpty() && pflege == null) Leer()
     q.forEach { s ->
-        Row { Text(s.title ?: s.xref.orEmpty(), Modifier.width(360.dp), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-            Text(s.page.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        val titel = s.title ?: s.xref.orEmpty()
+        // Eine Quelle als reiner Text kann eine Internetadresse sein (so schreiben es andere Programme) - dann anklickbar
+        val adresse = titel.trim().takeIf { s.xref == null && (it.startsWith("http://") || it.startsWith("https://")) }
+        Row {
+            Text(titel, Modifier.width(360.dp).then(if (adresse != null && openWeb != null) Modifier.clickable { openWeb(adresse) } else Modifier),
+                style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
+                color = if (adresse != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+            Text(s.page.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
     if (pflege == null) return
     var ziel by remember { mutableStateOf<String?>(null) }

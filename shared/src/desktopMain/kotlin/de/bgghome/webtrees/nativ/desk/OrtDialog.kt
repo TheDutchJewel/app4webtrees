@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -99,6 +100,9 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
     val altLat = loc?.lat ?: ort.lat
     val altLng = loc?.lng ?: ort.lng
     var gov by remember { mutableStateOf(altGov) }
+    var plz by remember { mutableStateOf(loc?.postalCode.orEmpty()) }
+    var region by remember { mutableStateOf(loc?.region.orEmpty()) }
+    var land by remember { mutableStateOf(loc?.country.orEmpty()) }
     var notiz by remember { mutableStateOf(altNotiz) }
     var lat by remember { mutableStateOf(altLat?.let { dezimalEinzeln(it) }.orEmpty()) }
     var lng by remember { mutableStateOf(altLng?.let { dezimalEinzeln(it) }.orEmpty()) }
@@ -134,6 +138,11 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                     TextButton(onClick = { openWeb("https://gov.genealogy.net/search/name?name=" + java.net.URLEncoder.encode(ort.levels.firstOrNull() ?: ort.name, "UTF-8")) }) {
                         Text(stringResource(Res.string.desk_place_gov_search))
                     }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(Modifier.weight(0.8f)) { Field(plz, { plz = it }, Res.string.desk_place_postal) }
+                    Box(Modifier.weight(1.2f)) { Field(region, { region = it }, Res.string.desk_place_region) }
+                    Box(Modifier.weight(1.2f)) { Field(land, { land = it }, Res.string.desk_place_country) }
                 }
                 Field(notiz, { notiz = it }, Res.string.fact_note, minLines = 3)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -187,7 +196,8 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
             }
         },
         confirmButton = {
-            val geaendert = gov != altGov || notiz.trim() != altNotiz.trim() || koordGeaendert
+            val geaendert = gov != altGov || notiz.trim() != altNotiz.trim() || koordGeaendert ||
+                plz.trim() != loc?.postalCode.orEmpty() || region.trim() != loc?.region.orEmpty() || land.trim() != loc?.country.orEmpty()
             TextButton(enabled = geaendert && koordOk && !speichert, onClick = {
                 speichert = true; fehler = null
                 val anfrage = PlaceRequest(
@@ -196,6 +206,9 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                     note = notiz.takeIf { it.trim() != altNotiz.trim() },
                     koordinatenAendern = koordGeaendert, lat = b, lng = l,
                     mapData = mapData && istAdmin && koordGeaendert,
+                    postalCode = plz.trim().takeIf { it != loc?.postalCode.orEmpty() },
+                    region = region.trim().takeIf { it != loc?.region.orEmpty() },
+                    country = land.trim().takeIf { it != loc?.country.orEmpty() },
                 )
                 scope.launch {
                     runCatching { withContext(Dispatchers.IO) { client.savePlace(tree, anfrage) } }

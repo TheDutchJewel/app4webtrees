@@ -1268,4 +1268,7 @@
     <string name="desk_place_loading">Loading from GOV and Wikimedia …</string>
     <string name="desk_place_external_note">Place name and GOV identifier are sent to gov.genealogy.net and Wikimedia; the answers are kept on this PC for 7 days.</string>
     <string name="desk_place_search_suffix">search</string>
+    <string name="desk_place_postal">Postal code</string>
+    <string name="desk_place_region">State/region</string>
+    <string name="desk_place_country">Country</string>
 </resources>
