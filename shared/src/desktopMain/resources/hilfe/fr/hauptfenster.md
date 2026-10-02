@@ -57,6 +57,8 @@ Nécessite api4webtrees avec le niveau d'API 18 ; avec des serveurs plus anciens
 
 Avec le droit de modification, **Modifier** ouvre les données du lieu : identifiant GOV (avec **Chercher dans GOV**), note et coordonnées. **Rechercher les coordonnées …** interroge OpenStreetMap avec le nom du lieu ; un clic sur un résultat reprend latitude et longitude. Tout est enregistré dans la fiche de lieu (_LOC), que wtWin crée si nécessaire ; si le nom du lieu apparaît plusieurs fois dans l’arbre, les événements de ce lieu reçoivent un renvoi vers elle. Les administrateurs peuvent aussi écrire les coordonnées dans les données géographiques de webtrees – seules celles-ci sont lues par les cartes du navigateur.
 
+**Renommer et fusionner :** le nom du lieu en haut est un champ de saisie. Modifiez-le et confirmez avec la coche (ou Entrée) – auparavant, wtWin indique combien d’événements seront modifiés et quels lieux inclus suivent (« Kortau, Allenstein » → « Kortau, Olsztyn »). Si le nouveau nom existe déjà, les deux lieux sont fusionnés : notes, sources et médias des fiches de lieu sont conservés ; si l’identifiant GOV ou les coordonnées diffèrent, ceux de la cible s’appliquent. Les événements verrouillés ou confidentiels que vous ne pouvez pas modifier gardent l’ancien nom. Sans acceptation automatique, les modifications attendent un modérateur comme d’habitude. Conseil : corrigez les fautes de frappe, mais laissez les noms historiques (Allenstein/Olsztyn) et reliez-les par l’identifiant GOV.
+
 ## Sections : Accueil, Arbre, Photos
 
 - **Accueil** (Ctrl+1) : message d'accueil, anniversaires à venir, modifications récentes de l'arbre, la personne de départ. Les modérateurs voient ici les modifications en attente et les acceptent ou les refusent.

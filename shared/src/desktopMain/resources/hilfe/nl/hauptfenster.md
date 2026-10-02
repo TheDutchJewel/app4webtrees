@@ -57,6 +57,8 @@ Vereist api4webtrees met API-niveau 18; bij oudere servers opent het symbool zoa
 
 Met bewerkrechten opent **Bewerken** de plaatsgegevens: GOV-code (met **Zoeken in GOV**), notitie en coördinaten. **Coördinaten zoeken …** vraagt OpenStreetMap naar de plaatsnaam; een klik op een resultaat neemt breedte en lengte over. Alles wordt opgeslagen in het locatierecord (_LOC), dat wtWin zo nodig aanmaakt; komt de plaatsnaam meer dan eens in de stamboom voor, dan krijgen de gebeurtenissen op die plaats een verwijzing ernaar. Beheerders kunnen de coördinaten ook in de geografische gegevens van webtrees schrijven – alleen die lezen de kaarten in de browser.
 
+**Hernoemen en samenvoegen:** de plaatsnaam bovenaan is een invoerveld. Wijzig hem en bevestig met het vinkje (of Enter) – vooraf meldt wtWin hoeveel gebeurtenissen worden gewijzigd en welke plaatsen hieronder meegaan (‘Kortau, Allenstein’ → ‘Kortau, Olsztyn’). Bestaat de nieuwe naam al, dan worden beide plaatsen samengevoegd: notities, bronnen en media van de locatierecords blijven; wijken GOV-code of coördinaten af, dan gelden die van het doel. Vergrendelde of vertrouwelijke gebeurtenissen die je niet mag wijzigen houden de oude naam. Zonder automatische goedkeuring wachten de wijzigingen zoals gewoonlijk op een moderator. Tip: tikfouten hernoemen, historische namen (Allenstein/Olsztyn) laten staan en via de GOV-code verbinden.
+
 ## Onderdelen: Start, Boom, Foto's
 
 - **Start** (Ctrl+1): begroeting, komende gedenkdagen, recente wijzigingen in de stamboom, de startpersoon. Moderators zien hier openstaande wijzigingen en keuren ze goed of af.

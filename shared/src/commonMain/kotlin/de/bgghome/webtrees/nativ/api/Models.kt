@@ -265,6 +265,28 @@ const val API_PLACE_LIST = 21
 /** Ab dieser Stufe: Ortsdaten speichern (POST Place). */
 const val API_PLACE_WRITE = 22
 
+/** Ab dieser Stufe: Orte umbenennen und zusammenfuehren (POST PlaceRename). */
+const val API_PLACE_RENAME = 23
+
+@Serializable
+data class PlaceRenameLocation(val from: String? = null, val to: String? = null, val conflicts: List<String> = emptyList())
+
+/** Antwort von PlaceRename - mit preview nur die Zahlen. */
+@Serializable
+data class PlaceRenameResult(
+    val ok: Boolean = false,
+    val preview: Boolean = false,
+    val from: String = "",
+    val to: String = "",
+    val merge: Boolean = false,
+    val records: Int = 0,
+    val events: Int = 0,
+    val subPlaces: Int = 0,
+    val skipped: Int = 0,
+    val location: PlaceRenameLocation = PlaceRenameLocation(),
+    val pending: Boolean = false,
+)
+
 /**
  * Ortsdaten speichern: null = nicht anfassen. Koordinaten nur mit [koordinatenAendern]; dann entfernt lat/lng null sie.
  * [mapData]: auch in die Geografischen Daten von webtrees (nur Administratoren).

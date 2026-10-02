@@ -57,6 +57,8 @@ Needs api4webtrees with API level 18; with older servers the icon opens the webt
 
 With edit rights **Edit** opens the place data: GOV identifier (with **Search GOV**), note and coordinates. **Find coordinates …** asks OpenStreetMap for the place name; a click on a result takes latitude and longitude. Everything is saved in the location record (_LOC), which wtWin creates when needed; if the place name occurs more than once in the tree, the events at the place get a pointer to it. Administrators can also write the coordinates to webtrees’ geographic data – the maps in the browser read only those.
 
+**Rename and merge:** the place name at the top is an input field. Change it and confirm with the tick (or Enter) – before that wtWin tells you how many events will be changed and which places below move along (“Kortau, Allenstein” → “Kortau, Olsztyn”). If the new name already exists, both places are merged: notes, sources and media of the location records are kept; if GOV identifier or coordinates differ, those of the target apply. Locked or confidential events you may not change keep the old name. Without automatic acceptance the changes wait for a moderator as usual. Tip: rename typing errors, but leave historical names (Allenstein/Olsztyn) as they are and connect them through the GOV identifier.
+
 ## Sections: Home, Tree, Photos
 
 - **Home** (Ctrl+1): greeting, upcoming anniversaries, recent changes in the tree, the start person. Moderators see pending changes here and accept or reject them.

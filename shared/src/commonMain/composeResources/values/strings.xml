@@ -1229,4 +1229,17 @@
     <string name="desk_place_invalid_coords">Latitude −90 to 90 and longitude −180 to 180, both or neither.</string>
     <string name="desk_place_linked">%1$d events now point to the location record.</string>
     <string name="desk_place_gov_hint">e.g. ALLINKO03FS – from gov.genealogy.net</string>
+    <string name="desk_place_rename_tip">Confirm the new place name</string>
+    <string name="desk_place_rename_title">Rename place</string>
+    <string name="desk_place_merge_title">Merge places</string>
+    <string name="desk_place_rename_text">“%1$s” becomes “%2$s”: %3$d events of %4$d individuals and families will be changed.</string>
+    <string name="desk_place_rename_sub">%1$d places below move along.</string>
+    <string name="desk_place_merge_text">The place “%1$s” already exists. Both places will be merged; notes, sources and media of the location record are kept.</string>
+    <string name="desk_place_conflict_gov">The GOV identifiers differ – the one of “%1$s” is kept.</string>
+    <string name="desk_place_conflict_coords">The coordinates differ – those of “%1$s” are kept.</string>
+    <string name="desk_place_rename_skipped">%1$d events you may not change (locked or confidential) keep the old name.</string>
+    <string name="desk_place_rename_moderated">Without automatic acceptance the changes wait for a moderator.</string>
+    <string name="desk_place_rename_do">Rename</string>
+    <string name="desk_place_merge_do">Merge</string>
+    <string name="desk_place_renamed">Done: %1$d events changed.</string>
 </resources>

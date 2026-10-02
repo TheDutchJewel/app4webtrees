@@ -26,6 +26,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -98,12 +106,38 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
         onPreviewKeyEvent = { e -> if (e.type == KeyEventType.KeyDown && e.key == Key.Escape) { onClose(); true } else false },
     ) {
         var bearbeiten by remember { mutableStateOf<PlaceDetail?>(null) }
+        var umbenennen by remember { mutableStateOf<de.bgghome.webtrees.nativ.api.PlaceRenameResult?>(null) }
+        val scope = rememberCoroutineScope()
         var meldung by remember { mutableStateOf<String?>(null) }
         val darf = state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_WRITE
+        val darfUmbenennen = state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME
+        // Erst die Vorschau holen, dann fragen (wie viele Ereignisse, Zusammenfuehren, Abweichungen)
+        fun vorschau(von: String, nach: String) {
+            meldung = null
+            scope.launch {
+                runCatching { withContext(Dispatchers.IO) { viewModel.client.renamePlace(tree.orEmpty(), von, nach, preview = true) } }
+                    .onSuccess { umbenennen = it }.onFailure { meldung = it.message ?: "?" }
+            }
+        }
         val verweise = meldung
         DeskTheme {
             OrteInhalt(liste, detail, gewaehlt, { gewaehlt = it }, suche, { suche = it }, viewModel, openWeb,
-                onBearbeiten = if (darf) ({ bearbeiten = it }) else null, meldung = verweise)
+                onBearbeiten = if (darf) ({ bearbeiten = it }) else null, meldung = verweise,
+                onUmbenennen = if (darfUmbenennen) ({ von, nach -> vorschau(von, nach) }) else null)
+            umbenennen?.let { v ->
+                UmbenennenDialog(v, onDismiss = { umbenennen = null }) {
+                    umbenennen = null
+                    scope.launch {
+                        runCatching { withContext(Dispatchers.IO) { viewModel.client.renamePlace(tree.orEmpty(), v.from, v.to, preview = false) } }
+                            .onSuccess { r ->
+                                meldung = de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_renamed, r.events) +
+                                    if (r.pending) "  " + de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_rename_moderated) else ""
+                                gewaehlt = r.to
+                                neu++
+                            }.onFailure { meldung = it.message ?: "?" }
+                    }
+                }
+            }
             bearbeiten?.let { o ->
                 OrtDialog(tree.orEmpty(), o, viewModel.client, state.info?.user?.isAdmin == true, openWeb, onDismiss = { bearbeiten = null }) { r ->
                     meldung = listOfNotNull(
@@ -122,7 +156,7 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
 internal fun OrteInhalt(
     liste: Result<PlaceSummaryList>?, detail: Result<PlaceDetail>?, gewaehlt: String?, onWahl: (String) -> Unit,
     suche: String, onSuche: (String) -> Unit, viewModel: AppViewModel?, openWeb: (String) -> Unit, reiterStart: Int = 0,
-    onBearbeiten: ((PlaceDetail) -> Unit)? = null, meldung: String? = null,
+    onBearbeiten: ((PlaceDetail) -> Unit)? = null, meldung: String? = null, onUmbenennen: ((String, String) -> Unit)? = null,
 ) {
     Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // ── Liste ──
@@ -174,7 +208,7 @@ internal fun OrteInhalt(
                 gewaehlt == null -> Text(stringResource(Res.string.desk_places_choose), Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 detail == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 detail.exceptionOrNull() != null -> Text(detail.exceptionOrNull()?.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
-                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart, onBearbeiten)
+                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart, onBearbeiten, onUmbenennen)
             }
             meldung?.let { Text(it, Modifier.align(Alignment.BottomStart).padding(12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
         }
@@ -188,7 +222,7 @@ private enum class OrtReiter(val titel: StringResource) {
 
 @Composable
 private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String) -> Unit, openWeb: (String) -> Unit, reiterStart: Int,
-                      onBearbeiten: ((PlaceDetail) -> Unit)?) {
+                      onBearbeiten: ((PlaceDetail) -> Unit)?, onUmbenennen: ((String, String) -> Unit)? = null) {
     var reiter by remember(o.name) { mutableStateOf(OrtReiter.entries[reiterStart]) }
     val loc = o.location
     // Wie viel in einem Reiter steht - 0 = leer (der Reiter bleibt, steht aber blasser)
@@ -203,7 +237,27 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 16.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            SelectionContainer(Modifier.weight(1f)) { Text(o.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold) }
+            if (onUmbenennen != null && o.canEdit) {
+                // Wie ein Eingabefeld: aendern und mit dem Haken (oder Enter) bestaetigen - gibt es den Namen schon,
+                // wird daraus ein Zusammenfuehren
+                var neuerName by remember(o.name) { mutableStateOf(o.name) }
+                val geaendert = neuerName.trim().isNotEmpty() && neuerName.trim() != o.name
+                OutlinedTextField(neuerName, { neuerName = it }, singleLine = true,
+                    textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    modifier = Modifier.weight(1f).onPreviewKeyEvent { e ->
+                        if (e.type == KeyEventType.KeyDown && e.key == Key.Enter && geaendert) { onUmbenennen(o.name, neuerName.trim()); true } else false
+                    },
+                    trailingIcon = {
+                        Tipp(stringResource(Res.string.desk_place_rename_tip)) {
+                            IconButton(onClick = { onUmbenennen(o.name, neuerName.trim()) }, enabled = geaendert) {
+                                Icon(Icons.Default.CheckCircle, stringResource(Res.string.desk_place_rename_tip),
+                                    tint = if (geaendert) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
+                            }
+                        }
+                    })
+            } else {
+                SelectionContainer(Modifier.weight(1f)) { Text(o.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold) }
+            }
             if (onBearbeiten != null && o.canEdit && loc?.canEdit != false) OutlinedButton(onClick = { onBearbeiten(o) }, shape = MaterialTheme.shapes.small) {
                 Text(stringResource(Res.string.action_edit))
             }
@@ -368,4 +422,23 @@ internal fun gms(wert: Double, breite: Boolean): String {
     if (min >= 60) { min -= 60; grad++ }
     val seite = if (breite) (if (wert < 0) "S" else "N") else (if (wert < 0) "W" else "E")
     return "$grad° $min′ ${"%.1f".format(java.util.Locale.ROOT, sek)}″ $seite"
+}
+
+/** Rueckfrage vor dem Umbenennen/Zusammenfuehren mit den Zahlen aus der Vorschau. */
+@Composable
+private fun UmbenennenDialog(v: de.bgghome.webtrees.nativ.api.PlaceRenameResult, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    val text = buildList {
+        add(stringResource(Res.string.desk_place_rename_text, v.from, v.to, v.events, v.records))
+        if (v.subPlaces > 0) add(stringResource(Res.string.desk_place_rename_sub, v.subPlaces))
+        if (v.merge) add(stringResource(Res.string.desk_place_merge_text, v.to))
+        if ("gov" in v.location.conflicts) add(stringResource(Res.string.desk_place_conflict_gov, v.to))
+        if ("coordinates" in v.location.conflicts) add(stringResource(Res.string.desk_place_conflict_coords, v.to))
+        if (v.skipped > 0) add(stringResource(Res.string.desk_place_rename_skipped, v.skipped))
+    }.joinToString("\n\n")
+    de.bgghome.webtrees.nativ.ui.ConfirmDialog(
+        title = stringResource(if (v.merge) Res.string.desk_place_merge_title else Res.string.desk_place_rename_title),
+        text = text,
+        confirm = stringResource(if (v.merge) Res.string.desk_place_merge_do else Res.string.desk_place_rename_do),
+        onDismiss = onDismiss, onConfirm = onConfirm,
+    )
 }

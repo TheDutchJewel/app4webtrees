@@ -1224,4 +1224,17 @@
     <string name="desk_place_invalid_coords">Latitude de −90 à 90 et longitude de −180 à 180, les deux ou aucune.</string>
     <string name="desk_place_linked">%1$d événements renvoient maintenant à la fiche de lieu.</string>
     <string name="desk_place_gov_hint">p. ex. ALLINKO03FS – de gov.genealogy.net</string>
+    <string name="desk_place_rename_tip">Confirmer le nouveau nom du lieu</string>
+    <string name="desk_place_rename_title">Renommer le lieu</string>
+    <string name="desk_place_merge_title">Fusionner les lieux</string>
+    <string name="desk_place_rename_text">« %1$s » devient « %2$s » : %3$d événements de %4$d personnes et familles seront modifiés.</string>
+    <string name="desk_place_rename_sub">%1$d lieux inclus suivent.</string>
+    <string name="desk_place_merge_text">Le lieu « %1$s » existe déjà. Les deux lieux seront fusionnés ; notes, sources et médias de la fiche de lieu sont conservés.</string>
+    <string name="desk_place_conflict_gov">Les identifiants GOV diffèrent – celui de « %1$s » est conservé.</string>
+    <string name="desk_place_conflict_coords">Les coordonnées diffèrent – celles de « %1$s » sont conservées.</string>
+    <string name="desk_place_rename_skipped">%1$d événements que vous ne pouvez pas modifier (verrouillés ou confidentiels) gardent l’ancien nom.</string>
+    <string name="desk_place_rename_moderated">Sans acceptation automatique, les modifications attendent un modérateur.</string>
+    <string name="desk_place_rename_do">Renommer</string>
+    <string name="desk_place_merge_do">Fusionner</string>
+    <string name="desk_place_renamed">Terminé : %1$d événements modifiés.</string>
 </resources>

@@ -309,6 +309,16 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         return post("Place", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()))
     }
 
+    /** Ort umbenennen oder zusammenfuehren (ab Stufe 23); [preview] aendert nichts und liefert nur die Zahlen. */
+    suspend fun renamePlace(tree: String, from: String, to: String, preview: Boolean): PlaceRenameResult {
+        val body = kotlinx.serialization.json.buildJsonObject {
+            put("from", kotlinx.serialization.json.JsonPrimitive(from))
+            put("to", kotlinx.serialization.json.JsonPrimitive(to))
+            put("preview", kotlinx.serialization.json.JsonPrimitive(preview))
+        }
+        return post("PlaceRename", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()), PlaceRenameResult.serializer())
+    }
+
     /** Ein Ort mit Personen, Familien, Unterorten und _LOC (ab Stufe 21). */
     suspend fun place(tree: String, name: String): PlaceDetail =
         get("Place", tree, mapOf("name" to name), PlaceDetail.serializer())

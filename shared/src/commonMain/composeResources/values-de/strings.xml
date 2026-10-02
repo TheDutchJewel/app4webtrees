@@ -1224,4 +1224,17 @@
     <string name="desk_place_invalid_coords">Breite −90 bis 90 und Länge −180 bis 180, beide oder keine.</string>
     <string name="desk_place_linked">%1$d Ereignisse verweisen jetzt auf den Ortsdatensatz.</string>
     <string name="desk_place_gov_hint">z. B. ALLINKO03FS – aus gov.genealogy.net</string>
+    <string name="desk_place_rename_tip">Neuen Ortsnamen bestätigen</string>
+    <string name="desk_place_rename_title">Ort umbenennen</string>
+    <string name="desk_place_merge_title">Orte zusammenführen</string>
+    <string name="desk_place_rename_text">„%1$s“ wird zu „%2$s“: %3$d Ereignisse bei %4$d Personen und Familien werden angepasst.</string>
+    <string name="desk_place_rename_sub">Dabei wandern %1$d Orte darunter mit.</string>
+    <string name="desk_place_merge_text">Den Ort „%1$s“ gibt es schon. Beide Orte werden zusammengeführt; Notizen, Quellen und Medien des Ortsdatensatzes bleiben erhalten.</string>
+    <string name="desk_place_conflict_gov">Die GOV-Kennungen weichen ab – die von „%1$s“ bleibt.</string>
+    <string name="desk_place_conflict_coords">Die Koordinaten weichen ab – die von „%1$s“ bleiben.</string>
+    <string name="desk_place_rename_skipped">%1$d Ereignisse darfst du nicht ändern (gesperrt oder vertraulich); sie behalten den alten Namen.</string>
+    <string name="desk_place_rename_moderated">Ohne Sofortfreigabe warten die Änderungen auf einen Moderator.</string>
+    <string name="desk_place_rename_do">Umbenennen</string>
+    <string name="desk_place_merge_do">Zusammenführen</string>
+    <string name="desk_place_renamed">Erledigt: %1$d Ereignisse geändert.</string>
 </resources>

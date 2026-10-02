@@ -1205,4 +1205,17 @@
     <string name="desk_place_invalid_coords">Breedte −90 tot 90 en lengte −180 tot 180, beide of geen.</string>
     <string name="desk_place_linked">%1$d gebeurtenissen verwijzen nu naar het locatierecord.</string>
     <string name="desk_place_gov_hint">bijv. ALLINKO03FS – van gov.genealogy.net</string>
+    <string name="desk_place_rename_tip">Nieuwe plaatsnaam bevestigen</string>
+    <string name="desk_place_rename_title">Plaats hernoemen</string>
+    <string name="desk_place_merge_title">Plaatsen samenvoegen</string>
+    <string name="desk_place_rename_text">‘%1$s’ wordt ‘%2$s’: %3$d gebeurtenissen bij %4$d personen en gezinnen worden aangepast.</string>
+    <string name="desk_place_rename_sub">%1$d plaatsen hieronder gaan mee.</string>
+    <string name="desk_place_merge_text">De plaats ‘%1$s’ bestaat al. Beide plaatsen worden samengevoegd; notities, bronnen en media van het locatierecord blijven behouden.</string>
+    <string name="desk_place_conflict_gov">De GOV-codes verschillen – die van ‘%1$s’ blijft.</string>
+    <string name="desk_place_conflict_coords">De coördinaten verschillen – die van ‘%1$s’ blijven.</string>
+    <string name="desk_place_rename_skipped">%1$d gebeurtenissen die je niet mag wijzigen (vergrendeld of vertrouwelijk) houden de oude naam.</string>
+    <string name="desk_place_rename_moderated">Zonder automatische goedkeuring wachten de wijzigingen op een moderator.</string>
+    <string name="desk_place_rename_do">Hernoemen</string>
+    <string name="desk_place_merge_do">Samenvoegen</string>
+    <string name="desk_place_renamed">Klaar: %1$d gebeurtenissen gewijzigd.</string>
 </resources>
