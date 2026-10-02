@@ -369,9 +369,14 @@ data class LocationJson(
     val url: String = "",
 )
 
+/** Ereignisse am Ort nach Art (Kacheln der Ortsansicht). */
+@Serializable
+data class PlaceEventCounts(val birth: Int = 0, val marriage: Int = 0, val death: Int = 0, val other: Int = 0)
+
 @Serializable
 data class PlaceDetail(
     val name: String,
+    val eventCounts: PlaceEventCounts? = null,
     val levels: List<String> = emptyList(),
     val parent: String? = null,
     val children: List<PlaceChild> = emptyList(),

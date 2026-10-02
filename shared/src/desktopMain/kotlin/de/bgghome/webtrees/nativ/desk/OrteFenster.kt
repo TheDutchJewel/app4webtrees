@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -243,7 +244,7 @@ internal fun OrteInhalt(
 }
 
 private enum class OrtReiter(val titel: StringResource) {
-    Personen(Res.string.desk_place_tab_people), Daten(Res.string.desk_place_tab_data), Notizen(Res.string.desk_tab_notes),
+    Daten(Res.string.desk_place_tab_data), Personen(Res.string.desk_place_tab_people), Notizen(Res.string.desk_tab_notes),
     Quellen(Res.string.desk_sources_window), Medien(Res.string.tab_media), Koordinaten(Res.string.desk_place_tab_coords),
 }
 
@@ -302,7 +303,7 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (reiter) {
                 OrtReiter.Personen -> Rollbar { Personen(o, viewModel) }
-                OrtReiter.Daten -> Rollbar { Daten(o, onWahl, openWeb) }
+                OrtReiter.Daten -> Rollbar { Daten(o, onWahl, openWeb, viewModel?.client?.userAgent) }
                 OrtReiter.Notizen -> Rollbar {
                     val notes = loc?.notes.orEmpty()
                     if (notes.isEmpty()) Leer() else notes.forEach { SelectionContainer { Text(it, style = MaterialTheme.typography.bodyMedium) } }
@@ -367,8 +368,14 @@ private fun Personen(o: PlaceDetail, viewModel: AppViewModel?) {
 }
 
 @Composable
-private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) -> Unit) {
+private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) -> Unit, userAgent: String? = null) {
     val farben = MaterialTheme.colorScheme
+    val loc = o.location
+    // Von aussen (GOV, Wikimedia, GenWiki) - im Hintergrund, 7 Tage zwischengespeichert
+    val aussen by produceState<OrtAussen?>(null, o.name, loc?.gov, o.lat, o.lng) {
+        value = withContext(Dispatchers.IO) { runCatching { ortAussen(o, userAgent) }.getOrNull() ?: OrtAussen() }
+    }
+    OrtKopf(o, aussen, openWeb)
     @Composable
     fun Zeile(label: StringResource, inhalt: @Composable () -> Unit) {
         Row(Modifier.padding(vertical = 2.dp)) {
@@ -386,7 +393,6 @@ private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) ->
         o.children.forEach { c -> Verweis(c.name.substringBefore(", ") + if (c.events > 0) "  (${c.events})" else "") { onWahl(c.name) } }
     }
     Zeile(Res.string.desk_place_events) { Text("${o.events}", style = MaterialTheme.typography.bodyMedium) }
-    val loc = o.location
     Zeile(Res.string.desk_place_record) {
         if (loc == null) Text(stringResource(Res.string.desk_place_no_record), style = MaterialTheme.typography.bodyMedium, color = farben.onSurfaceVariant)
         else Text(listOf(loc.name, loc.xref).filter(String::isNotBlank).joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
@@ -566,4 +572,94 @@ private fun OrtsKarte(orte: List<de.bgghome.webtrees.nativ.api.PlaceSummary>, ge
             }
         }
     }
+}
+
+/** Was die Ortsseite von aussen holt; leer, solange es nichts gibt. */
+internal data class OrtAussen(
+    val heute: List<GovStufe> = emptyList(), val frueher: List<GovStufe> = emptyList(),
+    val wiki: OrtWikimedia = OrtWikimedia(null, null, null), val genWiki: String? = null, val extern: List<Pair<String, String>> = emptyList(),
+)
+
+internal fun ortAussen(o: PlaceDetail, userAgent: String?): OrtAussen {
+    userAgent?.let { OrtExtern.userAgent = it }
+    val gov = o.location?.gov
+    val obj = gov?.let { OrtExtern.govObjekt(it) }
+    val (heute, frueher) = gov?.let { OrtExtern.govKetten(it) } ?: (emptyList<GovStufe>() to emptyList())
+    val qid = obj?.extern?.firstOrNull { it.startsWith("wikidata:", ignoreCase = true) }?.substringAfter(':')
+    val wiki = OrtExtern.wikimedia(o.levels.firstOrNull() ?: o.name, o.lat, o.lng, qid)
+    val extern = OrtExtern.externeLinks(obj?.extern.orEmpty()) +
+        (if (qid == null && wiki.qid != null) listOf("Wikidata" to "https://www.wikidata.org/wiki/${wiki.qid}") else emptyList())
+    return OrtAussen(heute, frueher, wiki, gov?.let { OrtExtern.genWiki(it) }, extern)
+}
+
+/** Kopf der Ortsseite wie im Ortsregister: Titelbild, Kacheln, GOV-Hierarchie, Nachschlagen. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Unit) {
+    val farben = MaterialTheme.colorScheme
+    val leaf = o.levels.firstOrNull() ?: o.name
+    // Titelbild: ein eigenes Foto am Ortsdatensatz geht vor, sonst der Vorschlag aus Wikimedia Commons
+    val eigenes = o.location?.media?.firstOrNull { it.isImage && it.thumb != null }
+    val vorschlag = aussen?.wiki?.bild
+    if (eigenes != null || vorschlag != null) {
+        Box(Modifier.fillMaxWidth().height(220.dp).border(1.dp, farben.outlineVariant)) {
+            coil3.compose.AsyncImage(model = eigenes?.thumb ?: vorschlag?.bild, contentDescription = o.name,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            if (eigenes == null && vorschlag != null) {
+                val nachweis = listOfNotNull(vorschlag.urheber?.let { "© $it" }, vorschlag.lizenz, stringResource(Res.string.desk_place_image_hint)).joinToString(" · ")
+                Text(nachweis, Modifier.align(Alignment.BottomEnd).background(farben.surface.copy(alpha = 0.85f)).clickable { openWeb(vorschlag.seite) }
+                    .padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
+    // Kacheln: Ereignisse nach Art
+    o.eventCounts?.let { z ->
+        Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(z.birth to Res.string.desk_place_births, z.marriage to Res.string.desk_place_marriages,
+                z.death to Res.string.desk_place_deaths, z.other to Res.string.desk_place_other_events).forEach { (n, t) ->
+                Column(Modifier.weight(1f).border(1.dp, farben.outlineVariant, MaterialTheme.shapes.small).padding(vertical = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("$n", style = MaterialTheme.typography.headlineSmall, color = if (n > 0) farben.primary else farben.outline)
+                    Text(stringResource(t), style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
+                }
+            }
+        }
+    }
+    // GOV-Hierarchie (von oben nach unten), sonst die Ebenen des Ortsnamens
+    if (aussen == null && o.location?.gov != null) Text(stringResource(Res.string.desk_place_loading), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+    aussen?.heute?.takeIf { it.size > 1 }?.let { heute ->
+        Text(stringResource(Res.string.desk_place_hierarchy), Modifier.padding(top = 6.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        @Composable
+        fun Kette(label: String, k: List<GovStufe>) = Row {
+            Text(label, Modifier.width(130.dp), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+            SelectionContainer {
+                // Stadt und gleichnamiger Kreis (GOV: zwei Objekte) nur einmal
+                val namen = k.reversed().map { it.name }.fold(listOf<String>()) { acc, n -> if (acc.lastOrNull() == n) acc else acc + n }
+                Text(namen.joinToString(" › "), style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        Kette(stringResource(Res.string.desk_place_today), heute)
+        aussen.frueher.takeIf { it.size > 1 }?.let { f ->
+            val zeit = f.getOrNull(1)?.let { st -> listOfNotNull(st.von, st.bis).joinToString("–") }.orEmpty()
+            Kette(stringResource(Res.string.desk_place_earlier) + if (zeit.isNotEmpty()) " ($zeit)" else "", f)
+        }
+    }
+    // Nachschlagen: GOV, GenWiki, Wikipedia, Archivportale, externe Kennungen aus GOV
+    val gov = o.location?.gov
+    val links = buildList {
+        add("GOV" to (gov?.let { "https://gov.genealogy.net/item/show/$it" } ?: ("https://gov.genealogy.net/search/name?name=" + java.net.URLEncoder.encode(leaf, "UTF-8"))))
+        aussen?.genWiki?.let { add("GenWiki" to it) }
+        add("Wikipedia" to (aussen?.wiki?.wikipedia ?: ("https://${java.util.Locale.getDefault().language}.wikipedia.org/w/index.php?search=" + java.net.URLEncoder.encode(leaf, "UTF-8"))))
+        addAll(OrtExtern.suchLinks(leaf))
+        addAll(aussen?.extern.orEmpty())
+    }
+    Text(stringResource(Res.string.desk_place_links), Modifier.padding(top = 6.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        links.forEach { (name, url) ->
+            Text("$name ↗", Modifier.border(1.dp, farben.outlineVariant, MaterialTheme.shapes.small).clickable { openWeb(url) }.padding(horizontal = 8.dp, vertical = 3.dp),
+                style = MaterialTheme.typography.labelMedium, color = farben.primary)
+        }
+    }
+    Text(stringResource(Res.string.desk_place_external_note), style = MaterialTheme.typography.labelSmall, color = farben.outline)
+    HorizontalDivider(Modifier.padding(vertical = 6.dp), color = farben.outlineVariant)
 }

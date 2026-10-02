@@ -1256,4 +1256,16 @@
     <string name="desk_places_legend_cluster">Grey: several places – click to zoom in</string>
     <string name="desk_places_show">Show</string>
     <string name="desk_places_none_on_map">No place has coordinates yet. Edit a place and use “Find coordinates …”.</string>
+    <string name="desk_place_births">Births</string>
+    <string name="desk_place_marriages">Marriages</string>
+    <string name="desk_place_deaths">Deaths</string>
+    <string name="desk_place_other_events">Other events</string>
+    <string name="desk_place_hierarchy">Hierarchy (GOV)</string>
+    <string name="desk_place_today">today</string>
+    <string name="desk_place_earlier">earlier</string>
+    <string name="desk_place_links">Look up</string>
+    <string name="desk_place_image_hint">Suggestion from Wikimedia Commons</string>
+    <string name="desk_place_loading">Loading from GOV and Wikimedia …</string>
+    <string name="desk_place_external_note">Place name and GOV identifier are sent to gov.genealogy.net and Wikimedia; the answers are kept on this PC for 7 days.</string>
+    <string name="desk_place_search_suffix">search</string>
 </resources>

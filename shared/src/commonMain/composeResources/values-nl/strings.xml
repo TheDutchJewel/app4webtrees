@@ -1232,4 +1232,16 @@
     <string name="desk_places_legend_cluster">Grijs: meerdere plaatsen – klik vergroot</string>
     <string name="desk_places_show">Tonen</string>
     <string name="desk_places_none_on_map">Nog geen plaats heeft coördinaten. Bewerk een plaats en gebruik ‘Coördinaten zoeken …’.</string>
+    <string name="desk_place_births">Geboorten</string>
+    <string name="desk_place_marriages">Huwelijken</string>
+    <string name="desk_place_deaths">Overlijdens</string>
+    <string name="desk_place_other_events">Andere gebeurtenissen</string>
+    <string name="desk_place_hierarchy">Hiërarchie (GOV)</string>
+    <string name="desk_place_today">nu</string>
+    <string name="desk_place_earlier">vroeger</string>
+    <string name="desk_place_links">Opzoeken</string>
+    <string name="desk_place_image_hint">Voorstel uit Wikimedia Commons</string>
+    <string name="desk_place_loading">Laden uit GOV en Wikimedia …</string>
+    <string name="desk_place_external_note">Plaatsnaam en GOV-code gaan naar gov.genealogy.net en Wikimedia; de antwoorden blijven 7 dagen op deze pc.</string>
+    <string name="desk_place_search_suffix">zoeken</string>
 </resources>
