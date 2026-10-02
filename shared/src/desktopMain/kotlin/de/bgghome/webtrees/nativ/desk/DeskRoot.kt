@@ -140,6 +140,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     // Quellenverwaltung: null = zu, "" = offen ohne Auswahl, sonst die Quelle, mit der sie oeffnet
     var quellen by remember { mutableStateOf<String?>(null) }
     val quellenApi = (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_SOURCES
+    var orte by remember { mutableStateOf<String?>(null) }
+    val orteApi = (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_LIST
     val openSheet: (String) -> Unit = { xref -> viewModel.select(xref); sheetOpen = true }
 
     // Zurueck/Vor zwischen Zentralpersonen: das ViewModel kennt nur den Rueckweg, den Vorwaertsweg haelt der Desktop.
@@ -180,6 +182,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onMerkliste = { merkliste = true }, onTafel = { tafel = it }, onBuch = { buch = true }, onPruefung = { pruefung = true },
         onTabelle = { tabelle = true },
         onQuellen = if (quellenApi) ({ quellen = "" }) else null,
+        onOrte = if (orteApi) ({ orte = "" }) else null,
     )
 
     // Noch nicht verbunden: auf den Verbinden-Link aus webtrees warten (Knopf "Mit wtWin verbinden" legt ihn in die
@@ -235,9 +238,10 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
             if (layout == DeskLayout.Navigator) {
                 ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
                     symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
-                    onQuellen = if (quellenApi) ({ quellen = "" }) else null)
+                    onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null)
             } else {
-                WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family, onQuellen = if (quellenApi) ({ quellen = "" }) else null)
+                WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family, onQuellen = if (quellenApi) ({ quellen = "" }) else null,
+                    onOrte = if (orteApi) ({ orte = "" }) else null)
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Box(Modifier.fillMaxWidth().height(3.dp)) {
@@ -316,6 +320,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
 
     if (sheetOpen && state.detail != null) PersonSheet(state, viewModel, openWeb, onClose = { sheetOpen = false }, onQuelle = if (quellenApi) ({ quellen = it }) else null)
     quellen?.let { start -> if (state.tree != null) QuellenFenster(state, viewModel, start, openWeb, onClose = { quellen = null }) }
+    orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null }) }
     if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
     liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
     HilfeFenster()
@@ -341,6 +346,7 @@ private fun FrameWindowScope.DeskMenuBar(
     symboltexte: Boolean, onSymboltexte: (Boolean) -> Unit,
     onMerkliste: () -> Unit, onTafel: (TafelArt) -> Unit, onBuch: () -> Unit, onPruefung: () -> Unit, onTabelle: () -> Unit,
     onQuellen: (() -> Unit)? = null,
+    onOrte: (() -> Unit)? = null,
 ) {
     val main = state.screen == Screen.Main
     val loggedIn = state.info?.user?.loggedIn == true
@@ -439,6 +445,7 @@ private fun FrameWindowScope.DeskMenuBar(
             Item(stringResource(Res.string.nav_photos), shortcut = KeyShortcut(Key.Three, ctrl = true), onClick = { viewModel.setSection(Section.Photos) })
             Item(stringResource(Res.string.desk_table_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Four, ctrl = true), onClick = onTabelle)
             if (onQuellen != null) Item(stringResource(Res.string.desk_sources_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Five, ctrl = true), onClick = onQuellen)
+            if (onOrte != null) Item(stringResource(Res.string.desk_places_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Six, ctrl = true), onClick = onOrte)
             Separator()
             Menu(stringResource(Res.string.tree_generations, state.ancestorGenerations)) {
                 (2..7).forEach { n ->
@@ -506,6 +513,7 @@ private fun ClassicToolbar(
     nav: DeskNav, drucke: DeskDruck, symboltexte: Boolean,
     onMerkliste: () -> Unit, onListe: (ListenArt) -> Unit, onTabelle: () -> Unit, onTafel: (TafelArt) -> Unit, onPruefung: () -> Unit, onQuit: () -> Unit,
     onQuellen: (() -> Unit)? = null,
+    onOrte: (() -> Unit)? = null,
 ) {
     val canEdit = state.tree?.canEdit == true
     val manager = state.tree?.role == "manager"
@@ -546,7 +554,7 @@ private fun ClassicToolbar(
         add(Trenner)
         // Die Plausibilitaetspruefung des Programms; "Stammbaum pruefen" von webtrees bleibt im Menue webtrees.
         add(Knopf(Icons.Default.Check, stringResource(Res.string.desk_check), enabled = state.tree != null, onClick = onPruefung))
-        add(Knopf(Icons.Default.Place, stringResource(Res.string.desk_web_places), enabled = state.tree != null) { web("/tree/$t/place-list") })
+        add(Knopf(Icons.Default.Place, stringResource(Res.string.desk_web_places), enabled = state.tree != null) { onOrte?.invoke() ?: web("/tree/$t/place-list") })
         add(Knopf(SourceIcon, stringResource(Res.string.desk_web_sources), enabled = state.tree != null) { onQuellen?.invoke() ?: web("/tree/$t/source-list") })
         add(Knopf(Icons.AutoMirrored.Filled.ExitToApp, "webtrees") { openWeb(state.detail?.person?.url ?: state.baseUrl) })
         add(Trenner)
@@ -739,7 +747,7 @@ fun personentextKopieren(d: de.bgghome.webtrees.nativ.api.IndividualDetail) {
 // ── Arbeitsbereiche ──────────────────────────────────────────────────
 
 @Composable
-internal fun WorkspaceBar(state: UiState, viewModel: AppViewModel, familie: Boolean, onQuellen: (() -> Unit)?) {
+internal fun WorkspaceBar(state: UiState, viewModel: AppViewModel, familie: Boolean, onQuellen: (() -> Unit)?, onOrte: (() -> Unit)? = null) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             TreePicker(state, viewModel)
@@ -748,6 +756,7 @@ internal fun WorkspaceBar(state: UiState, viewModel: AppViewModel, familie: Bool
             Workspace(TreeIcon, stringResource(if (familie) Res.string.nav_family else Res.string.nav_tree), state.section == Section.Tree || state.section == Section.Search) { viewModel.setSection(Section.Tree) }
             Workspace(PhotoIcon, stringResource(Res.string.nav_photos), state.section == Section.Photos) { viewModel.setSection(Section.Photos) }
             if (onQuellen != null) Workspace(SourceIcon, stringResource(Res.string.desk_sources_window), false, onQuellen)
+            if (onOrte != null) Workspace(Icons.Default.Place, stringResource(Res.string.desk_places_window), false, onOrte)
             Spacer(Modifier.weight(1f))
             if (!familie && (state.section == Section.Tree || state.section == Section.Search)) {
                 GenerationsChip(state, viewModel)

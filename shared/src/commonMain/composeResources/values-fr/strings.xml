@@ -1186,4 +1186,27 @@
     <string name="pruef_weiblich">féminin</string>
     <string name="pruef_taufe">Baptême</string>
     <string name="pruef_heirat">Mariage</string>
+    <string name="desk_places_window">Lieux</string>
+    <string name="desk_places_search">Rechercher des lieux …</string>
+    <string name="desk_places_count">%1$d sur %2$d lieux</string>
+    <string name="desk_places_choose">Choisissez un lieu à gauche.</string>
+    <string name="desk_place_tab_people">Personnes</string>
+    <string name="desk_place_tab_data">Données</string>
+    <string name="desk_place_tab_coords">Coordonnées</string>
+    <string name="desk_place_levels">Niveaux</string>
+    <string name="desk_place_parent">Fait partie de</string>
+    <string name="desk_place_children">Lieux inclus</string>
+    <string name="desk_place_events">Événements</string>
+    <string name="desk_place_record">Fiche de lieu</string>
+    <string name="desk_place_no_record">aucune – notes, identifiant GOV et coordonnées se trouvent dans une fiche de lieu webtrees (_LOC).</string>
+    <string name="desk_place_gov">Identifiant GOV</string>
+    <string name="desk_place_gov_show">Voir dans GOV</string>
+    <string name="desk_place_decimal">Décimal</string>
+    <string name="desk_place_dms">Degrés, minutes, secondes</string>
+    <string name="desk_place_coords_location">de la fiche de lieu</string>
+    <string name="desk_place_coords_mapdata">des données géographiques de webtrees</string>
+    <string name="desk_place_coords_event">d’un événement (MAP)</string>
+    <string name="desk_place_no_coords">Aucune coordonnée connue pour ce lieu.</string>
+    <string name="desk_place_nothing">Rien d’enregistré.</string>
+    <string name="desk_place_families">Familles</string>
 </resources>

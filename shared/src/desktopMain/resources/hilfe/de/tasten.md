@@ -22,6 +22,7 @@
 | Strg+1 / Strg+2 / Strg+3 | Bereich Start / Baum / Fotos |
 | Strg+4 | Personentabelle |
 | Strg+5 | Quellen |
+| Strg+6 | Orte |
 | Strg+Q | Beenden |
 
 ## Navigator

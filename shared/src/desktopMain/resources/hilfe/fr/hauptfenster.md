@@ -50,6 +50,11 @@ Dans les dispositions **Arbre au centre** et **Vue famille**, le bouton **Source
 
 Nécessite api4webtrees avec le niveau d'API 18 ; avec des serveurs plus anciens, l'icône ouvre comme avant la liste des sources de webtrees.
 
+
+## Lieux
+
+**Affichage › Lieux** (Ctrl+6) ou l’icône **Lieux** ouvre la gestion des lieux (à partir d’api4webtrees 1.13) : à gauche tous les lieux tels qu’ils figurent dans les événements, avec recherche, nombre d’événements et ◉ pour « coordonnées connues ». À droite le lieu sélectionné en onglets : **Personnes** (chaque individu et chaque famille avec leurs événements à cet endroit – un clic sélectionne la personne, un double-clic en fait la personne centrale), **Données** (niveaux, lieu supérieur, lieux inclus, fiche de lieu et identifiant GOV), **Notes**, **Sources**, **Médias** et **Coordonnées** avec carte. Dans webtrees, la note, l’identifiant GOV et les coordonnées d’un lieu se trouvent dans sa fiche de lieu (_LOC, GEDCOM-L) ; sans fiche, wtWin prend les coordonnées des données géographiques de webtrees ou d’un événement.
+
 ## Sections : Accueil, Arbre, Photos
 
 - **Accueil** (Ctrl+1) : message d'accueil, anniversaires à venir, modifications récentes de l'arbre, la personne de départ. Les modérateurs voient ici les modifications en attente et les acceptent ou les refusent.

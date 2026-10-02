@@ -259,6 +259,95 @@ fun IndividualDetail.halfSiblings(): List<HalfSibling> {
 @Serializable
 data class PlaceList(val query: String = "", val data: List<String> = emptyList())
 
+/** Ab dieser Stufe: Ortsliste (Places?list=1) und ein Ort (Place). */
+const val API_PLACE_LIST = 21
+
+/** Ein Ort der Ortsliste - der PLAC-Text, wie er an sichtbaren Ereignissen steht. */
+@Serializable
+data class PlaceSummary(
+    val name: String,
+    val events: Int = 0,
+    val individuals: Int = 0,
+    val families: Int = 0,
+    val lat: Double? = null,
+    val lng: Double? = null,
+    /** Herkunft der Koordinaten: "location" (_LOC), "mapData" (Geografische Daten), "event" (MAP am Ereignis). */
+    val coordSource: String? = null,
+    /** Kennung des _LOC-Datensatzes, wenn der Ort einen hat. */
+    val location: String? = null,
+    val gov: String? = null,
+)
+
+@Serializable
+data class PlaceSummaryList(val total: Int = 0, val places: List<PlaceSummary> = emptyList())
+
+@Serializable
+data class PlaceEvent(val tag: String = "", val label: String = "", val date: DateJson? = null)
+
+@Serializable
+data class PlaceUsePerson(
+    val xref: String,
+    val name: String = "",
+    val sex: String = "U",
+    val isDead: Boolean = false,
+    @SerialName("private") val isPrivate: Boolean = false,
+    val lifespan: String = "",
+    val thumb: String? = null,
+    val url: String = "",
+    val facts: List<PlaceEvent> = emptyList(),
+) {
+    fun person() = Person(xref = xref, name = name, sex = sex, isDead = isDead, isPrivate = isPrivate, lifespan = lifespan, thumb = thumb, url = url)
+}
+
+@Serializable
+data class PlaceUseFamily(
+    val xref: String,
+    val name: String = "",
+    val husband: String? = null,
+    val wife: String? = null,
+    val facts: List<PlaceEvent> = emptyList(),
+)
+
+@Serializable
+data class PlaceChild(val name: String, val events: Int = 0)
+
+/** Quellenangabe am _LOC: Quelle (xref null bei Text-Quelle) und Seite. */
+@Serializable
+data class LocationSource(val xref: String? = null, val title: String? = null, val page: String? = null)
+
+/** Der GEDCOM-L-Datensatz _LOC eines Orts. */
+@Serializable
+data class LocationJson(
+    val xref: String,
+    val name: String = "",
+    val gov: String? = null,
+    val lat: Double? = null,
+    val lng: Double? = null,
+    val notes: List<String> = emptyList(),
+    val sources: List<LocationSource> = emptyList(),
+    val media: List<MediaJson> = emptyList(),
+    val canEdit: Boolean = false,
+    val url: String = "",
+)
+
+@Serializable
+data class PlaceDetail(
+    val name: String,
+    val levels: List<String> = emptyList(),
+    val parent: String? = null,
+    val children: List<PlaceChild> = emptyList(),
+    val events: Int = 0,
+    val lat: Double? = null,
+    val lng: Double? = null,
+    val coordSource: String? = null,
+    val location: LocationJson? = null,
+    val individuals: List<PlaceUsePerson> = emptyList(),
+    val families: List<PlaceUseFamily> = emptyList(),
+    val moreIndividuals: Int = 0,
+    val moreFamilies: Int = 0,
+    val canEdit: Boolean = false,
+)
+
 @Serializable
 data class PersonPage(
     val query: String = "",

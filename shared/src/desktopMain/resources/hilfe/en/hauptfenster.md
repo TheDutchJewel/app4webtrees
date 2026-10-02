@@ -50,6 +50,11 @@ In the layouts **Tree in the centre** and **Family view** the **Sources** button
 
 Needs api4webtrees with API level 18; with older servers the icon opens the webtrees source list as before.
 
+
+## Places
+
+**View › Places** (Ctrl+6) or the **Places** icon opens the place manager (api4webtrees 1.13 or later): all places as written at the events on the left, with search, the number of events and ◉ for “coordinates known”. On the right the selected place in tabs: **People** (every individual and family with their events there – a click selects the person, a double-click makes them the central person), **Details** (levels, the place above, places within, location record and GOV identifier), **Notes**, **Sources**, **Media** and **Coordinates** with a map. In webtrees a place’s note, GOV identifier and coordinates are kept in its location record (_LOC, GEDCOM-L); without one, wtWin takes the coordinates from webtrees’ geographic data or from an event.
+
 ## Sections: Home, Tree, Photos
 
 - **Home** (Ctrl+1): greeting, upcoming anniversaries, recent changes in the tree, the start person. Moderators see pending changes here and accept or reject them.

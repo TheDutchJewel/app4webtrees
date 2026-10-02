@@ -1167,4 +1167,27 @@
     <string name="pruef_weiblich">vrouw</string>
     <string name="pruef_taufe">Doop</string>
     <string name="pruef_heirat">Huwelijk</string>
+    <string name="desk_places_window">Plaatsen</string>
+    <string name="desk_places_search">Plaatsen zoeken …</string>
+    <string name="desk_places_count">%1$d van %2$d plaatsen</string>
+    <string name="desk_places_choose">Kies links een plaats.</string>
+    <string name="desk_place_tab_people">Personen</string>
+    <string name="desk_place_tab_data">Gegevens</string>
+    <string name="desk_place_tab_coords">Coördinaten</string>
+    <string name="desk_place_levels">Niveaus</string>
+    <string name="desk_place_parent">Hoort bij</string>
+    <string name="desk_place_children">Plaatsen hieronder</string>
+    <string name="desk_place_events">Gebeurtenissen</string>
+    <string name="desk_place_record">Locatierecord</string>
+    <string name="desk_place_no_record">geen – notities, GOV-code en coördinaten staan in een webtrees-locatierecord (_LOC).</string>
+    <string name="desk_place_gov">GOV-code</string>
+    <string name="desk_place_gov_show">In GOV bekijken</string>
+    <string name="desk_place_decimal">Decimaal</string>
+    <string name="desk_place_dms">Graden, minuten, seconden</string>
+    <string name="desk_place_coords_location">uit het locatierecord</string>
+    <string name="desk_place_coords_mapdata">uit de geografische gegevens van webtrees</string>
+    <string name="desk_place_coords_event">uit een gebeurtenis (MAP)</string>
+    <string name="desk_place_no_coords">Voor deze plaats zijn geen coördinaten bekend.</string>
+    <string name="desk_place_nothing">Niets vastgelegd.</string>
+    <string name="desk_place_families">Gezinnen</string>
 </resources>

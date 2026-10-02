@@ -50,6 +50,11 @@ In de indelingen **Boom centraal** en **Gezinsweergave** staat de knop **Bronnen
 
 Vereist api4webtrees met API-niveau 18; bij oudere servers opent het symbool zoals voorheen de bronnenlijst van webtrees.
 
+
+## Plaatsen
+
+**Beeld › Plaatsen** (Ctrl+6) of het symbool **Plaatsen** opent het plaatsenbeheer (vanaf api4webtrees 1.13): links alle plaatsen zoals ze bij de gebeurtenissen staan, met zoekfunctie, het aantal gebeurtenissen en ◉ voor „coördinaten bekend”. Rechts de geselecteerde plaats in tabbladen: **Personen** (elke persoon en elk gezin met hun gebeurtenissen daar – een klik selecteert de persoon, een dubbelklik maakt hem of haar tot proband), **Gegevens** (niveaus, bovenliggende plaats, plaatsen hieronder, locatierecord en GOV-code), **Notities**, **Bronnen**, **Media** en **Coördinaten** met kaart. In webtrees staan notitie, GOV-code en coördinaten van een plaats in het locatierecord (_LOC, GEDCOM-L); zonder record neemt wtWin de coördinaten uit de geografische gegevens van webtrees of uit een gebeurtenis.
+
 ## Onderdelen: Start, Boom, Foto's
 
 - **Start** (Ctrl+1): begroeting, komende gedenkdagen, recente wijzigingen in de stamboom, de startpersoon. Moderators zien hier openstaande wijzigingen en keuren ze goed of af.

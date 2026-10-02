@@ -289,6 +289,14 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     suspend fun places(tree: String, query: String): PlaceList =
         get("Places", tree, mapOf("q" to query), PlaceList.serializer())
 
+    /** Alle Orte an sichtbaren Ereignissen (ab Stufe 21). */
+    suspend fun placeList(tree: String): PlaceSummaryList =
+        get("Places", tree, mapOf("list" to "1"), PlaceSummaryList.serializer())
+
+    /** Ein Ort mit Personen, Familien, Unterorten und _LOC (ab Stufe 21). */
+    suspend fun place(tree: String, name: String): PlaceDetail =
+        get("Place", tree, mapOf("name" to name), PlaceDetail.serializer())
+
     // ── Anmelden ─────────────────────────────────────────────────────
 
     /**

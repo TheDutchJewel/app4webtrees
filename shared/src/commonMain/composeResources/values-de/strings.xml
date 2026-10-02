@@ -1186,4 +1186,27 @@
     <string name="pruef_weiblich">weiblich</string>
     <string name="pruef_taufe">Taufe</string>
     <string name="pruef_heirat">Heirat</string>
+    <string name="desk_places_window">Orte</string>
+    <string name="desk_places_search">Orte suchen …</string>
+    <string name="desk_places_count">%1$d von %2$d Orten</string>
+    <string name="desk_places_choose">Links einen Ort wählen.</string>
+    <string name="desk_place_tab_people">Personen</string>
+    <string name="desk_place_tab_data">Daten</string>
+    <string name="desk_place_tab_coords">Koordinaten</string>
+    <string name="desk_place_levels">Ebenen</string>
+    <string name="desk_place_parent">Gehört zu</string>
+    <string name="desk_place_children">Orte darunter</string>
+    <string name="desk_place_events">Ereignisse</string>
+    <string name="desk_place_record">Ortsdatensatz</string>
+    <string name="desk_place_no_record">keiner – Notiz, GOV-Kennung und Koordinaten stehen in webtrees in einem Ortsdatensatz (_LOC).</string>
+    <string name="desk_place_gov">GOV-Kennung</string>
+    <string name="desk_place_gov_show">In GOV ansehen</string>
+    <string name="desk_place_decimal">Dezimal</string>
+    <string name="desk_place_dms">Grad, Minuten, Sekunden</string>
+    <string name="desk_place_coords_location">aus dem Ortsdatensatz</string>
+    <string name="desk_place_coords_mapdata">aus den Geografischen Daten von webtrees</string>
+    <string name="desk_place_coords_event">aus einem Ereignis (MAP)</string>
+    <string name="desk_place_no_coords">Für diesen Ort sind keine Koordinaten bekannt.</string>
+    <string name="desk_place_nothing">Nichts eingetragen.</string>
+    <string name="desk_place_families">Familien</string>
 </resources>

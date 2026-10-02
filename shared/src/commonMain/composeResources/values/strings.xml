@@ -1191,4 +1191,27 @@
     <string name="pruef_weiblich">female</string>
     <string name="pruef_taufe">Baptism</string>
     <string name="pruef_heirat">Marriage</string>
+    <string name="desk_places_window">Places</string>
+    <string name="desk_places_search">Search places …</string>
+    <string name="desk_places_count">%1$d of %2$d places</string>
+    <string name="desk_places_choose">Select a place on the left.</string>
+    <string name="desk_place_tab_people">People</string>
+    <string name="desk_place_tab_data">Details</string>
+    <string name="desk_place_tab_coords">Coordinates</string>
+    <string name="desk_place_levels">Levels</string>
+    <string name="desk_place_parent">Part of</string>
+    <string name="desk_place_children">Places within</string>
+    <string name="desk_place_events">Events</string>
+    <string name="desk_place_record">Location record</string>
+    <string name="desk_place_no_record">none – notes, GOV identifier and coordinates are kept in a webtrees location record (_LOC).</string>
+    <string name="desk_place_gov">GOV identifier</string>
+    <string name="desk_place_gov_show">Show in GOV</string>
+    <string name="desk_place_decimal">Decimal</string>
+    <string name="desk_place_dms">Degrees, minutes, seconds</string>
+    <string name="desk_place_coords_location">from the location record</string>
+    <string name="desk_place_coords_mapdata">from webtrees’ geographic data</string>
+    <string name="desk_place_coords_event">from an event (MAP)</string>
+    <string name="desk_place_no_coords">No coordinates are known for this place.</string>
+    <string name="desk_place_nothing">Nothing recorded.</string>
+    <string name="desk_place_families">Families</string>
 </resources>

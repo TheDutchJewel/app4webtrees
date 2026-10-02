@@ -22,6 +22,7 @@
 | Ctrl+1 / Ctrl+2 / Ctrl+3 | Onderdeel Start / Boom / Foto's |
 | Ctrl+4 | Personentabel |
 | Ctrl+5 | Bronnen |
+| Ctrl+6 | Plaatsen |
 | Ctrl+Q | Afsluiten |
 
 ## Navigator

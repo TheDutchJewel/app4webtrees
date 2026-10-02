@@ -22,6 +22,7 @@
 | Ctrl+1 / Ctrl+2 / Ctrl+3 | Section Accueil / Arbre / Photos |
 | Ctrl+4 | Table des personnes |
 | Ctrl+5 | Sources |
+| Ctrl+6 | Lieux |
 | Ctrl+Q | Quitter |
 
 ## Navigateur

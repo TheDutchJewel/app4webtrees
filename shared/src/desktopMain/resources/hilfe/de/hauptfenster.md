@@ -50,6 +50,11 @@ In den Aufbauten **Baum im Mittelpunkt** und **Familienansicht** steht der Knopf
 
 Braucht api4webtrees mit API-Stufe 18; bei älteren Servern öffnet das Symbol wie bisher die Quellenliste von webtrees.
 
+
+## Orte
+
+**Ansicht › Orte** (Strg+6) oder das Symbol **Orte** öffnet die Ortsverwaltung (ab api4webtrees 1.13): links alle Orte, wie sie an den Ereignissen stehen, mit Suche, der Zahl der Ereignisse und ◉ für „Koordinaten bekannt“. Rechts der gewählte Ort in Reitern: **Personen** (alle Personen und Familien mit ihren Ereignissen dort – Klick wählt die Person, Doppelklick macht sie zum Probanden), **Daten** (Ebenen, übergeordneter Ort, Orte darunter, Ortsdatensatz und GOV-Kennung), **Notizen**, **Quellen**, **Medien** und **Koordinaten** mit Karte. Notiz, GOV-Kennung und Koordinaten eines Orts stehen in webtrees im Ortsdatensatz (_LOC, GEDCOM-L); fehlt er, nimmt wtWin die Koordinaten aus den Geografischen Daten von webtrees oder von einem Ereignis.
+
 ## Bereiche: Start, Baum, Fotos
 
 - **Start** (Strg+1): Begrüßung, die nächsten Jahrestage, letzte Änderungen im Stammbaum, die Startperson. Moderatoren sehen hier ausstehende Änderungen und nehmen sie an oder verwerfen sie.
