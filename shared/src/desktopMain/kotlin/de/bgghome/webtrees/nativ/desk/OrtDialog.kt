@@ -108,7 +108,10 @@ internal fun grad(text: String): Double? {
  * Breite und Laenge aus einem kopierten Text: "53.778417, 20.480111", "53,7784; 20,4801" oder wie in der Wikipedia
  * "53° 46′ 42″ N, 20° 28′ 48″ O". Null, wenn es nicht genau zwei Koordinaten sind.
  */
-internal fun koordinatenPaar(text: String): Pair<Double, Double>? {
+internal fun koordinatenPaar(text: String): Pair<Double, Double>? =
+    koordinatenPaarRoh(text)?.takeIf { (b, l) -> b in -90.0..90.0 && l in -180.0..180.0 }
+
+private fun koordinatenPaarRoh(text: String): Pair<Double, Double>? {
     val t = text.trim().replace('\n', ' ')
     Regex("^\\s*(-?\\d+(?:\\.\\d+)?)\\s*[,;\\s]\\s*(-?\\d+(?:\\.\\d+)?)\\s*$").find(t)?.let { m ->
         return m.groupValues[1].toDouble() to m.groupValues[2].toDouble()
