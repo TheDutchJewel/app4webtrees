@@ -109,9 +109,12 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
         onPreviewKeyEvent = { e -> if (e.type == KeyEventType.KeyDown && e.key == Key.Escape) { onClose(); true } else false },
     ) {
         DeskTheme {
+            // Breite der Liste: am Trennstrich ziehen, gemerkt
+            var listeBreite by remember { mutableStateOf(DeskLayout.prefs.getString("quellen_liste", null)?.toFloatOrNull() ?: 380f) }
+            val dichte = androidx.compose.ui.platform.LocalDensity.current.density
             Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 // ── Liste ──
-                Column(Modifier.width(380.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface)) {
+                Column(Modifier.width(listeBreite.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface)) {
                     Box(Modifier.fillMaxWidth().padding(10.dp)) {
                         BasicTextField(suche, { suche = it }, singleLine = true,
                             textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
@@ -160,8 +163,10 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
                             }
                         }
                     }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    TextButton(onClick = onClose, modifier = Modifier.align(Alignment.End).padding(4.dp)) { Text(stringResource(Res.string.action_close)) }
                 }
-                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Ziehgriff(onZiehen = { listeBreite = (listeBreite + it / dichte).coerceIn(220f, 720f) }) { DeskLayout.prefs.putString("quellen_liste", listeBreite.toString()) }
 
                 // ── Die gewaehlte Quelle ──
                 Box(Modifier.weight(1f).fillMaxHeight()) {

@@ -132,7 +132,7 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
         DeskTheme {
             OrteInhalt(liste, detail, gewaehlt, { gewaehlt = it }, suche, { suche = it }, viewModel, openWeb,
                 onBearbeiten = if (darf) ({ bearbeiten = it }) else null, meldung = verweise,
-                pflege = if (darf) OrtPflege(tree.orEmpty(), viewModel, state.archive) { neu++ } else null,
+                pflege = if (darf) OrtPflege(tree.orEmpty(), viewModel, state.archive) { neu++ } else null, onClose = onClose,
                 onUmbenennen = if (darfUmbenennen) ({ von, nach -> vorschau(von, nach) }) else null)
             umbenennen?.let { v ->
                 UmbenennenDialog(v, onDismiss = { umbenennen = null }) {
@@ -167,13 +167,16 @@ internal fun OrteInhalt(
     liste: Result<PlaceSummaryList>?, detail: Result<PlaceDetail>?, gewaehlt: String?, onWahl: (String) -> Unit,
     suche: String, onSuche: (String) -> Unit, viewModel: AppViewModel?, openWeb: (String) -> Unit, reiterStart: Int = 0,
     onBearbeiten: ((PlaceDetail) -> Unit)? = null, meldung: String? = null, onUmbenennen: ((String, String) -> Unit)? = null,
-    karteStart: Boolean = false, pflege: OrtPflege? = null,
+    karteStart: Boolean = false, pflege: OrtPflege? = null, onClose: (() -> Unit)? = null,
 ) {
     // Rechts entweder der gewaehlte Ort oder die Karte aller Orte
     var karte by remember { mutableStateOf(karteStart) }
+    // Breite der Liste: am Trennstrich ziehen, gemerkt wie die Seitenleisten im Hauptfenster
+    var listeBreite by remember { mutableStateOf(DeskLayout.prefs.getString("orte_liste", null)?.toFloatOrNull() ?: 380f) }
+    val dichte = androidx.compose.ui.platform.LocalDensity.current.density
     Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // ── Liste ──
-        Column(Modifier.width(380.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface)) {
+        Column(Modifier.width(listeBreite.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface)) {
             Box(Modifier.fillMaxWidth().padding(10.dp)) {
                 BasicTextField(suche, onSuche, singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
@@ -223,8 +226,14 @@ internal fun OrteInhalt(
                     }
                 }
             }
+            if (onClose != null) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                androidx.compose.material3.TextButton(onClick = onClose, modifier = Modifier.align(Alignment.End).padding(4.dp)) {
+                    Text(stringResource(Res.string.action_close))
+                }
+            }
         }
-        VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Ziehgriff(onZiehen = { listeBreite = (listeBreite + it / dichte).coerceIn(220f, 720f) }) { DeskLayout.prefs.putString("orte_liste", listeBreite.toString()) }
 
         // ── Der gewaehlte Ort oder die Karte ──
         Box(Modifier.weight(1f).fillMaxHeight()) {

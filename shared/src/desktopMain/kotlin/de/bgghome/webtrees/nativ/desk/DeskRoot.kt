@@ -478,7 +478,7 @@ private fun FrameWindowScope.DeskMenuBar(
 
 /** Senkrechter Trennstrich, an dem sich die Breite der Seitenleiste ziehen laesst; [onEnde] speichert die Wahl. */
 @Composable
-private fun Ziehgriff(onZiehen: (Float) -> Unit, onEnde: () -> Unit) {
+internal fun Ziehgriff(onZiehen: (Float) -> Unit, onEnde: () -> Unit) {
     Box(
         Modifier.fillMaxHeight().width(7.dp)
             .pointerHoverIcon(PointerIcon.Hand)
