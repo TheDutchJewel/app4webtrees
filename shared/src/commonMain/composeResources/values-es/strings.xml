@@ -1244,4 +1244,11 @@
     <string name="desk_list_places_persons">Con personas</string>
     <string name="desk_list_places_details">Detalles de lugares</string>
     <string name="tipp_place_details">Identificador GOV y coordenadas de cada lugar del gestor de lugares (servidor desde el nivel de API 21).</string>
+    <string name="desk_places_map">Mapa</string>
+    <string name="desk_places_details">Lugar</string>
+    <string name="desk_places_without_coords">%1$d de %2$d lugares sin coordenadas</string>
+    <string name="desk_places_legend">Eventos por lugar</string>
+    <string name="desk_places_legend_cluster">Gris: varios lugares; un clic amplía</string>
+    <string name="desk_places_show">Mostrar</string>
+    <string name="desk_places_none_on_map">Ningún lugar tiene coordenadas todavía. Edite un lugar y use «Buscar coordenadas …».</string>
 </resources>

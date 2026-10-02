@@ -1249,4 +1249,11 @@
     <string name="desk_list_places_persons">With individuals</string>
     <string name="desk_list_places_details">Place details</string>
     <string name="tipp_place_details">GOV identifier and coordinates of each place from the place manager (server with API level 21 or later).</string>
+    <string name="desk_places_map">Map</string>
+    <string name="desk_places_details">Place</string>
+    <string name="desk_places_without_coords">%1$d of %2$d places without coordinates</string>
+    <string name="desk_places_legend">Events per place</string>
+    <string name="desk_places_legend_cluster">Grey: several places – click to zoom in</string>
+    <string name="desk_places_show">Show</string>
+    <string name="desk_places_none_on_map">No place has coordinates yet. Edit a place and use “Find coordinates …”.</string>
 </resources>

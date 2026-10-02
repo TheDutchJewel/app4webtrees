@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -163,7 +165,10 @@ internal fun OrteInhalt(
     liste: Result<PlaceSummaryList>?, detail: Result<PlaceDetail>?, gewaehlt: String?, onWahl: (String) -> Unit,
     suche: String, onSuche: (String) -> Unit, viewModel: AppViewModel?, openWeb: (String) -> Unit, reiterStart: Int = 0,
     onBearbeiten: ((PlaceDetail) -> Unit)? = null, meldung: String? = null, onUmbenennen: ((String, String) -> Unit)? = null,
+    karteStart: Boolean = false,
 ) {
+    // Rechts entweder der gewaehlte Ort oder die Karte aller Orte
+    var karte by remember { mutableStateOf(karteStart) }
     Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // ── Liste ──
         Column(Modifier.width(380.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surface)) {
@@ -177,8 +182,19 @@ internal fun OrteInhalt(
             }
             val alle = liste?.getOrNull()?.places.orEmpty()
             val treffer = if (suche.isBlank()) alle else alle.filter { it.name.contains(suche.trim(), ignoreCase = true) || it.gov?.contains(suche.trim(), ignoreCase = true) == true }
-            Text(stringResource(Res.string.desk_places_count, treffer.size, alle.size), Modifier.padding(horizontal = 12.dp),
-                style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(Res.string.desk_places_count, treffer.size, alle.size), Modifier.weight(1f),
+                    style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // Umschalter Ort | Karte
+                listOf(false to Res.string.desk_places_details, true to Res.string.desk_places_map).forEach { (k, text) ->
+                    val an = karte == k
+                    Text(stringResource(text), Modifier.padding(start = 4.dp)
+                        .background(if (an) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface, MaterialTheme.shapes.small)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)
+                        .clickable { karte = k }.padding(horizontal = 10.dp, vertical = 3.dp),
+                        style = MaterialTheme.typography.labelMedium, fontWeight = if (an) FontWeight.SemiBold else FontWeight.Normal)
+                }
+            }
             HorizontalDivider(Modifier.padding(top = 6.dp), color = MaterialTheme.colorScheme.outlineVariant)
             Box(Modifier.weight(1f)) {
                 val fehler = liste?.exceptionOrNull()
@@ -208,9 +224,14 @@ internal fun OrteInhalt(
         }
         VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-        // ── Der gewaehlte Ort ──
+        // ── Der gewaehlte Ort oder die Karte ──
         Box(Modifier.weight(1f).fillMaxHeight()) {
+            val alleOrte = liste?.getOrNull()?.places
             when {
+                karte && alleOrte != null -> {
+                    val treffer = if (suche.isBlank()) alleOrte else alleOrte.filter { it.name.contains(suche.trim(), ignoreCase = true) || it.gov?.contains(suche.trim(), ignoreCase = true) == true }
+                    OrtsKarte(treffer, gewaehlt, onWahl, onAnzeigen = { onWahl(it); karte = false })
+                }
                 gewaehlt == null -> Text(stringResource(Res.string.desk_places_choose), Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 detail == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 detail.exceptionOrNull() != null -> Text(detail.exceptionOrNull()?.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
@@ -447,4 +468,102 @@ private fun UmbenennenDialog(v: de.bgghome.webtrees.nativ.api.PlaceRenameResult,
         confirm = stringResource(if (v.merge) Res.string.desk_place_merge_do else Res.string.desk_place_rename_do),
         onDismiss = onDismiss, onConfirm = onConfirm,
     )
+}
+
+private val farbeWenig = androidx.compose.ui.graphics.Color(0xFF6FA8AE)
+private val farbeMittel = androidx.compose.ui.graphics.Color(0xFF1F6F78)
+private val farbeViel = androidx.compose.ui.graphics.Color(0xFF0B3D44)
+private val farbeGruppe = androidx.compose.ui.graphics.Color(0xFF6B7276)
+private val farbeGewaehlt = androidx.compose.ui.graphics.Color(0xFFC0582A)
+
+/** Farbe nach Zahl der Ereignisse wie im Ortsregister: wenige hell, viele dunkel. */
+private fun ortFarbe(ereignisse: Int) = when { ereignisse >= 100 -> farbeViel; ereignisse >= 20 -> farbeMittel; else -> farbeWenig }
+
+/** Durchmesser 18-32 px nach Wurzel der Ereignisse (wie im Ortsregister) - hier als Radius in dp. */
+private fun ortRadius(ereignisse: Int) = (kotlin.math.sqrt(ereignisse.toDouble()) * 6).coerceIn(18.0, 32.0).toFloat() / 2
+
+/**
+ * Orte, die auf der Karte naeher als etwa 50 Pixel beieinander liegen, als eine Gruppe - je Zoomstufe neu, wie
+ * MarkerCluster im Ortsregister.
+ */
+internal fun ortsGruppen(orte: List<de.bgghome.webtrees.nativ.api.PlaceSummary>, zoom: Int, zelle: Double = 50.0): List<List<de.bgghome.webtrees.nativ.api.PlaceSummary>> =
+    orte.filter { it.lat != null && it.lng != null }.groupBy { o ->
+        val x = de.bgghome.webtrees.nativ.ui.karte.WebMercator.xTile(o.lng!!, zoom) * 256 / zelle
+        val y = de.bgghome.webtrees.nativ.ui.karte.WebMercator.yTile(o.lat!!, zoom) * 256 / zelle
+        kotlin.math.floor(x).toLong() to kotlin.math.floor(y).toLong()
+    }.values.toList()
+
+/** Karte aller Orte mit Koordinaten: Groesse und Farbe nach Ereignissen, Gruppen je Zoomstufe, Klick waehlt. */
+@Composable
+private fun OrtsKarte(orte: List<de.bgghome.webtrees.nativ.api.PlaceSummary>, gewaehlt: String?, onWahl: (String) -> Unit, onAnzeigen: (String) -> Unit) {
+    val mit = remember(orte) { orte.filter { it.lat != null && it.lng != null } }
+    val farben = MaterialTheme.colorScheme
+    if (mit.isEmpty()) {
+        Text(stringResource(Res.string.desk_places_none_on_map), Modifier.padding(24.dp), color = farben.onSurfaceVariant)
+        return
+    }
+    val zustand = remember { KartenZustand() }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val w = constraints.maxWidth; val h = constraints.maxHeight
+        // Alle (gefundenen) Orte ins Bild - neu, wenn die Suche die Auswahl aendert
+        LaunchedEffect(mit, w, h) { zustand.passeEin(mit.map { GeoPunkt(it.lat!!, it.lng!!) }, w, h, randPx = 40, einzelZoom = 10, maxZoom = 12) }
+        // Erst spaeter in der Liste gewaehlt: in die Mitte holen (beim Oeffnen bleiben alle Orte im Bild)
+        var vorher by remember { mutableStateOf(gewaehlt) }
+        LaunchedEffect(gewaehlt) {
+            if (gewaehlt != vorher) mit.firstOrNull { it.name.equals(gewaehlt, ignoreCase = true) }?.let { zustand.setze(it.lat!!, it.lng!!, maxOf(zustand.zoom, 9)) }
+            vorher = gewaehlt
+        }
+        // Der gewaehlte Ort steht immer einzeln, die uebrigen werden gruppiert
+        val gruppen = remember(mit, zustand.zoom, gewaehlt) {
+            val (ich, rest) = mit.partition { it.name.equals(gewaehlt, ignoreCase = true) }
+            ortsGruppen(rest, zustand.zoom) + ich.map { listOf(it) }
+        }
+        val pins = gruppen.map { g ->
+            val ereignisse = g.sumOf { it.events }
+            val drin = g.any { it.name.equals(gewaehlt, ignoreCase = true) }
+            if (g.size == 1) KartenPin(g[0].lat!!, g[0].lng!!, text = "$ereignisse", farbe = if (drin) farbeGewaehlt else ortFarbe(ereignisse), radiusDp = ortRadius(ereignisse), tag = g[0])
+            else KartenPin(g.map { it.lat!! }.average(), g.map { it.lng!! }.average(), text = "${g.size}",
+                farbe = if (drin) farbeGewaehlt else farbeGruppe, radiusDp = ortRadius(ereignisse), tag = g)
+        }
+        KachelKarte(zustand, KachelEbene.STANDARD, Modifier.fillMaxSize(), pins = pins, onPinTap = { p ->
+            when (val t = p.tag) {
+                is de.bgghome.webtrees.nativ.api.PlaceSummary -> onWahl(t.name)
+                // Gruppe: hineinzoomen, bis sie zerfaellt
+                is List<*> -> zustand.setze(p.lat, p.lon, (zustand.zoom + 2).coerceAtMost(KachelEbene.STANDARD.maxZoom))
+            }
+        })
+        // Oben: wie viele Orte fehlen
+        val ohne = orte.size - mit.size
+        if (ohne > 0) Text(stringResource(Res.string.desk_places_without_coords, ohne, orte.size),
+            Modifier.align(Alignment.TopStart).padding(8.dp).background(farben.surface.copy(alpha = 0.92f), MaterialTheme.shapes.small).padding(horizontal = 8.dp, vertical = 4.dp),
+            style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
+        // Unten rechts: Legende
+        Column(Modifier.align(Alignment.BottomEnd).padding(8.dp).background(farben.surface.copy(alpha = 0.92f), MaterialTheme.shapes.small).padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(stringResource(Res.string.desk_places_legend), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+            listOf(farbeWenig to "1–19", farbeMittel to "20–99", farbeViel to "100+").forEach { (f, t) ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(12.dp).background(f, androidx.compose.foundation.shape.CircleShape))
+                    Text(t, Modifier.padding(start = 6.dp), style = MaterialTheme.typography.labelSmall)
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(12.dp).background(farbeGruppe, androidx.compose.foundation.shape.CircleShape))
+                Text(stringResource(Res.string.desk_places_legend_cluster), Modifier.padding(start = 6.dp), style = MaterialTheme.typography.labelSmall)
+            }
+        }
+        // Unten links: der gewaehlte Ort mit Knopf zur Ansicht
+        mit.firstOrNull { it.name.equals(gewaehlt, ignoreCase = true) }?.let { o ->
+            Row(Modifier.align(Alignment.BottomStart).padding(8.dp).background(farben.surface, MaterialTheme.shapes.small)
+                .border(1.dp, farben.outlineVariant, MaterialTheme.shapes.small).padding(start = 10.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.widthIn(max = 360.dp)) {
+                    Text(o.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text("${o.events} " + stringResource(Res.string.desk_place_events) + " · ${o.individuals} " + stringResource(Res.string.desk_col_persons),
+                        style = MaterialTheme.typography.labelSmall, color = farben.onSurfaceVariant)
+                }
+                androidx.compose.material3.TextButton(onClick = { onAnzeigen(o.name) }) { Text(stringResource(Res.string.desk_places_show)) }
+            }
+        }
+    }
 }

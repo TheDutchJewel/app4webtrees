@@ -1244,4 +1244,11 @@
     <string name="desk_list_places_persons">Mit Personen</string>
     <string name="desk_list_places_details">Ortsdetails</string>
     <string name="tipp_place_details">GOV-Kennung und Koordinaten je Ort aus der Ortsverwaltung (Server ab API-Stufe 21).</string>
+    <string name="desk_places_map">Karte</string>
+    <string name="desk_places_details">Ort</string>
+    <string name="desk_places_without_coords">%1$d von %2$d Orten ohne Koordinaten</string>
+    <string name="desk_places_legend">Ereignisse je Ort</string>
+    <string name="desk_places_legend_cluster">Grau: mehrere Orte – Klick vergrößert</string>
+    <string name="desk_places_show">Anzeigen</string>
+    <string name="desk_places_none_on_map">Noch kein Ort hat Koordinaten. Ort bearbeiten und „Koordinaten suchen …“ nutzen.</string>
 </resources>
