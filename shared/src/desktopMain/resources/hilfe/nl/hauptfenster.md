@@ -59,6 +59,8 @@ Met bewerkrechten opent **Bewerken** de plaatsgegevens: GOV-code (met **Zoeken i
 
 **Hernoemen en samenvoegen:** de plaatsnaam bovenaan is een invoerveld. Wijzig hem en bevestig met het vinkje (of Enter) – vooraf meldt wtWin hoeveel gebeurtenissen worden gewijzigd en welke plaatsen hieronder meegaan (‘Kortau, Allenstein’ → ‘Kortau, Olsztyn’). Bestaat de nieuwe naam al, dan worden beide plaatsen samengevoegd: notities, bronnen en media van de locatierecords blijven; wijken GOV-code of coördinaten af, dan gelden die van het doel. Vergrendelde of vertrouwelijke gebeurtenissen die je niet mag wijzigen houden de oude naam. Zonder automatische goedkeuring wachten de wijzigingen zoals gewoonlijk op een moderator. Tip: tikfouten hernoemen, historische namen (Allenstein/Olsztyn) laten staan en via de GOV-code verbinden.
 
+Plaatsnamen in het personenpaneel en op het persoonsblad zijn klikbaar, en elk ingevuld plaatsveld heeft een plaatssymbool – beide openen de plaats direct in het plaatsenbeheer.
+
 ## Onderdelen: Start, Boom, Foto's
 
 - **Start** (Ctrl+1): begroeting, komende gedenkdagen, recente wijzigingen in de stamboom, de startpersoon. Moderators zien hier openstaande wijzigingen en keuren ze goed of af.

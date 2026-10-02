@@ -1237,4 +1237,5 @@
     <string name="desk_place_rename_do">Renommer</string>
     <string name="desk_place_merge_do">Fusionner</string>
     <string name="desk_place_renamed">Terminé : %1$d événements modifiés.</string>
+    <string name="desk_place_open">Ouvrir le lieu dans la gestion des lieux</string>
 </resources>

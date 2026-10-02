@@ -59,6 +59,9 @@ private data class TimelineRow(
 /** Desktop: eine Quelle in der Quellenverwaltung oeffnen; null (Handy, alte Server): Verweise nur als Text. */
 val LocalSourceOpener = staticCompositionLocalOf<((String) -> Unit)?> { null }
 
+/** Am Desktop: Ort in der Ortsverwaltung oeffnen (voller Ortsname); am Handy null - der Ort bleibt Text. */
+val LocalPlaceOpener = staticCompositionLocalOf<((String) -> Unit)?> { null }
+
 @Composable
 fun Timeline(
     detail: IndividualDetail,
@@ -190,8 +193,18 @@ private fun TimelineItem(row: TimelineRow, onEdit: (FactJson, String?) -> Unit, 
             Text(row.label, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
             if (fact.value.isNotEmpty()) Text(if (fact.tag == "NAME") de.bgghome.webtrees.nativ.data.GedcomName.aus(fact.value).anzeige() else fact.value, style = MaterialTheme.typography.bodyMedium)
 
-            val sub = listOfNotNull(fact.date?.text, fact.place?.name).joinToString(" · ")
-            if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            val ortOeffnen = LocalPlaceOpener.current
+            val ort = fact.place?.name?.takeIf(String::isNotBlank)
+            if (ortOeffnen != null && ort != null) {
+                // Datum als Text, der Ort anklickbar (oeffnet die Ortsverwaltung)
+                Row {
+                    fact.date?.text?.let { Text("$it · ", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    Text(ort, Modifier.clickable { ortOeffnen(ort) }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                }
+            } else {
+                val sub = listOfNotNull(fact.date?.text, fact.place?.name).joinToString(" · ")
+                if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
 
             fact.notizenOhnePaten().forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             // Paten und Trauzeugen (ab API-Stufe 19): verlinkte anklickbar, freie als Text

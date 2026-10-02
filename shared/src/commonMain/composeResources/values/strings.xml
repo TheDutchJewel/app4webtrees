@@ -1242,4 +1242,5 @@
     <string name="desk_place_rename_do">Rename</string>
     <string name="desk_place_merge_do">Merge</string>
     <string name="desk_place_renamed">Done: %1$d events changed.</string>
+    <string name="desk_place_open">Open the place in the place manager</string>
 </resources>

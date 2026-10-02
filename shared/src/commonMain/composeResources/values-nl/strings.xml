@@ -1218,4 +1218,5 @@
     <string name="desk_place_rename_do">Hernoemen</string>
     <string name="desk_place_merge_do">Samenvoegen</string>
     <string name="desk_place_renamed">Klaar: %1$d gebeurtenissen gewijzigd.</string>
+    <string name="desk_place_open">Plaats openen in het plaatsenbeheer</string>
 </resources>

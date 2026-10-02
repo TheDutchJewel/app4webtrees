@@ -59,6 +59,8 @@ Mit Bearbeitungsrecht öffnet **Bearbeiten** die Ortsdaten: GOV-Kennung (mit **I
 
 **Umbenennen und Zusammenführen:** Der Ortsname oben ist ein Eingabefeld. Ändern und mit dem Haken (oder Enter) bestätigen – vorher sagt wtWin, wie viele Ereignisse geändert werden und welche Orte darunter mitwandern („Kortau, Allenstein“ → „Kortau, Olsztyn“). Gibt es den neuen Namen schon, werden beide Orte zusammengeführt: Notizen, Quellen und Medien der Ortsdatensätze bleiben, bei abweichender GOV-Kennung oder Koordinaten gelten die des Ziels. Gesperrte oder vertrauliche Ereignisse, die du nicht ändern darfst, behalten den alten Namen. Ohne Sofortfreigabe warten die Änderungen wie gewohnt auf einen Moderator. Tipp: Tippfehler umbenennen, historische Namen (Allenstein/Olsztyn) lieber stehen lassen und über die GOV-Kennung verbinden.
 
+Ortsnamen in der Personentafel und im Personenblatt sind anklickbar, und hinter jedem ausgefüllten Ortsfeld steht ein Ortssymbol – beides öffnet den Ort direkt in der Ortsverwaltung.
+
 ## Bereiche: Start, Baum, Fotos
 
 - **Start** (Strg+1): Begrüßung, die nächsten Jahrestage, letzte Änderungen im Stammbaum, die Startperson. Moderatoren sehen hier ausstehende Änderungen und nehmen sie an oder verwerfen sie.

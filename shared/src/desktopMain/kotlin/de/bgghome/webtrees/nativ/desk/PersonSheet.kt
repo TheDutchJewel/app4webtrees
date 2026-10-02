@@ -576,7 +576,12 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
                         Text(row.label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                         val alter = alterBeiEreignis(geburtJd, f)
                         Zeile(stringResource(Res.string.desk_col_date), f.date?.text.orEmpty() + (alter?.let { "   (" + stringResource(Res.string.desk_detail_age, it) + ")" } ?: ""))
-                        Zeile(stringResource(Res.string.fact_place), f.place?.name.orEmpty())
+                        val ortOeffnen = de.bgghome.webtrees.nativ.ui.LocalPlaceOpener.current
+                        val ort = f.place?.name.orEmpty()
+                        if (ortOeffnen != null && ort.isNotBlank()) Row {
+                            Text(stringResource(Res.string.fact_place), Modifier.width(130.dp), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+                            Text(ort, Modifier.clickable { ortOeffnen(ort) }, style = MaterialTheme.typography.bodyMedium, color = colors.primary)
+                        } else Zeile(stringResource(Res.string.fact_place), ort)
                         Zeile(stringResource(Res.string.desk_detail_value),
                             if (f.tag == "NAME") de.bgghome.webtrees.nativ.data.GedcomName.aus(f.value).anzeige() else f.value)
                         val civil = heiratsartText(Heiratsart.Standesamtlich); val reli = heiratsartText(Heiratsart.Kirchlich)

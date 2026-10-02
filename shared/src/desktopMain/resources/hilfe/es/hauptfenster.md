@@ -59,6 +59,8 @@ Con permiso de edición, **Editar** abre los datos del lugar: identificador GOV 
 
 **Renombrar y fusionar:** el nombre del lugar arriba es un campo de entrada. Cámbielo y confirme con la marca (o Intro); antes, wtWin indica cuántos eventos se cambiarán y qué lugares incluidos se mueven con él («Kortau, Allenstein» → «Kortau, Olsztyn»). Si el nuevo nombre ya existe, ambos lugares se fusionan: se conservan las notas, fuentes y medios de los registros de lugar; si el identificador GOV o las coordenadas difieren, valen los del destino. Los eventos bloqueados o confidenciales que no puede cambiar conservan el nombre anterior. Sin aceptación automática, los cambios esperan a un moderador como siempre. Consejo: corrija las erratas, pero deje los nombres históricos (Allenstein/Olsztyn) y únalos mediante el identificador GOV.
 
+Los nombres de lugar en el panel de la persona y en la hoja de la persona se pueden pulsar, y cada campo de lugar relleno tiene un icono de lugar: ambos abren el lugar directamente en el gestor de lugares.
+
 ## Secciones: Inicio, Árbol, Fotos
 
 - **Inicio** (Ctrl+1): saludo, próximos aniversarios, cambios recientes en el árbol, la persona de inicio. Los moderadores ven aquí los cambios pendientes y los aceptan o rechazan.

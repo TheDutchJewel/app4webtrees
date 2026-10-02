@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -95,8 +97,16 @@ internal fun PlaceField(value: String, onChange: (String) -> Unit, label: String
         suggestions = suggest(query).filter { it != query }
     }
 
+    val ortOeffnen = LocalPlaceOpener.current
     Box {
-        Field(value, onChange, label, hint)
+        // Immer derselbe Aufbau, damit das Feld beim ersten Buchstaben den Fokus behaelt; das Symbol (wie das
+        // Dialog-Symbol hinter dem Ortsfeld) oeffnet den Ort in der Ortsverwaltung - nur am Desktop
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.weight(1f)) { Field(value, onChange, label, hint) }
+            if (ortOeffnen != null && value.isNotBlank()) IconButton(onClick = { ortOeffnen(value.trim()) }) {
+                Icon(Icons.Default.Place, stringResource(Res.string.desk_place_open), tint = MaterialTheme.colorScheme.primary)
+            }
+        }
         // Nicht fokussierbar, damit die Tastatur offen bleibt und man einfach weitertippen kann.
         DropdownMenu(
             expanded = suggestions.isNotEmpty(),

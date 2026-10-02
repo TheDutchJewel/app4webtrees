@@ -233,92 +233,98 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() }
     }
 
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Column(Modifier.fillMaxSize()) {
-            if (layout == DeskLayout.Navigator) {
-                ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
-                    symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
-                    onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null)
-            } else {
-                WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family, onQuellen = if (quellenApi) ({ quellen = "" }) else null,
-                    onOrte = if (orteApi) ({ orte = "" }) else null)
-            }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Box(Modifier.fillMaxWidth().height(3.dp)) {
-                if (state.busy || state.loadingDetail || state.loadingPeople) LinearProgressIndicator(Modifier.fillMaxSize())
-            }
-            if (layout == DeskLayout.Navigator) Box(Modifier.weight(1f).fillMaxWidth()) {
-                when (state.section) {
-                    Section.Home -> HomeSection(state, viewModel, openWeb)
-                    Section.Photos -> PhotosSection(state, viewModel, openWeb)
-                    else -> Navigator(state, viewModel, openSheet, openWeb, farben, zoom, onZoom = { zoom = it; DeskLayout.prefs.putString("zoom", it.toString()) })
+    // Ortsnamen (Personentafel, Ortsfelder in den Dialogen) oeffnen die Ortsverwaltung, wenn der Server sie kennt
+    val ortOeffnen: ((String) -> Unit)? = if (orteApi) ({ n: String -> orte = n }) else null
+    CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalPlaceOpener provides ortOeffnen) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            Column(Modifier.fillMaxSize()) {
+                if (layout == DeskLayout.Navigator) {
+                    ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
+                        symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
+                        onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null)
+                } else {
+                    WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family, onQuellen = if (quellenApi) ({ quellen = "" }) else null,
+                        onOrte = if (orteApi) ({ orte = "" }) else null)
                 }
-            } else Row(Modifier.weight(1f).fillMaxWidth()) {
-                // Vollbild (Knopf im Baum oder Esc zurueck): nur der Baum, ohne Personenliste und Personentafel.
-                // Fotos/Archiv brauchen die ganze Breite (wie im Aufbau Navigator) - dort ebenfalls ohne Seitenleisten.
-                val vollbild = (layout == DeskLayout.TreeCentre && state.treeFullscreen && state.section != Section.Home && state.section != Section.Photos) ||
-                    state.section == Section.Photos
-                // Breite der Seitenleisten: am Griff ziehbar, bleibt gespeichert
-                var linksBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_links", null)?.toFloatOrNull() ?: 280f) }
-                var rechtsBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_rechts", null)?.toFloatOrNull() ?: 400f) }
-                val dichte = LocalDensity.current.density
-                if (!vollbild) {
-                    PersonIndex(state, viewModel, openWeb, search, Modifier.width(linksBreite.dp).fillMaxHeight())
-                    Ziehgriff(onZiehen = { linksBreite = (linksBreite + it / dichte).coerceIn(180f, 600f) }) { DeskLayout.prefs.putString("panel_links", linksBreite.toString()) }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Box(Modifier.fillMaxWidth().height(3.dp)) {
+                    if (state.busy || state.loadingDetail || state.loadingPeople) LinearProgressIndicator(Modifier.fillMaxSize())
                 }
-                Box(Modifier.weight(1f).fillMaxHeight()) {
+                if (layout == DeskLayout.Navigator) Box(Modifier.weight(1f).fillMaxWidth()) {
                     when (state.section) {
                         Section.Home -> HomeSection(state, viewModel, openWeb)
                         Section.Photos -> PhotosSection(state, viewModel, openWeb)
-                        else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb) else DeskTree(state, viewModel, openWeb)
+                        else -> Navigator(state, viewModel, openSheet, openWeb, farben, zoom, onZoom = { zoom = it; DeskLayout.prefs.putString("zoom", it.toString()) })
                     }
-                }
-                if (!vollbild) {
-                    Ziehgriff(onZiehen = { rechtsBreite = (rechtsBreite - it / dichte).coerceIn(260f, 720f) }) { DeskLayout.prefs.putString("panel_rechts", rechtsBreite.toString()) }
-                    Box(Modifier.width(rechtsBreite.dp).fillMaxHeight()) {
-                        val detail = state.detail
-                        if (detail != null) {
-                            CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalSourceOpener provides (if (quellenApi) ({ x: String -> quellen = x }) else null)) {
-                                ProfilePanel(state, detail, viewModel, openWeb, onClose = null)
+                } else Row(Modifier.weight(1f).fillMaxWidth()) {
+                    // Vollbild (Knopf im Baum oder Esc zurueck): nur der Baum, ohne Personenliste und Personentafel.
+                    // Fotos/Archiv brauchen die ganze Breite (wie im Aufbau Navigator) - dort ebenfalls ohne Seitenleisten.
+                    val vollbild = (layout == DeskLayout.TreeCentre && state.treeFullscreen && state.section != Section.Home && state.section != Section.Photos) ||
+                        state.section == Section.Photos
+                    // Breite der Seitenleisten: am Griff ziehbar, bleibt gespeichert
+                    var linksBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_links", null)?.toFloatOrNull() ?: 280f) }
+                    var rechtsBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_rechts", null)?.toFloatOrNull() ?: 400f) }
+                    val dichte = LocalDensity.current.density
+                    if (!vollbild) {
+                        PersonIndex(state, viewModel, openWeb, search, Modifier.width(linksBreite.dp).fillMaxHeight())
+                        Ziehgriff(onZiehen = { linksBreite = (linksBreite + it / dichte).coerceIn(180f, 600f) }) { DeskLayout.prefs.putString("panel_links", linksBreite.toString()) }
+                    }
+                    Box(Modifier.weight(1f).fillMaxHeight()) {
+                        when (state.section) {
+                            Section.Home -> HomeSection(state, viewModel, openWeb)
+                            Section.Photos -> PhotosSection(state, viewModel, openWeb)
+                            else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb) else DeskTree(state, viewModel, openWeb)
+                        }
+                    }
+                    if (!vollbild) {
+                        Ziehgriff(onZiehen = { rechtsBreite = (rechtsBreite - it / dichte).coerceIn(260f, 720f) }) { DeskLayout.prefs.putString("panel_rechts", rechtsBreite.toString()) }
+                        Box(Modifier.width(rechtsBreite.dp).fillMaxHeight()) {
+                            val detail = state.detail
+                            if (detail != null) {
+                                CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalSourceOpener provides (if (quellenApi) ({ x: String -> quellen = x }) else null)) {
+                                    ProfilePanel(state, detail, viewModel, openWeb, onClose = null)
+                                }
+                            } else {
+                                Text(
+                                    stringResource(Res.string.detail_choose), Modifier.align(Alignment.Center).padding(24.dp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                             }
-                        } else {
-                            Text(
-                                stringResource(Res.string.detail_choose), Modifier.align(Alignment.Center).padding(24.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
                         }
                     }
                 }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                StatusBar(state, viewModel.versionName, appName)
             }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            StatusBar(state, viewModel.versionName, appName)
-        }
-        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 40.dp))
+            SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 40.dp))
 
-        // Betrachter liegen ueber allem, wie am Handy.
-        state.pdf?.let { pdf -> PdfViewer(pdf, onClose = viewModel::closePdf, onOpenWeb = openWeb) }
-        state.viewer?.let { viewer ->
-            PhotoViewer(
-                viewer, onIndex = viewModel::viewerMoved, onClose = viewModel::closeViewer, onOpenWeb = openWeb,
-                canEdit = viewModel::canEditExif, editing = state.exifEditing, suggestPersons = viewModel.personSuggestions(),
-                onEdit = viewModel::editExif, onCancelEdit = viewModel::cancelExif, onSaveExif = viewModel::writeExif,
+            // Betrachter liegen ueber allem, wie am Handy.
+            state.pdf?.let { pdf -> PdfViewer(pdf, onClose = viewModel::closePdf, onOpenWeb = openWeb) }
+            state.viewer?.let { viewer ->
+                PhotoViewer(
+                    viewer, onIndex = viewModel::viewerMoved, onClose = viewModel::closeViewer, onOpenWeb = openWeb,
+                    canEdit = viewModel::canEditExif, editing = state.exifEditing, suggestPersons = viewModel.personSuggestions(),
+                    onEdit = viewModel::editExif, onCancelEdit = viewModel::cancelExif, onSaveExif = viewModel::writeExif,
+                )
+            }
+        }
+    }
+
+    CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalPlaceOpener provides ortOeffnen) {
+        // Verwandte hinzufuegen - aus der Tafel, vom Kontextmenue oder von der "+"-Lasche einer Karte.
+        val detail = state.detail
+        if (state.addRelativeFor != null && detail != null && detail.person.xref == state.addRelativeFor && !state.loadingDetail) {
+            RelativeDialog(
+                target = RelativeTarget.of(detail),
+                suggestPlaces = viewModel.placeSuggestions(),
+                onDismiss = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled() },
+                onSave = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled(); viewModel.addRelative(it) },
+                initialRelation = Verwandtenwahl.vorwahl, initialFamily = Verwandtenwahl.familie,
             )
         }
-    }
 
-    // Verwandte hinzufuegen - aus der Tafel, vom Kontextmenue oder von der "+"-Lasche einer Karte.
-    val detail = state.detail
-    if (state.addRelativeFor != null && detail != null && detail.person.xref == state.addRelativeFor && !state.loadingDetail) {
-        RelativeDialog(
-            target = RelativeTarget.of(detail),
-            suggestPlaces = viewModel.placeSuggestions(),
-            onDismiss = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled() },
-            onSave = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled(); viewModel.addRelative(it) },
-            initialRelation = Verwandtenwahl.vorwahl, initialFamily = Verwandtenwahl.familie,
-        )
+        if (sheetOpen && state.detail != null) PersonSheet(state, viewModel, openWeb, onClose = { sheetOpen = false }, onQuelle = if (quellenApi) ({ quellen = it }) else null)
     }
-
-    if (sheetOpen && state.detail != null) PersonSheet(state, viewModel, openWeb, onClose = { sheetOpen = false }, onQuelle = if (quellenApi) ({ quellen = it }) else null)
     quellen?.let { start -> if (state.tree != null) QuellenFenster(state, viewModel, start, openWeb, onClose = { quellen = null }) }
     orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null }) }
     if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
