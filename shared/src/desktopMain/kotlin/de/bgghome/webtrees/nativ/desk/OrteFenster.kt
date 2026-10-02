@@ -103,7 +103,13 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
     DialogWindow(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_places_window) + " – " + state.tree?.title.orEmpty(),
         state = rememberDialogState(width = 1180.dp, height = 800.dp),
-        onPreviewKeyEvent = { e -> if (e.type == KeyEventType.KeyDown && e.key == Key.Escape) { onClose(); true } else false },
+        onPreviewKeyEvent = { e ->
+            when {
+                e.type == KeyEventType.KeyDown && e.key == Key.Escape -> { onClose(); true }
+                e.type == KeyEventType.KeyDown && e.key == Key.F1 -> { Hilfe.oeffnen("hauptfenster"); true }
+                else -> false
+            }
+        },
     ) {
         var bearbeiten by remember { mutableStateOf<PlaceDetail?>(null) }
         var umbenennen by remember { mutableStateOf<de.bgghome.webtrees.nativ.api.PlaceRenameResult?>(null) }
