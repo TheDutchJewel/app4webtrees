@@ -1209,4 +1209,19 @@
     <string name="desk_place_no_coords">Für diesen Ort sind keine Koordinaten bekannt.</string>
     <string name="desk_place_nothing">Nichts eingetragen.</string>
     <string name="desk_place_families">Familien</string>
+    <string name="desk_place_edit">Ortsdaten bearbeiten</string>
+    <string name="desk_place_lat">Breite</string>
+    <string name="desk_place_lng">Länge</string>
+    <string name="desk_place_coords_hint">Dezimal, z. B. 53.778417 – Süden und Westen negativ</string>
+    <string name="desk_place_search_coords">Koordinaten suchen …</string>
+    <string name="desk_place_search_title">Koordinatensuche für %1$s</string>
+    <string name="desk_place_search_button">Suchen</string>
+    <string name="desk_place_search_none">Nichts gefunden.</string>
+    <string name="desk_place_search_privacy">Der Ortsname wird an OpenStreetMap (Nominatim) geschickt.</string>
+    <string name="desk_place_take">Übernehmen</string>
+    <string name="desk_place_mapdata">Auch in die Geografischen Daten von webtrees (für die Karten im Browser)</string>
+    <string name="desk_place_gov_search">In GOV suchen</string>
+    <string name="desk_place_invalid_coords">Breite −90 bis 90 und Länge −180 bis 180, beide oder keine.</string>
+    <string name="desk_place_linked">%1$d Ereignisse verweisen jetzt auf den Ortsdatensatz.</string>
+    <string name="desk_place_gov_hint">z. B. ALLINKO03FS – aus gov.genealogy.net</string>
 </resources>

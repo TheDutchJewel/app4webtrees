@@ -55,6 +55,8 @@ Vereist api4webtrees met API-niveau 18; bij oudere servers opent het symbool zoa
 
 **Beeld › Plaatsen** (Ctrl+6) of het symbool **Plaatsen** opent het plaatsenbeheer (vanaf api4webtrees 1.13): links alle plaatsen zoals ze bij de gebeurtenissen staan, met zoekfunctie, het aantal gebeurtenissen en ◉ voor „coördinaten bekend”. Rechts de geselecteerde plaats in tabbladen: **Personen** (elke persoon en elk gezin met hun gebeurtenissen daar – een klik selecteert de persoon, een dubbelklik maakt hem of haar tot proband), **Gegevens** (niveaus, bovenliggende plaats, plaatsen hieronder, locatierecord en GOV-code), **Notities**, **Bronnen**, **Media** en **Coördinaten** met kaart. In webtrees staan notitie, GOV-code en coördinaten van een plaats in het locatierecord (_LOC, GEDCOM-L); zonder record neemt wtWin de coördinaten uit de geografische gegevens van webtrees of uit een gebeurtenis.
 
+Met bewerkrechten opent **Bewerken** de plaatsgegevens: GOV-code (met **Zoeken in GOV**), notitie en coördinaten. **Coördinaten zoeken …** vraagt OpenStreetMap naar de plaatsnaam; een klik op een resultaat neemt breedte en lengte over. Alles wordt opgeslagen in het locatierecord (_LOC), dat wtWin zo nodig aanmaakt; komt de plaatsnaam meer dan eens in de stamboom voor, dan krijgen de gebeurtenissen op die plaats een verwijzing ernaar. Beheerders kunnen de coördinaten ook in de geografische gegevens van webtrees schrijven – alleen die lezen de kaarten in de browser.
+
 ## Onderdelen: Start, Boom, Foto's
 
 - **Start** (Ctrl+1): begroeting, komende gedenkdagen, recente wijzigingen in de stamboom, de startpersoon. Moderators zien hier openstaande wijzigingen en keuren ze goed of af.

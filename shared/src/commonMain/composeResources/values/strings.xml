@@ -1214,4 +1214,19 @@
     <string name="desk_place_no_coords">No coordinates are known for this place.</string>
     <string name="desk_place_nothing">Nothing recorded.</string>
     <string name="desk_place_families">Families</string>
+    <string name="desk_place_edit">Edit place data</string>
+    <string name="desk_place_lat">Latitude</string>
+    <string name="desk_place_lng">Longitude</string>
+    <string name="desk_place_coords_hint">Decimal, e.g. 53.778417 – south and west negative</string>
+    <string name="desk_place_search_coords">Find coordinates …</string>
+    <string name="desk_place_search_title">Coordinate search for %1$s</string>
+    <string name="desk_place_search_button">Search</string>
+    <string name="desk_place_search_none">Nothing found.</string>
+    <string name="desk_place_search_privacy">The place name is sent to OpenStreetMap (Nominatim).</string>
+    <string name="desk_place_take">Use</string>
+    <string name="desk_place_mapdata">Also in webtrees’ geographic data (for the maps in the browser)</string>
+    <string name="desk_place_gov_search">Search GOV</string>
+    <string name="desk_place_invalid_coords">Latitude −90 to 90 and longitude −180 to 180, both or neither.</string>
+    <string name="desk_place_linked">%1$d events now point to the location record.</string>
+    <string name="desk_place_gov_hint">e.g. ALLINKO03FS – from gov.genealogy.net</string>
 </resources>

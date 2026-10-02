@@ -262,6 +262,23 @@ data class PlaceList(val query: String = "", val data: List<String> = emptyList(
 /** Ab dieser Stufe: Ortsliste (Places?list=1) und ein Ort (Place). */
 const val API_PLACE_LIST = 21
 
+/** Ab dieser Stufe: Ortsdaten speichern (POST Place). */
+const val API_PLACE_WRITE = 22
+
+/**
+ * Ortsdaten speichern: null = nicht anfassen. Koordinaten nur mit [koordinatenAendern]; dann entfernt lat/lng null sie.
+ * [mapData]: auch in die Geografischen Daten von webtrees (nur Administratoren).
+ */
+data class PlaceRequest(
+    val name: String,
+    val gov: String? = null,
+    val note: String? = null,
+    val koordinatenAendern: Boolean = false,
+    val lat: Double? = null,
+    val lng: Double? = null,
+    val mapData: Boolean = false,
+)
+
 /** Ein Ort der Ortsliste - der PLAC-Text, wie er an sichtbaren Ereignissen steht. */
 @Serializable
 data class PlaceSummary(
@@ -444,6 +461,10 @@ data class WriteResult(
     val factId: String? = null,
     /** Route MediaFromFile: true, wenn es das Medienobjekt zu der Datei schon gab. */
     val existing: Boolean? = null,
+    /** Route Place: so viele Ereignisse bekamen den Verweis auf den _LOC. */
+    val linked: Int? = null,
+    /** Route Place: Koordinaten auch in die Geografischen Daten von webtrees geschrieben. */
+    val mapData: Boolean? = null,
 )
 
 @Serializable

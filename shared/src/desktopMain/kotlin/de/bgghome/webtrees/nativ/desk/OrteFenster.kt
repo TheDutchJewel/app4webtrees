@@ -79,13 +79,14 @@ import kotlin.math.roundToInt
 @Composable
 fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb: (String) -> Unit, onClose: () -> Unit) {
     val tree = state.tree?.name
-    val liste by produceState<Result<PlaceSummaryList>?>(null, tree) {
+    var neu by remember { mutableStateOf(0) }
+    val liste by produceState<Result<PlaceSummaryList>?>(null, tree, neu) {
         value = null
         if (tree != null) value = withContext(Dispatchers.IO) { runCatching { viewModel.client.placeList(tree) } }
     }
     var suche by remember { mutableStateOf("") }
     var gewaehlt by remember(start) { mutableStateOf(start?.takeIf { it.isNotEmpty() }) }
-    val detail by produceState<Result<PlaceDetail>?>(null, tree, gewaehlt) {
+    val detail by produceState<Result<PlaceDetail>?>(null, tree, gewaehlt, neu) {
         value = null
         val n = gewaehlt
         if (tree != null && n != null) value = withContext(Dispatchers.IO) { runCatching { viewModel.client.place(tree, n) } }
@@ -96,7 +97,23 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
         state = rememberDialogState(width = 1180.dp, height = 800.dp),
         onPreviewKeyEvent = { e -> if (e.type == KeyEventType.KeyDown && e.key == Key.Escape) { onClose(); true } else false },
     ) {
-        DeskTheme { OrteInhalt(liste, detail, gewaehlt, { gewaehlt = it }, suche, { suche = it }, viewModel, openWeb) }
+        var bearbeiten by remember { mutableStateOf<PlaceDetail?>(null) }
+        var meldung by remember { mutableStateOf<String?>(null) }
+        val darf = state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_WRITE
+        val verweise = meldung
+        DeskTheme {
+            OrteInhalt(liste, detail, gewaehlt, { gewaehlt = it }, suche, { suche = it }, viewModel, openWeb,
+                onBearbeiten = if (darf) ({ bearbeiten = it }) else null, meldung = verweise)
+            bearbeiten?.let { o ->
+                OrtDialog(tree.orEmpty(), o, viewModel.client, state.info?.user?.isAdmin == true, openWeb, onDismiss = { bearbeiten = null }) { r ->
+                    meldung = listOfNotNull(
+                        r.linked?.takeIf { it > 0 }?.let { de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_linked, it) },
+                        if (r.pending) de.bgghome.webtrees.nativ.Texte.t(Res.string.msg_pending, o.name) else null,
+                    ).joinToString("  ").ifEmpty { null }
+                    neu++
+                }
+            }
+        }
     }
 }
 
@@ -105,6 +122,7 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
 internal fun OrteInhalt(
     liste: Result<PlaceSummaryList>?, detail: Result<PlaceDetail>?, gewaehlt: String?, onWahl: (String) -> Unit,
     suche: String, onSuche: (String) -> Unit, viewModel: AppViewModel?, openWeb: (String) -> Unit, reiterStart: Int = 0,
+    onBearbeiten: ((PlaceDetail) -> Unit)? = null, meldung: String? = null,
 ) {
     Row(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // ── Liste ──
@@ -156,8 +174,9 @@ internal fun OrteInhalt(
                 gewaehlt == null -> Text(stringResource(Res.string.desk_places_choose), Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 detail == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 detail.exceptionOrNull() != null -> Text(detail.exceptionOrNull()?.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
-                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart)
+                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart, onBearbeiten)
             }
+            meldung?.let { Text(it, Modifier.align(Alignment.BottomStart).padding(12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
         }
     }
 }
@@ -168,7 +187,8 @@ private enum class OrtReiter(val titel: StringResource) {
 }
 
 @Composable
-private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String) -> Unit, openWeb: (String) -> Unit, reiterStart: Int) {
+private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String) -> Unit, openWeb: (String) -> Unit, reiterStart: Int,
+                      onBearbeiten: ((PlaceDetail) -> Unit)?) {
     var reiter by remember(o.name) { mutableStateOf(OrtReiter.entries[reiterStart]) }
     val loc = o.location
     // Wie viel in einem Reiter steht - 0 = leer (der Reiter bleibt, steht aber blasser)
@@ -184,6 +204,9 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
         Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 16.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             SelectionContainer(Modifier.weight(1f)) { Text(o.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold) }
+            if (onBearbeiten != null && o.canEdit && loc?.canEdit != false) OutlinedButton(onClick = { onBearbeiten(o) }, shape = MaterialTheme.shapes.small) {
+                Text(stringResource(Res.string.action_edit))
+            }
             if (loc != null && loc.url.isNotBlank()) OutlinedButton(onClick = { openWeb(loc.url) }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.chip_open_web)) }
         }
         PrimaryScrollableTabRow(selectedTabIndex = reiter.ordinal, edgePadding = 12.dp, containerColor = MaterialTheme.colorScheme.background) {

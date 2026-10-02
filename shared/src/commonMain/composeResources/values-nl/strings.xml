@@ -1190,4 +1190,19 @@
     <string name="desk_place_no_coords">Voor deze plaats zijn geen coördinaten bekend.</string>
     <string name="desk_place_nothing">Niets vastgelegd.</string>
     <string name="desk_place_families">Gezinnen</string>
+    <string name="desk_place_edit">Plaatsgegevens bewerken</string>
+    <string name="desk_place_lat">Breedte</string>
+    <string name="desk_place_lng">Lengte</string>
+    <string name="desk_place_coords_hint">Decimaal, bijv. 53.778417 – zuid en west negatief</string>
+    <string name="desk_place_search_coords">Coördinaten zoeken …</string>
+    <string name="desk_place_search_title">Coördinaten zoeken voor %1$s</string>
+    <string name="desk_place_search_button">Zoeken</string>
+    <string name="desk_place_search_none">Niets gevonden.</string>
+    <string name="desk_place_search_privacy">De plaatsnaam wordt naar OpenStreetMap (Nominatim) gestuurd.</string>
+    <string name="desk_place_take">Overnemen</string>
+    <string name="desk_place_mapdata">Ook in de geografische gegevens van webtrees (voor de kaarten in de browser)</string>
+    <string name="desk_place_gov_search">Zoeken in GOV</string>
+    <string name="desk_place_invalid_coords">Breedte −90 tot 90 en lengte −180 tot 180, beide of geen.</string>
+    <string name="desk_place_linked">%1$d gebeurtenissen verwijzen nu naar het locatierecord.</string>
+    <string name="desk_place_gov_hint">bijv. ALLINKO03FS – van gov.genealogy.net</string>
 </resources>

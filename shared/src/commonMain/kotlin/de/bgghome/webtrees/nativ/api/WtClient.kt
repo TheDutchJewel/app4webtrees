@@ -293,6 +293,22 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     suspend fun placeList(tree: String): PlaceSummaryList =
         get("Places", tree, mapOf("list" to "1"), PlaceSummaryList.serializer())
 
+    /** Ortsdaten in den _LOC des Orts (ab Stufe 22); legt ihn bei Bedarf an. */
+    suspend fun savePlace(tree: String, r: PlaceRequest): WriteResult {
+        val body = kotlinx.serialization.json.buildJsonObject {
+            put("name", kotlinx.serialization.json.JsonPrimitive(r.name))
+            r.gov?.let { put("gov", kotlinx.serialization.json.JsonPrimitive(it)) }
+            r.note?.let { put("note", kotlinx.serialization.json.JsonPrimitive(it)) }
+            // Hier zaehlt null: es entfernt die Koordinaten (der allgemeine Json laesst null weg)
+            if (r.koordinatenAendern) {
+                put("lat", kotlinx.serialization.json.JsonPrimitive(r.lat))
+                put("lng", kotlinx.serialization.json.JsonPrimitive(r.lng))
+            }
+            if (r.mapData) put("mapData", kotlinx.serialization.json.JsonPrimitive(true))
+        }
+        return post("Place", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()))
+    }
+
     /** Ein Ort mit Personen, Familien, Unterorten und _LOC (ab Stufe 21). */
     suspend fun place(tree: String, name: String): PlaceDetail =
         get("Place", tree, mapOf("name" to name), PlaceDetail.serializer())

@@ -55,6 +55,8 @@ Requiere api4webtrees con el nivel de API 18; con servidores más antiguos, el i
 
 **Ver › Lugares** (Ctrl+6) o el icono **Lugares** abre el gestor de lugares (desde api4webtrees 1.13): a la izquierda todos los lugares tal como figuran en los eventos, con búsqueda, el número de eventos y ◉ para «coordenadas conocidas». A la derecha el lugar seleccionado en pestañas: **Personas** (cada persona y familia con sus eventos allí; un clic selecciona a la persona, un doble clic la convierte en persona central), **Datos** (niveles, lugar superior, lugares incluidos, registro de lugar e identificador GOV), **Notas**, **Fuentes**, **Medios** y **Coordenadas** con mapa. En webtrees la nota, el identificador GOV y las coordenadas de un lugar están en su registro de lugar (_LOC, GEDCOM-L); si no lo hay, wtWin toma las coordenadas de los datos geográficos de webtrees o de un evento.
 
+Con permiso de edición, **Editar** abre los datos del lugar: identificador GOV (con **Buscar en GOV**), nota y coordenadas. **Buscar coordenadas …** consulta OpenStreetMap con el nombre del lugar; un clic en un resultado toma latitud y longitud. Todo se guarda en el registro de lugar (_LOC), que wtWin crea si hace falta; si el nombre del lugar aparece varias veces en el árbol, los eventos de ese lugar reciben una referencia a él. Los administradores pueden escribir además las coordenadas en los datos geográficos de webtrees: solo esos los leen los mapas del navegador.
+
 ## Secciones: Inicio, Árbol, Fotos
 
 - **Inicio** (Ctrl+1): saludo, próximos aniversarios, cambios recientes en el árbol, la persona de inicio. Los moderadores ven aquí los cambios pendientes y los aceptan o rechazan.

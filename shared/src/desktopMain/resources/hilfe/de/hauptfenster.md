@@ -55,6 +55,8 @@ Braucht api4webtrees mit API-Stufe 18; bei älteren Servern öffnet das Symbol w
 
 **Ansicht › Orte** (Strg+6) oder das Symbol **Orte** öffnet die Ortsverwaltung (ab api4webtrees 1.13): links alle Orte, wie sie an den Ereignissen stehen, mit Suche, der Zahl der Ereignisse und ◉ für „Koordinaten bekannt“. Rechts der gewählte Ort in Reitern: **Personen** (alle Personen und Familien mit ihren Ereignissen dort – Klick wählt die Person, Doppelklick macht sie zum Probanden), **Daten** (Ebenen, übergeordneter Ort, Orte darunter, Ortsdatensatz und GOV-Kennung), **Notizen**, **Quellen**, **Medien** und **Koordinaten** mit Karte. Notiz, GOV-Kennung und Koordinaten eines Orts stehen in webtrees im Ortsdatensatz (_LOC, GEDCOM-L); fehlt er, nimmt wtWin die Koordinaten aus den Geografischen Daten von webtrees oder von einem Ereignis.
 
+Mit Bearbeitungsrecht öffnet **Bearbeiten** die Ortsdaten: GOV-Kennung (mit **In GOV suchen**), Notiz und Koordinaten. **Koordinaten suchen …** fragt OpenStreetMap nach dem Ortsnamen; ein Klick auf einen Treffer übernimmt Breite und Länge. Gespeichert wird im Ortsdatensatz (_LOC), den wtWin bei Bedarf anlegt; gibt es den Ortsnamen im Stammbaum mehrfach, bekommen die Ereignisse am Ort einen Verweis darauf. Administratoren können die Koordinaten zusätzlich in die Geografischen Daten von webtrees schreiben – nur die lesen die Karten im Browser.
+
 ## Bereiche: Start, Baum, Fotos
 
 - **Start** (Strg+1): Begrüßung, die nächsten Jahrestage, letzte Änderungen im Stammbaum, die Startperson. Moderatoren sehen hier ausstehende Änderungen und nehmen sie an oder verwerfen sie.
