@@ -72,6 +72,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -185,159 +186,163 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onOrte = if (orteApi) ({ orte = "" }) else null,
     )
 
-    // Noch nicht verbunden: auf den Verbinden-Link aus webtrees warten (Knopf "Mit wtWin verbinden" legt ihn in die
-    // Zwischenablage). Uebernommen wird er erst nach der Rueckfrage; der Einmal-Code bleibt nicht in der Ablage liegen.
-    val wartet = (state.screen == Screen.Setup || state.screen == Screen.Login) && state.pendingConnect == null
-    LaunchedEffect(wartet) {
-        while (wartet) {
-            val link = withContext(Dispatchers.IO) { zwischenablageText() }
-            if (verbindungAusText(link) != null) {
-                zwischenablageLeeren()
-                viewModel.connectLink(link!!)
-                break
-            }
-            delay(1000)
-        }
-    }
-
-    // Vor der Anmeldung und bei der Baumwahl: die Startbildschirme der App, mittig im Fenster.
-    if (state.screen != Screen.Main) {
-        // Erster Start (noch keine Adresse): daneben der Weg "Neuen Stammbaum auf diesem PC anlegen" (Stufe 4).
-        if (state.screen == Screen.Setup && LokalBetrieb.verfuegbar) DeskStart(viewModel) else AppRoot(viewModel)
-        // Hilfe und "Ueber" stehen im Menue schon vor der Anmeldung
-        HilfeFenster()
-        if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
-        if (Entwuerfe.beendenAnfrage) UngespeichertDialog(viewModel, onWeiter = { Entwuerfe.beendenAnfrage = false; onQuit() }, onAbbrechen = { Entwuerfe.beendenAnfrage = false })
-        return
-    }
-
-    // Verbinden-Link bei laufender Sitzung (wtwin:// aus dem Browser): wie vor der Anmeldung erst nachfragen.
-    state.pendingConnect?.let { request ->
-        ConfirmDialog(
-            title = stringResource(Res.string.connect_confirm_title),
-            text = stringResource(Res.string.connect_confirm_text, request.url, request.user.ifEmpty { "–" }, request.tree.ifEmpty { "–" }),
-            confirm = stringResource(Res.string.connect_confirm_action),
-            onDismiss = viewModel::cancelConnect,
-            onConfirm = viewModel::confirmConnect,
-        )
-    }
-
-    LaunchedEffect(Unit) { viewModel.setWide(true) }
-
-    BackHandler(enabled = state.viewer != null || state.pdf != null || state.treeFullscreen) {
-        if (state.viewer != null) viewModel.closeViewer() else if (state.pdf != null) viewModel.closePdf() else viewModel.setTreeFullscreen(false)
-    }
-
-    val snackbar = remember { SnackbarHostState() }
-    LaunchedEffect(state.message) {
-        state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() }
-    }
-
-    // Ortsnamen (Personentafel, Ortsfelder in den Dialogen) oeffnen die Ortsverwaltung, wenn der Server sie kennt
-    val ortOeffnen: ((String) -> Unit)? = if (orteApi) ({ n: String -> orte = n }) else null
-    CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalPlaceOpener provides ortOeffnen) {
-        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            Column(Modifier.fillMaxSize()) {
-                if (layout == DeskLayout.Navigator) {
-                    ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
-                        symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
-                        onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null)
-                } else {
-                    WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family, onQuellen = if (quellenApi) ({ quellen = "" }) else null,
-                        onOrte = if (orteApi) ({ orte = "" }) else null)
+    // Beim Sprachwechsel entsteht alles darunter neu und liest die Texte frisch. Die Menueleiste oben bleibt stehen:
+    // baute Compose sie neu, setzte das Abbauen der alten die Leiste des Fensters auf null (Menues tot).
+    de.bgghome.webtrees.nativ.Sprache.Umgebung {
+        // Noch nicht verbunden: auf den Verbinden-Link aus webtrees warten (Knopf "Mit wtWin verbinden" legt ihn in die
+        // Zwischenablage). Uebernommen wird er erst nach der Rueckfrage; der Einmal-Code bleibt nicht in der Ablage liegen.
+        val wartet = (state.screen == Screen.Setup || state.screen == Screen.Login) && state.pendingConnect == null
+        LaunchedEffect(wartet) {
+            while (wartet) {
+                val link = withContext(Dispatchers.IO) { zwischenablageText() }
+                if (verbindungAusText(link) != null) {
+                    zwischenablageLeeren()
+                    viewModel.connectLink(link!!)
+                    break
                 }
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Box(Modifier.fillMaxWidth().height(3.dp)) {
-                    if (state.busy || state.loadingDetail || state.loadingPeople) LinearProgressIndicator(Modifier.fillMaxSize())
-                }
-                if (layout == DeskLayout.Navigator) Box(Modifier.weight(1f).fillMaxWidth()) {
-                    when (state.section) {
-                        Section.Home -> HomeSection(state, viewModel, openWeb)
-                        Section.Photos -> PhotosSection(state, viewModel, openWeb)
-                        else -> Navigator(state, viewModel, openSheet, openWeb, farben, zoom, onZoom = { zoom = it; DeskLayout.prefs.putString("zoom", it.toString()) })
-                    }
-                } else Row(Modifier.weight(1f).fillMaxWidth()) {
-                    // Vollbild (Knopf im Baum oder Esc zurueck): nur der Baum, ohne Personenliste und Personentafel.
-                    // Fotos/Archiv brauchen die ganze Breite (wie im Aufbau Navigator) - dort ebenfalls ohne Seitenleisten.
-                    val vollbild = (layout == DeskLayout.TreeCentre && state.treeFullscreen && state.section != Section.Home && state.section != Section.Photos) ||
-                        state.section == Section.Photos
-                    // Breite der Seitenleisten: am Griff ziehbar, bleibt gespeichert
-                    var linksBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_links", null)?.toFloatOrNull() ?: 280f) }
-                    var rechtsBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_rechts", null)?.toFloatOrNull() ?: 400f) }
-                    val dichte = LocalDensity.current.density
-                    if (!vollbild) {
-                        PersonIndex(state, viewModel, openWeb, search, Modifier.width(linksBreite.dp).fillMaxHeight())
-                        Ziehgriff(onZiehen = { linksBreite = (linksBreite + it / dichte).coerceIn(180f, 600f) }) { DeskLayout.prefs.putString("panel_links", linksBreite.toString()) }
-                    }
-                    Box(Modifier.weight(1f).fillMaxHeight()) {
-                        when (state.section) {
-                            Section.Home -> HomeSection(state, viewModel, openWeb)
-                            Section.Photos -> PhotosSection(state, viewModel, openWeb)
-                            else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb) else DeskTree(state, viewModel, openWeb)
-                        }
-                    }
-                    if (!vollbild) {
-                        Ziehgriff(onZiehen = { rechtsBreite = (rechtsBreite - it / dichte).coerceIn(260f, 720f) }) { DeskLayout.prefs.putString("panel_rechts", rechtsBreite.toString()) }
-                        Box(Modifier.width(rechtsBreite.dp).fillMaxHeight()) {
-                            val detail = state.detail
-                            if (detail != null) {
-                                CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalSourceOpener provides (if (quellenApi) ({ x: String -> quellen = x }) else null)) {
-                                    ProfilePanel(state, detail, viewModel, openWeb, onClose = null)
-                                }
-                            } else {
-                                Text(
-                                    stringResource(Res.string.detail_choose), Modifier.align(Alignment.Center).padding(24.dp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-                }
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                StatusBar(state, viewModel.versionName, appName)
-            }
-            SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 40.dp))
-
-            // Betrachter liegen ueber allem, wie am Handy.
-            state.pdf?.let { pdf -> PdfViewer(pdf, onClose = viewModel::closePdf, onOpenWeb = openWeb) }
-            state.viewer?.let { viewer ->
-                PhotoViewer(
-                    viewer, onIndex = viewModel::viewerMoved, onClose = viewModel::closeViewer, onOpenWeb = openWeb,
-                    canEdit = viewModel::canEditExif, editing = state.exifEditing, suggestPersons = viewModel.personSuggestions(),
-                    onEdit = viewModel::editExif, onCancelEdit = viewModel::cancelExif, onSaveExif = viewModel::writeExif,
-                )
+                delay(1000)
             }
         }
-    }
 
-    CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalPlaceOpener provides ortOeffnen) {
-        // Verwandte hinzufuegen - aus der Tafel, vom Kontextmenue oder von der "+"-Lasche einer Karte.
-        val detail = state.detail
-        if (state.addRelativeFor != null && detail != null && detail.person.xref == state.addRelativeFor && !state.loadingDetail) {
-            RelativeDialog(
-                target = RelativeTarget.of(detail),
-                suggestPlaces = viewModel.placeSuggestions(),
-                onDismiss = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled() },
-                onSave = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled(); viewModel.addRelative(it) },
-                initialRelation = Verwandtenwahl.vorwahl, initialFamily = Verwandtenwahl.familie,
+        // Vor der Anmeldung und bei der Baumwahl: die Startbildschirme der App, mittig im Fenster.
+        if (state.screen != Screen.Main) {
+            // Erster Start (noch keine Adresse): daneben der Weg "Neuen Stammbaum auf diesem PC anlegen" (Stufe 4).
+            if (state.screen == Screen.Setup && LokalBetrieb.verfuegbar) DeskStart(viewModel) else AppRoot(viewModel)
+            // Hilfe und "Ueber" stehen im Menue schon vor der Anmeldung
+            HilfeFenster()
+            if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
+            if (Entwuerfe.beendenAnfrage) UngespeichertDialog(viewModel, onWeiter = { Entwuerfe.beendenAnfrage = false; onQuit() }, onAbbrechen = { Entwuerfe.beendenAnfrage = false })
+            return@Umgebung
+        }
+
+        // Verbinden-Link bei laufender Sitzung (wtwin:// aus dem Browser): wie vor der Anmeldung erst nachfragen.
+        state.pendingConnect?.let { request ->
+            ConfirmDialog(
+                title = stringResource(Res.string.connect_confirm_title),
+                text = stringResource(Res.string.connect_confirm_text, request.url, request.user.ifEmpty { "–" }, request.tree.ifEmpty { "–" }),
+                confirm = stringResource(Res.string.connect_confirm_action),
+                onDismiss = viewModel::cancelConnect,
+                onConfirm = viewModel::confirmConnect,
             )
         }
 
-        if (sheetOpen && state.detail != null) PersonSheet(state, viewModel, openWeb, onClose = { sheetOpen = false }, onQuelle = if (quellenApi) ({ quellen = it }) else null)
-    }
-    quellen?.let { start -> if (state.tree != null) QuellenFenster(state, viewModel, start, openWeb, onClose = { quellen = null }) }
-    orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null }) }
-    if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
-    liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
-    HilfeFenster()
-    if (merkliste) MerklisteFenster(state, viewModel, openSheet, onClose = { merkliste = false })
-    tafel?.let { art -> if (state.root != null) TafelFenster(state, viewModel, art, onClose = { tafel = null }) }
-    if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
-    if (pruefung && state.tree != null) PruefFenster(state, viewModel, openSheet, onClose = { pruefung = false })
-    if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false })
+        LaunchedEffect(Unit) { viewModel.setWide(true) }
 
-    if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
-    if (Entwuerfe.beendenAnfrage) UngespeichertDialog(viewModel, onWeiter = { Entwuerfe.beendenAnfrage = false; onQuit() }, onAbbrechen = { Entwuerfe.beendenAnfrage = false })
+        BackHandler(enabled = state.viewer != null || state.pdf != null || state.treeFullscreen) {
+            if (state.viewer != null) viewModel.closeViewer() else if (state.pdf != null) viewModel.closePdf() else viewModel.setTreeFullscreen(false)
+        }
+
+        val snackbar = remember { SnackbarHostState() }
+        LaunchedEffect(state.message) {
+            state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() }
+        }
+
+        // Ortsnamen (Personentafel, Ortsfelder in den Dialogen) oeffnen die Ortsverwaltung, wenn der Server sie kennt
+        val ortOeffnen: ((String) -> Unit)? = if (orteApi) ({ n: String -> orte = n }) else null
+        CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalPlaceOpener provides ortOeffnen) {
+            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+                Column(Modifier.fillMaxSize()) {
+                    if (layout == DeskLayout.Navigator) {
+                        ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
+                            symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
+                            onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null)
+                    } else {
+                        WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family, onQuellen = if (quellenApi) ({ quellen = "" }) else null,
+                            onOrte = if (orteApi) ({ orte = "" }) else null)
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    Box(Modifier.fillMaxWidth().height(3.dp)) {
+                        if (state.busy || state.loadingDetail || state.loadingPeople) LinearProgressIndicator(Modifier.fillMaxSize())
+                    }
+                    if (layout == DeskLayout.Navigator) Box(Modifier.weight(1f).fillMaxWidth()) {
+                        when (state.section) {
+                            Section.Home -> HomeSection(state, viewModel, openWeb)
+                            Section.Photos -> PhotosSection(state, viewModel, openWeb)
+                            else -> Navigator(state, viewModel, openSheet, openWeb, farben, zoom, onZoom = { zoom = it; DeskLayout.prefs.putString("zoom", it.toString()) })
+                        }
+                    } else Row(Modifier.weight(1f).fillMaxWidth()) {
+                        // Vollbild (Knopf im Baum oder Esc zurueck): nur der Baum, ohne Personenliste und Personentafel.
+                        // Fotos/Archiv brauchen die ganze Breite (wie im Aufbau Navigator) - dort ebenfalls ohne Seitenleisten.
+                        val vollbild = (layout == DeskLayout.TreeCentre && state.treeFullscreen && state.section != Section.Home && state.section != Section.Photos) ||
+                            state.section == Section.Photos
+                        // Breite der Seitenleisten: am Griff ziehbar, bleibt gespeichert
+                        var linksBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_links", null)?.toFloatOrNull() ?: 280f) }
+                        var rechtsBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_rechts", null)?.toFloatOrNull() ?: 400f) }
+                        val dichte = LocalDensity.current.density
+                        if (!vollbild) {
+                            PersonIndex(state, viewModel, openWeb, search, Modifier.width(linksBreite.dp).fillMaxHeight())
+                            Ziehgriff(onZiehen = { linksBreite = (linksBreite + it / dichte).coerceIn(180f, 600f) }) { DeskLayout.prefs.putString("panel_links", linksBreite.toString()) }
+                        }
+                        Box(Modifier.weight(1f).fillMaxHeight()) {
+                            when (state.section) {
+                                Section.Home -> HomeSection(state, viewModel, openWeb)
+                                Section.Photos -> PhotosSection(state, viewModel, openWeb)
+                                else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb) else DeskTree(state, viewModel, openWeb)
+                            }
+                        }
+                        if (!vollbild) {
+                            Ziehgriff(onZiehen = { rechtsBreite = (rechtsBreite - it / dichte).coerceIn(260f, 720f) }) { DeskLayout.prefs.putString("panel_rechts", rechtsBreite.toString()) }
+                            Box(Modifier.width(rechtsBreite.dp).fillMaxHeight()) {
+                                val detail = state.detail
+                                if (detail != null) {
+                                    CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalSourceOpener provides (if (quellenApi) ({ x: String -> quellen = x }) else null)) {
+                                        ProfilePanel(state, detail, viewModel, openWeb, onClose = null)
+                                    }
+                                } else {
+                                    Text(
+                                        stringResource(Res.string.detail_choose), Modifier.align(Alignment.Center).padding(24.dp),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    StatusBar(state, viewModel.versionName, appName)
+                }
+                SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(bottom = 40.dp))
+
+                // Betrachter liegen ueber allem, wie am Handy.
+                state.pdf?.let { pdf -> PdfViewer(pdf, onClose = viewModel::closePdf, onOpenWeb = openWeb) }
+                state.viewer?.let { viewer ->
+                    PhotoViewer(
+                        viewer, onIndex = viewModel::viewerMoved, onClose = viewModel::closeViewer, onOpenWeb = openWeb,
+                        canEdit = viewModel::canEditExif, editing = state.exifEditing, suggestPersons = viewModel.personSuggestions(),
+                        onEdit = viewModel::editExif, onCancelEdit = viewModel::cancelExif, onSaveExif = viewModel::writeExif,
+                    )
+                }
+            }
+        }
+
+        CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalPlaceOpener provides ortOeffnen) {
+            // Verwandte hinzufuegen - aus der Tafel, vom Kontextmenue oder von der "+"-Lasche einer Karte.
+            val detail = state.detail
+            if (state.addRelativeFor != null && detail != null && detail.person.xref == state.addRelativeFor && !state.loadingDetail) {
+                RelativeDialog(
+                    target = RelativeTarget.of(detail),
+                    suggestPlaces = viewModel.placeSuggestions(),
+                    onDismiss = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled() },
+                    onSave = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled(); viewModel.addRelative(it) },
+                    initialRelation = Verwandtenwahl.vorwahl, initialFamily = Verwandtenwahl.familie,
+                )
+            }
+
+            if (sheetOpen && state.detail != null) PersonSheet(state, viewModel, openWeb, onClose = { sheetOpen = false }, onQuelle = if (quellenApi) ({ quellen = it }) else null)
+        }
+        quellen?.let { start -> if (state.tree != null) QuellenFenster(state, viewModel, start, openWeb, onClose = { quellen = null }) }
+        orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null }) }
+        if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
+        liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
+        HilfeFenster()
+        if (merkliste) MerklisteFenster(state, viewModel, openSheet, onClose = { merkliste = false })
+        tafel?.let { art -> if (state.root != null) TafelFenster(state, viewModel, art, onClose = { tafel = null }) }
+        if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
+        if (pruefung && state.tree != null) PruefFenster(state, viewModel, openSheet, onClose = { pruefung = false })
+        if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false })
+
+        if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
+        if (Entwuerfe.beendenAnfrage) UngespeichertDialog(viewModel, onWeiter = { Entwuerfe.beendenAnfrage = false; onQuit() }, onAbbrechen = { Entwuerfe.beendenAnfrage = false })
+    }
 }
 
 // ── Menueleiste ──────────────────────────────────────────────────────
@@ -358,113 +363,115 @@ private fun FrameWindowScope.DeskMenuBar(
     val loggedIn = state.info?.user?.loggedIn == true
     val selected = state.detail
     MenuBar {
-        Menu(stringResource(Res.string.desk_menu_file)) {
-            if (main && (state.info?.trees?.size ?: 0) > 1) Item(stringResource(Res.string.menu_switch_tree), onClick = viewModel::showTreePicker)
-            Item(stringResource(Res.string.action_reload), enabled = main, shortcut = KeyShortcut(Key.F5), onClick = viewModel::refresh)
-            Item(stringResource(Res.string.desk_open_browser), enabled = state.baseUrl.isNotEmpty(), onClick = { openWeb(state.detail?.person?.url ?: state.baseUrl) })
-            Separator()
-            Item(stringResource(Res.string.desk_print_sheet), enabled = main && state.root != null, shortcut = KeyShortcut(Key.P, ctrl = true), onClick = drucke::personenblatt)
-            Item(stringResource(Res.string.desk_pdf_sheet), enabled = main && state.root != null, onClick = drucke::personenblattPdf)
-            Item(stringResource(Res.string.desk_chart_ancestors_open), enabled = main && state.root != null, onClick = { onTafel(TafelArt.Ahnen) })
-            Item(stringResource(Res.string.desk_chart_open), enabled = main && state.root != null, onClick = { onTafel(TafelArt.Stamm) })
-            Separator()
-            if (loggedIn) {
-                Item(stringResource(Res.string.menu_sign_out_user, state.info?.user?.userName.orEmpty()), onClick = viewModel::logout)
-            } else if (main) {
-                Item(stringResource(Res.string.action_sign_in), onClick = viewModel::showLogin)
-            }
-            Item(stringResource(Res.string.desk_quit), shortcut = KeyShortcut(Key.Q, ctrl = true), onClick = onQuit)
-        }
-        Menu(stringResource(Res.string.desk_menu_person), enabled = main) {
-            Item(stringResource(Res.string.desk_goto), shortcut = KeyShortcut(Key.F, ctrl = true), onClick = onSearch)
-            Item(stringResource(Res.string.desk_sheet), enabled = state.root != null, shortcut = KeyShortcut(Key.E, ctrl = true), onClick = onSheet)
-            state.home?.let { home -> Item(stringResource(Res.string.home_start_person), shortcut = KeyShortcut(Key.MoveHome, alt = true), onClick = { viewModel.setRoot(home) }) }
-            Item(stringResource(Res.string.action_make_root), enabled = selected != null && selected.person.xref != state.root,
-                shortcut = KeyShortcut(Key.Enter, ctrl = true), onClick = { selected?.let { viewModel.setRoot(it.person.xref) } })
-            Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,
-                shortcut = KeyShortcut(Key.N, ctrl = true), onClick = { selected?.let { viewModel.requestAddRelative(it.person.xref) } })
-            Item(stringResource(Res.string.chip_open_web), enabled = selected != null, onClick = { selected?.let { openWeb(it.person.url) } })
-            if (viewModel.bookmarksSupported) {
-                val root = state.root
-                Item(stringResource(if (root != null && viewModel.isBookmarked(root)) Res.string.desk_bookmark_remove else Res.string.desk_bookmark_add),
-                    enabled = root != null, shortcut = KeyShortcut(Key.D, ctrl = true), onClick = { root?.let(viewModel::toggleBookmark) })
-                Item(stringResource(Res.string.desk_bookmarks), shortcut = KeyShortcut(Key.B, ctrl = true), onClick = onMerkliste)
-            }
-            Separator()
-            Item(stringResource(Res.string.action_back), enabled = nav.kannZurueck, shortcut = KeyShortcut(Key.DirectionLeft, alt = true), onClick = nav.zurueck)
-            Item(stringResource(Res.string.desk_forward), enabled = nav.kannVor, shortcut = KeyShortcut(Key.DirectionRight, alt = true), onClick = nav.vor)
-            Item(stringResource(Res.string.desk_copy_text), enabled = state.detail != null, shortcut = KeyShortcut(Key.C, ctrl = true, shift = true), onClick = { state.detail?.let(::personentextKopieren) })
-        }
-        Menu(stringResource(Res.string.desk_menu_create), enabled = main) {
-            Item(stringResource(Res.string.desk_list_ancestors), enabled = state.root != null, onClick = { onListe(ListenArt.Ahnen) })
-            Item(stringResource(Res.string.desk_list_descendants), enabled = state.root != null, onClick = { onListe(ListenArt.Stamm) })
-            Item(stringResource(Res.string.desk_list_events), onClick = { onListe(ListenArt.Ereignisse) })
-            Separator()
-            Item(stringResource(Res.string.desk_title_sheet, state.detail?.person?.name ?: "…"), enabled = state.root != null, onClick = { onListe(ListenArt.Personenblatt) })
-            Separator()
-            Item(stringResource(Res.string.desk_chart_ancestors_open), enabled = state.root != null, shortcut = KeyShortcut(Key.T, ctrl = true, shift = true), onClick = { onTafel(TafelArt.Ahnen) })
-            Item(stringResource(Res.string.desk_chart_open), enabled = state.root != null, shortcut = KeyShortcut(Key.T, ctrl = true), onClick = { onTafel(TafelArt.Stamm) })
-            Separator()
-            Item(stringResource(Res.string.desk_book_window) + " …", enabled = state.root != null, onClick = onBuch)
-            Separator()
-            Item(stringResource(Res.string.desk_check_window) + " …", enabled = state.tree != null, shortcut = KeyShortcut(Key.P, ctrl = true, shift = true), onClick = onPruefung)
-        }
-        Menu(stringResource(Res.string.desk_menu_webtrees), enabled = main && state.tree != null) {
-            val t = state.tree?.name.orEmpty()
-            val manager = state.tree?.role == "manager"
-            fun web(route: String) = runCatching { viewModel.client.url(route, emptyMap()).toString() }.getOrNull()?.let(openWeb)
-            Item(stringResource(Res.string.desk_web_places), onClick = { web("/tree/$t/place-list") })
-            Item(stringResource(Res.string.desk_web_sources), onClick = { web("/tree/$t/source-list") })
-            Separator()
-            Item(stringResource(Res.string.desk_web_merge), enabled = manager, onClick = { web("/tree/$t/merge-step1") })
-            Item(stringResource(Res.string.desk_web_duplicates), enabled = manager, onClick = { web("/tree/$t/duplicates") })
-            Item(stringResource(Res.string.desk_web_check), enabled = manager, onClick = { web("/tree/$t/check") })
-            Item(stringResource(Res.string.desk_web_datafix), enabled = manager, onClick = { web("/tree/$t/data-fix") })
-            Separator()
-            Item(stringResource(Res.string.desk_web_export), enabled = manager, onClick = { web("/tree/$t/export") })
-            Item(stringResource(Res.string.desk_web_import), enabled = manager, onClick = { web("/tree/$t/import") })
-        }
-        Menu(stringResource(Res.string.desk_menu_view), enabled = main) {
-            Menu(stringResource(Res.string.desk_appearance)) {
-                val w = DeskErscheinung.wahl.value
-                RadioButtonItem(stringResource(Res.string.desk_light), selected = w == DeskErscheinung.Wahl.Hell, onClick = { DeskErscheinung.setzen(DeskErscheinung.Wahl.Hell) })
-                RadioButtonItem(stringResource(Res.string.desk_dark), selected = w == DeskErscheinung.Wahl.Dunkel, onClick = { DeskErscheinung.setzen(DeskErscheinung.Wahl.Dunkel) })
-                RadioButtonItem(stringResource(Res.string.desk_system), selected = w == DeskErscheinung.Wahl.System, onClick = { DeskErscheinung.setzen(DeskErscheinung.Wahl.System) })
-            }
-            Menu(stringResource(Res.string.menu_language)) {
-                // Wirkt sofort; Beschriftungen vom Server (Ereignisarten, Orte) kommen mit dem Neuladen nach.
-                val gewaehlt = Sprache.wahl.value
-                RadioButtonItem(stringResource(Res.string.language_system), selected = gewaehlt == null, onClick = { Sprache.setzen(null); viewModel.refresh() })
-                Sprache.ALLE.forEach { (code, name) ->
-                    RadioButtonItem(name, selected = gewaehlt == code, onClick = { Sprache.setzen(code); viewModel.refresh() })
+        key(de.bgghome.webtrees.nativ.Sprache.aktiv) {
+            Menu(stringResource(Res.string.desk_menu_file)) {
+                if (main && (state.info?.trees?.size ?: 0) > 1) Item(stringResource(Res.string.menu_switch_tree), onClick = viewModel::showTreePicker)
+                Item(stringResource(Res.string.action_reload), enabled = main, shortcut = KeyShortcut(Key.F5), onClick = viewModel::refresh)
+                Item(stringResource(Res.string.desk_open_browser), enabled = state.baseUrl.isNotEmpty(), onClick = { openWeb(state.detail?.person?.url ?: state.baseUrl) })
+                Separator()
+                Item(stringResource(Res.string.desk_print_sheet), enabled = main && state.root != null, shortcut = KeyShortcut(Key.P, ctrl = true), onClick = drucke::personenblatt)
+                Item(stringResource(Res.string.desk_pdf_sheet), enabled = main && state.root != null, onClick = drucke::personenblattPdf)
+                Item(stringResource(Res.string.desk_chart_ancestors_open), enabled = main && state.root != null, onClick = { onTafel(TafelArt.Ahnen) })
+                Item(stringResource(Res.string.desk_chart_open), enabled = main && state.root != null, onClick = { onTafel(TafelArt.Stamm) })
+                Separator()
+                if (loggedIn) {
+                    Item(stringResource(Res.string.menu_sign_out_user, state.info?.user?.userName.orEmpty()), onClick = viewModel::logout)
+                } else if (main) {
+                    Item(stringResource(Res.string.action_sign_in), onClick = viewModel::showLogin)
                 }
+                Item(stringResource(Res.string.desk_quit), shortcut = KeyShortcut(Key.Q, ctrl = true), onClick = onQuit)
             }
-            Menu(stringResource(Res.string.desk_layout)) {
-                RadioButtonItem(stringResource(Res.string.desk_layout_navigator), selected = layout == DeskLayout.Navigator, onClick = { onLayout(DeskLayout.Navigator) })
-                RadioButtonItem(stringResource(Res.string.desk_layout_tree), selected = layout == DeskLayout.TreeCentre, onClick = { onLayout(DeskLayout.TreeCentre) })
-                RadioButtonItem(stringResource(Res.string.desk_layout_family), selected = layout == DeskLayout.Family, onClick = { onLayout(DeskLayout.Family) })
-            }
-            CheckboxItem(stringResource(Res.string.desk_toolbar_labels), checked = symboltexte, enabled = layout == DeskLayout.Navigator, onCheckedChange = onSymboltexte)
-            Separator()
-            Item(stringResource(Res.string.nav_home), shortcut = KeyShortcut(Key.One, ctrl = true), onClick = { viewModel.setSection(Section.Home) })
-            Item(stringResource(Res.string.nav_tree), shortcut = KeyShortcut(Key.Two, ctrl = true), onClick = { viewModel.setSection(Section.Tree) })
-            Item(stringResource(Res.string.nav_photos), shortcut = KeyShortcut(Key.Three, ctrl = true), onClick = { viewModel.setSection(Section.Photos) })
-            Item(stringResource(Res.string.desk_table_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Four, ctrl = true), onClick = onTabelle)
-            if (onQuellen != null) Item(stringResource(Res.string.desk_sources_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Five, ctrl = true), onClick = onQuellen)
-            if (onOrte != null) Item(stringResource(Res.string.desk_places_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Six, ctrl = true), onClick = onOrte)
-            Separator()
-            Menu(stringResource(Res.string.tree_generations, state.ancestorGenerations)) {
-                (2..7).forEach { n ->
-                    CheckboxItem(stringResource(Res.string.tree_generations, n), checked = state.ancestorGenerations == n, onCheckedChange = { viewModel.setAncestorGenerations(n) })
+            Menu(stringResource(Res.string.desk_menu_person), enabled = main) {
+                Item(stringResource(Res.string.desk_goto), shortcut = KeyShortcut(Key.F, ctrl = true), onClick = onSearch)
+                Item(stringResource(Res.string.desk_sheet), enabled = state.root != null, shortcut = KeyShortcut(Key.E, ctrl = true), onClick = onSheet)
+                state.home?.let { home -> Item(stringResource(Res.string.home_start_person), shortcut = KeyShortcut(Key.MoveHome, alt = true), onClick = { viewModel.setRoot(home) }) }
+                Item(stringResource(Res.string.action_make_root), enabled = selected != null && selected.person.xref != state.root,
+                    shortcut = KeyShortcut(Key.Enter, ctrl = true), onClick = { selected?.let { viewModel.setRoot(it.person.xref) } })
+                Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,
+                    shortcut = KeyShortcut(Key.N, ctrl = true), onClick = { selected?.let { viewModel.requestAddRelative(it.person.xref) } })
+                Item(stringResource(Res.string.chip_open_web), enabled = selected != null, onClick = { selected?.let { openWeb(it.person.url) } })
+                if (viewModel.bookmarksSupported) {
+                    val root = state.root
+                    Item(stringResource(if (root != null && viewModel.isBookmarked(root)) Res.string.desk_bookmark_remove else Res.string.desk_bookmark_add),
+                        enabled = root != null, shortcut = KeyShortcut(Key.D, ctrl = true), onClick = { root?.let(viewModel::toggleBookmark) })
+                    Item(stringResource(Res.string.desk_bookmarks), shortcut = KeyShortcut(Key.B, ctrl = true), onClick = onMerkliste)
                 }
+                Separator()
+                Item(stringResource(Res.string.action_back), enabled = nav.kannZurueck, shortcut = KeyShortcut(Key.DirectionLeft, alt = true), onClick = nav.zurueck)
+                Item(stringResource(Res.string.desk_forward), enabled = nav.kannVor, shortcut = KeyShortcut(Key.DirectionRight, alt = true), onClick = nav.vor)
+                Item(stringResource(Res.string.desk_copy_text), enabled = state.detail != null, shortcut = KeyShortcut(Key.C, ctrl = true, shift = true), onClick = { state.detail?.let(::personentextKopieren) })
             }
-            CheckboxItem(stringResource(Res.string.desk_color_coding), checked = farbkodierung, enabled = state.home != null, onCheckedChange = onFarbkodierung)
-            CheckboxItem(stringResource(Res.string.tree_show_siblings), checked = state.showSiblings, onCheckedChange = viewModel::setShowSiblings)
-            CheckboxItem(stringResource(Res.string.tree_show_cousins), checked = state.showCousins && state.showSiblings, enabled = state.showSiblings, onCheckedChange = viewModel::setShowCousins)
-        }
-        Menu(stringResource(Res.string.desk_menu_help)) {
-            Item(stringResource(Res.string.desk_help), shortcut = KeyShortcut(Key.F1), onClick = onHilfe)
-            Item(stringResource(Res.string.desk_about, LocalAppName.current), onClick = onAbout)
+            Menu(stringResource(Res.string.desk_menu_create), enabled = main) {
+                Item(stringResource(Res.string.desk_list_ancestors), enabled = state.root != null, onClick = { onListe(ListenArt.Ahnen) })
+                Item(stringResource(Res.string.desk_list_descendants), enabled = state.root != null, onClick = { onListe(ListenArt.Stamm) })
+                Item(stringResource(Res.string.desk_list_events), onClick = { onListe(ListenArt.Ereignisse) })
+                Separator()
+                Item(stringResource(Res.string.desk_title_sheet, state.detail?.person?.name ?: "…"), enabled = state.root != null, onClick = { onListe(ListenArt.Personenblatt) })
+                Separator()
+                Item(stringResource(Res.string.desk_chart_ancestors_open), enabled = state.root != null, shortcut = KeyShortcut(Key.T, ctrl = true, shift = true), onClick = { onTafel(TafelArt.Ahnen) })
+                Item(stringResource(Res.string.desk_chart_open), enabled = state.root != null, shortcut = KeyShortcut(Key.T, ctrl = true), onClick = { onTafel(TafelArt.Stamm) })
+                Separator()
+                Item(stringResource(Res.string.desk_book_window) + " …", enabled = state.root != null, onClick = onBuch)
+                Separator()
+                Item(stringResource(Res.string.desk_check_window) + " …", enabled = state.tree != null, shortcut = KeyShortcut(Key.P, ctrl = true, shift = true), onClick = onPruefung)
+            }
+            Menu(stringResource(Res.string.desk_menu_webtrees), enabled = main && state.tree != null) {
+                val t = state.tree?.name.orEmpty()
+                val manager = state.tree?.role == "manager"
+                fun web(route: String) = runCatching { viewModel.client.url(route, emptyMap()).toString() }.getOrNull()?.let(openWeb)
+                Item(stringResource(Res.string.desk_web_places), onClick = { web("/tree/$t/place-list") })
+                Item(stringResource(Res.string.desk_web_sources), onClick = { web("/tree/$t/source-list") })
+                Separator()
+                Item(stringResource(Res.string.desk_web_merge), enabled = manager, onClick = { web("/tree/$t/merge-step1") })
+                Item(stringResource(Res.string.desk_web_duplicates), enabled = manager, onClick = { web("/tree/$t/duplicates") })
+                Item(stringResource(Res.string.desk_web_check), enabled = manager, onClick = { web("/tree/$t/check") })
+                Item(stringResource(Res.string.desk_web_datafix), enabled = manager, onClick = { web("/tree/$t/data-fix") })
+                Separator()
+                Item(stringResource(Res.string.desk_web_export), enabled = manager, onClick = { web("/tree/$t/export") })
+                Item(stringResource(Res.string.desk_web_import), enabled = manager, onClick = { web("/tree/$t/import") })
+            }
+            Menu(stringResource(Res.string.desk_menu_view), enabled = main) {
+                Menu(stringResource(Res.string.desk_appearance)) {
+                    val w = DeskErscheinung.wahl.value
+                    RadioButtonItem(stringResource(Res.string.desk_light), selected = w == DeskErscheinung.Wahl.Hell, onClick = { DeskErscheinung.setzen(DeskErscheinung.Wahl.Hell) })
+                    RadioButtonItem(stringResource(Res.string.desk_dark), selected = w == DeskErscheinung.Wahl.Dunkel, onClick = { DeskErscheinung.setzen(DeskErscheinung.Wahl.Dunkel) })
+                    RadioButtonItem(stringResource(Res.string.desk_system), selected = w == DeskErscheinung.Wahl.System, onClick = { DeskErscheinung.setzen(DeskErscheinung.Wahl.System) })
+                }
+                Menu(stringResource(Res.string.menu_language)) {
+                    // Wirkt sofort; Beschriftungen vom Server (Ereignisarten, Orte) kommen mit dem Neuladen nach.
+                    val gewaehlt = Sprache.wahl.value
+                    RadioButtonItem(stringResource(Res.string.language_system), selected = gewaehlt == null, onClick = { Sprache.setzen(null); viewModel.refresh() })
+                    Sprache.ALLE.forEach { (code, name) ->
+                        RadioButtonItem(name, selected = gewaehlt == code, onClick = { Sprache.setzen(code); viewModel.refresh() })
+                    }
+                }
+                Menu(stringResource(Res.string.desk_layout)) {
+                    RadioButtonItem(stringResource(Res.string.desk_layout_navigator), selected = layout == DeskLayout.Navigator, onClick = { onLayout(DeskLayout.Navigator) })
+                    RadioButtonItem(stringResource(Res.string.desk_layout_tree), selected = layout == DeskLayout.TreeCentre, onClick = { onLayout(DeskLayout.TreeCentre) })
+                    RadioButtonItem(stringResource(Res.string.desk_layout_family), selected = layout == DeskLayout.Family, onClick = { onLayout(DeskLayout.Family) })
+                }
+                CheckboxItem(stringResource(Res.string.desk_toolbar_labels), checked = symboltexte, enabled = layout == DeskLayout.Navigator, onCheckedChange = onSymboltexte)
+                Separator()
+                Item(stringResource(Res.string.nav_home), shortcut = KeyShortcut(Key.One, ctrl = true), onClick = { viewModel.setSection(Section.Home) })
+                Item(stringResource(Res.string.nav_tree), shortcut = KeyShortcut(Key.Two, ctrl = true), onClick = { viewModel.setSection(Section.Tree) })
+                Item(stringResource(Res.string.nav_photos), shortcut = KeyShortcut(Key.Three, ctrl = true), onClick = { viewModel.setSection(Section.Photos) })
+                Item(stringResource(Res.string.desk_table_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Four, ctrl = true), onClick = onTabelle)
+                if (onQuellen != null) Item(stringResource(Res.string.desk_sources_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Five, ctrl = true), onClick = onQuellen)
+                if (onOrte != null) Item(stringResource(Res.string.desk_places_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Six, ctrl = true), onClick = onOrte)
+                Separator()
+                Menu(stringResource(Res.string.tree_generations, state.ancestorGenerations)) {
+                    (2..7).forEach { n ->
+                        CheckboxItem(stringResource(Res.string.tree_generations, n), checked = state.ancestorGenerations == n, onCheckedChange = { viewModel.setAncestorGenerations(n) })
+                    }
+                }
+                CheckboxItem(stringResource(Res.string.desk_color_coding), checked = farbkodierung, enabled = state.home != null, onCheckedChange = onFarbkodierung)
+                CheckboxItem(stringResource(Res.string.tree_show_siblings), checked = state.showSiblings, onCheckedChange = viewModel::setShowSiblings)
+                CheckboxItem(stringResource(Res.string.tree_show_cousins), checked = state.showCousins && state.showSiblings, enabled = state.showSiblings, onCheckedChange = viewModel::setShowCousins)
+            }
+            Menu(stringResource(Res.string.desk_menu_help)) {
+                Item(stringResource(Res.string.desk_help), shortcut = KeyShortcut(Key.F1), onClick = onHilfe)
+                Item(stringResource(Res.string.desk_about, LocalAppName.current), onClick = onAbout)
+            }
         }
     }
 }

@@ -80,9 +80,8 @@ fun main(args: Array<String>) {
                 }
             }
             CompositionLocalProvider(LocalAppName provides plattform.appName) {
-                Sprache.Umgebung {
-                    DeskTheme { DeskRoot(viewModel, onQuit = { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() }) }
-                }
+                // Den Neuaufbau beim Sprachwechsel macht DeskRoot selbst - unterhalb der Menueleiste, die stehen bleiben muss
+                DeskTheme { DeskRoot(viewModel, onQuit = { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() }) }
             }
         }
     }

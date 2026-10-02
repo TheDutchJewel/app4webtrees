@@ -156,8 +156,9 @@ class ExportCache(private val ordner: File) {
     private val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
     private var zuletzt: Pair<String, TreeExport>? = null
 
-    fun schluessel(baseUrl: String, tree: String, user: String, role: String): String =
-        MessageDigest.getInstance("SHA-256").digest("$baseUrl\n$tree\n$user\n$role".toByteArray())
+    /** Je Sprache ein eigener Stand: Ereignisnamen ("Geburt") liefert der Server in der Sprache der Anfrage. */
+    fun schluessel(baseUrl: String, tree: String, user: String, role: String, sprache: String = java.util.Locale.getDefault().language): String =
+        MessageDigest.getInstance("SHA-256").digest("$baseUrl\n$tree\n$user\n$role\n$sprache".toByteArray())
             .take(12).joinToString("") { "%02x".format(it) }
 
     /** Der gespeicherte Baum, wenn er zum Stand [lastChange] gehoert; sonst null. */
