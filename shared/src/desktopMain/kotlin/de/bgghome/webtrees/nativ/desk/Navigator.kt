@@ -91,6 +91,9 @@ private val GAP = 10.dp
 /** Zeilenabstand der aeussersten Generation: dicht (Kasten plus Luft), bei hohem Fenster bis zur doppelten Kastenhoehe. */
 private val SLOT_MIN = BOX_H + 6.dp
 private val SLOT_MAX = BOX_H * 2 + 8.dp
+/** Zickzack: die aeusserste Generation steht abwechselnd in zwei Spalten (Vaeter links, Muetter rechts daneben) und darf
+ *  sich senkrecht zur Haelfte ueberlappen - die Waagerechte zur Mutter laeuft knapp unter dem Kasten des Vaters durch. */
+private val SLOT_ZICK = BOX_H / 2 + 6.dp
 /** Die aeusserste Spalte steht rechts neben der vorigen, ohne Ueberlappung - nur so koennen ihre Zeilen dicht liegen. */
 private val AUSSEN = BOX_W + 36.dp
 /** Spaltenabstand kleiner als die Kastenbreite: die Spalten ueberlappen, die Linie zu den Eltern
@@ -181,7 +184,6 @@ fun Navigator(
     val quer = rememberScrollState(); val hoch = rememberScrollState()
     val basis = LocalDensity.current
     val g = state.ancestorGenerations.coerceIn(2, 7)
-    val eng = chartMasse(g, familie, familien.isNotEmpty(), COL, SLOT_MIN)
     var stil by remember { mutableStateOf(NavStil.laden()) }
     // Tastatur: rechts Vater (mit Umschalt Mutter), links das erste Kind, hoch/runter die Geschwister, Eingabe oeffnet das
     // Blatt, Tab wechselt die Partnerschaft. Alt+Pfeile bleiben Zurueck/Vor.
@@ -207,24 +209,33 @@ fun Navigator(
         // Massgeblich sind Vorfahren und Infokasten; eine lange Kinderspalte rollt, statt alles zu verkleinern.
         // Bei wenigen Generationen darf die Tafel wachsen (bis 150 Prozent), bei vielen bis 45 Prozent schrumpfen - so passen
         // 5 Generationen auf einen Laptop-Bildschirm (60 Prozent reichten nicht, Einpassen tat dann nichts); darunter rollt die Tafel.
-        val fit0 = minOf((maxWidth - rand) / eng.breite, (maxHeight - rand) / eng.hoeheFit).coerceIn(0.45f, 1.5f)
+        fun passt(e: ChartMasse) = minOf((maxWidth - rand) / e.breite, (maxHeight - rand) / e.hoeheFit)
+        // Zickzack, wenn die Hoehe knapp ist (viele Generationen): die aeusserste Generation in zwei versetzten Spalten
+        // nutzt die freie Breite, die Tafel wird nur halb so hoch und kann groesser gezeichnet werden.
+        val normal = chartMasse(g, familie, familien.isNotEmpty(), COL, SLOT_MIN)
+        val zickzack = chartMasse(g, familie, familien.isNotEmpty(), COL, SLOT_ZICK, zick = true)
+        val zick = g >= 4 && passt(zickzack) > passt(normal) * 1.15f
+        val eng = if (zick) zickzack else normal
+        val slotMin = if (zick) SLOT_ZICK else SLOT_MIN
+        val slotMax = if (zick) SLOT_MIN else SLOT_MAX
+        val fit0 = passt(eng).coerceIn(0.45f, 1.5f)
         // Zweiter Schritt: der Infokasten behaelt seine Groesse, die Tafel muss ihm bei dieser Skala Platz lassen
-        val eng2 = chartMasse(g, familie, familien.isNotEmpty(), COL, SLOT_MIN, info = 1f / (fit0 * zoom))
+        val eng2 = chartMasse(g, familie, familien.isNotEmpty(), COL, slotMin, info = 1f / (fit0 * zoom), zick = zick)
         val fit = minOf((maxWidth - rand) / eng2.breite, (maxHeight - rand) / eng2.hoeheFit).coerceIn(0.45f, 1.5f)
         val skala = fit * zoom
         // Bleibt Breite uebrig, ruecken die Spalten auseinander, bis die Tafel das Fenster ausfuellt.
         val frei = (maxWidth - rand) / skala - eng.breite
-        val spalten = g - 2 // die inneren Spalten; die aeusserste steht fest neben der vorigen
+        val spalten = if (zick) g - 3 else g - 2 // die inneren Spalten; die aeusserste(n) stehen fest daneben
         val col = if (spalten > 0 && frei > 0.dp) minOf(COL + frei / spalten, BOX_W + 40.dp) else COL
         // Bleibt Hoehe uebrig, ruecken die Zeilen der aeussersten Generation auseinander, bis die Tafel das Fenster fuellt.
         val hoeheFrei = (maxHeight - rand) / skala - eng2.hoeheFit
-        var slotH = if (hoeheFrei > 0.dp) minOf(SLOT_MIN + hoeheFrei / eng.slots, SLOT_MAX) else SLOT_MIN
-        var masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH, info = 1f / skala)
+        var slotH = if (hoeheFrei > 0.dp) minOf(slotMin + hoeheFrei / eng.slots, slotMax) else slotMin
+        var masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH, info = 1f / skala, zick = zick)
         // Rutscht die Tafel wegen des Infokastens nach unten, die Zeilen wieder etwas enger ziehen.
         val zuviel = masse.hoeheFit - (maxHeight - rand) / skala
-        if (zuviel > 0.dp && slotH > SLOT_MIN) {
-            slotH = maxOf(SLOT_MIN, slotH - zuviel / eng.slots)
-            masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH, info = 1f / skala)
+        if (zuviel > 0.dp && slotH > slotMin) {
+            slotH = maxOf(slotMin, slotH - zuviel / eng.slots)
+            masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH, info = 1f / skala, zick = zick)
         }
         CompositionLocalProvider(LocalFarben provides farben, LocalNavStil provides stil, LocalBasisDichte provides basis, LocalDensity provides Density(basis.density * skala, basis.fontScale)) {
             Box(Modifier.fillMaxSize()) {
@@ -315,10 +326,21 @@ internal fun klarName(p: Person): String =
 /** Die Masse der Tafel in dp vor dem Zeichnen - fuer das Einpassen. */
 private class ChartMasse(
     val slots: Int, val slotH: Dp, val ancH: Dp, val kinder: Int, val partner: Int, val xZentral: Dp, val centerY: Dp, val kinderTop: Dp,
-    val breite: Dp, val hoehe: Dp, val hoeheFit: Dp, val col: Dp,
+    val breite: Dp, val hoehe: Dp, val hoeheFit: Dp, val col: Dp, val zick: Boolean = false,
 ) {
     /** Linker Rand der Generation [gen] (0 = Zentralperson); die aeusserste Spalte steht rechts neben der vorigen. */
-    fun left(gen: Int, g: Int): Dp = if (gen == g - 1) xZentral + col * (g - 2) + AUSSEN else xZentral + col * gen
+    fun left(gen: Int, g: Int): Dp = linksVon(gen, g, col, xZentral, zick)
+}
+
+/**
+ * Linker Rand der Generation [gen]. Normal ueberlappen die inneren Spalten (Abstand [col]), nur die aeusserste steht mit
+ * [AUSSEN] daneben. Im Zickzack liegen die beiden aeussersten Generationen so dicht uebereinander, dass auch die vorletzte
+ * nicht mehr ueberlappen darf; die Muetter der aeussersten stehen eine weitere Spalte rechts (siehe Chart).
+ */
+private fun linksVon(gen: Int, g: Int, col: Dp, xZentral: Dp, zick: Boolean): Dp = when {
+    !zick -> if (gen == g - 1) xZentral + col * (g - 2) + AUSSEN else xZentral + col * gen
+    gen >= g - 2 -> xZentral + col * (g - 3) + AUSSEN * (gen - (g - 3))
+    else -> xZentral + col * gen
 }
 
 /**
@@ -327,7 +349,7 @@ private class ChartMasse(
  * passen - mit dem doppelten Zeilenabstand je Generation nach innen geht das ab SLOT_MIN von selbst auf. Nur die
  * aeusserste Spalte darf deshalb nicht ueberlappen (AUSSEN), sonst braeuchte sie die doppelte Zeilenhoehe.
  */
-private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson?, hatFamilien: Boolean, col: Dp, slotH: Dp, info: Float = 1f): ChartMasse {
+private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson?, hatFamilien: Boolean, col: Dp, slotH: Dp, info: Float = 1f, zick: Boolean = false): ChartMasse {
     // Der Infokasten zoomt nicht mit: in Tafel-Massen braucht er bei kleiner Skala entsprechend mehr Platz ([info] = 1 / Skala)
     val infoH = INFO_H * info
     val slots = 1 shl (g - 1)
@@ -341,7 +363,7 @@ private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson
     // ihr oberster Kasten beginnt erst unter dem Infokasten.
     val infoW = (BOX_W * 2 + 56.dp) * info
     for (k in 1 until g) {
-        val links = if (k == g - 1) xZentral + col * (g - 2) + AUSSEN else xZentral + col * k
+        val links = linksVon(k, g, col, xZentral, zick)
         if (links >= infoW) continue
         val oben = (slotH * (slots shr k) - BOX_H) / 2
         centerY = maxOf(centerY, infoH + ancH / 2 - oben)
@@ -353,8 +375,8 @@ private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson
     val hoeheFit = maxOf(centerY + ancH / 2, centerY + BOX_H / 2 + partnerH + 30.dp) + 24.dp
     // Die Kinderspalte rollt in ihrem eigenen Bereich; die Tafel wird durch sie nicht hoeher.
     val hoehe = hoeheFit
-    val breite = xZentral + col * (g - 2) + AUSSEN + BOX_W + 24.dp
-    return ChartMasse(slots, slotH, ancH, kinder, partner, xZentral, centerY, kinderTop, breite, hoehe, hoeheFit, col)
+    val breite = linksVon(g - 1, g, col, xZentral, zick) + (if (zick) AUSSEN else 0.dp) + BOX_W + 24.dp
+    return ChartMasse(slots, slotH, ancH, kinder, partner, xZentral, centerY, kinderTop, breite, hoehe, hoeheFit, col, zick)
 }
 
 @Composable
@@ -372,7 +394,8 @@ private fun Chart(
     val weich = LocalNavStil.current.weich
 
     fun top(n: Int): Dp { val gg = gen(n); val span = slots shr gg; val i = n - (1 shl gg); return centerY - ancH / 2 + slotH * (i * span) + (slotH * span - BOX_H) / 2 }
-    fun left(n: Int): Dp = m.left(gen(n), g)
+    // Im Zickzack stehen die Muetter der aeussersten Generation eine Spalte weiter rechts
+    fun left(n: Int): Dp = m.left(gen(n), g) + if (m.zick && gen(n) == g - 1 && n % 2 == 1) AUSSEN else 0.dp
     val kinderTop = m.kinderTop
     val kinderBereich = hoehe - kinderTop - 12.dp
 
