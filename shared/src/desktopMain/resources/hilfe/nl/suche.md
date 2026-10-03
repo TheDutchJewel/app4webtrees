@@ -14,7 +14,7 @@ Houd de personen bij waaraan u werkt: **Ctrl+D**, **Persoon › Bladwijzer** of 
 
 ## Geschiedenis
 
-**Alt+Left** en **Alt+Right** gaan terug en vooruit in de geschiedenis; het symbool **Geschiedenis** toont de laatste personen.
+**Alt+Links** en **Alt+Rechts** gaan terug en vooruit in de geschiedenis; het symbool **Geschiedenis** toont de laatste personen.
 
 ## Plaatsen, bronnen, dubbele
 

@@ -11,7 +11,7 @@
 | Ctrl+N | Verwant toevoegen |
 | Ctrl+Enter | Geselecteerde persoon als proband |
 | Alt+Home | Startpersoon |
-| Alt+Left / Alt+Right | Terug / vooruit in de geschiedenis |
+| Alt+Links / Alt+Rechts | Terug / vooruit in de geschiedenis |
 | Ctrl+D | Bladwijzer / bladwijzer verwijderen |
 | Ctrl+B | Bladwijzers |
 | Ctrl+Shift+C | Persoonstekst kopiëren |
@@ -28,9 +28,9 @@
 
 | Toets | Functie |
 | - | - |
-| Pijl rechts / Shift+pijl rechts | Naar de vader / naar de moeder |
+| Pijl rechts / Shift+Pijl rechts | Naar de vader / naar de moeder |
 | Pijl links | Naar het eerste kind van de getoonde relatie |
-| Pijl omhoog / pijl omlaag | Vorige / volgende broer of zus |
+| Pijl omhoog / Pijl omlaag | Vorige / volgende broer of zus |
 | Tab | Volgende relatie |
 | Enter | Persoonsblad openen |
 
@@ -38,9 +38,9 @@
 
 | Toets | Functie |
 | - | - |
-| Pijl omhoog / Shift+pijl omhoog | Naar de vader / naar de moeder |
+| Pijl omhoog / Shift+Pijl omhoog | Naar de vader / naar de moeder |
 | Pijl omlaag | Naar het eerste kind van het getoonde tabblad |
-| Pijl links / pijl rechts | Vorige / volgende broer of zus |
+| Pijl links / Pijl rechts | Vorige / volgende broer of zus |
 | Tab | Volgend tabblad (relatie) |
 
 ## Persoonsblad

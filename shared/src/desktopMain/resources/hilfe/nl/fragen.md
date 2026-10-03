@@ -11,7 +11,7 @@ Nieuwe versies verschijnen op **github.com/thobgg/app4webtrees/releases**. Het W
 - Serveradres, gebruikersnaam en de sessiecookie, **nooit het wachtwoord**.
 - Uw instellingen (indeling, uiterlijk, instellingen voor schema's en lijsten, kleurregels, afvinklijst van de controle) op deze pc.
 - Bij de stamboom op deze pc: de hele stamboom in de map `app4webtrees`, inclusief de toegang tot de lokale webtrees.
-- Geen statistieken, geen reclame, geen doorgifte.
+- Geen tracking, geen reclame, geen doorgifte.
 
 ## Privacy in de stamboom
 
