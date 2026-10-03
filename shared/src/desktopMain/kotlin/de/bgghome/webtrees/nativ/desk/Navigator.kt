@@ -1,5 +1,12 @@
 package de.bgghome.webtrees.nativ.desk
 
+import androidx.compose.ui.ExperimentalComposeUiApi
+import kotlin.math.pow
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.Canvas
@@ -93,6 +100,9 @@ private val GAP = 10.dp
 private val COL = 245.dp
 private val LINE_X = 222.dp
 private val INFO_H = 236.dp
+/** Zoom gegenueber dem Einpassen: bis 300 Prozent, damit auch die kleinen aeusseren Generationen lesbar werden. */
+private const val ZOOM_MIN = 0.6f
+private const val ZOOM_MAX = 3f
 /** Dichte ausserhalb der eingepassten Tafel - der Infokasten wird damit gezeichnet und zoomt nicht mit. */
 private val LocalBasisDichte = staticCompositionLocalOf<Density?> { null }
 private val ICON_ROW = 32.dp
@@ -231,7 +241,14 @@ fun Navigator(
             masse = chartMasse(g, familie, familien.isNotEmpty(), slotH, extra, info = 1f / skala, zick = zick)
         }
         CompositionLocalProvider(LocalFarben provides farben, LocalNavStil provides stil, LocalBasisDichte provides basis, LocalDensity provides Density(basis.density * skala, basis.fontScale)) {
-            Box(Modifier.fillMaxSize()) {
+            // Strg+Mausrad zoomt (wie in der Tafel-Vorschau), ohne Strg rollt das Rad wie gewohnt
+            val aktZoom by rememberUpdatedState(zoom)
+            Box(Modifier.fillMaxSize().onPointerEvent(PointerEventType.Scroll, PointerEventPass.Initial) { e ->
+                val c = e.changes.firstOrNull() ?: return@onPointerEvent
+                if (!e.keyboardModifiers.isCtrlPressed || c.scrollDelta.y == 0f) return@onPointerEvent
+                onZoom((aktZoom * 1.1f.pow(-c.scrollDelta.y)).coerceIn(ZOOM_MIN, ZOOM_MAX))
+                c.consume()
+            }) {
                 Box(Modifier.fillMaxSize().horizontalScroll(quer).verticalScroll(hoch).padding(12.dp)) {
                     Chart(detail, zentral, ahnen, g, canEdit, mitNachkommen, viewModel, onOpenSheet, openWeb, masse,
                         familie, fIndex, familien.size, onNaechste = { gewaehlt = (fIndex + 1) % familien.size })
@@ -244,7 +261,7 @@ fun Navigator(
     }
 }
 
-/** Die Regler ueber der Tafel: Generationen (2 bis 7), Stil, Zoom (60 bis 160 Prozent, Klick auf die Zahl: 100) und Einpassen (= 100). */
+/** Die Regler ueber der Tafel: Generationen (2 bis 7), Stil, Zoom (60 bis 300 Prozent, auch Strg+Mausrad; Klick auf die Zahl: 100) und Einpassen (= 100). */
 @Composable
 private fun TafelRegler(generationen: Int, onGenerationen: (Int) -> Unit, zoom: Float, onZoom: (Float) -> Unit, stil: NavStil, onStil: (NavStil) -> Unit) {
     Row(Modifier.fillMaxWidth().height(30.dp).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
@@ -275,10 +292,10 @@ private fun TafelRegler(generationen: Int, onGenerationen: (Int) -> Unit, zoom: 
             }
         }
         Spacer(Modifier.width(16.dp))
-        TextKnopf("−", stringResource(Res.string.tree_zoom_out)) { onZoom((zoom - 0.1f).coerceAtLeast(0.6f)) }
+        TextKnopf("−", stringResource(Res.string.tree_zoom_out)) { onZoom((zoom - 0.1f).coerceAtLeast(ZOOM_MIN)) }
         Text("${(zoom * 100).roundToInt()} %", Modifier.clickable { onZoom(1f) }.padding(horizontal = 6.dp).width(44.dp), style = MaterialTheme.typography.labelLarge,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center, maxLines = 1, softWrap = false)
-        TextKnopf("+", stringResource(Res.string.tree_zoom_in)) { onZoom((zoom + 0.1f).coerceAtMost(1.6f)) }
+        TextKnopf("+", stringResource(Res.string.tree_zoom_in)) { onZoom((zoom + 0.1f).coerceAtMost(ZOOM_MAX)) }
         Spacer(Modifier.width(10.dp))
         TextKnopf(stringResource(Res.string.desk_nav_fit), stringResource(Res.string.desk_nav_fit_hint), breit = true) { onZoom(1f) }
     }

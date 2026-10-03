@@ -11,7 +11,7 @@ Bovenaan de werkbalk, daaronder de **proband** met partners en kinderen, rechts 
 - **Rechtermuisknop**: als proband tonen, bewerken, bladwijzer, openen in webtrees.
 - **Broers en zussen** staan in het infovak linksboven (halfbroers en -zussen met ½); een klik maakt hen tot proband.
 - **Toetsenbord:** pijl rechts naar de vader (met Shift naar de moeder), links naar het kind, omhoog/omlaag door de broers en zussen, Enter opent het blad (zie [Sneltoetsen](hilfe:tasten)).
-- **Generaties** (2 tot 7) en **zoom** (−, +, passend) staan in de navigator zelf; de keuze wordt onthouden.
+- **Generaties** (2 tot 7) en **zoom** (−, +, Ctrl+muiswiel, passend) staan in de navigator zelf; de keuze wordt onthouden. Naar buiten toe worden de vakken kleiner; bij veel generaties staat de buitenste rij verspringend.
 - Een ontbrekende ouder verschijnt als „Vader onbekend“ of „Moeder onbekend“. Met bewerkingsrechten maakt **Verwant toevoegen** de ontbrekende persoon aan.
 
 **Werkbalk:** Ga naar, Bewerken, Verwant toevoegen, Bladwijzers, Terug, Vooruit, Geschiedenis, Startpersoon, Lijst, Schema, Afdrukken, Start, Foto's, Controle, Plaatsen, Bronnen, Help, Afsluiten. Is de breedte niet genoeg, dan toont ze alleen symbolen (naam bij aanwijzen), ten slotte verhuist de rest naar het menu **Meer**. De opschriften schakelt u uit onder **Beeld › Knopteksten**.

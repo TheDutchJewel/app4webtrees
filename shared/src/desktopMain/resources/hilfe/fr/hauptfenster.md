@@ -11,7 +11,7 @@ La barre d'outils en haut, en dessous la **personne centrale** avec ses conjoint
 - **Bouton droit de la souris** : afficher comme personne centrale, modifier, ajouter aux favoris, ouvrir dans webtrees.
 - La **fratrie** figure dans l'encadré en haut à gauche (demi-frères et demi-sœurs avec ½) ; un clic en fait la personne centrale.
 - **Clavier :** flèche droite vers le père (avec Shift vers la mère), gauche vers l'enfant, haut/bas pour parcourir la fratrie, Enter ouvre la fiche (voir [Raccourcis clavier](hilfe:tasten)).
-- Les **générations** (2 à 7) et le **zoom** (−, +, ajuster) se règlent dans le navigateur lui-même ; le choix est mémorisé.
+- Les **générations** (2 à 7) et le **zoom** (−, +, Ctrl+molette, ajuster) se règlent dans le navigateur lui-même ; le choix est mémorisé. Les cases rétrécissent vers l’extérieur ; avec beaucoup de générations, la rangée extérieure est disposée en quinconce.
 - Un parent manquant apparaît comme « Père inconnu » ou « Mère inconnue ». Avec les droits de modification, **Ajouter un parent** crée la personne manquante.
 
 **Barre d'outils :** Aller à, Modifier, Ajouter un parent, Favoris, Retour, Suivant, Historique, Personne de départ, Liste, Tableau, Imprimer, Accueil, Photos, Vérification, Lieux, Sources, Aide, Quitter. Si la largeur ne suffit pas, seules les icônes s'affichent (le nom apparaît au survol), et pour finir le reste passe dans le menu **Plus**. Désactivez les libellés sous **Affichage › Libellés de la barre d'outils**.
