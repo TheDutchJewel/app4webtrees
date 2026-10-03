@@ -20,7 +20,7 @@ Bovenaan de werkbalk, daaronder de **proband** met partners en kinderen, rechts 
 
 Drie kolommen: links de **personenlijst** met een zoekveld (Ctrl+F springt erin), in het midden de **boom** als zandloper rond de proband (slepen, zoomen met het muiswiel, takken naar boven uitklappen), rechts het **persoonspaneel** met de gegevens van de geselecteerde persoon.
 
-Bij het uitzoomen toont een kaart minder in plaats van kleiner: eerst zonder foto en jaartallen, dan alleen de voornaam, ten slotte een vak in de kleur van het geslacht. Rechtsklik in de lijst: als proband, profiel, bladwijzer, openen in webtrees.
+Bij het uitzoomen toont een kaart minder in plaats van kleiner: eerst zonder foto en jaartallen, dan alleen de roepnaam, ten slotte een vak in de kleur van het geslacht. Rechtsklik in de lijst: als proband, profiel, bladwijzer, openen in webtrees.
 
 ## Gezinsweergave
 
@@ -91,7 +91,7 @@ In het tabblad **Media** toont de muisaanwijzer boven een afbeelding titel, best
 
 ## Terug, vooruit, geschiedenis
 
-Elke wisseling van proband komt in de geschiedenis. **Alt+Left** gaat terug, **Alt+Right** weer vooruit; het symbool **Geschiedenis** toont de laatste personen. **Alt+Home** springt naar de startpersoon die webtrees voor uw account kent.
+Elke wisseling van proband komt in de geschiedenis. **Alt+Links** gaat terug, **Alt+Rechts** weer vooruit; het symbool **Geschiedenis** toont de laatste personen. **Alt+Home** springt naar de startpersoon die webtrees voor uw account kent.
 
 ## Statusbalk
 

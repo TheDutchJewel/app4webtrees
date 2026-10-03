@@ -4,7 +4,7 @@ De **personentabel** toont iedereen in de stamboom in kolommen: ID, naam, geslac
 
 ## Sorteren
 
-Klik op een kolomkop om op die kolom te sorteren, klik nogmaals om de volgorde om te keren. Data worden op kalender gesorteerd, niet op hun tekst; personen zonder waarde komen altijd achteraan.
+Klik op een kolomkop om op die kolom te sorteren, klik nogmaals om de volgorde om te keren. Datums worden op kalender gesorteerd, niet op hun tekst; personen zonder waarde komen altijd achteraan.
 
 ## Filteren
 

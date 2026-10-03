@@ -19,7 +19,7 @@
 **Boek opslaan** vraagt naar het formaat:
 
 - **PDF** met bladwijzers en links (een klik op „zie nr.“ springt naar de vermelding).
-- **DOCX** om verder te bewerken in Word of LibreOffice. Werk daar de inhoudsopgave één keer bij: erop klikken en F9 drukken (LibreOffice: Extra › Bijwerken › Inhoudsopgaven en indexen).
+- **DOCX** om verder te bewerken in Word of LibreOffice. Werk daar de inhoudsopgave één keer bij: erop klikken en F9 drukken (LibreOffice: Extra › Bijwerken › Indexen en tabellen).
 - **HTML** voor een website, **TeX** voor zetwerk met LaTeX, **Tekst**.
 
 Bij grote stambomen duurt het laden van personen en afbeeldingen even; het venster toont de voortgang.

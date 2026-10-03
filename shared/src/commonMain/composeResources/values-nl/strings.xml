@@ -196,7 +196,7 @@
     <string name="archive_thematic">Thematische collecties</string>
     <string name="archive_by_type">Op mediatype</string>
     <string name="archive_unlinked">Media die aan niemand gekoppeld zijn</string>
-    <string name="archive_free">Vrij bestand</string>
+    <string name="archive_free">Vrij archiefbestand</string>
     <string name="archive_free_text">%1$d van de %2$d bestanden in het archief komen nergens in de stamboom voor.</string>
     <string name="archive_root_folder">Hoofdmap</string>
     <string name="archive_none">Nog geen collecties.</string>
@@ -279,7 +279,7 @@
     <string name="msg_accepted">Wijziging goedgekeurd</string>
     <string name="msg_rejected">Wijziging afgewezen</string>
     <string name="err_not_moderator">Alleen moderators en beheerders kunnen wijzigingen goedkeuren.</string>
-    <string name="err_image_prepare">De afbeelding kon niet voor het uploaden worden voorbereid.</string>
+    <string name="err_image_prepare">De afbeelding kon niet voor het uploaden worden verkleind.</string>
     <string name="err_file_too_large">Het bestand is te groot (%1$d MB) – deze server accepteert hoogstens %2$d MB.</string>
     <string name="setup_address_help">Het adres vindt u in uw browser: open uw familiesite en kopieer het adres bovenaan – de rest kort de app zelf in.</string>
     <string name="setup_from_clipboard">Adres uit het klembord overgenomen – controleer het en klik op „Verbinden“.</string>
@@ -408,7 +408,7 @@
     <string name="desk_book_index_occupations">Beroepenregister</string>
     <string name="desk_book_index_sources">Bronnenregister</string>
     <string name="desk_book_contents">Inhoud</string>
-    <string name="desk_book_toc_update">Inhoudsopgave: aanklikken en op F9 drukken (LibreOffice: Extra → Bijwerken → Inhoudsopgaven en registers).</string>
+    <string name="desk_book_toc_update">Inhoudsopgave: aanklikken en op F9 drukken (LibreOffice: Extra → Bijwerken → Indexen en tabellen).</string>
     <string name="desk_book_save">Boek opslaan (%1$s)</string>
     <string name="desk_book_window">Boek maken</string>
     <string name="desk_book_ancestor_book">Voorouderboek</string>
@@ -739,8 +739,8 @@
     <string name="desk_way_great_uncle">oudoom/-tante en achterneef/-nicht</string>
     <string name="desk_way_great_uncle_n">%1$d× overoudoom/-tante</string>
     <string name="desk_way_cousins">neven/nichten in de %1$d. graad</string>
-    <string name="desk_way_removed">%1$d generaties verschoven</string>
-    <string name="desk_way_removed_one">één generatie verschoven</string>
+    <string name="desk_way_removed">%1$d generaties verwijderd</string>
+    <string name="desk_way_removed_one">één generatie verwijderd</string>
     <string name="desk_way_half">(half)</string>
     <string name="desk_group_content">Inhoud</string>
     <string name="desk_group_box">Inhoud van de vakken</string>
@@ -1013,7 +1013,7 @@
     <string name="desk_compl_sourced">gedocumenteerd</string>
     <string name="desk_compl_without">Personen zonder enige bron: %1$d</string>
     <string name="desk_list_sourced">Gedocumenteerd met bronnen</string>
-    <string name="desk_list_sourced_hint">Hoe goed de stamboom met bronnen is gedocumenteerd: personen en gebeurtenissen met bron, foto’s, per soort gebeurtenis – en wie nog helemaal geen bron heeft.</string>
+    <string name="desk_list_sourced_hint">Hoe goed de stamboom met bronnen is gedocumenteerd: personen en gebeurtenissen met bron, foto’s, per soort gebeurtenis – en wie nog helemaal geen bron heeft. Hét vergelijkingsgetal onder onderzoekers.</string>
     <string name="desk_title_sourced">Gedocumenteerd met bronnen – %1$s</string>
     <string name="desk_media_pick_title">Bestaand medium kiezen</string>
     <string name="desk_media_pick_search">Titel zoeken …</string>
@@ -1052,7 +1052,7 @@
     <string name="assoc_dialog_title">%1$s – %2$s</string>
     <string name="assoc_add_person">Persoon uit de stamboom …</string>
     <string name="assoc_add_free">Zonder record …</string>
-    <string name="assoc_free_hint">Naam, beroep, plaats – bijv. „Friedrich Plate, landbouwer te Celle“</string>
+    <string name="assoc_free_hint">Naam, beroep, plaats – bijv. „Jan Jansen, landbouwer te Westkapelle“</string>
     <string name="assoc_role_godparent">Doopgetuige</string>
     <string name="assoc_role_witness">Getuige</string>
     <string name="assoc_role_other">Anders</string>
@@ -1153,7 +1153,7 @@
     <string name="pruef_vater_klein">vader</string>
     <string name="pruef_eltern">ouders</string>
     <string name="pruef_steht_nach">staat na</string>
-    <string name="pruef_spanne">Spanne</string>
+    <string name="pruef_spanne">Tijdspanne</string>
     <string name="pruef_j">j</string>
     <string name="pruef_kinder">kinderen</string>
     <string name="pruef_ehen">huwelijken</string>

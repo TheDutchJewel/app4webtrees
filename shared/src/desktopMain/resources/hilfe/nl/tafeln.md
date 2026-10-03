@@ -17,7 +17,7 @@ Open het venster **Schema maken** via **Maken › Kwartierstaat …** (Ctrl+Shif
 - **Kwartierstaat (per pagina):** vier generaties per liggende A4-pagina, „→ p. 5“ voor het vervolg, om op te bergen.
 - **Waaier** (halve cirkel) en **Vooroudercirkel** (volledige cirkel): de proband in het midden, één ring per generatie.
 - **Tijdlijn:** voorouders als levensbalken op een jaartalas, wie leefde wanneer; desgewenst met historische gebeurtenissen.
-- **Stamreeks**, **Moederlijn**, **Oudste voorouder** (lijn naar de vroegst bekende geboorte).
+- **Stamreeks** (vaderlijn), **Matrilineaire reeks** (moederlijn), **Oudste voorouder** (lijn naar de vroegst bekende geboorte).
 
 **Nakomelingen**
 

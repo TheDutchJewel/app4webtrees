@@ -18,9 +18,9 @@ Open het venster **Lijst maken** via **Maken › Voorouderlijst**, **Nakomelinge
 - **Achternamen:** alle achternamen met aantal, periode en de meest voorkomende plaatsen.
 - **Plaatsen:** alle plaatsen zoals ze bij de gebeurtenissen staan – **alleen plaatsen** (gebeurtenissen, personen, periode), **met familienamen** of **met personen** en hun gebeurtenissen daar. **Plaatsdetails** voegt GOV-code en coördinaten uit het plaatsenbeheer toe, **Notities** en **Bronnen** die van het locatierecord.
 - **Gezinnen:** alle huwelijken met trouwdatum en aantal kinderen, alfabetisch of chronologisch.
-- **Gedocumenteerd met bronnen:** hoe goed de stamboom met bronnen is onderbouwd – personen en gebeurtenissen met een bron in procenten, foto's, per soort gebeurtenis, en wie nog helemaal geen bron heeft.
+- **Gedocumenteerd met bronnen:** hoe goed de stamboom met bronnen is onderbouwd – personen en gebeurtenissen met een bron in procenten, foto's, per soort gebeurtenis, en wie nog helemaal geen bron heeft. Hét vergelijkingsgetal onder onderzoekers.
 - **Beroepen en religies:** wie welk beroep had of tot welke religie behoorde.
-- **Doopgetuigen:** alle dopen met hun doopgetuigen in datumvolgorde; met api4webtrees 1.11 of nieuwer uit de gekoppelde doopgetuigen en die als vrije tekst („gekoppeld: 2 van 3“ zegt hoeveel er een eigen record hebben), anders uit de notitie „Paten: …“.
+- **Doopgetuigen:** alle dopen met hun doopgetuigen in datumvolgorde; met api4webtrees 1.11 of nieuwer uit de gekoppelde en de als vrije tekst ingevoerde doopgetuigen („gekoppeld: 2 van 3“ zegt hoeveel er een eigen record hebben), anders uit de notitie „Getuigen: …“.
 
 Lijsten over de hele stamboom hebben de stamboom in één geheel nodig; op de server moet api4webtrees 1.9 of nieuwer draaien. Met de stamboom op deze pc is dat altijd het geval.
 
