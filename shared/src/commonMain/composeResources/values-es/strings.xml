@@ -1289,4 +1289,7 @@
     <string name="desk_media_type_certificate">Certificado</string>
     <string name="desk_media_type_other">Otro</string>
     <string name="desk_media_drop_hint">También puede arrastrar archivos aquí desde el explorador de archivos.</string>
+    <string name="desk_note_new">Nueva nota</string>
+    <string name="desk_note_edit">Editar nota</string>
+    <string name="desk_note_shared">nota compartida: editar en webtrees</string>
 </resources>

@@ -831,7 +831,7 @@ private fun OrtMedien(o: PlaceDetail, pflege: OrtPflege?, openWeb: (String) -> U
 
 /** Titel und Art eines Mediums; gesendet wird nur, was sich geaendert hat. */
 @Composable
-private fun MediumDialog(m: de.bgghome.webtrees.nativ.api.MediaJson, onDismiss: () -> Unit, onSave: (String?, String?) -> Unit) {
+internal fun MediumDialog(m: de.bgghome.webtrees.nativ.api.MediaJson, onDismiss: () -> Unit, onSave: (String?, String?) -> Unit) {
     var titel by remember { mutableStateOf(m.title) }
     var art by remember { mutableStateOf(m.type.orEmpty()) }
     val arten = listOf("" to stringResource(Res.string.desk_media_type_none), "photo" to stringResource(Res.string.desk_media_type_photo),

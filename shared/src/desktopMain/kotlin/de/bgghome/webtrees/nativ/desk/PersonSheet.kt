@@ -27,6 +27,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.clickable
+import de.bgghome.webtrees.nativ.ui.saveFact
+import de.bgghome.webtrees.nativ.ui.editMedia
+import de.bgghome.webtrees.nativ.ui.unlinkMedia
+import de.bgghome.webtrees.nativ.ui.linkMedia
+import de.bgghome.webtrees.nativ.ui.uploadMediaFile
+import androidx.compose.ui.draganddrop.dragData
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -214,7 +221,8 @@ private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppVi
                 1 -> ParentsTab(detail, viewModel)
                 2 -> PartnersTab(detail, viewModel, onNewFact = { family -> dialog = ProfileDialog.NewFamilyFact(family) },
                     onEdit = { r -> dialog = ProfileDialog.EditFact(r.fact, r.record) }, onDelete = { r -> dialog = ProfileDialog.DeleteFact(r.fact, r.record) })
-                3 -> NotesTab(detail, openWeb)
+                3 -> NotesTab(detail, openWeb, darfSchreiben = canEdit && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME,
+                    viewModel = viewModel, onLoeschen = { f -> dialog = ProfileDialog.DeleteFact(f, null) })
                 4 -> SourcesTab(detail, openWeb)
                 6 -> Timeline(
                     detail, canEdit,
@@ -222,13 +230,7 @@ private fun SheetTabs(state: UiState, detail: IndividualDetail, viewModel: AppVi
                     onDelete = { fact, record -> dialog = ProfileDialog.DeleteFact(fact, record) },
                     onPerson = viewModel::select,
                 )
-                5 -> MediaGrid(detail.media, onOpen = { item ->
-                    when {
-                        item.isImage -> viewModel.openMediaViewer(ViewerSource.Profile, detail.media, item, owner = detail.person.name)
-                        item.mime == "application/pdf" -> viewModel.openPdf(item.file, item.title, item.url)
-                        else -> openWeb(item.url)
-                    }
-                })
+                5 -> PersonMedien(detail, viewModel, state, openWeb, darfSchreiben = canEdit && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME)
                 else -> LifeMap(mapFacts(detail))
             }
         }
@@ -375,16 +377,35 @@ private fun AuswahlZeile(text: String, aktiv: Boolean, kursiv: Boolean = false, 
 
 /** Reiter Notizen: eigene Notizen und die an Ereignissen. Bearbeitet wird vorerst in webtrees. */
 @Composable
-private fun NotesTab(detail: IndividualDetail, openWeb: (String) -> Unit) {
-    val notizen = notizenVon(detail)
+private fun NotesTab(detail: IndividualDetail, openWeb: (String) -> Unit, darfSchreiben: Boolean = false, viewModel: AppViewModel? = null,
+                     onLoeschen: (de.bgghome.webtrees.nativ.api.FactJson) -> Unit = {}) {
+    // Allgemeine Notizen der Person (1 NOTE) lassen sich schreiben; Notizen an Ereignissen und Verweise auf
+    // Notiz-Datensaetze (1 NOTE @N1@) bleiben hier zum Lesen
+    val eigene = detail.facts.filter { it.tag == "NOTE" }
+    val anEreignissen = notizenVon(detail).filter { it.first.isNotBlank() }
+    var bearbeiten by remember { mutableStateOf<de.bgghome.webtrees.nativ.api.FactJson?>(null) }
+    var neu by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize()) {
         val list = rememberLazyListState()
         Box(Modifier.weight(1f).fillMaxWidth()) {
             LazyColumn(Modifier.fillMaxSize(), state = list) {
-                if (notizen.isEmpty()) item { Text(stringResource(Res.string.desk_notes_none), Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                items(notizen) { (wo, text) ->
+                if (eigene.isEmpty() && anEreignissen.isEmpty()) item { Text(stringResource(Res.string.desk_notes_none), Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                items(eigene, key = { it.id }) { f ->
                     Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp)) {
-                        if (wo.isNotBlank()) Text(wo, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(f.value, style = MaterialTheme.typography.bodyMedium)
+                        if (darfSchreiben) Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            if (f.noteXref == null) Text(stringResource(Res.string.desk_media_edit), Modifier.clickable { bearbeiten = f }.padding(vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                            else Text(stringResource(Res.string.desk_note_shared), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(Res.string.action_delete), Modifier.clickable { onLoeschen(f) }.padding(vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
+                items(anEreignissen) { (wo, text) ->
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp)) {
+                        Text(wo, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(text, style = MaterialTheme.typography.bodyMedium)
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -392,7 +413,96 @@ private fun NotesTab(detail: IndividualDetail, openWeb: (String) -> Unit) {
             }
             ListenLeiste(list)
         }
-        TextButton(onClick = { openWeb(detail.person.url) }, modifier = Modifier.padding(4.dp)) { Text(stringResource(Res.string.desk_edit_in_web)) }
+        Row(Modifier.padding(4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (darfSchreiben) OutlinedButton(onClick = { neu = true }, shape = MaterialTheme.shapes.small) { Text("+ " + stringResource(Res.string.desk_note_new)) }
+            TextButton(onClick = { openWeb(detail.person.url) }) { Text(stringResource(Res.string.desk_edit_in_web)) }
+        }
+    }
+    if (viewModel != null && (neu || bearbeiten != null)) {
+        val alt = bearbeiten
+        NotizDialog(alt?.value.orEmpty(), onDismiss = { neu = false; bearbeiten = null }) { text ->
+            neu = false; bearbeiten = null
+            if (alt == null) viewModel.saveFact(de.bgghome.webtrees.nativ.api.FactRequest(tag = "NOTE", value = text))
+            else viewModel.saveFact(de.bgghome.webtrees.nativ.api.FactRequest(factId = alt.id, value = text))
+        }
+    }
+}
+
+/** Eine Notiz schreiben oder aendern (mehrzeilig). */
+@Composable
+private fun NotizDialog(alt: String, onDismiss: () -> Unit, onSave: (String) -> Unit) {
+    var text by remember { mutableStateOf(alt) }
+    de.bgghome.webtrees.nativ.ui.WtAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(if (alt.isEmpty()) Res.string.desk_note_new else Res.string.desk_note_edit)) },
+        text = { androidx.compose.material3.OutlinedTextField(text, { text = it }, Modifier.width(560.dp), minLines = 8, label = { Text(stringResource(Res.string.fact_note)) }) },
+        confirmButton = { TextButton(enabled = text.isNotBlank() && text.trim() != alt.trim(), onClick = { onSave(text.trim()) }) { Text(stringResource(Res.string.action_save)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) } },
+    )
+}
+
+/**
+ * Fotos und Dokumente der Person: Klick oeffnet sie wie bisher; mit Bearbeitungsrecht hochladen (auch per Ziehen aus
+ * dem Dateimanager), vorhandenes Medium oder eines aus dem Archiv verknuepfen, Titel und Art aendern, loesen.
+ */
+@Composable
+private fun PersonMedien(detail: IndividualDetail, viewModel: AppViewModel, state: UiState, openWeb: (String) -> Unit, darfSchreiben: Boolean) {
+    val m = detail.media
+    var waehlen by remember { mutableStateOf(false) }
+    var bearbeiten by remember { mutableStateOf<de.bgghome.webtrees.nativ.api.MediaJson?>(null) }
+    var ziehtDarueber by remember { mutableStateOf(false) }
+    fun hochladen(dateien: List<java.io.File>) = dateien.forEach { datei ->
+        viewModel.uploadMediaFile(datei.readBytes(), datei.name, mimeVon(datei), titelAusDatei(datei))
+    }
+    val ablage = remember(detail.person.xref) {
+        object : androidx.compose.ui.draganddrop.DragAndDropTarget {
+            override fun onEntered(event: androidx.compose.ui.draganddrop.DragAndDropEvent) { ziehtDarueber = true }
+            override fun onExited(event: androidx.compose.ui.draganddrop.DragAndDropEvent) { ziehtDarueber = false }
+            override fun onEnded(event: androidx.compose.ui.draganddrop.DragAndDropEvent) { ziehtDarueber = false }
+            override fun onDrop(event: androidx.compose.ui.draganddrop.DragAndDropEvent): Boolean {
+                ziehtDarueber = false
+                val liste = event.dragData() as? androidx.compose.ui.draganddrop.DragData.FilesList ?: return false
+                val dateien = liste.readFiles().mapNotNull { runCatching { java.io.File(java.net.URI(it)) }.getOrNull() }.filter { it.isFile }
+                hochladen(dateien)
+                return dateien.isNotEmpty()
+            }
+        }
+    }
+    val scroll = rememberScrollState()
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            (if (darfSchreiben) Modifier.dragAndDropTarget(shouldStartDragAndDrop = { true }, target = ablage) else Modifier)
+                .fillMaxSize().verticalScroll(scroll).padding(12.dp)
+                .border(if (ziehtDarueber) 2.dp else 0.dp, if (ziehtDarueber) MaterialTheme.colorScheme.primary else androidx.compose.ui.graphics.Color.Transparent, MaterialTheme.shapes.small),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            if (m.isEmpty()) Text(stringResource(Res.string.desk_place_nothing), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            else MedienReihe(m, openWeb,
+                onLoesen = if (darfSchreiben) ({ x -> viewModel.unlinkMedia(x.xref) }) else null,
+                onBearbeiten = if (darfSchreiben) ({ x -> bearbeiten = x }) else null,
+                onOeffnen = { item ->
+                    when {
+                        item.isImage -> viewModel.openMediaViewer(ViewerSource.Profile, m, item, owner = detail.person.name)
+                        item.mime == "application/pdf" -> viewModel.openPdf(item.file, item.title, item.url)
+                        else -> openWeb(item.url)
+                    }
+                })
+            if (darfSchreiben) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { dateiOeffnen(scanDialogTitel())?.let { hochladen(listOf(it)) } }, shape = MaterialTheme.shapes.small) {
+                        Text(stringResource(Res.string.desk_source_add_file))
+                    }
+                    OutlinedButton(onClick = { waehlen = true }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_media_existing)) }
+                }
+                Text(stringResource(Res.string.desk_media_drop_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        SenkrechteLeiste(scroll)
+    }
+    if (waehlen) MedienWahlDialog(state.tree?.name.orEmpty(), viewModel.client, m.map { it.xref }.toSet(), onDismiss = { waehlen = false },
+        archive = state.archive, rechteXref = detail.person.xref) { neu -> waehlen = false; viewModel.linkMedia(neu.xref) }
+    bearbeiten?.let { medium ->
+        MediumDialog(medium, onDismiss = { bearbeiten = null }) { titel, art -> bearbeiten = null; viewModel.editMedia(medium.xref, titel, art) }
     }
 }
 

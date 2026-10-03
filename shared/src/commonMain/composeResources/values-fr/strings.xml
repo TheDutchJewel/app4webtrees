@@ -1289,4 +1289,7 @@
     <string name="desk_media_type_certificate">Acte</string>
     <string name="desk_media_type_other">Autre</string>
     <string name="desk_media_drop_hint">Vous pouvez aussi glisser des fichiers depuis le gestionnaire de fichiers.</string>
+    <string name="desk_note_new">Nouvelle note</string>
+    <string name="desk_note_edit">Modifier la note</string>
+    <string name="desk_note_shared">note partagée – à modifier dans webtrees</string>
 </resources>

@@ -324,6 +324,16 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         return post("PlaceRename", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()), PlaceRenameResult.serializer())
     }
 
+    /** Ein vorhandenes Medienobjekt mit dem Datensatz [xref] verknuepfen (ab Stufe 23). */
+    suspend fun linkMedia(tree: String, xref: String, media: String): WriteResult =
+        post("Media", tree, mapOf("xref" to xref), kotlinx.serialization.json.buildJsonObject { put("media", kotlinx.serialization.json.JsonPrimitive(media)) }
+            .toString().toRequestBody("application/json".toMediaType()))
+
+    /** Verknuepfung loesen - Medienobjekt und Datei bleiben. */
+    suspend fun unlinkMedia(tree: String, xref: String, media: String): WriteResult =
+        post("UnlinkMedia", tree, mapOf("xref" to xref), kotlinx.serialization.json.buildJsonObject { put("media", kotlinx.serialization.json.JsonPrimitive(media)) }
+            .toString().toRequestBody("application/json".toMediaType()))
+
     /** Titel und Art eines Medienobjekts aendern (ab Stufe 23); null = nicht anfassen. */
     suspend fun mediaObject(tree: String, xref: String, title: String?, type: String?): WriteResult {
         val body = kotlinx.serialization.json.buildJsonObject {

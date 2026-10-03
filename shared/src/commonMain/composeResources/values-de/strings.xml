@@ -1289,4 +1289,7 @@
     <string name="desk_media_type_certificate">Urkunde</string>
     <string name="desk_media_type_other">Sonstiges</string>
     <string name="desk_media_drop_hint">Dateien lassen sich auch aus dem Dateimanager hierher ziehen.</string>
+    <string name="desk_note_new">Neue Notiz</string>
+    <string name="desk_note_edit">Notiz bearbeiten</string>
+    <string name="desk_note_shared">gemeinsame Notiz – in webtrees bearbeiten</string>
 </resources>

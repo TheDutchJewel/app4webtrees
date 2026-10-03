@@ -294,7 +294,8 @@ private fun Abschnitt(titel: StringResource) {
 /** Vorschaubilder von Scans und Fotos; ein Klick oeffnet die Datei. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((MediaJson) -> Unit)? = null, onBearbeiten: ((MediaJson) -> Unit)? = null) {
+fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((MediaJson) -> Unit)? = null, onBearbeiten: ((MediaJson) -> Unit)? = null,
+                onOeffnen: ((MediaJson) -> Unit)? = null) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         media.forEach { m ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -302,7 +303,7 @@ fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((M
                 val tipp = (listOf(m.title, m.path?.substringAfterLast('/').orEmpty(), listOfNotNull(m.format?.uppercase(), m.type).joinToString(" · ")) + m.info)
                     .filter(String::isNotBlank).distinct().joinToString("\n")
                 Tipp(tipp) {
-                    Box(Modifier.size(96.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant).clickable { openWeb(m.file.ifBlank { m.url }) },
+                    Box(Modifier.size(96.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant).clickable { if (onOeffnen != null) onOeffnen(m) else openWeb(m.file.ifBlank { m.url }) },
                         contentAlignment = Alignment.Center) {
                         if (m.thumb != null) AsyncImage(model = m.thumb, contentDescription = m.title, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                         else Text(m.title, Modifier.padding(6.dp), style = MaterialTheme.typography.labelSmall, maxLines = 4, overflow = TextOverflow.Ellipsis)

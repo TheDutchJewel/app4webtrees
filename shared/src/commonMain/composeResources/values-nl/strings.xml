@@ -1270,4 +1270,7 @@
     <string name="desk_media_type_certificate">Akte</string>
     <string name="desk_media_type_other">Overig</string>
     <string name="desk_media_drop_hint">Je kunt ook bestanden uit de bestandsbeheerder hierheen slepen.</string>
+    <string name="desk_note_new">Nieuwe notitie</string>
+    <string name="desk_note_edit">Notitie bewerken</string>
+    <string name="desk_note_shared">gedeelde notitie – in webtrees bewerken</string>
 </resources>

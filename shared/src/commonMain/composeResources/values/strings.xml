@@ -1294,4 +1294,7 @@
     <string name="desk_media_type_certificate">Certificate</string>
     <string name="desk_media_type_other">Other</string>
     <string name="desk_media_drop_hint">You can also drag files from the file manager onto this area.</string>
+    <string name="desk_note_new">New note</string>
+    <string name="desk_note_edit">Edit note</string>
+    <string name="desk_note_shared">shared note – edit in webtrees</string>
 </resources>

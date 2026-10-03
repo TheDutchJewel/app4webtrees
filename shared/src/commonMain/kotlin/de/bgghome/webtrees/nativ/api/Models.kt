@@ -133,6 +133,8 @@ data class FactJson(
     /** Parallel zu [notes]: "note" oder "associates" (die Notiz steckt schon in [freeAssociates]); leer bei aelteren Modulen. */
     val noteKinds: List<String> = emptyList(),
     val typeLabel: String? = null,
+    /** Ab API-Stufe 23: Notiz, die auf einen Notiz-Datensatz zeigt (1 NOTE @N1@) - nicht als Text aendern. */
+    val noteXref: String? = null,
 )
 
 /**

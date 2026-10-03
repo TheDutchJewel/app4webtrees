@@ -66,3 +66,17 @@ fun AppViewModel.uploadPhoto(photo: PhotoFile, title: String) = write(Res.string
         }
     }
 }
+
+/** Datei an die gewaehlte Person haengen, wie sie ist (Desktop: Dokumente und Scans nicht verkleinern). */
+fun AppViewModel.uploadMediaFile(bytes: ByteArray, name: String, mime: String, title: String) = write(Res.string.msg_photo_uploaded) { tree, xref ->
+    client.uploadMedia(tree, xref, bytes, name, mime, title)
+}
+
+/** Vorhandenes Medienobjekt an die gewaehlte Person haengen (ab API-Stufe 23). */
+fun AppViewModel.linkMedia(media: String) = write(Res.string.msg_saved) { tree, xref -> client.linkMedia(tree, xref, media) }
+
+/** Verknuepfung der gewaehlten Person mit einem Medium loesen. */
+fun AppViewModel.unlinkMedia(media: String) = write(Res.string.msg_saved) { tree, xref -> client.unlinkMedia(tree, xref, media) }
+
+/** Titel und Art eines Mediums aendern; danach die Person neu laden. */
+fun AppViewModel.editMedia(media: String, title: String?, type: String?) = write(Res.string.msg_saved) { tree, _ -> client.mediaObject(tree, media, title, type) }
