@@ -97,9 +97,9 @@ private val AUSSEN = BOX_W + 36.dp
  *  laeuft hinter dem Kasten des Kindes bei zwei Dritteln seiner Breite. */
 private val COL = 245.dp
 private val LINE_X = 222.dp
-/** Der Infokasten steht als feste Leiste ueber der Tafel (zoomt nicht mit) - in der Tafel bleibt dafuer kein Platz frei. */
-private val INFO_H = 0.dp
-private val INFO_LEISTE = 150.dp
+private val INFO_H = 236.dp
+/** Dichte ausserhalb der eingepassten Tafel - der Infokasten wird damit gezeichnet und zoomt nicht mit. */
+private val LocalBasisDichte = staticCompositionLocalOf<Density?> { null }
 private val ICON_ROW = 32.dp
 
 /** Farbkodierung nach Mary Hill: xref -> Farbe des Streifens am rechten Kastenrand (leer = aus). */
@@ -201,33 +201,32 @@ fun Navigator(
     // Generationen, Stil und Zoom ueber der Tafel, rechts - im Navigator statt in der Symbolleiste
     // (dort fehlte bei 125 % Skalierung der Platz).
     TafelRegler(state.ancestorGenerations, viewModel::setAncestorGenerations, zoom, onZoom, stil) { stil = it; it.speichern() }
-    // Infokasten als Leiste in normaler Groesse - bleibt lesbar, wie klein die Tafel auch eingepasst wird
-    Box(Modifier.fillMaxWidth().height(INFO_LEISTE).padding(horizontal = 12.dp)) {
-        if (detail != null) InfoBox(detail, fIndex, Modifier.fillMaxSize(), onOpen = { onOpenSheet(zentral.xref) }, onPerson = { viewModel.setRoot(it) })
-    }
     // Einpassen: die Tafel fuellt das Fenster, der Zoom vergroessert oder verkleinert davon ausgehend.
     androidx.compose.foundation.layout.BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
         val rand = 24.dp
         // Massgeblich sind Vorfahren und Infokasten; eine lange Kinderspalte rollt, statt alles zu verkleinern.
         // Bei wenigen Generationen darf die Tafel wachsen (bis 150 Prozent), bei vielen bis 45 Prozent schrumpfen - so passen
         // 5 Generationen auf einen Laptop-Bildschirm (60 Prozent reichten nicht, Einpassen tat dann nichts); darunter rollt die Tafel.
-        val fit = minOf((maxWidth - rand) / eng.breite, (maxHeight - rand) / eng.hoeheFit).coerceIn(0.45f, 1.5f)
+        val fit0 = minOf((maxWidth - rand) / eng.breite, (maxHeight - rand) / eng.hoeheFit).coerceIn(0.45f, 1.5f)
+        // Zweiter Schritt: der Infokasten behaelt seine Groesse, die Tafel muss ihm bei dieser Skala Platz lassen
+        val eng2 = chartMasse(g, familie, familien.isNotEmpty(), COL, SLOT_MIN, info = 1f / (fit0 * zoom))
+        val fit = minOf((maxWidth - rand) / eng2.breite, (maxHeight - rand) / eng2.hoeheFit).coerceIn(0.45f, 1.5f)
         val skala = fit * zoom
         // Bleibt Breite uebrig, ruecken die Spalten auseinander, bis die Tafel das Fenster ausfuellt.
         val frei = (maxWidth - rand) / skala - eng.breite
         val spalten = g - 2 // die inneren Spalten; die aeusserste steht fest neben der vorigen
         val col = if (spalten > 0 && frei > 0.dp) minOf(COL + frei / spalten, BOX_W + 40.dp) else COL
         // Bleibt Hoehe uebrig, ruecken die Zeilen der aeussersten Generation auseinander, bis die Tafel das Fenster fuellt.
-        val hoeheFrei = (maxHeight - rand) / skala - eng.hoeheFit
+        val hoeheFrei = (maxHeight - rand) / skala - eng2.hoeheFit
         var slotH = if (hoeheFrei > 0.dp) minOf(SLOT_MIN + hoeheFrei / eng.slots, SLOT_MAX) else SLOT_MIN
-        var masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH)
+        var masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH, info = 1f / skala)
         // Rutscht die Tafel wegen des Infokastens nach unten, die Zeilen wieder etwas enger ziehen.
         val zuviel = masse.hoeheFit - (maxHeight - rand) / skala
         if (zuviel > 0.dp && slotH > SLOT_MIN) {
             slotH = maxOf(SLOT_MIN, slotH - zuviel / eng.slots)
-            masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH)
+            masse = chartMasse(g, familie, familien.isNotEmpty(), col, slotH, info = 1f / skala)
         }
-        CompositionLocalProvider(LocalFarben provides farben, LocalNavStil provides stil, LocalDensity provides Density(basis.density * skala, basis.fontScale)) {
+        CompositionLocalProvider(LocalFarben provides farben, LocalNavStil provides stil, LocalBasisDichte provides basis, LocalDensity provides Density(basis.density * skala, basis.fontScale)) {
             Box(Modifier.fillMaxSize()) {
                 Box(Modifier.fillMaxSize().horizontalScroll(quer).verticalScroll(hoch).padding(12.dp)) {
                     Chart(detail, zentral, ahnen, g, canEdit, mitNachkommen, viewModel, onOpenSheet, openWeb, masse, col,
@@ -328,26 +327,28 @@ private class ChartMasse(
  * passen - mit dem doppelten Zeilenabstand je Generation nach innen geht das ab SLOT_MIN von selbst auf. Nur die
  * aeusserste Spalte darf deshalb nicht ueberlappen (AUSSEN), sonst braeuchte sie die doppelte Zeilenhoehe.
  */
-private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson?, hatFamilien: Boolean, col: Dp, slotH: Dp): ChartMasse {
+private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson?, hatFamilien: Boolean, col: Dp, slotH: Dp, info: Float = 1f): ChartMasse {
+    // Der Infokasten zoomt nicht mit: in Tafel-Massen braucht er bei kleiner Skala entsprechend mehr Platz ([info] = 1 / Skala)
+    val infoH = INFO_H * info
     val slots = 1 shl (g - 1)
     val ancH = slotH * slots
     val kinder = familie?.children?.size ?: 0
     val partner = if (hatFamilien) 1 else 0
     val xZentral = BOX_W + 56.dp
     // Die Zentralperson sitzt in der Mitte der Vorfahren; nur wenn ihr Kasten in den Infokasten ragt, rutscht alles nach unten.
-    var centerY = maxOf(ancH / 2, INFO_H + ICON_ROW + BOX_H / 2)
+    var centerY = maxOf(ancH / 2, infoH + ICON_ROW + BOX_H / 2)
     // Ebenso jede Vorfahrenspalte, die waagerecht noch in den Infokasten reicht (bei wenig Platz die Eltern):
     // ihr oberster Kasten beginnt erst unter dem Infokasten.
-    val infoW = BOX_W * 2 + 56.dp
+    val infoW = (BOX_W * 2 + 56.dp) * info
     for (k in 1 until g) {
         val links = if (k == g - 1) xZentral + col * (g - 2) + AUSSEN else xZentral + col * k
         if (links >= infoW) continue
         val oben = (slotH * (slots shr k) - BOX_H) / 2
-        centerY = maxOf(centerY, INFO_H + ancH / 2 - oben)
+        centerY = maxOf(centerY, infoH + ancH / 2 - oben)
     }
     // Die Kinderspalte beginnt unter dem Infokasten und ist sonst um die Zentralperson zentriert.
     val kinderH = (BOX_H + GAP) * kinder
-    val kinderTop = maxOf(centerY - kinderH / 2, INFO_H + ICON_ROW)
+    val kinderTop = maxOf(centerY - kinderH / 2, infoH + ICON_ROW)
     val partnerH = (BOX_H + GAP) * partner
     val hoeheFit = maxOf(centerY + ancH / 2, centerY + BOX_H / 2 + partnerH + 30.dp) + 24.dp
     // Die Kinderspalte rollt in ihrem eigenen Bereich; die Tafel wird durch sie nicht hoeher.
@@ -408,6 +409,12 @@ private fun Chart(
             }
         }
 
+        // Infokasten oben links
+        // ... in normaler Groesse, wie weit die Tafel auch eingepasst oder gezoomt ist
+        if (detail != null) CompositionLocalProvider(LocalDensity provides (LocalBasisDichte.current ?: LocalDensity.current)) {
+            InfoBox(detail, fIndex, Modifier.offset(0.dp, 0.dp).size(BOX_W * 2 + 56.dp, INFO_H - 12.dp), onOpen = { onOpenSheet(zentral.xref) },
+                onPerson = { viewModel.setRoot(it) })
+        }
 
         // Kinder in eigenem Rollbereich: viele Kinder rollen, statt die Tafel zu verkleinern
         if (kinder.isNotEmpty()) {
@@ -478,10 +485,10 @@ private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier,
     val roemisch = listOf("I", "II", "III", "IV", "V", "VI", "VII", "VIII")
     val priv = stringResource(Res.string.person_private); val none = stringResource(Res.string.person_no_name)
     Row(modifier.background(colors.surface).border(1.dp, colors.outline).combinedClickable(onClick = onOpen).padding(8.dp)) {
-        Box(Modifier.width(110.dp).fillMaxHeight().border(1.dp, colors.outlineVariant)) {
+        Box(Modifier.width(160.dp).fillMaxHeight().border(1.dp, colors.outlineVariant)) {
             Portrait(p, Modifier.fillMaxSize())
         }
-        Column(Modifier.weight(1f).padding(start = 12.dp).fillMaxHeight().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Column(Modifier.padding(start = 12.dp).fillMaxHeight().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(registerName(p, priv, none), fontSize = 17.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp)
             if (beruf.isNotBlank()) Text(beruf, fontSize = 14.sp, color = colors.onSurfaceVariant)
             if (geburt.isNotBlank()) Text("*  $geburt", fontSize = 14.sp)
@@ -499,8 +506,6 @@ private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier,
                 }, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = gewicht)
             }
             if (tod.isNotBlank()) Text("†  $tod", fontSize = 14.sp)
-        }
-        Column(Modifier.weight(1f).padding(start = 16.dp).fillMaxHeight().verticalScroll(rememberScrollState())) {
             // Geschwister (Halbgeschwister mit ½): ein Klick macht sie zur Zentralperson
             val voll = detail.parentFamilies.flatMap { it.children }.filter { it.xref != p.xref }.distinctBy { it.xref }
             val halb = detail.halfSiblings().map { it.person }.filter { h -> voll.none { it.xref == h.xref } }
