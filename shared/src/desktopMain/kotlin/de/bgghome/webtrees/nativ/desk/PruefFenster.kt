@@ -33,6 +33,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -192,7 +193,7 @@ private class Bearbeitung(val fakt: FactJson, val record: String, val person: St
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, onClose: () -> Unit) {
+fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, onClose: () -> Unit, onOrteBereinigen: (() -> Unit)? = null) {
     val appName = LocalAppName.current
     val baumTitel = state.tree?.title.orEmpty()
     var aus by remember { mutableStateOf(PruefWahl.aus()) }
@@ -324,6 +325,8 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
                             (b?.let { "  ·  " + stringResource(Res.string.desk_check_checked, it.individuals.count { (_, i) -> !i.person.isPrivate }, it.families.size) }.orEmpty()),
                             Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (zahlAbgehakt > 0) Haken(stringResource(Res.string.desk_check_show_ticked, zahlAbgehakt), zeigeAbgehakt) { zeigeAbgehakt = it }
+                        // Schreibvarianten von Orten gleich im Ortsfenster zusammenfuehren
+                        if (r?.id == "510" && onOrteBereinigen != null) TextButton(onClick = onOrteBereinigen) { Text(stringResource(Res.string.pruef_places_cleanup)) }
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Box(Modifier.weight(1f).fillMaxWidth()) {

@@ -90,7 +90,8 @@ import kotlin.math.roundToInt
  */
 
 @Composable
-fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb: (String) -> Unit, onClose: () -> Unit, onBlatt: ((String) -> Unit)? = null) {
+fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb: (String) -> Unit, onClose: () -> Unit, onBlatt: ((String) -> Unit)? = null,
+    bereinigen: Boolean = false) {
     val tree = state.tree?.name
     var neu by remember { mutableStateOf(0) }
     val liste by produceState<Result<PlaceSummaryList>?>(null, tree, neu) {
@@ -118,6 +119,7 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
     ) {
         var bearbeiten by remember { mutableStateOf<PlaceDetail?>(null) }
         var umbenennen by remember { mutableStateOf<de.bgghome.webtrees.nativ.api.PlaceRenameResult?>(null) }
+        var bereinigenOffen by remember(bereinigen) { mutableStateOf(bereinigen) }
         val scope = rememberCoroutineScope()
         var meldung by remember { mutableStateOf<String?>(null) }
         val darf = state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_WRITE
@@ -135,7 +137,12 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
             OrteInhalt(liste, detail, gewaehlt, { gewaehlt = it }, suche, { suche = it }, viewModel, openWeb,
                 onBearbeiten = if (darf) ({ bearbeiten = it }) else null, meldung = verweise,
                 pflege = if (darf) OrtPflege(tree.orEmpty(), viewModel, state.archive) { neu++ } else null, onClose = onClose, onBlatt = onBlatt,
-                onUmbenennen = if (darfUmbenennen) ({ von, nach -> vorschau(von, nach) }) else null)
+                onUmbenennen = if (darfUmbenennen) ({ von, nach -> vorschau(von, nach) }) else null,
+                onBereinigen = if (darfUmbenennen) ({ bereinigenOffen = true }) else null)
+            if (bereinigenOffen && darfUmbenennen) liste?.getOrNull()?.let { l ->
+                OrteBereinigenDialog(tree.orEmpty(), l.places, onZeigen = { gewaehlt = it }, onZusammenfuehren = { von, nach -> vorschau(von, nach) },
+                    onDismiss = { bereinigenOffen = false })
+            }
             umbenennen?.let { v ->
                 UmbenennenDialog(v, onDismiss = { umbenennen = null }) {
                     umbenennen = null
@@ -170,6 +177,7 @@ internal fun OrteInhalt(
     suche: String, onSuche: (String) -> Unit, viewModel: AppViewModel?, openWeb: (String) -> Unit, reiterStart: Int = 0,
     onBearbeiten: ((PlaceDetail) -> Unit)? = null, meldung: String? = null, onUmbenennen: ((String, String) -> Unit)? = null,
     karteStart: Boolean = false, pflege: OrtPflege? = null, onClose: (() -> Unit)? = null, onBlatt: ((String) -> Unit)? = null,
+    onBereinigen: (() -> Unit)? = null,
 ) {
     // Rechts entweder der gewaehlte Ort oder die Karte aller Orte
     var karte by remember { mutableStateOf(karteStart) }
@@ -192,6 +200,10 @@ internal fun OrteInhalt(
             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(Res.string.desk_places_count, treffer.size, alle.size), Modifier.weight(1f),
                     style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                onBereinigen?.let { b ->
+                    Text(stringResource(Res.string.desk_places_cleanup), Modifier.clickable(onClick = b).padding(horizontal = 6.dp, vertical = 3.dp),
+                        style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                }
                 // Umschalter Ort | Karte
                 listOf(false to Res.string.desk_places_details, true to Res.string.desk_places_map).forEach { (k, text) ->
                     val an = karte == k

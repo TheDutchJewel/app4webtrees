@@ -193,7 +193,7 @@ internal fun namensform(s: String): String {
 }
 
 /** Editierabstand, bei dem zwei vertauschte Nachbarbuchstaben als ein Fehler zaehlen (Hermannsbrug = Hermannsburg). */
-private fun levenshtein(a: String, b: String): Int {
+internal fun levenshtein(a: String, b: String): Int {
     if (a == b) return 0
     val d = Array(a.length + 1) { IntArray(b.length + 1) }
     for (i in 0..a.length) d[i][0] = i
@@ -206,7 +206,7 @@ private fun levenshtein(a: String, b: String): Int {
     return d[a.length][b.length]
 }
 
-private fun entfernungKm(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
+internal fun entfernungKm(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
     val r = 6371.0
     val dLat = Math.toRadians(lat2 - lat1); val dLng = Math.toRadians(lng2 - lng1)
     val a = Math.sin(dLat / 2).let { it * it } + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2).let { it * it }

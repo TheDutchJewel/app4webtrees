@@ -144,6 +144,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     var quellen by remember { mutableStateOf<String?>(null) }
     val quellenApi = (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_SOURCES
     var orte by remember { mutableStateOf<String?>(null) }
+    // Orte bereinigen sofort oeffnen (aus der Pruefung)
+    var orteBereinigen by remember { mutableStateOf(false) }
     val orteApi = (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_LIST
     val openSheet: (String) -> Unit = { xref -> viewModel.select(xref); sheetOpen = true }
 
@@ -334,14 +336,15 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
             if (sheetOpen && state.detail != null) PersonSheet(state, viewModel, openWeb, onClose = { sheetOpen = false }, onQuelle = if (quellenApi) ({ quellen = it }) else null)
         }
         quellen?.let { start -> if (state.tree != null) QuellenFenster(state, viewModel, start, openWeb, onClose = { quellen = null }) }
-        orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null }, onBlatt = openSheet) }
+        orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null; orteBereinigen = false }, onBlatt = openSheet, bereinigen = orteBereinigen) }
         if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
         liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
         HilfeFenster()
         if (merkliste) MerklisteFenster(state, viewModel, openSheet, onClose = { merkliste = false })
         tafel?.let { art -> if (state.root != null) TafelFenster(state, viewModel, art, onClose = { tafel = null }) }
         if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
-        if (pruefung && state.tree != null) PruefFenster(state, viewModel, openSheet, onClose = { pruefung = false })
+        if (pruefung && state.tree != null) PruefFenster(state, viewModel, openSheet, onClose = { pruefung = false },
+            onOrteBereinigen = if (orteApi && state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME) ({ orteBereinigen = true; orte = "" }) else null)
         if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false })
 
         if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
