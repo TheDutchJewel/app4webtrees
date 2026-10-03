@@ -201,6 +201,11 @@ data class MediaJson(
     val people: List<PersonRef> = emptyList(),
     /** Pfad der Datei im Medienordner des Baums (ab API-Stufe 9); null bei Internetadressen oder aelterem Modul. */
     val path: String? = null,
+    /** Art (photo, document ...) und Format (JPG, PDF) - ab API-Stufe 23. */
+    val type: String? = null,
+    val format: String? = null,
+    /** Nur bei Medien eines Orts: Dateigroesse und Bildmasse, wie webtrees sie zeigt. */
+    val info: List<String> = emptyList(),
 )
 
 @Serializable

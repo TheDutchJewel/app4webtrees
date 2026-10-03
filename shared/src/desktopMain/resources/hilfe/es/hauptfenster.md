@@ -71,6 +71,8 @@ Las coordenadas se escriben en decimal o en grados, minutos, segundos; **Desde e
 
 En **Editar** también se puede indicar un **nombre corto** (GEDCOM-L: abreviatura del nombre del lugar). Los libros con «Abreviar nombres de lugares» lo usan en lugar del nombre completo; sin él toman, como antes, la primera parte del nombre.
 
+En la pestaña **Medios**, el puntero sobre una imagen muestra título, nombre de archivo, formato, tipo, tamaño y dimensiones; **editar** cambia título y tipo (foto, documento, postal …). También se pueden arrastrar archivos desde el explorador de archivos a la pestaña.
+
 ## Secciones: Inicio, Árbol, Fotos
 
 - **Inicio** (Ctrl+1): saludo, próximos aniversarios, cambios recientes en el árbol, la persona de inicio. Los moderadores ven aquí los cambios pendientes y los aceptan o rechazan.

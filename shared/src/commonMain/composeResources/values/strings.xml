@@ -1282,4 +1282,16 @@
     <string name="desk_list_places_sources">Sources</string>
     <string name="desk_place_short">Short name</string>
     <string name="desk_place_short_hint">Used in books when “Shorten place names” is on</string>
+    <string name="desk_media_edit">edit</string>
+    <string name="desk_media_edit_title">Edit media</string>
+    <string name="desk_media_title">Title</string>
+    <string name="desk_media_type">Type</string>
+    <string name="desk_media_type_none">(none)</string>
+    <string name="desk_media_type_photo">Photo</string>
+    <string name="desk_media_type_document">Document</string>
+    <string name="desk_media_type_card">Postcard</string>
+    <string name="desk_media_type_map">Map</string>
+    <string name="desk_media_type_certificate">Certificate</string>
+    <string name="desk_media_type_other">Other</string>
+    <string name="desk_media_drop_hint">You can also drag files from the file manager onto this area.</string>
 </resources>

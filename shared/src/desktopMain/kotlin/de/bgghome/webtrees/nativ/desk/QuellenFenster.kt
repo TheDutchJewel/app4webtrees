@@ -294,11 +294,14 @@ private fun Abschnitt(titel: StringResource) {
 /** Vorschaubilder von Scans und Fotos; ein Klick oeffnet die Datei. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((MediaJson) -> Unit)? = null) {
+fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((MediaJson) -> Unit)? = null, onBearbeiten: ((MediaJson) -> Unit)? = null) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         media.forEach { m ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Tipp(m.title) {
+                // Beim Darueberfahren: Titel, Dateiname, Format und Art, bei Orten auch Groesse und Bildmasse
+                val tipp = (listOf(m.title, m.path?.substringAfterLast('/').orEmpty(), listOfNotNull(m.format?.uppercase(), m.type).joinToString(" · ")) + m.info)
+                    .filter(String::isNotBlank).distinct().joinToString("\n")
+                Tipp(tipp) {
                     Box(Modifier.size(96.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant).clickable { openWeb(m.file.ifBlank { m.url }) },
                         contentAlignment = Alignment.Center) {
                         if (m.thumb != null) AsyncImage(model = m.thumb, contentDescription = m.title, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
@@ -306,8 +309,12 @@ fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((M
                     }
                 }
                 // Nur die Verknuepfung loesen - Medium und Datei bleiben, wie beim Loesen in webtrees
-                if (onLoesen != null) Text(stringResource(Res.string.desk_media_unlink), Modifier.clickable { onLoesen(m) }.padding(2.dp),
-                    style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (onBearbeiten != null) Text(stringResource(Res.string.desk_media_edit), Modifier.clickable { onBearbeiten(m) }.padding(2.dp),
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                    if (onLoesen != null) Text(stringResource(Res.string.desk_media_unlink), Modifier.clickable { onLoesen(m) }.padding(2.dp),
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
     }

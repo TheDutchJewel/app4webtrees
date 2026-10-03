@@ -324,6 +324,15 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         return post("PlaceRename", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()), PlaceRenameResult.serializer())
     }
 
+    /** Titel und Art eines Medienobjekts aendern (ab Stufe 23); null = nicht anfassen. */
+    suspend fun mediaObject(tree: String, xref: String, title: String?, type: String?): WriteResult {
+        val body = kotlinx.serialization.json.buildJsonObject {
+            title?.let { put("title", kotlinx.serialization.json.JsonPrimitive(it)) }
+            type?.let { put("type", kotlinx.serialization.json.JsonPrimitive(it)) }
+        }
+        return post("MediaObject", tree, mapOf("xref" to xref), body.toString().toRequestBody("application/json".toMediaType()))
+    }
+
     /** Ein Ort mit Personen, Familien, Unterorten und _LOC (ab Stufe 21). */
     suspend fun place(tree: String, name: String): PlaceDetail =
         get("Place", tree, mapOf("name" to name), PlaceDetail.serializer())

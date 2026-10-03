@@ -71,6 +71,8 @@ Koordinaten nimmt das Feld dezimal oder in Grad, Minuten, Sekunden an; **Aus Zwi
 
 Unter **Bearbeiten** lässt sich auch ein **Kurzname** eintragen (GEDCOM-L: Abkürzung am Ortsnamen). Bücher mit „Ortsnamen kürzen“ setzen ihn statt des vollen Namens ein; ohne Kurzname nehmen sie wie bisher den ersten Teil des Namens.
 
+Im Reiter **Medien** zeigt der Mauszeiger über einem Bild Titel, Dateiname, Format, Art, Größe und Bildmaße; **bearbeiten** ändert Titel und Art (Foto, Dokument, Postkarte …). Dateien lassen sich auch einfach aus dem Dateimanager auf den Reiter ziehen.
+
 ## Bereiche: Start, Baum, Fotos
 
 - **Start** (Strg+1): Begrüßung, die nächsten Jahrestage, letzte Änderungen im Stammbaum, die Startperson. Moderatoren sehen hier ausstehende Änderungen und nehmen sie an oder verwerfen sie.

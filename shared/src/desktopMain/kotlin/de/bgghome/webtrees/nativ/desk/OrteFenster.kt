@@ -4,6 +4,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
+import androidx.compose.ui.draganddrop.dragData
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -755,6 +757,8 @@ private fun OrtMedien(o: PlaceDetail, pflege: OrtPflege?, openWeb: (String) -> U
     val scope = rememberCoroutineScope()
     var fehler by remember { mutableStateOf<String?>(null) }
     var waehlen by remember { mutableStateOf<String?>(null) }
+    var bearbeiten by remember { mutableStateOf<de.bgghome.webtrees.nativ.api.MediaJson?>(null) }
+    var ziehtDarueber by remember { mutableStateOf(false) }
     fun medienSetzen(neu: List<String>) {
         if (pflege == null) return
         scope.launch {
@@ -762,25 +766,94 @@ private fun OrtMedien(o: PlaceDetail, pflege: OrtPflege?, openWeb: (String) -> U
                 .onSuccess { pflege.onGeaendert() }.onFailure { fehler = it.message ?: "?" }
         }
     }
-    if (m.isNotEmpty()) MedienReihe(m, openWeb, onLoesen = if (pflege != null) ({ x -> medienSetzen(m.map { it.xref }.filter { it != x.xref }) }) else null)
-    if (pflege != null) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedButton(onClick = {
-            dateiOeffnen(scanDialogTitel())?.let { datei ->
-                scope.launch {
-                    runCatching {
-                        val x = pflege.locXref(o)
-                        val bytes = withContext(Dispatchers.IO) { datei.readBytes() }
-                        withContext(Dispatchers.IO) { pflege.viewModel.client.uploadMedia(pflege.tree, x, bytes, datei.name, mimeVon(datei), titelAusDatei(datei)) }
-                    }.onSuccess { pflege.onGeaendert() }.onFailure { fehler = it.message ?: "?" }
+    fun hochladen(dateien: List<java.io.File>) {
+        if (pflege == null || dateien.isEmpty()) return
+        scope.launch {
+            runCatching {
+                val x = pflege.locXref(o)
+                dateien.forEach { datei ->
+                    val bytes = withContext(Dispatchers.IO) { datei.readBytes() }
+                    withContext(Dispatchers.IO) { pflege.viewModel.client.uploadMedia(pflege.tree, x, bytes, datei.name, mimeVon(datei), titelAusDatei(datei)) }
                 }
-            }
-        }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_source_add_file)) }
-        OutlinedButton(onClick = { scope.launch { runCatching { pflege.locXref(o) }.onSuccess { waehlen = it }.onFailure { fehler = it.message } } },
-            shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_media_existing)) }
+            }.onSuccess { pflege.onGeaendert() }.onFailure { fehler = it.message ?: "?" }
+        }
     }
-    fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+    // Dateien aus dem Dateimanager hineinziehen; waehrend des Ziehens ist der Bereich umrandet
+    val ablage = remember(pflege, o.name) {
+        object : androidx.compose.ui.draganddrop.DragAndDropTarget {
+            override fun onEntered(event: androidx.compose.ui.draganddrop.DragAndDropEvent) { ziehtDarueber = true }
+            override fun onExited(event: androidx.compose.ui.draganddrop.DragAndDropEvent) { ziehtDarueber = false }
+            override fun onEnded(event: androidx.compose.ui.draganddrop.DragAndDropEvent) { ziehtDarueber = false }
+            override fun onDrop(event: androidx.compose.ui.draganddrop.DragAndDropEvent): Boolean {
+                ziehtDarueber = false
+                val liste = event.dragData() as? androidx.compose.ui.draganddrop.DragData.FilesList ?: return false
+                val dateien = liste.readFiles().mapNotNull { runCatching { java.io.File(java.net.URI(it)) }.getOrNull() }.filter { it.isFile }
+                hochladen(dateien)
+                return dateien.isNotEmpty()
+            }
+        }
+    }
+    Column(
+        (if (pflege != null) Modifier.dragAndDropTarget(shouldStartDragAndDrop = { true }, target = ablage) else Modifier)
+            .fillMaxWidth().border(if (ziehtDarueber) 2.dp else 0.dp, if (ziehtDarueber) MaterialTheme.colorScheme.primary else androidx.compose.ui.graphics.Color.Transparent, MaterialTheme.shapes.small)
+            .padding(if (ziehtDarueber) 6.dp else 0.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (m.isNotEmpty()) MedienReihe(m, openWeb,
+            onLoesen = if (pflege != null) ({ x -> medienSetzen(m.map { it.xref }.filter { it != x.xref }) }) else null,
+            onBearbeiten = if (pflege != null) ({ x -> bearbeiten = x }) else null)
+        if (pflege != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { dateiOeffnen(scanDialogTitel())?.let { hochladen(listOf(it)) } }, shape = MaterialTheme.shapes.small) {
+                    Text(stringResource(Res.string.desk_source_add_file))
+                }
+                OutlinedButton(onClick = { scope.launch { runCatching { pflege.locXref(o) }.onSuccess { waehlen = it }.onFailure { fehler = it.message } } },
+                    shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_media_existing)) }
+            }
+            Text(stringResource(Res.string.desk_media_drop_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+    }
     if (pflege != null) waehlen?.let { x ->
         MedienWahlDialog(pflege.tree, pflege.viewModel.client, m.map { it.xref }.toSet(), onDismiss = { waehlen = null },
             archive = pflege.archive, rechteXref = x) { neu -> waehlen = null; medienSetzen(m.map { it.xref } + neu.xref) }
     }
+    if (pflege != null) bearbeiten?.let { medium ->
+        MediumDialog(medium, onDismiss = { bearbeiten = null }) { titel, art ->
+            bearbeiten = null
+            scope.launch {
+                runCatching { withContext(Dispatchers.IO) { pflege.viewModel.client.mediaObject(pflege.tree, medium.xref, titel, art) } }
+                    .onSuccess { pflege.onGeaendert() }.onFailure { fehler = it.message ?: "?" }
+            }
+        }
+    }
+}
+
+/** Titel und Art eines Mediums; gesendet wird nur, was sich geaendert hat. */
+@Composable
+private fun MediumDialog(m: de.bgghome.webtrees.nativ.api.MediaJson, onDismiss: () -> Unit, onSave: (String?, String?) -> Unit) {
+    var titel by remember { mutableStateOf(m.title) }
+    var art by remember { mutableStateOf(m.type.orEmpty()) }
+    val arten = listOf("" to stringResource(Res.string.desk_media_type_none), "photo" to stringResource(Res.string.desk_media_type_photo),
+        "document" to stringResource(Res.string.desk_media_type_document), "card" to stringResource(Res.string.desk_media_type_card),
+        "map" to stringResource(Res.string.desk_media_type_map), "certificate" to stringResource(Res.string.desk_media_type_certificate),
+        "other" to stringResource(Res.string.desk_media_type_other))
+    de.bgghome.webtrees.nativ.ui.WtAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(Res.string.desk_media_edit_title)) },
+        text = {
+            Column(Modifier.width(460.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(titel, { titel = it }, Modifier.fillMaxWidth(), singleLine = true, label = { Text(stringResource(Res.string.desk_media_title)) })
+                Einstellung(stringResource(Res.string.desk_media_type)) {
+                    Auswahl(arten.firstOrNull { it.first == art }?.second ?: art, arten.map { it.second }) { w -> art = arten.first { it.second == w }.first }
+                }
+            }
+        },
+        confirmButton = {
+            androidx.compose.material3.TextButton(enabled = titel.trim() != m.title || art != m.type.orEmpty(), onClick = {
+                onSave(titel.trim().takeIf { it != m.title }, art.takeIf { it != m.type.orEmpty() })
+            }) { Text(stringResource(Res.string.action_save)) }
+        },
+        dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) } },
+    )
 }

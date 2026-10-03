@@ -71,6 +71,8 @@ Les coordonnées se saisissent en décimal ou en degrés, minutes, secondes ; **
 
 **Modifier** accepte aussi un **nom court** (GEDCOM-L : abréviation du nom du lieu). Les livres avec « Abréger les noms de lieux » l’utilisent à la place du nom complet ; sans nom court, ils prennent comme avant la première partie du nom.
 
+Dans l’onglet **Médias**, le pointeur sur une image montre titre, nom de fichier, format, type, taille et dimensions ; **modifier** change titre et type (photo, document, carte postale …). On peut aussi glisser des fichiers depuis le gestionnaire de fichiers sur l’onglet.
+
 ## Sections : Accueil, Arbre, Photos
 
 - **Accueil** (Ctrl+1) : message d'accueil, anniversaires à venir, modifications récentes de l'arbre, la personne de départ. Les modérateurs voient ici les modifications en attente et les acceptent ou les refusent.

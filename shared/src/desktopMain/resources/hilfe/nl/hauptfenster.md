@@ -71,6 +71,8 @@ Coördinaten kun je decimaal of in graden, minuten, seconden invoeren; **Uit kle
 
 Bij **Bewerken** kun je ook een **korte naam** invullen (GEDCOM-L: afkorting van de plaatsnaam). Boeken met „Plaatsnamen inkorten“ gebruiken die in plaats van de volledige naam; zonder korte naam nemen ze zoals voorheen het eerste deel van de naam.
 
+In het tabblad **Media** toont de muisaanwijzer boven een afbeelding titel, bestandsnaam, formaat, soort, grootte en afmetingen; **bewerken** wijzigt titel en soort (foto, document, ansichtkaart …). Bestanden kun je ook gewoon uit de bestandsbeheerder op het tabblad slepen.
+
 ## Onderdelen: Start, Boom, Foto's
 
 - **Start** (Ctrl+1): begroeting, komende gedenkdagen, recente wijzigingen in de stamboom, de startpersoon. Moderators zien hier openstaande wijzigingen en keuren ze goed of af.

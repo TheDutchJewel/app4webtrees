@@ -1258,4 +1258,16 @@
     <string name="desk_list_places_sources">Bronnen</string>
     <string name="desk_place_short">Korte naam</string>
     <string name="desk_place_short_hint">Voor boeken als „Plaatsnamen inkorten“ aan staat</string>
+    <string name="desk_media_edit">bewerken</string>
+    <string name="desk_media_edit_title">Medium bewerken</string>
+    <string name="desk_media_title">Titel</string>
+    <string name="desk_media_type">Soort</string>
+    <string name="desk_media_type_none">(geen)</string>
+    <string name="desk_media_type_photo">Foto</string>
+    <string name="desk_media_type_document">Document</string>
+    <string name="desk_media_type_card">Ansichtkaart</string>
+    <string name="desk_media_type_map">Kaart</string>
+    <string name="desk_media_type_certificate">Akte</string>
+    <string name="desk_media_type_other">Overig</string>
+    <string name="desk_media_drop_hint">Je kunt ook bestanden uit de bestandsbeheerder hierheen slepen.</string>
 </resources>

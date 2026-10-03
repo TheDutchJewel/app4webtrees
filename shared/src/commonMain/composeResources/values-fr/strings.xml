@@ -1277,4 +1277,16 @@
     <string name="desk_list_places_sources">Sources</string>
     <string name="desk_place_short">Nom court</string>
     <string name="desk_place_short_hint">Pour les livres quand « Abréger les noms de lieux » est activé</string>
+    <string name="desk_media_edit">modifier</string>
+    <string name="desk_media_edit_title">Modifier le média</string>
+    <string name="desk_media_title">Titre</string>
+    <string name="desk_media_type">Type</string>
+    <string name="desk_media_type_none">(aucun)</string>
+    <string name="desk_media_type_photo">Photo</string>
+    <string name="desk_media_type_document">Document</string>
+    <string name="desk_media_type_card">Carte postale</string>
+    <string name="desk_media_type_map">Carte</string>
+    <string name="desk_media_type_certificate">Acte</string>
+    <string name="desk_media_type_other">Autre</string>
+    <string name="desk_media_drop_hint">Vous pouvez aussi glisser des fichiers depuis le gestionnaire de fichiers.</string>
 </resources>

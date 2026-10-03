@@ -71,6 +71,8 @@ Coordinates can be typed as decimals or in degrees, minutes, seconds; **From cli
 
 **Edit** also takes a **short name** (GEDCOM-L: abbreviation of the place name). Books with “Shorten place names” use it instead of the full name; without one they take the first part of the name as before.
 
+In the **Media** tab the mouse pointer over a picture shows title, file name, format, type, size and dimensions; **edit** changes title and type (photo, document, postcard …). Files can also simply be dragged from the file manager onto the tab.
+
 ## Sections: Home, Tree, Photos
 
 - **Home** (Ctrl+1): greeting, upcoming anniversaries, recent changes in the tree, the start person. Moderators see pending changes here and accept or reject them.

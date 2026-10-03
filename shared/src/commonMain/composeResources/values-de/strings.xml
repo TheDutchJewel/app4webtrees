@@ -1277,4 +1277,16 @@
     <string name="desk_list_places_sources">Quellen</string>
     <string name="desk_place_short">Kurzname</string>
     <string name="desk_place_short_hint">Für Bücher, wenn „Ortsnamen kürzen“ an ist</string>
+    <string name="desk_media_edit">bearbeiten</string>
+    <string name="desk_media_edit_title">Medium bearbeiten</string>
+    <string name="desk_media_title">Titel</string>
+    <string name="desk_media_type">Art</string>
+    <string name="desk_media_type_none">(keine)</string>
+    <string name="desk_media_type_photo">Foto</string>
+    <string name="desk_media_type_document">Dokument</string>
+    <string name="desk_media_type_card">Postkarte</string>
+    <string name="desk_media_type_map">Karte</string>
+    <string name="desk_media_type_certificate">Urkunde</string>
+    <string name="desk_media_type_other">Sonstiges</string>
+    <string name="desk_media_drop_hint">Dateien lassen sich auch aus dem Dateimanager hierher ziehen.</string>
 </resources>
