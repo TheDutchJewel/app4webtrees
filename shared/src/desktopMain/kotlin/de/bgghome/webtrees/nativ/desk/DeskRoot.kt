@@ -86,6 +86,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -483,7 +484,10 @@ private fun FrameWindowScope.DeskMenuBar(
  * Mauszeiger ↔ fuer Trennstriche. Java kennt keinen Doppelpfeil (E_RESIZE ist unter Linux ein Pfeil nach rechts), also
  * selbst gezeichnet: schwarz mit weissem Rand, sichtbar auf hellem und dunklem Grund.
  */
-private val doppelpfeil: PointerIcon by lazy {
+private val doppelpfeil: PointerIcon by lazy { pfeilZeiger(senkrecht = false) }
+private val doppelpfeilSenkrecht: PointerIcon by lazy { pfeilZeiger(senkrecht = true) }
+
+private fun pfeilZeiger(senkrecht: Boolean): PointerIcon =
     runCatching {
         val tk = java.awt.Toolkit.getDefaultToolkit()
         val groesse = tk.getBestCursorSize(32, 32).let { if (it.width < 16) java.awt.Dimension(32, 32) else it }
@@ -491,6 +495,8 @@ private val doppelpfeil: PointerIcon by lazy {
         val bild = java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB)
         val g = bild.createGraphics()
         g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON)
+        // Senkrecht: derselbe Pfeil um 90 Grad gedreht
+        if (senkrecht) g.rotate(Math.PI / 2, w / 2.0, h / 2.0)
         val cy = h / 2.0; val l = w * 0.12; val r = w * 0.88; val spitze = w * 0.24; val halb = h * 0.2; val schaft = h * 0.06
         val pfeil = java.awt.geom.Path2D.Double().apply {
             moveTo(l, cy); lineTo(l + spitze, cy - halb); lineTo(l + spitze, cy - schaft); lineTo(r - spitze, cy - schaft)
@@ -500,14 +506,33 @@ private val doppelpfeil: PointerIcon by lazy {
         g.color = java.awt.Color.WHITE; g.stroke = java.awt.BasicStroke(w / 10f, java.awt.BasicStroke.CAP_ROUND, java.awt.BasicStroke.JOIN_ROUND); g.draw(pfeil)
         g.color = java.awt.Color.BLACK; g.fill(pfeil)
         g.dispose()
-        PointerIcon(tk.createCustomCursor(bild, java.awt.Point(w / 2, h / 2), "doppelpfeil"))
-    }.getOrElse { PointerIcon(java.awt.Cursor(java.awt.Cursor.E_RESIZE_CURSOR)) }
-}
+        PointerIcon(tk.createCustomCursor(bild, java.awt.Point(w / 2, h / 2), if (senkrecht) "doppelpfeil-senkrecht" else "doppelpfeil"))
+    }.getOrElse { PointerIcon(java.awt.Cursor(if (senkrecht) java.awt.Cursor.N_RESIZE_CURSOR else java.awt.Cursor.E_RESIZE_CURSOR)) }
 
 /** Breite einer Seitenleiste in dp, in den Desktop-Einstellungen unter [name] gemerkt. */
 @Composable
 internal fun rememberBreite(name: String, vorgabe: Float): MutableState<Float> =
     remember { mutableStateOf(DeskLayout.prefs.getString(name, null)?.toFloatOrNull() ?: vorgabe) }
+
+/** Waagrechter Trennstrich zwischen zwei uebereinanderliegenden Bereichen; [onZiehen] bekommt die Verschiebung nach unten. */
+@Composable
+internal fun ZiehgriffWaagrecht(onZiehen: (Float) -> Unit, onEnde: () -> Unit) {
+    Box(
+        Modifier.fillMaxWidth().height(7.dp)
+            .pointerHoverIcon(doppelpfeilSenkrecht)
+            .pointerInput(Unit) { detectVerticalDragGestures(onDragEnd = onEnde, onDragCancel = onEnde) { _, dy -> onZiehen(dy) } },
+        contentAlignment = Alignment.Center,
+    ) { HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant) }
+}
+
+/** Ziehbarer waagrechter Trennstrich fuer [hoehe]; [unten]: der Bereich liegt unter dem Strich (Ziehen nach oben macht ihn hoeher). */
+@Composable
+internal fun TrennerWaagrecht(hoehe: MutableState<Float>, name: String, min: Float, max: Float, unten: Boolean = false) {
+    val dichte = LocalDensity.current.density
+    ZiehgriffWaagrecht(onZiehen = { hoehe.value = (hoehe.value + (if (unten) -it else it) / dichte).coerceIn(min, max) }) {
+        DeskLayout.prefs.putString(name, hoehe.value.toString())
+    }
+}
 
 /** Ziehbarer Trennstrich fuer [breite]; [rechts]: die Leiste liegt rechts vom Strich (Ziehen nach links macht sie breiter). */
 @Composable

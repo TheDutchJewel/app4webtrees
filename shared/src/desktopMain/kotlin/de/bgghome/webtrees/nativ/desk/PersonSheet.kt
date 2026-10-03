@@ -295,8 +295,9 @@ private fun PartnersTab(
     val canEdit = detail.canEdit
     val colors = MaterialTheme.colorScheme
 
+    val partnerHoehe = rememberBreite("blatt_partner_hoehe", 200f)
     Column(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth().height(200.dp)) {
+        Row(Modifier.fillMaxWidth().height(partnerHoehe.value.dp)) {
             // ── Partner ──
             Column(Modifier.weight(1f).fillMaxHeight()) {
                 KopfMitPlus(stringResource(Res.string.rel_partner), if (canEdit) stringResource(Res.string.desk_partner_add) else null) {
@@ -338,7 +339,7 @@ private fun PartnersTab(
                 }
             }
         }
-        HorizontalDivider(color = colors.outlineVariant)
+        TrennerWaagrecht(partnerHoehe, "blatt_partner_hoehe", 110f, 600f)
         // ── Ereignisse der Partnerschaft ──
         if (familie != null) {
             val rows = familie.facts.filter { it.known }.map { FactRow(it, familie.xref, faktLabelMitArt(it)) }
@@ -632,8 +633,9 @@ private fun EreignisTabelle(
         }
         ListenLeiste(list)
         }
-        HorizontalDivider(color = colors.outlineVariant)
-        EreignisDetail(rows.getOrNull(selected), geburtJd, Modifier.fillMaxWidth().height(200.dp), canEdit, detail, viewModel)
+        val detailHoehe = rememberBreite("blatt_detail_hoehe", 200f)
+        TrennerWaagrecht(detailHoehe, "blatt_detail_hoehe", 90f, 600f, unten = true)
+        EreignisDetail(rows.getOrNull(selected), geburtJd, Modifier.fillMaxWidth().height(detailHoehe.value.dp), canEdit, detail, viewModel)
         if (canEdit) {
             Row(Modifier.fillMaxWidth().padding(6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 OutlinedButton(shape = MaterialTheme.shapes.small, onClick = onNew) { Icon(Icons.Default.Add, null, Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text(stringResource(Res.string.action_add_event)) }

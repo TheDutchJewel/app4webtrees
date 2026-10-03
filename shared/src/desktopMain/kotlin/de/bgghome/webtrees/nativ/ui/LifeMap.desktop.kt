@@ -91,9 +91,10 @@ actual fun LifeMap(facts: List<FactJson>) {
                 ZoomTaste("−", stringResource(Res.string.tree_zoom_out)) { zustand.zoom = (zustand.zoom - 1).coerceAtLeast(1) }
             }
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        // Die Liste nimmt hoechstens ein Drittel; bei vielen Stationen rollt sie.
-        Column(Modifier.fillMaxWidth().heightIn(max = 180.dp).verticalScroll(rememberScrollState())) {
+        // Die Liste unter der Karte: Hoehe am Trennstrich ziehbar (gemerkt); bei vielen Stationen rollt sie.
+        val listeHoehe = de.bgghome.webtrees.nativ.desk.rememberBreite("lebenskarte_liste", 180f)
+        de.bgghome.webtrees.nativ.desk.TrennerWaagrecht(listeHoehe, "lebenskarte_liste", 60f, 600f, unten = true)
+        Column(Modifier.fillMaxWidth().heightIn(max = listeHoehe.value.dp).verticalScroll(rememberScrollState())) {
             stationen.forEach { s ->
                 val hervor = s.punkt == gewaehlt
                 val year = s.fact.date?.year?.takeIf { it != 0 }?.toString()
