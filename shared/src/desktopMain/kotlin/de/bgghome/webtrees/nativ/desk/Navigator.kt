@@ -100,6 +100,8 @@ private val GAP = 10.dp
 private val COL = 245.dp
 private val LINE_X = 222.dp
 private val INFO_H = 236.dp
+/** Breite des Infokastens - schmal genug, dass die Grosseltern-Spalte nicht unter ihn ausweichen muss. */
+private val INFO_W = 620.dp
 /** Zoom gegenueber dem Einpassen: bis 300 Prozent, damit auch die kleinen aeusseren Generationen lesbar werden. */
 private const val ZOOM_MIN = 0.6f
 private const val ZOOM_MAX = 3f
@@ -207,7 +209,7 @@ fun Navigator(
     TafelRegler(state.ancestorGenerations, viewModel::setAncestorGenerations, zoom, onZoom, stil) { stil = it; it.speichern() }
     // Einpassen: die Tafel fuellt das Fenster, der Zoom vergroessert oder verkleinert davon ausgehend.
     androidx.compose.foundation.layout.BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-        val rand = 24.dp
+        val rand = 32.dp // Polster der Rollflaeche (2 x 12) plus etwas Luft gegen Rundung
         // Massgeblich sind Vorfahren und Infokasten; eine lange Kinderspalte rollt, statt alles zu verkleinern.
         // Bei wenigen Generationen darf die Tafel wachsen (bis 150 Prozent), bei vielen bis 45 Prozent schrumpfen - so passen
         // 5 Generationen auf einen Laptop-Bildschirm (60 Prozent reichten nicht, Einpassen tat dann nichts); darunter rollt die Tafel.
@@ -216,7 +218,8 @@ fun Navigator(
         // nutzt die freie Breite, die Tafel wird nur halb so hoch und kann groesser gezeichnet werden.
         val normal = chartMasse(g, familie, familien.isNotEmpty(), slotKlein(g, false))
         val zickzack = chartMasse(g, familie, familien.isNotEmpty(), slotKlein(g, true), zick = true)
-        val zick = g >= 4 && passt(zickzack) > passt(normal) * 1.15f
+        // Erst bei 7 Generationen: bis 6 reichen die kleiner werdenden Kaesten, ohne Versatz liest sich die Tafel ruhiger
+        val zick = g >= 7 && passt(zickzack) > passt(normal) * 1.15f
         val eng = if (zick) zickzack else normal
         val slotMin = slotKlein(g, zick)
         val slotMax = slotGross(g, zick)
@@ -349,7 +352,7 @@ private fun kastenW(gen: Int): Dp = BOX_W * stufe(gen)
 private fun kastenH(gen: Int): Dp = BOX_H * stufe(gen)
 
 /** Kleinster Zeilenabstand der aeussersten Generation; im Zickzack nur die halbe Kastenhoehe plus Luft fuer die Linie. */
-private fun slotKlein(g: Int, zick: Boolean): Dp = if (zick) kastenH(g - 1) / 2 + 6.dp else kastenH(g - 1) + 6.dp
+private fun slotKlein(g: Int, zick: Boolean): Dp = if (zick) kastenH(g - 1) / 2 + 6.dp else kastenH(g - 1) + 3.dp
 private fun slotGross(g: Int, zick: Boolean): Dp = if (zick) kastenH(g - 1) + 6.dp else kastenH(g - 1) * 2 + 8.dp
 
 /**
@@ -384,7 +387,7 @@ private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson
     var centerY = maxOf(ancH / 2, infoH + ICON_ROW + BOX_H / 2)
     // Ebenso jede Vorfahrenspalte, die waagerecht noch in den Infokasten reicht (bei wenig Platz die Eltern):
     // ihr oberster Kasten beginnt erst unter dem Infokasten.
-    val infoW = (BOX_W * 2 + 56.dp) * info
+    val infoW = INFO_W * info
     for (k in 1 until g) {
         if (xs[k] >= infoW) continue
         val oben = (slotH * (slots shr k) - kastenH(k)) / 2
@@ -465,7 +468,7 @@ private fun Chart(
         // Infokasten oben links
         // ... in normaler Groesse, wie weit die Tafel auch eingepasst oder gezoomt ist
         if (detail != null) CompositionLocalProvider(LocalDensity provides (LocalBasisDichte.current ?: LocalDensity.current)) {
-            InfoBox(detail, fIndex, Modifier.offset(0.dp, 0.dp).size(BOX_W * 2 + 56.dp, INFO_H - 12.dp), onOpen = { onOpenSheet(zentral.xref) },
+            InfoBox(detail, fIndex, Modifier.offset(0.dp, 0.dp).size(INFO_W, INFO_H - 12.dp), onOpen = { onOpenSheet(zentral.xref) },
                 onPerson = { viewModel.setRoot(it) })
         }
 

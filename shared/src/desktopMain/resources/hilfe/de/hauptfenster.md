@@ -11,7 +11,7 @@ Oben die Symbolleiste, darunter der **Proband** mit Partnern und Kindern, rechts
 - **Rechte Maustaste**: Als Proband zeigen, Bearbeiten, Merken, in webtrees öffnen.
 - **Geschwister** stehen im Infokasten oben links (Halbgeschwister mit ½); ein Klick macht sie zum Probanden.
 - **Tastatur:** Pfeil rechts zum Vater (mit Umschalt zur Mutter), links zum Kind, hoch/runter durch die Geschwister, Eingabe öffnet das Blatt (siehe [Tastenkürzel](hilfe:tasten)).
-- **Generationen** (2 bis 7) und **Zoom** (−, +, Strg+Mausrad, Einpassen) stehen im Navigator selbst; die Wahl bleibt gespeichert. Nach außen werden die Kästen kleiner, bei vielen Generationen steht die äußerste Reihe im Zickzack.
+- **Generationen** (2 bis 7) und **Zoom** (−, +, Strg+Mausrad, Einpassen) stehen im Navigator selbst; die Wahl bleibt gespeichert. Nach außen werden die Kästen kleiner, bei 7 Generationen steht die äußerste Reihe im Zickzack.
 - Fehlt ein Elternteil, steht dort „Vater unbekannt“ oder „Mutter unbekannt“. Mit Bearbeitungsrecht legst du über **Verwandte hinzufügen** die fehlende Person an.
 
 **Symbolleiste:** Gehe zu, Bearbeiten, Verwandte hinzufügen, Merkliste, Zurück, Vor, Verlauf, Startperson, Liste, Tafel, Drucken, Start, Fotos, Prüfung, Orte, Quellen, Hilfe, Beenden. Reicht die Breite nicht, zeigt sie nur Symbole (Name beim Überfahren), zuletzt wandert der Rest ins Menü **Mehr**. Die Texte unter den Symbolen schaltest du unter **Ansicht › Symboltexte** ab.

@@ -11,7 +11,7 @@ The toolbar on top, below it the **central person** with partners and children, 
 - **Right mouse button**: show as central person, edit, bookmark, open in webtrees.
 - **Siblings** are listed in the info box at the top left (half-siblings with ½); a click makes them the central person.
 - **Keyboard:** right arrow to the father (with Shift to the mother), left to the child, up/down through the siblings, Enter opens the sheet (see [Keyboard shortcuts](hilfe:tasten)).
-- **Generations** (2 to 7) and **zoom** (−, +, Ctrl+mouse wheel, fit) are in the navigator itself; the choice is remembered. Boxes get smaller towards the outside; with many generations the outermost row is staggered.
+- **Generations** (2 to 7) and **zoom** (−, +, Ctrl+mouse wheel, fit) are in the navigator itself; the choice is remembered. Boxes get smaller towards the outside; with 7 generations the outermost row is staggered.
 - A missing parent shows as "father unknown" or "mother unknown". With edit rights, **Add relative** creates the missing person.
 
 **Toolbar:** Go to, Edit, Add relative, Bookmarks, Back, Forward, History, Start person, List, Chart, Print, Home, Photos, Check, Places, Sources, Help, Quit. If the width is not enough, it shows icons only (name on hover), finally the rest moves into the **More** menu. Switch the captions off under **View › Toolbar labels**.

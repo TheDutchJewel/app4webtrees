@@ -11,7 +11,7 @@ Arriba la barra de herramientas, debajo la **persona central** con sus parejas e
 - **Botón derecho del ratón**: mostrar como persona central, editar, añadir marcador, abrir en webtrees.
 - Los **hermanos** aparecen en el cuadro de información arriba a la izquierda (los medios hermanos con ½); un clic los convierte en persona central.
 - **Teclado:** flecha derecha al padre (con Shift a la madre), izquierda al hijo, arriba/abajo por los hermanos; Enter abre la ficha (véase [Atajos de teclado](hilfe:tasten)).
-- Las **generaciones** (de 2 a 7) y el **zoom** (−, +, Ctrl+rueda del ratón, ajustar) están en el propio navegador; la elección se recuerda. Las casillas se reducen hacia fuera; con muchas generaciones, la fila exterior va al tresbolillo.
+- Las **generaciones** (de 2 a 7) y el **zoom** (−, +, Ctrl+rueda del ratón, ajustar) están en el propio navegador; la elección se recuerda. Las casillas se reducen hacia fuera; con 7 generaciones, la fila exterior va al tresbolillo.
 - Un progenitor que falta aparece como «Padre desconocido» o «Madre desconocida». Con derechos de edición, **Añadir pariente** crea a la persona que falta.
 
 **Barra de herramientas:** Ir a, Editar, Añadir pariente, Marcadores, Atrás, Adelante, Historial, Persona de inicio, Lista, Gráfico, Imprimir, Inicio, Fotos, Comprobar, Lugares, Fuentes, Ayuda, Salir. Si el ancho no alcanza, muestra solo los iconos (el nombre aparece al pasar el ratón) y, al final, el resto pasa al menú **Más**. Los rótulos se desactivan en **Ver › Etiquetas de la barra de herramientas**.
