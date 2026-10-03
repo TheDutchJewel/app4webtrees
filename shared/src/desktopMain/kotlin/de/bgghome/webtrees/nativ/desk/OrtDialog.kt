@@ -175,7 +175,9 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.desk_place_edit) + " – " + ort.name, maxLines = 2, overflow = TextOverflow.Ellipsis) },
         text = {
-            Column(Modifier.width(620.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Zwei Spalten: links Ortsangaben, rechts Koordinaten mit Karte und Suche
+            Row(Modifier.width(1060.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Column(Modifier.weight(1f)) { Field(gov, { gov = it.trim() }, Res.string.desk_place_gov, hint = Res.string.desk_place_gov_hint) }
                     TextButton(onClick = { openWeb("https://gov.genealogy.net/search/name?name=" + java.net.URLEncoder.encode(ort.levels.firstOrNull() ?: ort.name, "UTF-8")) }) {
@@ -188,7 +190,14 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                     Box(Modifier.weight(1.2f)) { Field(region, { region = it }, Res.string.desk_place_region) }
                     Box(Modifier.weight(1.2f)) { Field(land, { land = it }, Res.string.desk_place_country) }
                 }
-                Field(notiz, { notiz = it }, Res.string.fact_note, minLines = 3)
+                Field(notiz, { notiz = it }, Res.string.fact_note, minLines = 8)
+                if (istAdmin) Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(mapData, { mapData = it })
+                    Text(stringResource(Res.string.desk_place_mapdata), style = MaterialTheme.typography.bodyMedium)
+                }
+                fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+            }
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(lat, { lat = it }, Modifier.weight(1f), label = { Text(stringResource(Res.string.desk_place_lat)) }, singleLine = true, isError = !koordOk)
                     OutlinedTextField(lng, { lng = it }, Modifier.weight(1f), label = { Text(stringResource(Res.string.desk_place_lng)) }, singleLine = true, isError = !koordOk)
@@ -205,7 +214,7 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                 hinweis?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
                 if (b != null && l != null && koordOk) {
                     val zustand = remember { KartenZustand() }
-                    BoxWithConstraints(Modifier.fillMaxWidth().height(180.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+                    BoxWithConstraints(Modifier.fillMaxWidth().height(220.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
                         val w = constraints.maxWidth; val h = constraints.maxHeight
                         LaunchedEffect(b, l, w, h) { zustand.passeEin(listOf(GeoPunkt(b, l)), w, h, einzelZoom = 11, maxZoom = 15) }
                         KachelKarte(zustand, KachelEbene.STANDARD, Modifier.fillMaxSize(), pins = listOf(KartenPin(b, l, farbe = MaterialTheme.colorScheme.primary, radiusDp = 8f)))
@@ -246,14 +255,10 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                         }
                     }
                 }
-
-                if (istAdmin) Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(mapData, { mapData = it })
-                    Text(stringResource(Res.string.desk_place_mapdata), style = MaterialTheme.typography.bodyMedium)
-                }
-                fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+            }
             }
         },
+        breite = 1120.dp,
         confirmButton = {
             val geaendert = gov != altGov || notiz.trim() != altNotiz.trim() || koordGeaendert ||
                 kurz.trim() != loc?.shortName.orEmpty() || plz.trim() != loc?.postalCode.orEmpty() || region.trim() != loc?.region.orEmpty() || land.trim() != loc?.country.orEmpty()

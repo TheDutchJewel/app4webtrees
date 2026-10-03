@@ -385,7 +385,6 @@ private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) ->
     val aussen by produceState<OrtAussen?>(null, o.name, loc?.gov, o.lat, o.lng) {
         value = withContext(Dispatchers.IO) { runCatching { ortAussen(o, userAgent) }.getOrNull() ?: OrtAussen() }
     }
-    OrtKopf(o, aussen, openWeb)
     @Composable
     fun Zeile(label: StringResource, inhalt: @Composable () -> Unit) {
         Row(Modifier.padding(vertical = 2.dp)) {
@@ -397,24 +396,26 @@ private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) ->
     fun Verweis(text: String, onClick: () -> Unit) =
         Text(text, Modifier.clickable(onClick = onClick), style = MaterialTheme.typography.bodyMedium, color = farben.primary)
 
-    Zeile(Res.string.desk_place_levels) { Text(o.levels.joinToString(" › "), style = MaterialTheme.typography.bodyMedium) }
-    o.parent?.let { p -> Zeile(Res.string.desk_place_parent) { Verweis(p) { onWahl(p) } } }
-    if (o.children.isNotEmpty()) Zeile(Res.string.desk_place_children) {
-        o.children.forEach { c -> Verweis(c.name.substringBefore(", ") + if (c.events > 0) "  (${c.events})" else "") { onWahl(c.name) } }
-    }
-    Zeile(Res.string.desk_place_events) { Text("${o.events}", style = MaterialTheme.typography.bodyMedium) }
-    Zeile(Res.string.desk_place_record) {
-        if (loc == null) Text(stringResource(Res.string.desk_place_no_record), style = MaterialTheme.typography.bodyMedium, color = farben.onSurfaceVariant)
-        else Text(listOf(loc.name, loc.xref).filter(String::isNotBlank).joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
-    }
-    // Kurzname, Postleitzahl, Region, Land - so wie andere Programme sie am Ortsdatensatz ablegen
-    listOf(Res.string.desk_place_short to loc?.shortName, Res.string.desk_place_postal to loc?.postalCode, Res.string.desk_place_region to loc?.region, Res.string.desk_place_country to loc?.country)
-        .forEach { (label, wert) -> if (!wert.isNullOrBlank()) Zeile(label) { SelectionContainer { Text(wert, style = MaterialTheme.typography.bodyMedium) } } }
-    loc?.gov?.let { gov ->
-        Zeile(Res.string.desk_place_gov) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                SelectionContainer { Text(gov, style = MaterialTheme.typography.bodyMedium) }
-                Verweis(stringResource(Res.string.desk_place_gov_show)) { openWeb("https://gov.genealogy.net/item/show/$gov") }
+    OrtKopf(o, aussen, openWeb) {
+        Zeile(Res.string.desk_place_levels) { Text(o.levels.joinToString(" › "), style = MaterialTheme.typography.bodyMedium) }
+        o.parent?.let { p -> Zeile(Res.string.desk_place_parent) { Verweis(p) { onWahl(p) } } }
+        if (o.children.isNotEmpty()) Zeile(Res.string.desk_place_children) {
+            o.children.forEach { c -> Verweis(c.name.substringBefore(", ") + if (c.events > 0) "  (${c.events})" else "") { onWahl(c.name) } }
+        }
+        Zeile(Res.string.desk_place_events) { Text("${o.events}", style = MaterialTheme.typography.bodyMedium) }
+        Zeile(Res.string.desk_place_record) {
+            if (loc == null) Text(stringResource(Res.string.desk_place_no_record), style = MaterialTheme.typography.bodyMedium, color = farben.onSurfaceVariant)
+            else Text(listOf(loc.name, loc.xref).filter(String::isNotBlank).joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
+        }
+        // Kurzname, Postleitzahl, Region, Land - so wie andere Programme sie am Ortsdatensatz ablegen
+        listOf(Res.string.desk_place_short to loc?.shortName, Res.string.desk_place_postal to loc?.postalCode, Res.string.desk_place_region to loc?.region, Res.string.desk_place_country to loc?.country)
+            .forEach { (label, wert) -> if (!wert.isNullOrBlank()) Zeile(label) { SelectionContainer { Text(wert, style = MaterialTheme.typography.bodyMedium) } } }
+        loc?.gov?.let { gov ->
+            Zeile(Res.string.desk_place_gov) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    SelectionContainer { Text(gov, style = MaterialTheme.typography.bodyMedium) }
+                    Verweis(stringResource(Res.string.desk_place_gov_show)) { openWeb("https://gov.genealogy.net/item/show/$gov") }
+                }
             }
         }
     }
@@ -619,14 +620,14 @@ internal fun ortAussen(o: PlaceDetail, userAgent: String?): OrtAussen {
 /** Kopf der Ortsseite wie im Ortsregister: Titelbild, Kacheln, GOV-Hierarchie, Nachschlagen. */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Unit) {
+private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Unit, angaben: @Composable () -> Unit) {
     val farben = MaterialTheme.colorScheme
     val leaf = o.levels.firstOrNull() ?: o.name
     // Titelbild: ein eigenes Foto am Ortsdatensatz geht vor, sonst der Vorschlag aus Wikimedia Commons
     val eigenes = o.location?.media?.firstOrNull { it.isImage && it.thumb != null }
     val vorschlag = aussen?.wiki?.bild
-    if (eigenes != null || vorschlag != null) {
-        Box(Modifier.fillMaxWidth().height(220.dp).border(1.dp, farben.outlineVariant)) {
+    val bild: @Composable () -> Unit = { if (eigenes != null || vorschlag != null) {
+        Box(Modifier.fillMaxWidth().height(200.dp).border(1.dp, farben.outlineVariant)) {
             coil3.compose.AsyncImage(model = eigenes?.thumb ?: vorschlag?.bild, contentDescription = o.name,
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.fillMaxSize())
             if (eigenes == null && vorschlag != null) {
@@ -635,12 +636,13 @@ private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Uni
                     .padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
-    }
+    } }
     // Kacheln: Ereignisse nach Art
-    o.eventCounts?.let { z ->
-        Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(z.birth to Res.string.desk_place_births, z.marriage to Res.string.desk_place_marriages,
-                z.death to Res.string.desk_place_deaths, z.other to Res.string.desk_place_other_events).forEach { (n, t) ->
+    val kacheln: @Composable (Int) -> Unit = { jeZeile -> o.eventCounts?.let { z ->
+        listOf(z.birth to Res.string.desk_place_births, z.marriage to Res.string.desk_place_marriages,
+            z.death to Res.string.desk_place_deaths, z.other to Res.string.desk_place_other_events).chunked(jeZeile).forEach { reihe ->
+        Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            reihe.forEach { (n, t) ->
                 Column(Modifier.weight(1f).border(1.dp, farben.outlineVariant, MaterialTheme.shapes.small).padding(vertical = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("$n", style = MaterialTheme.typography.headlineSmall, color = if (n > 0) farben.primary else farben.outline)
@@ -648,8 +650,10 @@ private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Uni
                 }
             }
         }
-    }
+        }
+    } }
     // GOV-Hierarchie (von oben nach unten), sonst die Ebenen des Ortsnamens
+    val hierarchie: @Composable () -> Unit = {
     if (aussen == null && o.location?.gov != null) Text(stringResource(Res.string.desk_place_loading), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
     aussen?.heute?.takeIf { it.size > 1 }?.let { heute ->
         Text(stringResource(Res.string.desk_place_hierarchy), Modifier.padding(top = 6.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -668,6 +672,7 @@ private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Uni
             Kette(stringResource(Res.string.desk_place_earlier) + if (zeit.isNotEmpty()) " ($zeit)" else "", f)
         }
     }
+    }
     // Nachschlagen: GOV, GenWiki, Wikipedia, Archivportale, externe Kennungen aus GOV
     val gov = o.location?.gov
     val links = buildList {
@@ -677,6 +682,7 @@ private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Uni
         addAll(OrtExtern.suchLinks(leaf))
         addAll(aussen?.extern.orEmpty())
     }
+    val linkleiste: @Composable () -> Unit = {
     Text(stringResource(Res.string.desk_place_links), Modifier.padding(top = 6.dp), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
     androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         links.forEach { (name, url) ->
@@ -685,7 +691,18 @@ private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Uni
         }
     }
     Text(stringResource(Res.string.desk_place_external_note), style = MaterialTheme.typography.labelSmall, color = farben.outline)
-    HorizontalDivider(Modifier.padding(vertical = 6.dp), color = farben.outlineVariant)
+    }
+    // Breit: links Bild und Angaben, rechts Kacheln, Hierarchie und Nachschlagen - so passt meist alles ohne Rollen
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (maxWidth >= 640.dp) Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) { bild(); angaben() }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) { kacheln(2); hierarchie(); linkleiste() }
+        } else Column {
+            bild(); kacheln(4); hierarchie(); linkleiste()
+            HorizontalDivider(Modifier.padding(vertical = 6.dp), color = farben.outlineVariant)
+            angaben()
+        }
+    }
 }
 
 /** Was die Reiter zum Schreiben brauchen - nur mit Bearbeitungsrecht und Server ab API-Stufe 22. */

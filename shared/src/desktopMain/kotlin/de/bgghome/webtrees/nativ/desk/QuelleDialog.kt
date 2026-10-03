@@ -109,7 +109,9 @@ fun QuelleDialog(tree: String, alt: SourceDetail?, viewModel: AppViewModel, onDi
         onDismissRequest = onDismiss,
         title = { Text(stringResource(if (alt == null) Res.string.desk_source_new else Res.string.desk_source_edit)) },
         text = {
-            Column(Modifier.width(560.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Zwei Spalten: links die Angaben zur Quelle, rechts Text und Notiz mit Platz
+            Row(Modifier.width(980.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Field(titel, { titel = it }, Res.string.desk_source_title, hint = Res.string.desk_source_title_hint)
                 Field(autor, { autor = it }, Res.string.desk_source_author)
                 Field(publikation, { publikation = it }, Res.string.desk_source_publication, hint = Res.string.desk_source_publication_hint)
@@ -121,11 +123,15 @@ fun QuelleDialog(tree: String, alt: SourceDetail?, viewModel: AppViewModel, onDi
                 }
                 if (archiv == NEUES_ARCHIV) Field(neuesArchiv, { neuesArchiv = it }, Res.string.desk_repo_name)
                 if (archiv.isNotEmpty()) Field(signatur, { signatur = it }, Res.string.desk_source_call_number, hint = Res.string.desk_source_call_number_hint)
-                Field(text, { text = it }, Res.string.desk_source_text, hint = Res.string.desk_source_text_hint, minLines = 3)
-                Field(notiz, { notiz = it }, Res.string.fact_note, minLines = 2)
+            }
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Field(text, { text = it }, Res.string.desk_source_text, hint = Res.string.desk_source_text_hint, minLines = 8)
+                Field(notiz, { notiz = it }, Res.string.fact_note, minLines = 4)
                 fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
+            }
         },
+        breite = 1040.dp,
         confirmButton = {
             TextButton(enabled = titel.isNotBlank() && !speichert && (archiv != NEUES_ARCHIV || neuesArchiv.isNotBlank()), onClick = {
                 speichert = true; fehler = null

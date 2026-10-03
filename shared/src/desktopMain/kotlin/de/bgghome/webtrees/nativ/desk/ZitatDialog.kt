@@ -115,7 +115,9 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
         onDismissRequest = onDismiss,
         title = { Text(stringResource(if (alt == null) Res.string.desk_cite_add else Res.string.desk_cite_edit)) },
         text = {
-            Column(Modifier.width(560.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Zwei Spalten statt einer langen: links die Quelle, rechts die Angaben zum Verweis - so passt alles ohne Rollen
+            Row(Modifier.width(1000.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(selected = !textQuelle, onClick = { textQuelle = false })
                     Text(stringResource(Res.string.desk_cite_from_list), Modifier.clickable { textQuelle = false })
@@ -128,7 +130,7 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
                 } else {
                     Field(suche, { suche = it }, Res.string.desk_sources_search)
                     val liste = quellen.orEmpty().filter { q -> suche.isBlank() || listOf(q.title, q.author, q.abbreviation).any { it.contains(suche.trim(), ignoreCase = true) } }
-                    Box(Modifier.fillMaxWidth().height(150.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
+                    Box(Modifier.fillMaxWidth().height(300.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
                         if (quellen == null) Text(stringResource(Res.string.desk_chart_loading_any), Modifier.padding(8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         else LazyColumn(Modifier.fillMaxWidth()) {
                             items(liste, key = { it.xref }) { q ->
@@ -158,6 +160,8 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
                     }
                     fehler?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                 }
+            }
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Field(seite, { seite = it }, Res.string.desk_citation_page, hint = Res.string.desk_cite_page_hint)
                 val qualNamen = QUALITAETEN.map { qualitaetText(it) }
                 Einstellung(stringResource(Res.string.desk_citation_quality), stringResource(Res.string.tipp_quality)) {
@@ -189,7 +193,9 @@ fun ZitatDialog(ziel: ZitatZiel, tree: String, viewModel: AppViewModel, onDismis
                     },
                     onVorhanden = { medienWahl = true })
             }
+            }
         },
+        breite = 1060.dp,
         confirmButton = {
             TextButton(enabled = quelleGewaehlt && datumOk && !speichert, onClick = {
                 speichert = true

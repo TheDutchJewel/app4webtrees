@@ -2,6 +2,8 @@ package de.bgghome.webtrees.nativ.ui
 
 import de.bgghome.webtrees.nativ.data.notizenOhnePaten
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -316,8 +318,29 @@ internal fun WtAlertDialog(
     dismissButton: (@Composable () -> Unit)? = null,
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
+    /** Am Desktop breiter als die 560 dp des Material-Dialogs - fuer zweispaltige Dialoge, die sonst rollen muessten. */
+    breite: androidx.compose.ui.unit.Dp? = null,
 ) {
-    if (LocalDeskMode.current && dismissButton != null) {
+    if (LocalDeskMode.current && breite != null) {
+        androidx.compose.ui.window.Dialog(onDismissRequest = onDismissRequest,
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
+            androidx.compose.material3.Surface(
+                shape = androidx.compose.material3.AlertDialogDefaults.shape, color = androidx.compose.material3.AlertDialogDefaults.containerColor,
+                tonalElevation = androidx.compose.material3.AlertDialogDefaults.TonalElevation,
+                modifier = Modifier.widthIn(max = breite).padding(16.dp),
+            ) {
+                Column(Modifier.padding(24.dp)) {
+                    title?.let {
+                        androidx.compose.material3.ProvideTextStyle(MaterialTheme.typography.headlineSmall) { Box(Modifier.padding(bottom = 16.dp)) { it() } }
+                    }
+                    text?.let { Box(Modifier.weight(1f, fill = false)) { it() } }
+                    Row(Modifier.fillMaxWidth().padding(top = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
+                        confirmButton(); dismissButton?.invoke()
+                    }
+                }
+            }
+        }
+    } else if (LocalDeskMode.current && dismissButton != null) {
         AlertDialog(
             onDismissRequest = onDismissRequest,
             title = title, text = text,
