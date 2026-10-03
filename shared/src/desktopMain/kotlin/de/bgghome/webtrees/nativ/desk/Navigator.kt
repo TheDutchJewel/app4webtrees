@@ -255,11 +255,11 @@ fun Navigator(
         val rest = (maxWidth - rand) / skala - masse.breite
         val zusatz = if (rest > 0.dp) minOf(rest / (if (zick) 2 else 1), kastenW(g - 1, t)) else 0.dp
         if (zusatz > 0.dp) masse = chartMasse(g, familie, familien.isNotEmpty(), slotH, extra, info = 1f / skala, zick = zick, aussenZusatz = zusatz, t = t)
-        // Begrenzt die Breite, bleibt unten Hoehe frei: dann werden die Kaesten hoeher und die Schrift waechst mit (bis ein
-        // Drittel) - so fuellt die Tafel das Fenster wie eine Ahnentafel, statt unten leer zu bleiben.
+        // Begrenzt die Breite, bleibt unten Hoehe frei: dann werden die Kaesten hoeher und die Schrift waechst mit (Kaesten bis
+        // zur Hoehe der Zentralperson, Schrift bis ein Viertel) - so fuellt die Tafel das Fenster wie eine Ahnentafel, statt unten leer zu bleiben.
         val raum = (maxHeight - rand) / skala
         if (!zick && masse.hoeheFit < raum * 0.97f) {
-            var hoch = (raum / masse.hoeheFit * 0.98f).coerceAtMost(1.33f)
+            var hoch = (raum / masse.hoeheFit * 0.98f).coerceAtMost(1.45f)
             repeat(3) {
                 val probe = chartMasse(g, familie, familien.isNotEmpty(), slotH * hoch, extra, info = 1f / skala, zick = zick, aussenZusatz = zusatz, t = t, hoch = hoch)
                 if (probe.hoeheFit <= raum || hoch <= 1.02f) { masse = probe; return@repeat }
@@ -407,7 +407,8 @@ private fun stufe(gen: Int, t: Float = 1f): Float = 1f - t * (1f - STUFE[minOf(g
 /** Ab den Grosseltern flache Kaesten: Name und Jahre fuellen die Hoehe fast ganz, die Zeilen liegen dichter. */
 private val BOX_H_FLACH = 40.dp
 /** [hoch]: bleibt im Fenster Hoehe uebrig, werden die Kaesten hoeher (die Schrift waechst mit). */
-private fun grundH(gen: Int, hoch: Float = 1f): Dp = (if (gen >= 2) BOX_H_FLACH else BOX_H) * hoch
+// Alle Vorfahren gleich hoch (ruhiger, wie eine Ahnentafel); nur die Zentralperson behaelt ihren festen Kasten.
+private fun grundH(gen: Int, hoch: Float = 1f): Dp = if (gen >= 1) BOX_H_FLACH * hoch else BOX_H
 private fun kastenW(gen: Int, t: Float = 1f): Dp = BOX_W * stufe(gen, t)
 private fun kastenH(gen: Int, t: Float = 1f, hoch: Float = 1f): Dp = grundH(gen, hoch) * stufe(gen, t)
 
@@ -585,13 +586,13 @@ private fun Chart(
             if (a != null) {
                 Gestuft(stufe(gen(n), m.t), Modifier.offset(left(n), top(n))) {
                     PersonBox(a.person, Art.Ahn, viewModel, onOpenSheet, openWeb, Modifier, pfeilRechts = gen(n) == g - 1 && a.hasParents,
-                        breite = breiteIn(n), hoehe = grundH(gen(n), m.hoch), flach = gen(n) >= 2, schrift = m.hoch)
+                        breite = breiteIn(n), hoehe = grundH(gen(n), m.hoch), flach = true, schrift = minOf(m.hoch, 1.25f))
                 }
             } else if ((n / 2) in ahnen) {
                 val kind = ahnen.getValue(n / 2).person
                 Gestuft(stufe(gen(n), m.t), Modifier.offset(left(n), top(n))) {
                     LeerBox(if (n % 2 == 0) "M" else "F", Modifier, onClick = if (canEdit && !kind.isPrivate) ({ viewModel.requestAddRelative(kind.xref) }) else null,
-                        breite = breiteIn(n), hoehe = grundH(gen(n), m.hoch), flach = gen(n) >= 2, schrift = m.hoch)
+                        breite = breiteIn(n), hoehe = grundH(gen(n), m.hoch), flach = true, schrift = minOf(m.hoch, 1.25f))
                 }
             }
         }
