@@ -244,12 +244,6 @@ internal fun OrteInhalt(
                     }
                 }
             }
-            if (onClose != null) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                androidx.compose.material3.TextButton(onClick = onClose, modifier = Modifier.align(Alignment.End).padding(4.dp)) {
-                    Text(stringResource(Res.string.action_close))
-                }
-            }
         }
         Ziehgriff(onZiehen = { listeBreite = (listeBreite + it / dichte).coerceIn(220f, 720f) }) { DeskLayout.prefs.putString("orte_liste", listeBreite.toString()) }
 
@@ -264,8 +258,12 @@ internal fun OrteInhalt(
                 gewaehlt == null -> Text(stringResource(Res.string.desk_places_choose), Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 detail == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 detail.exceptionOrNull() != null -> Text(detail.exceptionOrNull()?.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
-                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart, onBearbeiten, onUmbenennen, pflege, onBlatt)
+                else -> OrtDetail(detail.getOrThrow(), viewModel, onWahl, openWeb, reiterStart, onBearbeiten, onUmbenennen, pflege, onBlatt, onClose)
             }
+            // Schliessen oben rechts - beim Ort steht der Knopf in seiner Kopfzeile neben "In webtrees oeffnen"
+            val mitKopf = !karte && gewaehlt != null && detail?.isSuccess == true
+            if (onClose != null && !mitKopf) OutlinedButton(onClick = onClose, shape = MaterialTheme.shapes.small,
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 12.dp, end = 16.dp)) { Text(stringResource(Res.string.action_close)) }
             meldung?.let { Text(it, Modifier.align(Alignment.BottomStart).padding(12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
         }
     }
@@ -278,7 +276,8 @@ private enum class OrtReiter(val titel: StringResource) {
 
 @Composable
 private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String) -> Unit, openWeb: (String) -> Unit, reiterStart: Int,
-                      onBearbeiten: ((PlaceDetail) -> Unit)?, onUmbenennen: ((String, String) -> Unit)? = null, pflege: OrtPflege? = null, onBlatt: ((String) -> Unit)? = null) {
+                      onBearbeiten: ((PlaceDetail) -> Unit)?, onUmbenennen: ((String, String) -> Unit)? = null, pflege: OrtPflege? = null, onBlatt: ((String) -> Unit)? = null,
+                      onClose: (() -> Unit)? = null) {
     var reiter by remember(o.name) { mutableStateOf(OrtReiter.entries[reiterStart]) }
     val loc = o.location
     // Wie viel in einem Reiter steht - 0 = leer (der Reiter bleibt, steht aber blasser)
@@ -318,6 +317,7 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
                 Text(stringResource(Res.string.action_edit))
             }
             if (loc != null && loc.url.isNotBlank()) OutlinedButton(onClick = { openWeb(loc.url) }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.chip_open_web)) }
+            onClose?.let { OutlinedButton(onClick = it, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.action_close)) } }
         }
         PrimaryScrollableTabRow(selectedTabIndex = reiter.ordinal, edgePadding = 12.dp, containerColor = MaterialTheme.colorScheme.background) {
             OrtReiter.entries.forEach { r ->
