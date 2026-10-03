@@ -2,6 +2,7 @@ package de.bgghome.webtrees.nativ.desk
 
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import de.bgghome.webtrees.nativ.data.artZusatz
 import de.bgghome.webtrees.nativ.data.Heiratsart
 import de.bgghome.webtrees.nativ.data.notizenOhnePaten
@@ -121,7 +122,7 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
     DialogWindow(
         onCloseRequest = schliessen,
         title = title,
-        state = rememberDialogState(width = 1100.dp, height = 700.dp),
+        state = rememberDialogState(width = 1100.dp, height = 820.dp),
         onPreviewKeyEvent = { e ->
             if (e.type != KeyEventType.KeyDown) false else when (e.key) {
                 Key.Escape -> { schliessen(); true }
@@ -633,9 +634,10 @@ private fun EreignisTabelle(
         }
         ListenLeiste(list)
         }
-        val detailHoehe = rememberBreite("blatt_detail_hoehe", 200f)
+        val detailHoehe = rememberBreite("blatt_detail_hoehe", 260f)
         TrennerWaagrecht(detailHoehe, "blatt_detail_hoehe", 90f, 600f, unten = true)
-        EreignisDetail(rows.getOrNull(selected), geburtJd, Modifier.fillMaxWidth().height(detailHoehe.value.dp), canEdit, detail, viewModel)
+        // Der Detailbereich ist nur so hoch wie sein Inhalt (hoechstens die gezogene Hoehe) - der Rest bleibt der Tabelle
+        EreignisDetail(rows.getOrNull(selected), geburtJd, Modifier.fillMaxWidth().heightIn(max = detailHoehe.value.dp), canEdit, detail, viewModel)
         if (canEdit) {
             Row(Modifier.fillMaxWidth().padding(6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 OutlinedButton(shape = MaterialTheme.shapes.small, onClick = onNew) { Icon(Icons.Default.Add, null, Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text(stringResource(Res.string.action_add_event)) }
@@ -674,8 +676,8 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
             }
         }
         val scroll = rememberScrollState()
-        Box(Modifier.weight(1f).fillMaxWidth()) {
-            Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Box(Modifier.weight(1f, fill = false).fillMaxWidth()) {
+            Column(Modifier.fillMaxWidth().verticalScroll(scroll).padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (f == null) {
                     Text(stringResource(Res.string.desk_detail_choose), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
                 } else when (reiter) {
