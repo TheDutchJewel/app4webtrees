@@ -52,3 +52,5 @@ El árbol del PC se conserva hasta que borre la carpeta.
 ## Si algo sale mal
 
 Si no se puede crear el árbol, el programa muestra un mensaje con la ruta de `php.log`. Infórmelo en github.com/thobgg/app4webtrees/issues y adjunte el archivo y, al importar un archivo GEDCOM, también `import.log` de la misma carpeta (juego de caracteres, registros omitidos, motivo del fallo). **Ayuda › Acerca de wtWin** muestra si se encontraron PHP y webtrees.
+
+**Persona de inicio:** si un árbol en este PC aún no tiene persona de inicio, el programa pregunta una vez al abrirlo «¿Con quién debe empezar el árbol?»: buscar a la persona y hacer clic. La elección pasa a ser la persona predeterminada del árbol; se cambia en Persona › Establecer como persona de inicio …

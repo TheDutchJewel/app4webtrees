@@ -52,3 +52,5 @@ De stamboom op de pc blijft bewaard tot u de map verwijdert.
 ## Als er iets misgaat
 
 Kan de stamboom niet worden aangemaakt, dan toont het programma een melding met het pad naar `php.log`. Meld het alstublieft op github.com/thobgg/app4webtrees/issues en voeg het bestand toe, en bij het importeren van een GEDCOM-bestand ook `import.log` uit dezelfde map (tekenset, overgeslagen records, reden van het mislukken). **Help › Over wtWin** toont of PHP en webtrees zijn gevonden.
+
+**Startpersoon:** heeft een stamboom op deze pc nog geen startpersoon, dan vraagt het programma bij het openen één keer „Met wie moet de stamboom beginnen?” – persoon zoeken en aanklikken. De keuze wordt de standaardpersoon van de stamboom; wijzigen onder Persoon › Als startpersoon instellen …

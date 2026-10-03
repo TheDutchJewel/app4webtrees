@@ -1253,6 +1253,11 @@
     <string name="desk_list_places_details">Ortsdetails</string>
     <string name="tipp_place_details">GOV-Kennung und Koordinaten je Ort aus der Ortsverwaltung (Server ab API-Stufe 21).</string>
     <string name="desk_places_map">Karte</string>
+    <string name="desk_start_ask_title">Mit wem soll der Stammbaum beginnen?</string>
+    <string name="desk_start_ask_text">Diese Person zeigt das Programm beim Öffnen zuerst. Später ändern: Person › Als Startperson festlegen …</string>
+    <string name="desk_start_ask_search">Person suchen …</string>
+    <string name="desk_start_ask_later">Später</string>
+    <string name="desk_start_ask_current">%1$s nehmen</string>
     <string name="desk_set_start_person">Als Startperson festlegen …</string>
     <string name="desk_start_person_title">Startperson festlegen</string>
     <string name="desk_start_person_text">%1$s wird beim Öffnen dieses Stammbaums als Erstes gezeigt.</string>

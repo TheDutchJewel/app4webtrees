@@ -2,6 +2,7 @@
 
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.ui.StartpersonDialog
 import de.bgghome.webtrees.nativ.ui.startPersonSupported
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TooltipArea
@@ -177,6 +178,14 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     var zoom by remember { mutableStateOf(DeskLayout.prefs.getString("zoom", null)?.toFloatOrNull() ?: 1f) }
     // Texte unter den Symbolen (Ansicht -> Symboltexte); bei Platzmangel fallen sie ohnehin weg.
     var lokaleBaeume by remember { mutableStateOf(false) }
+    // Stammbaum auf diesem PC ohne Startperson: einmal je Baum danach fragen (sonst beginnt er mit der ersten Person der Datei)
+    var startFrage by remember { mutableStateOf(false) }
+    LaunchedEffect(state.tree?.name, state.screen, state.tree?.startXref) {
+        val t = state.tree ?: return@LaunchedEffect
+        val merk = "startfrage_" + t.name
+        if (state.screen == Screen.Main && LokalBetrieb.istLokal(state.baseUrl) && viewModel.startPersonSupported && t.individuals > 1 &&
+            t.treeDefaultXref.isEmpty() && t.defaultXref.isEmpty() && t.userXref.isEmpty() && !DeskLayout.prefs.getBoolean(merk, false)) startFrage = true
+    }
     var symboltexte by remember { mutableStateOf(DeskLayout.prefs.getBoolean("symboltexte", true)) }
 
     DeskMenuBar(
@@ -344,6 +353,9 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
         HilfeFenster()
         if (startperson) StartpersonDialog(state, viewModel, onClose = { startperson = false })
+        if (startFrage) StartpersonFrage(state, viewModel, onClose = {
+            startFrage = false; state.tree?.let { DeskLayout.prefs.putBoolean("startfrage_" + it.name, true) }
+        })
         if (merkliste) MerklisteFenster(state, viewModel, openSheet, onClose = { merkliste = false })
         tafel?.let { art -> if (state.root != null) TafelFenster(state, viewModel, art, onClose = { tafel = null }) }
         if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })

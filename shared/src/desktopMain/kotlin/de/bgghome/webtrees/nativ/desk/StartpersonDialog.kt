@@ -1,6 +1,11 @@
 package de.bgghome.webtrees.nativ.desk
 
 import androidx.compose.foundation.clickable
+import de.bgghome.webtrees.nativ.ui.setRoot
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,40 +30,49 @@ import de.bgghome.webtrees.nativ.ui.setStartPerson
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Die Person im Mittelpunkt als Startperson festlegen: fuer sich selbst (Standardperson unter "Mein Konto") oder,
- * als Verwalter, fuer alle (Standardperson des Stammbaums). Ohne Verwalterrecht gibt es nur die erste Wahl.
+ * Stammbaum auf diesem PC: Ist fuer einen geoeffneten Baum noch keine Startperson festgelegt (weder die eigene noch
+ * die des Stammbaums), fragt das Programm einmal danach - sonst beginnt es mit der ersten Person der GEDCOM-Datei.
+ * Die Wahl wird als Standardperson des Stammbaums gespeichert; "Spaeter" fragt fuer diesen Baum nicht wieder.
  */
 @Composable
-internal fun StartpersonDialog(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
-    val xref = state.root ?: return
-    val name = state.detail?.person?.takeIf { it.xref == xref }?.name ?: xref
-    val verwalter = state.tree?.role == "manager"
-    var fuerAlle by remember { mutableStateOf(false) }
-    var laeuft by remember { mutableStateOf(false) }
+internal fun StartpersonFrage(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
+    val tree = state.tree ?: return
+    var suche by remember { mutableStateOf("") }
+    val treffer by androidx.compose.runtime.produceState(emptyList<de.bgghome.webtrees.nativ.api.Person>(), suche) {
+        val q = suche.trim()
+        if (q.length < 2) { value = emptyList(); return@produceState }
+        kotlinx.coroutines.delay(250)
+        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { viewModel.client.individuals(tree.name, q, 1).data.filter { !it.isPrivate }.take(12) }.getOrDefault(emptyList())
+        }
+    }
+    fun nehmen(xref: String) {
+        viewModel.setStartPerson(xref, forTree = true) { viewModel.setRoot(xref) }
+        onClose()
+    }
+    val aktuell = state.detail?.person?.takeIf { it.xref == state.root && !it.isPrivate }
 
     WtAlertDialog(
         onDismissRequest = onClose,
-        title = { Text(stringResource(Res.string.desk_start_person_title)) },
+        title = { Text(stringResource(Res.string.desk_start_ask_title)) },
         text = {
-            Column(Modifier.width(520.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(stringResource(Res.string.desk_start_person_text, name), style = MaterialTheme.typography.bodyMedium)
-                if (verwalter) listOf(false to Res.string.desk_start_person_me, true to Res.string.desk_start_person_tree).forEach { (wert, text) ->
-                    Row(Modifier.clickable { fuerAlle = wert }, verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(fuerAlle == wert, { fuerAlle = wert })
-                        Text(stringResource(text), style = MaterialTheme.typography.bodyMedium)
+            Column(Modifier.width(560.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(Res.string.desk_start_ask_text), style = MaterialTheme.typography.bodyMedium)
+                androidx.compose.material3.OutlinedTextField(suche, { suche = it }, Modifier.width(560.dp), singleLine = true,
+                    label = { Text(stringResource(Res.string.desk_start_ask_search)) })
+                Column(Modifier.height(260.dp).verticalScroll(rememberScrollState())) {
+                    treffer.forEach { p ->
+                        Row(Modifier.clickable { nehmen(p.xref) }.padding(vertical = 5.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(registerName(p, "", p.xref), Modifier.width(380.dp), style = MaterialTheme.typography.bodyMedium)
+                            Text(jahre(p), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
-                // Eigene Standardperson wieder entfernen - dann gilt "Das bin ich" bzw. die des Stammbaums
-                if (state.tree?.defaultXref.orEmpty().isNotEmpty()) TextButton(onClick = {
-                    laeuft = true; viewModel.setStartPerson("", forTree = false, onDone = onClose)
-                }, enabled = !laeuft) { Text(stringResource(Res.string.desk_start_person_clear)) }
             }
         },
         confirmButton = {
-            TextButton(onClick = { laeuft = true; viewModel.setStartPerson(xref, fuerAlle, onDone = onClose) }, enabled = !laeuft) {
-                Text(stringResource(Res.string.desk_start_person_set))
-            }
+            aktuell?.let { p -> TextButton(onClick = { nehmen(p.xref) }) { Text(stringResource(Res.string.desk_start_ask_current, registerName(p, "", p.xref))) } }
         },
-        dismissButton = { TextButton(onClick = onClose) { Text(stringResource(Res.string.action_cancel)) } },
+        dismissButton = { TextButton(onClick = onClose) { Text(stringResource(Res.string.desk_start_ask_later)) } },
     )
 }

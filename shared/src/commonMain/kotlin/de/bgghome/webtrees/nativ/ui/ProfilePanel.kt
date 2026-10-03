@@ -71,6 +71,7 @@ internal sealed interface ProfileDialog {
 fun ProfilePanel(state: UiState, detail: IndividualDetail, viewModel: AppViewModel, openWeb: (String) -> Unit, onClose: (() -> Unit)?) {
     var dialog by remember { mutableStateOf<ProfileDialog?>(null) }
     var addMenu by remember { mutableStateOf(false) }
+    var startperson by remember { mutableStateOf(false) }
     var moreMenu by remember { mutableStateOf(false) }
 
     val canEdit = detail.canEdit
@@ -123,7 +124,9 @@ fun ProfilePanel(state: UiState, detail: IndividualDetail, viewModel: AppViewMod
                     ProfileHeader(
                         detail, isRoot = state.root == person.xref, canUpload = canUpload,
                         onMakeRoot = { viewModel.setRoot(person.xref) }, onOpenWeb = { openWeb(person.url) }, onPickPhoto = photos.pick,
+                        onStartperson = if (viewModel.startPersonSupported && !person.isPrivate) ({ startperson = true }) else null,
                     )
+                    if (startperson) StartpersonDialog(state, viewModel, onClose = { startperson = false }, xref = person.xref)
 
                     if (onClose != null) {
                         IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd)) {
@@ -215,6 +218,7 @@ private fun ProfileHeader(
     onMakeRoot: () -> Unit,
     onOpenWeb: () -> Unit,
     onPickPhoto: () -> Unit,
+    onStartperson: (() -> Unit)? = null,
 ) {
     val person = detail.person
     val relationship = detail.relationship.replaceFirstChar { it.uppercase() }
@@ -239,6 +243,8 @@ private fun ProfileHeader(
             if (!isRoot) OutlinedButton(onClick = onMakeRoot) { Text(stringResource(Res.string.action_make_root)) }
             OutlinedButton(onClick = onOpenWeb) { Text(stringResource(Res.string.chip_open_web)) }
         }
+        // Startperson festlegen (ab API-Stufe 24) - gilt auf dem Server, also auch im Browser und am PC
+        onStartperson?.let { TextButton(onClick = it) { Text(stringResource(Res.string.desk_set_start_person)) } }
     }
 }
 

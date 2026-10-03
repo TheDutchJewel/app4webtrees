@@ -1253,6 +1253,11 @@
     <string name="desk_list_places_details">Détails des lieux</string>
     <string name="tipp_place_details">Identifiant GOV et coordonnées de chaque lieu depuis la gestion des lieux (serveur à partir du niveau d’API 21).</string>
     <string name="desk_places_map">Carte</string>
+    <string name="desk_start_ask_title">Par qui l’arbre doit-il commencer ?</string>
+    <string name="desk_start_ask_text">Le programme affiche cette personne en premier à l’ouverture de l’arbre. À modifier plus tard : Personne › Définir comme personne de départ …</string>
+    <string name="desk_start_ask_search">Rechercher une personne …</string>
+    <string name="desk_start_ask_later">Plus tard</string>
+    <string name="desk_start_ask_current">Prendre %1$s</string>
     <string name="desk_set_start_person">Définir comme personne de départ …</string>
     <string name="desk_start_person_title">Définir la personne de départ</string>
     <string name="desk_start_person_text">%1$s est affiché en premier à l’ouverture de cet arbre.</string>

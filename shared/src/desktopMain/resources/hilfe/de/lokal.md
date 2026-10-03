@@ -52,3 +52,5 @@ Der Stammbaum auf dem PC bleibt dabei erhalten, bis du den Ordner löschst.
 ## Wenn etwas nicht klappt
 
 Lässt sich der Stammbaum nicht anlegen, zeigt das Programm einen Hinweis mit dem Pfad zu `php.log`. Bitte melde das unter github.com/thobgg/app4webtrees/issues und hänge die Datei an, beim Übernehmen einer GEDCOM-Datei auch `import.log` aus demselben Ordner (Zeichensatz, übersprungene Datensätze, Abbruchgrund). **Hilfe › Über wtWin** zeigt, ob PHP und webtrees gefunden wurden.
+
+**Startperson:** Hat ein Stammbaum auf diesem PC noch keine Startperson, fragt das Programm beim Öffnen einmal „Mit wem soll der Stammbaum beginnen?“ – Person suchen und anklicken. Die Wahl gilt als Standardperson des Stammbaums; ändern unter Person › Als Startperson festlegen …

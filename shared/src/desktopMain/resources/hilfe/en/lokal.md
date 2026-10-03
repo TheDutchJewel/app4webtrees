@@ -52,3 +52,5 @@ The tree on the PC is kept until you delete the folder.
 ## If something goes wrong
 
 If the tree cannot be created, the program shows a message with the path to `php.log`. Please report it at github.com/thobgg/app4webtrees/issues and attach the file, and when importing a GEDCOM file also `import.log` from the same folder (character set, skipped records, reason for failure). **Help › About wtWin** shows whether PHP and webtrees were found.
+
+**Start person:** If a family tree on this PC has no start person yet, the program asks once when opening it: “Who should the family tree start with?” – search for the person and click. The choice becomes the family tree's default individual; change it under Person › Set as start person …
