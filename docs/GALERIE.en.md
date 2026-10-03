@@ -1,6 +1,6 @@
 # Charts, lists and books in wtWin, wtTux and wtMac
 
-All chart types from **Create › Descendant chart …** (Ctrl+T), each with an example from the fictitious demo tree [Familie Falkenrath](../demo-tree/) (CC0; photos of unknown people from the Rijksmuseum Amsterdam, CC0). Every chart can be styled (style, box shape, background, frame, colours by line, branch or your own rules, legend), its content set (dates, places, age, occupation, call name, numbering, filters) and printed: on one sheet, as a poster PDF, on A4 sheets to glue together, as a PDF for the plotter or as a picture (PNG).
+All chart types from **Create › Descendant chart …** (Ctrl+T), each with an example from the fictitious demo tree [Familie Falkenrath](https://github.com/thobgg/falkenrath-demo-tree) (CC0; photos of unknown people from the Rijksmuseum Amsterdam, CC0). Every chart can be styled (style, box shape, background, frame, colours by line, branch or your own rules, legend), its content set (dates, places, age, occupation, call name, numbering, filters) and printed: on one sheet, as a poster PDF, on A4 sheets to glue together, as a PDF for the plotter or as a picture (PNG).
 
 ## Ancestors
 

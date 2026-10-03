@@ -1,6 +1,6 @@
 # Tafeln, Listen und Bücher in wtWin, wtTux und wtMac
 
-Alle Tafelarten aus **Erstellen › Stammtafel …** (Strg+T), jeweils mit einem Beispiel aus dem frei erfundenen Demo-Stammbaum [Familie Falkenrath](../demo-tree/) (CC0; Fotos unbekannter Personen aus dem Rijksmuseum Amsterdam, CC0). Jede Tafel lässt sich gestalten (Stil, Kastenform, Hintergrund, Rahmen, Farben nach Linie, Zweig oder eigenen Regeln, Legende), im Inhalt einstellen (Datum, Orte, Alter, Beruf, Rufname, Nummern, Filter) und drucken: auf ein Blatt, als Poster-PDF, auf A4-Blätter zum Kleben, als PDF für den Plotter oder als Bild (PNG).
+Alle Tafelarten aus **Erstellen › Stammtafel …** (Strg+T), jeweils mit einem Beispiel aus dem frei erfundenen Demo-Stammbaum [Familie Falkenrath](https://github.com/thobgg/falkenrath-demo-tree) (CC0; Fotos unbekannter Personen aus dem Rijksmuseum Amsterdam, CC0). Jede Tafel lässt sich gestalten (Stil, Kastenform, Hintergrund, Rahmen, Farben nach Linie, Zweig oder eigenen Regeln, Legende), im Inhalt einstellen (Datum, Orte, Alter, Beruf, Rufname, Nummern, Filter) und drucken: auf ein Blatt, als Poster-PDF, auf A4-Blätter zum Kleben, als PDF für den Plotter oder als Bild (PNG).
 
 ## Vorfahren
 

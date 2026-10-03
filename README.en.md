@@ -70,7 +70,7 @@
 
 <p align="center"><img src="docs/screenshots/desktop-tooltip.jpg" alt="wtTux: chart window with the explanation of “Name bearers only” on mouse-over" width="100%"></p>
 
-<p align="center"><sub>All pictures: fictitious demo tree <a href="demo-tree/">Familie Falkenrath</a> (CC0), photos of unknown people from the Rijksmuseum Amsterdam (CC0).</sub></p>
+<p align="center"><sub>All pictures: fictitious demo tree <a href="https://github.com/thobgg/falkenrath-demo-tree">Familie Falkenrath</a> (CC0), photos of unknown people from the Rijksmuseum Amsterdam (CC0).</sub></p>
 
 **Android:** the APK is signed. To install outside the Play Store, Android asks once to allow your browser to install apps.  
 **Linux:** install the package with `sudo apt install ./wttux_…_amd64.deb`.  
@@ -94,7 +94,7 @@ the app arrives as a pending change in the same webtrees installation, under its
 | - | - | - |
 | <img src="docs/screenshots/handy-baum.png" alt="Tree on a phone" width="250"> | <img src="docs/screenshots/handy-zeitleiste.png" alt="Profile with timeline" width="250"> | <img src="docs/screenshots/handy-archiv.png" alt="Archive of the Sammlungen module" width="250"> |
 
-<sub>**wtAnd on the phone.** The phone pictures show the entirely fictional demo tree “Familie Falkenrath” (see [demo-tree/](demo-tree/)). The screenshots are in German; the app also speaks English.</sub>
+<sub>**wtAnd on the phone.** The phone pictures show the entirely fictional demo tree “Familie Falkenrath” (see [falkenrath-demo-tree](https://github.com/thobgg/falkenrath-demo-tree)). The screenshots are in German; the app also speaks English.</sub>
 
 ## Your data stays yours
 
@@ -221,4 +221,4 @@ Where to start reading: `MainActivity` shows `ui/MainScreen.kt` (screen choice, 
 
 ## License
 
-[GPL-3.0](LICENSE), like webtrees. The demo tree in `demo-tree/` is CC0.
+[GPL-3.0](LICENSE), like webtrees. The [demo tree](https://github.com/thobgg/falkenrath-demo-tree) is CC0.

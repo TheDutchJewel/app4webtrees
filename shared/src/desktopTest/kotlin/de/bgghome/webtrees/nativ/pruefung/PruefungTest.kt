@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 
 /**
  * Plausibilitaetspruefung gegen den Demo-Baum Falkenrath: dieselben Treffer wie das Pruefprogramm aus db-blank
- * (`python3 plausibilitaet.py demo-tree/falkenrath.ged`, Stand 27.09.2026). Der Baum wird hier aus dem GEDCOM in
+ * (`python3 plausibilitaet.py testdaten/falkenrath-1.3.ged`, Stand 27.09.2026). Der Baum wird hier aus dem GEDCOM in
  * die Form des Server-Exports gebracht (Fakten mit GEDCOM-Datum), so wie ihn wtWin von api4webtrees bekommt.
  */
 class PruefungTest {
@@ -74,7 +74,7 @@ class PruefungTest {
         return TreeExport(1, personen, familien)
     }
 
-    private val falkenrath = File("../demo-tree/falkenrath.ged")
+    private val falkenrath = File("../testdaten/falkenrath-1.3.ged")
 
     /** Die Regeln aus Stufe 2 (nicht im Python-Programm). */
     private val stufe2 = setOf("024", "126", "127", "228", "310", "311", "315", "330", "420", "421", "510", "511", "512", "513")

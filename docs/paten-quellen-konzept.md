@@ -1,8 +1,8 @@
 # Paten, Trauzeugen, Heiratsart und Quellen: Konzept für die Apps
 
 Stand 01.10.2026, nur Konzept – kein Code. Setzt **api4webtrees 1.11 / API-Stufe 19** voraus
-(Spec: `webtrees/api4webtrees/docs/spec-paten-quellen.md`). Testdaten: `demo-tree/falkenrath.ged` **Version 1.2**,
-Fundstellen in `demo-tree/README.md`. Gilt für wtAnd, wtWin und wtTux (gemeinsamer Code in `shared/`).
+(Spec: `webtrees/api4webtrees/docs/spec-paten-quellen.md`). Testdaten: Demo-Stammbaum [falkenrath-demo-tree](https://github.com/thobgg/falkenrath-demo-tree) **Version 1.2**,
+Fundstellen in dessen README. Gilt für wtAnd, wtWin und wtTux (gemeinsamer Code in `shared/`).
 
 ## Arbeitsteilung
 

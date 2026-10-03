@@ -70,7 +70,7 @@
 
 <p align="center"><img src="docs/screenshots/desktop-tooltip.jpg" alt="wtTux: Tafelfenster mit Erklärung zu „Nur Namensträger“ beim Überfahren" width="100%"></p>
 
-<p align="center"><sub>Alle Bilder: frei erfundener Demo-Stammbaum <a href="demo-tree/">Familie Falkenrath</a> (CC0), Fotos unbekannter Personen aus dem Rijksmuseum Amsterdam (CC0).</sub></p>
+<p align="center"><sub>Alle Bilder: frei erfundener Demo-Stammbaum <a href="https://github.com/thobgg/falkenrath-demo-tree">Familie Falkenrath</a> (CC0), Fotos unbekannter Personen aus dem Rijksmuseum Amsterdam (CC0).</sub></p>
 
 **Android:** Die APK ist signiert. Außerhalb des Play Store muss Android einmalig erlauben, dass der Browser Apps installiert.  
 **Linux:** Das Paket mit `sudo apt install ./wttux_…_amd64.deb` installieren.  
@@ -94,7 +94,7 @@ App kommt, landet als ausstehende Änderung in derselben webtrees-Installation, 
 | - | - | - |
 | <img src="docs/screenshots/handy-baum.png" alt="Baum am Handy" width="250"> | <img src="docs/screenshots/handy-zeitleiste.png" alt="Profil mit Zeitleiste" width="250"> | <img src="docs/screenshots/handy-archiv.png" alt="Archiv des Sammlungen-Moduls" width="250"> |
 
-<sub>**wtAnd am Handy.** Die Handy-Bilder zeigen den frei erfundenen Demo-Stammbaum „Familie Falkenrath" (siehe [demo-tree/](demo-tree/)).</sub>
+<sub>**wtAnd am Handy.** Die Handy-Bilder zeigen den frei erfundenen Demo-Stammbaum „Familie Falkenrath" (siehe [falkenrath-demo-tree](https://github.com/thobgg/falkenrath-demo-tree)).</sub>
 
 ## Deine Daten bleiben deine
 
@@ -218,7 +218,7 @@ mit dem Debug-Schlüssel signiert.
 | Ordner | Inhalt |
 | - | - |
 | `app/` | die App |
-| `demo-tree/` | Demo-Stammbaum „Familie Falkenrath" (GEDCOM + Bilder, frei erfunden, CC0) |
+| `testdaten/` | Demo-Stammbaum „Familie Falkenrath" 1.3 für die Tests; der Baum mit Bildern liegt in [falkenrath-demo-tree](https://github.com/thobgg/falkenrath-demo-tree) |
 | `docs/` | Gestaltungs-Leitfaden und Bildschirmfotos |
 | `tools/` | Hilfsskripte: Demo-Baum erzeugen, Server prüfen, UI-Tests per adb |
 
@@ -230,7 +230,7 @@ Einstieg in den Code: `MainActivity` zeigt `ui/MainScreen.kt` (Bildschirmwahl, N
 
 ## Lizenz
 
-[GPL-3.0](LICENSE), wie webtrees. Der Demo-Stammbaum in `demo-tree/` steht unter CC0.
+[GPL-3.0](LICENSE), wie webtrees. Der [Demo-Stammbaum](https://github.com/thobgg/falkenrath-demo-tree) steht unter CC0.
 
 Verwandt: [wtAnd (Wrapper)](https://github.com/thobgg/wtAnd-wrapper) – die schlanke WebView-Hülle für alle,
 die kein Modul installieren möchten.

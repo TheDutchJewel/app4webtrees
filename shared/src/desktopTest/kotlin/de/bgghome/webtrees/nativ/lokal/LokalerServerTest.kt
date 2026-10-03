@@ -118,7 +118,7 @@ class LokaleEinrichtungTest {
 
     /** Umsteiger: Stammbaum aus einer GEDCOM-Datei; ein zweiter Import legt einen neuen Baum an statt zu ueberschreiben. */
     @Test fun ausGedcomUebernehmen() {
-        val ged = File("../demo-tree/falkenrath.ged").takeIf { it.isFile } ?: File("demo-tree/falkenrath.ged")
+        val ged = File("../testdaten/falkenrath-1.3.ged").takeIf { it.isFile } ?: File("testdaten/falkenrath-1.3.ged")
         if (!php.canExecute() || zip?.isFile != true || !ged.isFile) return
         System.setProperty("wtand.lokal", basis.absolutePath)
         try {
@@ -179,7 +179,7 @@ class GedcomVariantenTest {
     }
 
     @Test fun varianten() {
-        val ged = File("../demo-tree/falkenrath.ged").takeIf { it.isFile } ?: File("demo-tree/falkenrath.ged")
+        val ged = File("../testdaten/falkenrath-1.3.ged").takeIf { it.isFile } ?: File("testdaten/falkenrath-1.3.ged")
         if (!php.canExecute() || zip?.isFile != true || !ged.isFile) return
         System.setProperty("wtand.lokal", basis.absolutePath)
         val text = ged.readText()
