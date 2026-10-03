@@ -146,8 +146,8 @@ private data class BoxColors(val fill: Color, val border: Color)
 private fun boxColors(sex: String): BoxColors {
     val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     return when (sex) {
-        "M" -> if (dark) BoxColors(Color(0xFF244B6B), Color(0xFF7FB2DA)) else BoxColors(Color(0xFFB9D0E8), Color(0xFF4F7FAE))
-        "F" -> if (dark) BoxColors(Color(0xFF5E2F36), Color(0xFFE09AA2)) else BoxColors(Color(0xFFF3C4BE), Color(0xFFC2706A))
+        "M" -> if (dark) BoxColors(Color(0xFF244B6B), Color(0xFF7FB2DA)) else BoxColors(Color(0xFFA9C3E2), Color(0xFF41709F))
+        "F" -> if (dark) BoxColors(Color(0xFF5E2F36), Color(0xFFE09AA2)) else BoxColors(Color(0xFFF1B5AD), Color(0xFFB45F58))
         else -> if (dark) BoxColors(Color(0xFF3A4242), Color(0xFF8E9998)) else BoxColors(Color(0xFFDDE2E2), Color(0xFF8A9493))
     }
 }
@@ -216,38 +216,46 @@ fun Navigator(
         fun passt(e: ChartMasse) = minOf((maxWidth - rand) / e.breite, (maxHeight - rand) / e.hoeheFit)
         // Zickzack, wenn die Hoehe knapp ist (viele Generationen): die aeusserste Generation in zwei versetzten Spalten
         // nutzt die freie Breite, die Tafel wird nur halb so hoch und kann groesser gezeichnet werden.
-        val normal = chartMasse(g, familie, familien.isNotEmpty(), slotKlein(g, false))
-        val zickzack = chartMasse(g, familie, familien.isNotEmpty(), slotKlein(g, true), zick = true)
-        // Erst bei 7 Generationen: bis 6 reichen die kleiner werdenden Kaesten, ohne Versatz liest sich die Tafel ruhiger
-        val zick = g >= 7 && passt(zickzack) > passt(normal) * 1.15f
-        val eng = if (zick) zickzack else normal
-        val slotMin = slotKlein(g, zick)
-        val slotMax = slotGross(g, zick)
-        val fit0 = passt(eng).coerceIn(0.45f, 1.5f)
-        // Zweiter Schritt: der Infokasten behaelt seine Groesse, die Tafel muss ihm bei dieser Skala Platz lassen
-        val eng2 = chartMasse(g, familie, familien.isNotEmpty(), slotMin, info = 1f / (fit0 * zoom), zick = zick)
-        val fit = passt(eng2).coerceIn(0.45f, 1.5f)
+        // Abstufen nur so weit wie noetig: erst alle Kaesten voll gross; erst wenn die Tafel dann nicht mehr in voller
+        // Groesse ins Fenster passt, werden die aeusseren Generationen schrittweise kleiner (bei 5 Generationen meist gar
+        // nicht, bei 6 und 7 bis zur vollen Abstufung). Zickzack erst bei 7 Generationen und nur, wenn er spuerbar hilft.
+        class Wahl(val t: Float, val zick: Boolean, val eng: ChartMasse, val eng2: ChartMasse, val fit: Float)
+        fun waehle(t: Float): Wahl {
+            val normal = chartMasse(g, familie, familien.isNotEmpty(), slotKlein(g, false, t), t = t)
+            val zickzack = chartMasse(g, familie, familien.isNotEmpty(), slotKlein(g, true, t), zick = true, t = t)
+            val z = g >= 7 && passt(zickzack) > passt(normal) * 1.15f
+            val e = if (z) zickzack else normal
+            val f0 = passt(e).coerceIn(0.45f, 1.5f)
+            // Zweiter Schritt: der Infokasten behaelt seine Groesse, die Tafel muss ihm bei dieser Skala Platz lassen
+            val e2 = chartMasse(g, familie, familien.isNotEmpty(), slotKlein(g, z, t), info = 1f / (f0 * zoom), zick = z, t = t)
+            return Wahl(t, z, e, e2, passt(e2).coerceIn(0.45f, 1.5f))
+        }
+        // "Passt" heisst: mindestens 90 Prozent der vollen Groesse - lieber minimal kleiner als abgestuft
+        val wahl = listOf(0f, 0.25f, 0.5f, 0.75f).map(::waehle).firstOrNull { it.fit >= 0.9f } ?: waehle(1f)
+        val t = wahl.t; val zick = wahl.zick; val eng = wahl.eng; val eng2 = wahl.eng2; val fit = wahl.fit
+        val slotMin = slotKlein(g, zick, t)
+        val slotMax = slotGross(g, zick, t)
         val skala = fit * zoom
         // Bleibt Hoehe uebrig, ruecken die Zeilen der aeussersten Generation auseinander, bis die Tafel das Fenster fuellt.
         val hoeheFrei = (maxHeight - rand) / skala - eng2.hoeheFit
         var slotH = if (hoeheFrei > 0.dp) minOf(slotMin + hoeheFrei / eng.slots, slotMax) else slotMin
         // Bleibt Breite uebrig, ruecken die ueberlappenden Spalten auseinander, bis die Tafel das Fenster ausfuellt
         // (welche ueberlappen duerfen, haengt vom Zeilenabstand ab - darum erst mit dem endgueltigen).
-        val ohne = chartMasse(g, familie, familien.isNotEmpty(), slotH, info = 1f / skala, zick = zick)
+        val ohne = chartMasse(g, familie, familien.isNotEmpty(), slotH, info = 1f / skala, zick = zick, t = t)
         val frei = (maxWidth - rand) / skala - ohne.breite
         val extra = if (ohne.ueberlappend > 0 && frei > 0.dp) frei / ohne.ueberlappend else 0.dp
-        var masse = chartMasse(g, familie, familien.isNotEmpty(), slotH, extra, info = 1f / skala, zick = zick)
+        var masse = chartMasse(g, familie, familien.isNotEmpty(), slotH, extra, info = 1f / skala, zick = zick, t = t)
         // Rutscht die Tafel wegen des Infokastens nach unten, die Zeilen wieder etwas enger ziehen.
         val zuviel = masse.hoeheFit - (maxHeight - rand) / skala
         if (zuviel > 0.dp && slotH > slotMin) {
             slotH = maxOf(slotMin, slotH - zuviel / eng.slots)
-            masse = chartMasse(g, familie, familien.isNotEmpty(), slotH, extra, info = 1f / skala, zick = zick)
+            masse = chartMasse(g, familie, familien.isNotEmpty(), slotH, extra, info = 1f / skala, zick = zick, t = t)
         }
         // Was dann noch an Breite frei ist, bekommen die Kaesten der aeussersten Generation (lange Namen passen)
         val rest = (maxWidth - rand) / skala - masse.breite
         if (rest > 0.dp) {
-            val zusatz = minOf(rest / (if (zick) 2 else 1), kastenW(g - 1))
-            masse = chartMasse(g, familie, familien.isNotEmpty(), slotH, extra, info = 1f / skala, zick = zick, aussenZusatz = zusatz)
+            val zusatz = minOf(rest / (if (zick) 2 else 1), kastenW(g - 1, t))
+            masse = chartMasse(g, familie, familien.isNotEmpty(), slotH, extra, info = 1f / skala, zick = zick, aussenZusatz = zusatz, t = t)
         }
         CompositionLocalProvider(LocalFarben provides farben, LocalNavStil provides stil, LocalBasisDichte provides basis, LocalDensity provides Density(basis.density * skala, basis.fontScale)) {
             // Strg+Mausrad zoomt (wie in der Tafel-Vorschau), ohne Strg rollt das Rad wie gewohnt
@@ -335,6 +343,31 @@ internal fun unbekannterPartner(sex: String): String = stringResource(when (sex)
     else -> Res.string.desk_unknown_partner
 })
 
+/**
+ * Lebensdaten fuer den Navigator: ein genau bekanntes Datum (Tag, Monat, Jahr) in kurzer Form der Sprache
+ * ("08.02.1928"), sonst das Jahr; ohne beide die Lebensjahre wie bisher. Genau ist ein Datum, dessen Text aus einer
+ * Tageszahl, einem Monatswort und dem Jahr besteht - "about 1770" oder "between 1850 and 1860" bleiben beim Jahr.
+ */
+internal fun lebensdaten(p: Person): String {
+    fun kurz(d: de.bgghome.webtrees.nativ.api.DateJson?): String? {
+        if (d == null || d.year <= 0) return null
+        val zahlen = Regex("\\d+").findAll(d.text).count()
+        val woerter = Regex("\\p{L}+").findAll(d.text).count()
+        if (zahlen != 2 || woerter != 1 || d.jd <= 0) return d.year.toString()
+        val muster = java.time.format.DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+            java.time.format.FormatStyle.SHORT, null, java.time.chrono.IsoChronology.INSTANCE, java.util.Locale.getDefault())
+            .replace(Regex("y+"), "yyyy")
+        return runCatching { java.time.LocalDate.ofEpochDay(d.jd - 2440588L).format(java.time.format.DateTimeFormatter.ofPattern(muster)) }
+            .getOrDefault(d.year.toString())
+    }
+    val geb = kurz(p.birth?.date); val tod = kurz(p.death?.date)
+    return when {
+        geb == null && tod == null -> jahre(p)
+        tod == null -> if (p.isDead) "$geb –" else geb.orEmpty()
+        else -> "${geb.orEmpty()} – $tod"
+    }
+}
+
 /** Lebensjahre ohne den Platzhalter von webtrees ("…–…" bei fehlenden Daten wird leer). */
 internal fun jahre(p: Person): String = p.lifespan.takeIf { l -> l.any(Char::isDigit) }.orEmpty()
 
@@ -348,6 +381,8 @@ private class ChartMasse(
     val breite: Dp, val hoehe: Dp, val hoeheFit: Dp, val xs: List<Dp>, val zick: Boolean, val mutterVersatz: Dp, val ueberlappend: Int,
     /** Breite der Kaesten der aeussersten Generation - sie nehmen die Restbreite des Fensters mit. */
     val aussenW: Dp,
+    /** Staerke der Abstufung (siehe [stufe]). */
+    val t: Float = 1f,
 )
 
 /**
@@ -355,16 +390,17 @@ private class ChartMasse(
  * Generationen gut lesbar, und die vielen fernen brauchen weniger Hoehe. Kasten, Schrift und Bild schrumpfen gemeinsam.
  */
 private val STUFE = floatArrayOf(1f, 1f, 0.9f, 0.8f, 0.72f, 0.66f, 0.6f)
-private fun stufe(gen: Int): Float = STUFE[minOf(gen, STUFE.lastIndex)]
+/** [t]: wie stark abgestuft wird - 0 alle voll gross, 1 die volle Abstufung; gewaehlt wird so wenig wie noetig. */
+private fun stufe(gen: Int, t: Float = 1f): Float = 1f - t * (1f - STUFE[minOf(gen, STUFE.lastIndex)])
 /** Ab den Grosseltern flache Kaesten: Name und Jahre fuellen die Hoehe fast ganz, die Zeilen liegen dichter. */
 private val BOX_H_FLACH = 40.dp
 private fun grundH(gen: Int): Dp = if (gen >= 2) BOX_H_FLACH else BOX_H
-private fun kastenW(gen: Int): Dp = BOX_W * stufe(gen)
-private fun kastenH(gen: Int): Dp = grundH(gen) * stufe(gen)
+private fun kastenW(gen: Int, t: Float = 1f): Dp = BOX_W * stufe(gen, t)
+private fun kastenH(gen: Int, t: Float = 1f): Dp = grundH(gen) * stufe(gen, t)
 
 /** Kleinster Zeilenabstand der aeussersten Generation; im Zickzack nur die halbe Kastenhoehe plus Luft fuer die Linie. */
-private fun slotKlein(g: Int, zick: Boolean): Dp = if (zick) kastenH(g - 1) / 2 + 6.dp else kastenH(g - 1) + 3.dp
-private fun slotGross(g: Int, zick: Boolean): Dp = if (zick) kastenH(g - 1) + 6.dp else kastenH(g - 1) * 2 + 8.dp
+private fun slotKlein(g: Int, zick: Boolean, t: Float = 1f): Dp = if (zick) kastenH(g - 1, t) / 2 + 6.dp else kastenH(g - 1, t) + 3.dp
+private fun slotGross(g: Int, zick: Boolean, t: Float = 1f): Dp = if (zick) kastenH(g - 1, t) + 6.dp else kastenH(g - 1, t) * 2 + 8.dp
 
 /**
  * Die Masse der Tafel fuer [slotH] als Zeilenabstand der aeussersten Generation. Eine Spalte darf die vorige waagerecht
@@ -372,7 +408,7 @@ private fun slotGross(g: Int, zick: Boolean): Dp = if (zick) kastenH(g - 1) + 6.
  * Eltern passt; sonst steht sie ganz daneben. Im Zickzack ([zick]) stehen die Muetter der aeussersten Generation um
  * [ChartMasse.mutterVersatz] weiter rechts, dafuer duerfen sich die Zeilen dort zur Haelfte ueberlappen.
  */
-private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson?, hatFamilien: Boolean, slotH: Dp, extra: Dp = 0.dp, info: Float = 1f, zick: Boolean = false, aussenZusatz: Dp = 0.dp): ChartMasse {
+private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson?, hatFamilien: Boolean, slotH: Dp, extra: Dp = 0.dp, info: Float = 1f, zick: Boolean = false, aussenZusatz: Dp = 0.dp, t: Float = 1f): ChartMasse {
     // Der Infokasten zoomt nicht mit: in Tafel-Massen braucht er bei kleiner Skala entsprechend mehr Platz ([info] = 1 / Skala)
     val infoH = INFO_H * info
     val slots = 1 shl (g - 1)
@@ -383,18 +419,18 @@ private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson
     val xs = mutableListOf(xZentral)
     var ueberlappend = 0
     for (k in 1 until g) {
-        val wVor = kastenW(k - 1)
+        val wVor = kastenW(k - 1, t)
         val elternAbstand = slotH * (slots shr k)
         // Die Mutter der Zentralperson darf zudem nicht in den Partner (unter der Zentralperson) ragen
-        val unterPartner = k != 1 || slotH * slots / 4 - kastenH(1) / 2 >= BOX_H * 1.5f + GAP + 24.dp
-        val darf = !(zick && k == g - 1) && unterPartner && elternAbstand / 2 >= (kastenH(k) + kastenH(k - 1)) / 2 + 4.dp
-        var schritt = if (darf) { ueberlappend++; minOf(wVor * (COL / BOX_W) + extra, wVor + 40.dp * stufe(k - 1)) } else wVor + 36.dp * stufe(k - 1)
+        val unterPartner = k != 1 || slotH * slots / 4 - kastenH(1, t) / 2 >= BOX_H * 1.5f + GAP + 24.dp
+        val darf = !(zick && k == g - 1) && unterPartner && elternAbstand / 2 >= (kastenH(k, t) + kastenH(k - 1, t)) / 2 + 4.dp
+        var schritt = if (darf) { ueberlappend++; minOf(wVor * (COL / BOX_W) + extra, wVor + 40.dp * stufe(k - 1, t)) } else wVor + 36.dp * stufe(k - 1, t)
         // Steht die Elternspalte ganz daneben, dann auch rechts vom Partner (der um 40 dp eingerueckt ist)
         if (k == 1 && !darf) schritt = maxOf(schritt, BOX_W + 40.dp + 16.dp)
         xs += xs.last() + schritt
     }
-    val aussenW = kastenW(g - 1) + aussenZusatz
-    val mutterVersatz = if (zick) aussenW + 36.dp * stufe(g - 1) else 0.dp
+    val aussenW = kastenW(g - 1, t) + aussenZusatz
+    val mutterVersatz = if (zick) aussenW + 36.dp * stufe(g - 1, t) else 0.dp
     // Die Zentralperson sitzt in der Mitte der Vorfahren; nur wenn ihr Kasten in den Infokasten ragt, rutscht alles nach unten.
     var centerY = maxOf(ancH / 2, infoH + ICON_ROW + BOX_H / 2)
     // Ebenso jede Vorfahrenspalte, die waagerecht noch in den Infokasten reicht (bei wenig Platz die Eltern):
@@ -402,7 +438,7 @@ private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson
     val infoW = INFO_W * info
     for (k in 1 until g) {
         if (xs[k] >= infoW) continue
-        val oben = (slotH * (slots shr k) - kastenH(k)) / 2
+        val oben = (slotH * (slots shr k) - kastenH(k, t)) / 2
         centerY = maxOf(centerY, infoH + ancH / 2 - oben)
     }
     // Die Kinderspalte beginnt unter dem Infokasten und ist sonst um die Zentralperson zentriert.
@@ -413,7 +449,7 @@ private fun chartMasse(g: Int, familie: de.bgghome.webtrees.nativ.api.FamilyJson
     // Die Kinderspalte rollt in ihrem eigenen Bereich; die Tafel wird durch sie nicht hoeher.
     val hoehe = hoeheFit
     val breite = xs.last() + mutterVersatz + aussenW + 24.dp
-    return ChartMasse(slots, slotH, ancH, kinder, partner, xZentral, centerY, kinderTop, breite, hoehe, hoeheFit, xs, zick, mutterVersatz, ueberlappend, aussenW)
+    return ChartMasse(slots, slotH, ancH, kinder, partner, xZentral, centerY, kinderTop, breite, hoehe, hoeheFit, xs, zick, mutterVersatz, ueberlappend, aussenW, t)
 }
 
 /** Inhalt in der Groessenstufe [f] zeichnen: Kasten, Schrift und Bild schrumpfen gemeinsam. */
@@ -437,12 +473,12 @@ private fun Chart(
     val line = MaterialTheme.colorScheme.outline
     val weich = LocalNavStil.current.weich
 
-    fun top(n: Int): Dp { val gg = gen(n); val span = slots shr gg; val i = n - (1 shl gg); return centerY - ancH / 2 + slotH * (i * span) + (slotH * span - kastenH(gg)) / 2 }
+    fun top(n: Int): Dp { val gg = gen(n); val span = slots shr gg; val i = n - (1 shl gg); return centerY - ancH / 2 + slotH * (i * span) + (slotH * span - kastenH(gg, m.t)) / 2 }
     // Im Zickzack stehen die Muetter der aeussersten Generation eine Spalte weiter rechts
     fun left(n: Int): Dp = m.xs[gen(n)] + if (m.zick && gen(n) == g - 1 && n % 2 == 1) m.mutterVersatz else 0.dp
-    fun mitte(n: Int): Dp = top(n) + kastenH(gen(n)) / 2
+    fun mitte(n: Int): Dp = top(n) + kastenH(gen(n), m.t) / 2
     // Kastenbreite in ungestuften dp (der Kasten wird in seiner Stufe gezeichnet); aussen mit der Restbreite
-    fun breiteIn(n: Int): Dp = if (gen(n) == g - 1) m.aussenW / stufe(gen(n)) else BOX_W
+    fun breiteIn(n: Int): Dp = if (gen(n) == g - 1) m.aussenW / stufe(gen(n), m.t) else BOX_W
     val kinderTop = m.kinderTop
     val kinderBereich = hoehe - kinderTop - 12.dp
 
@@ -454,7 +490,7 @@ private fun Chart(
             // Kasten des Kindes senkrecht startet und waagerecht in den Elternkasten muendet.
             for (n in 1 until (1 shl (g - 1))) {
                 if (n !in ahnen) continue
-                val xm = minOf(left(n) + LINE_X * stufe(gen(n)), left(2 * n) - 12.dp).toPx()
+                val xm = minOf(left(n) + LINE_X * stufe(gen(n), m.t), left(2 * n) - 12.dp).toPx()
                 val yV = mitte(2 * n).toPx(); val yM = mitte(2 * n + 1).toPx()
                 if (weich) {
                     val yK = mitte(n).toPx()
@@ -534,13 +570,13 @@ private fun Chart(
         for (n in 2 until (1 shl g)) {
             val a = ahnen[n]
             if (a != null) {
-                Gestuft(stufe(gen(n)), Modifier.offset(left(n), top(n))) {
+                Gestuft(stufe(gen(n), m.t), Modifier.offset(left(n), top(n))) {
                     PersonBox(a.person, Art.Ahn, viewModel, onOpenSheet, openWeb, Modifier, pfeilRechts = gen(n) == g - 1 && a.hasParents,
                         breite = breiteIn(n), hoehe = grundH(gen(n)))
                 }
             } else if ((n / 2) in ahnen) {
                 val kind = ahnen.getValue(n / 2).person
-                Gestuft(stufe(gen(n)), Modifier.offset(left(n), top(n))) {
+                Gestuft(stufe(gen(n), m.t), Modifier.offset(left(n), top(n))) {
                     LeerBox(if (n % 2 == 0) "M" else "F", Modifier, onClick = if (canEdit && !kind.isPrivate) ({ viewModel.requestAddRelative(kind.xref) }) else null,
                         breite = breiteIn(n), hoehe = grundH(gen(n)))
                 }
@@ -642,8 +678,11 @@ private fun PersonBox(
             if (stil.medaillon) Portrait(person, Modifier.padding(start = 6.dp, top = 4.dp, bottom = 4.dp).size(hoehe - 8.dp).clip(CircleShape).border(1.dp, c.border.copy(alpha = 0.7f), CircleShape))
             else Portrait(person, Modifier.padding(1.dp).size(hoehe - 2.dp))
             Column(Modifier.weight(1f).padding(start = 6.dp, end = 4.dp)) {
-                Text(name, fontSize = 15.sp, fontWeight = if (art == Art.Zentral) FontWeight.Bold else FontWeight.SemiBold, lineHeight = if (flach) 17.sp else 18.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = onSurface)
-                Text(jahre(person).ifBlank { " " }, fontSize = 12.sp, lineHeight = if (flach) 13.sp else 15.sp, color = onSurface.copy(alpha = 0.75f), maxLines = 1)
+                // Name und Lebensdaten fuellen den Kasten: grosse Schrift, kaum Rand, kraeftiges Schwarz
+                Text(name, fontSize = if (flach) 16.sp else 19.sp, fontWeight = if (art == Art.Zentral) FontWeight.Bold else FontWeight.Medium,
+                    lineHeight = if (flach) 18.sp else 22.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = onSurface)
+                Text(lebensdaten(person).ifBlank { " " }, fontSize = if (flach) 12.5.sp else 15.sp, lineHeight = if (flach) 14.sp else 18.sp,
+                    color = onSurface.copy(alpha = 0.9f), maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             if (!stil.kante) linie?.let { farbe -> Box(Modifier.width(6.dp).fillMaxHeight().background(farbe)) }
             if (pfeilRechts) Text("▶", fontSize = 11.sp, color = onSurface, modifier = Modifier.padding(end = 2.dp))
