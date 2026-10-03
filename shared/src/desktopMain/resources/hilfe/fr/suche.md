@@ -8,6 +8,8 @@
 
 **Alt+Home** saute à la personne de départ : la personne que webtrees connaît pour votre compte (votre propre enregistrement ou la personne par défaut de l'arbre). Elle sert aussi de référence pour le code couleur.
 
+**Personne › Définir comme personne de départ …** fait de la personne centrale la personne de départ – seulement pour vous (comme « Mon compte » dans webtrees) ou, en tant que gestionnaire, pour tous comme individu par défaut de l'arbre. Utile après la reprise d'un fichier GEDCOM sur ce PC, sinon le programme commence par la première personne du fichier.
+
 ## Favoris
 
 Gardez sous la main les personnes sur lesquelles vous travaillez : **Ctrl+D**, **Personne › Ajouter aux favoris** ou clic droit › Ajouter aux favoris. **Ctrl+B** ouvre la liste des favoris ; un clic ouvre la personne, **Retirer** l'enlève. Les favoris sont disponibles lorsque le module serveur api4webtrees est suffisamment récent.

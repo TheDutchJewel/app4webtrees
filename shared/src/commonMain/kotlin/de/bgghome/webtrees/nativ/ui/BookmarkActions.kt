@@ -32,3 +32,26 @@ fun AppViewModel.toggleBookmark(xref: String) {
         }
     }
 }
+
+// Startperson festlegen (ab API-Stufe 24): eigene Standardperson oder, fuer Verwalter, die des Stammbaums.
+
+val AppViewModel.startPersonSupported: Boolean
+    get() = (uiState.value.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_START_PERSON && uiState.value.info?.user?.loggedIn == true
+
+fun AppViewModel.setStartPerson(xref: String, forTree: Boolean, onDone: () -> Unit = {}) {
+    val tree = uiState.value.tree ?: return
+    viewModelScope.launch {
+        try {
+            val r = client.setStartPerson(tree.name, xref, forTree)
+            uiState.update {
+                it.copy(
+                    home = r.startXref.ifEmpty { it.home },
+                    tree = it.tree?.copy(startXref = r.startXref, defaultXref = r.defaultXref, treeDefaultXref = r.treeDefaultXref),
+                )
+            }
+            onDone()
+        } catch (e: Exception) {
+            fail(e)
+        }
+    }
+}

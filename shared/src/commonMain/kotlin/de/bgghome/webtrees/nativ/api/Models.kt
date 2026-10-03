@@ -43,6 +43,11 @@ data class TreeInfo(
     val defaultXref: String = "",
     /** Nummer der letzten Aenderung im Baum (ab API-Stufe 17), null bei aelteren Modulen. Nur auf Gleichheit vergleichen. */
     val lastChange: Long? = null,
+    /** Mit wem webtrees fuer diesen Benutzer startet (ab API-Stufe 24): eigene Standardperson, "Das bin ich",
+     *  Standardperson des Stammbaums, sonst die erste Person; leer, wenn er sie nicht sehen darf. */
+    val startXref: String = "",
+    /** Standardperson des Stammbaums (Verwaltung, ab API-Stufe 24). */
+    val treeDefaultXref: String = "",
 )
 
 @Serializable
@@ -455,6 +460,15 @@ data class BookmarkList(val data: List<Person> = emptyList())
 
 @Serializable
 data class BookmarkRequest(val xref: String, val add: Boolean)
+
+/** Startperson festlegen (ab API-Stufe 24): ohne [forTree] die eigene Standardperson, mit die des Stammbaums. */
+const val API_START_PERSON = 24
+
+@Serializable
+data class StartPersonRequest(val xref: String, val forTree: Boolean = false)
+
+@Serializable
+data class StartPersonResult(val ok: Boolean = false, val startXref: String = "", val defaultXref: String = "", val treeDefaultXref: String = "")
 
 @Serializable
 data class PendingRecord(

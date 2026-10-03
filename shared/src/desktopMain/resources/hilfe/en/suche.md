@@ -8,6 +8,8 @@
 
 **Alt+Home** jumps to the start person: the person webtrees knows for your account (your own record or the tree's default person). It is also the reference for colour coding.
 
+**Person › Set as start person …** makes the central person the start person – just for you (as “My account” in webtrees) or, as a manager, for everyone as the family tree's default individual. Worth doing after taking over a GEDCOM file on this PC, otherwise the program starts with the first person of the file.
+
 ## Bookmarks
 
 Keep the persons you are working on: **Ctrl+D**, **Person › Bookmark** or right-click › Bookmark. **Ctrl+B** opens the bookmark list; a click opens the person, **Remove** drops it. Bookmarks are available when the server module api4webtrees is recent enough.

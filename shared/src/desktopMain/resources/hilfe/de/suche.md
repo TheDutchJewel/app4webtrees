@@ -8,6 +8,8 @@
 
 **Alt+Pos1** springt zur Startperson: die Person, die webtrees für dein Konto kennt (deine eigene Person oder die Standardperson des Stammbaums). Sie ist auch der Bezug für die Farbkodierung.
 
+**Person › Als Startperson festlegen …** macht die Person im Mittelpunkt zur Startperson – nur für dich (wie „Mein Konto“ in webtrees) oder, als Verwalter, für alle als Standardperson des Stammbaums. Gerade nach einer GEDCOM-Übernahme auf diesem PC lohnt sich das, sonst beginnt das Programm mit der ersten Person der Datei.
+
 ## Merkliste
 
 Personen, an denen du gerade arbeitest, merkst du dir: **Strg+D**, **Person › Merken** oder Rechtsklick › Merken. **Strg+B** öffnet die Merkliste; ein Klick öffnet die Person, **Entfernen** streicht sie. Die Merkliste steht zur Verfügung, wenn das Server-Modul api4webtrees aktuell genug ist.

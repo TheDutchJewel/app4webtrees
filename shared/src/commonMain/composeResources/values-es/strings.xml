@@ -1253,6 +1253,13 @@
     <string name="desk_list_places_details">Detalles de lugares</string>
     <string name="tipp_place_details">Identificador GOV y coordenadas de cada lugar del gestor de lugares (servidor desde el nivel de API 21).</string>
     <string name="desk_places_map">Mapa</string>
+    <string name="desk_set_start_person">Establecer como persona de inicio …</string>
+    <string name="desk_start_person_title">Establecer persona de inicio</string>
+    <string name="desk_start_person_text">%1$s se muestra primero al abrir este árbol.</string>
+    <string name="desk_start_person_me">Solo para mí (mi persona predeterminada, como en «Mi cuenta»)</string>
+    <string name="desk_start_person_tree">Para todos (persona predeterminada del árbol)</string>
+    <string name="desk_start_person_clear">Quitar mi persona predeterminada</string>
+    <string name="desk_start_person_set">Establecer</string>
     <string name="desk_places_cleanup">Depurar …</string>
     <string name="desk_places_cleanup_title">Depurar lugares</string>
     <string name="desk_places_cleanup_hint">Estos nombres probablemente designan el mismo lugar. Fusionar renombra el menos frecuente con el más frecuente, tras una confirmación con las cifras.</string>

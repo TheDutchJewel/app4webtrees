@@ -219,7 +219,9 @@ fun AppViewModel.cancelTreePicker() = uiState.update { if (it.tree != null) it.c
 
 fun AppViewModel.chooseTree(tree: TreeInfo) {
     settings.tree = tree.name
-    val home = tree.userXref.ifEmpty { tree.defaultXref }.ifEmpty { null }
+    // Ab Stufe 24 sagt der Server, mit wem webtrees startet (eigene Standardperson vor "Das bin ich" vor der des
+    // Stammbaums); aeltere Module kennen nur die beiden Benutzereinstellungen.
+    val home = tree.startXref.ifEmpty { tree.userXref.ifEmpty { tree.defaultXref } }.ifEmpty { null }
 
     uiState.update {
         UiState(

@@ -2,6 +2,7 @@
 
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.ui.startPersonSupported
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -139,6 +140,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     var tafel by remember { mutableStateOf<TafelArt?>(null) }
     var buch by remember { mutableStateOf(false) }
     var pruefung by remember { mutableStateOf(false) }
+    var startperson by remember { mutableStateOf(false) }
     var tabelle by remember { mutableStateOf(false) }
     // Quellenverwaltung: null = zu, "" = offen ohne Auswahl, sonst die Quelle, mit der sie oeffnet
     var quellen by remember { mutableStateOf<String?>(null) }
@@ -188,6 +190,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onMerkliste = { merkliste = true }, onTafel = { tafel = it }, onBuch = { buch = true }, onPruefung = { pruefung = true },
         onTabelle = { tabelle = true },
         onQuellen = if (quellenApi) ({ quellen = "" }) else null,
+        onStartperson = if (viewModel.startPersonSupported) ({ startperson = true }) else null,
         onOrte = if (orteApi) ({ orte = "" }) else null,
         onLokaleBaeume = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ lokaleBaeume = true }) else null,
     )
@@ -340,6 +343,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
         liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
         HilfeFenster()
+        if (startperson) StartpersonDialog(state, viewModel, onClose = { startperson = false })
         if (merkliste) MerklisteFenster(state, viewModel, openSheet, onClose = { merkliste = false })
         tafel?.let { art -> if (state.root != null) TafelFenster(state, viewModel, art, onClose = { tafel = null }) }
         if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
@@ -366,6 +370,7 @@ private fun FrameWindowScope.DeskMenuBar(
     onMerkliste: () -> Unit, onTafel: (TafelArt) -> Unit, onBuch: () -> Unit, onPruefung: () -> Unit, onTabelle: () -> Unit,
     onQuellen: (() -> Unit)? = null,
     onOrte: (() -> Unit)? = null,
+    onStartperson: (() -> Unit)? = null,
     onLokaleBaeume: (() -> Unit)? = null,
 ) {
     val main = state.screen == Screen.Main
@@ -395,6 +400,7 @@ private fun FrameWindowScope.DeskMenuBar(
                 Item(stringResource(Res.string.desk_goto), shortcut = KeyShortcut(Key.F, ctrl = true), onClick = onSearch)
                 Item(stringResource(Res.string.desk_sheet), enabled = state.root != null, shortcut = KeyShortcut(Key.E, ctrl = true), onClick = onSheet)
                 state.home?.let { home -> Item(stringResource(Res.string.home_start_person), shortcut = KeyShortcut(Key.MoveHome, alt = true), onClick = { viewModel.setRoot(home) }) }
+                onStartperson?.let { Item(stringResource(Res.string.desk_set_start_person), enabled = state.root != null, onClick = it) }
                 Item(stringResource(Res.string.action_make_root), enabled = selected != null && selected.person.xref != state.root,
                     shortcut = KeyShortcut(Key.Enter, ctrl = true), onClick = { selected?.let { viewModel.setRoot(it.person.xref) } })
                 Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,

@@ -1258,6 +1258,13 @@
     <string name="desk_list_places_details">Place details</string>
     <string name="tipp_place_details">GOV identifier and coordinates of each place from the place manager (server with API level 21 or later).</string>
     <string name="desk_places_map">Map</string>
+    <string name="desk_set_start_person">Set as start person …</string>
+    <string name="desk_start_person_title">Set start person</string>
+    <string name="desk_start_person_text">%1$s is shown first when this family tree is opened.</string>
+    <string name="desk_start_person_me">Just for me (my default individual, as under “My account”)</string>
+    <string name="desk_start_person_tree">For everyone (default individual of the family tree)</string>
+    <string name="desk_start_person_clear">Remove my default individual</string>
+    <string name="desk_start_person_set">Set</string>
     <string name="desk_places_cleanup">Clean up …</string>
     <string name="desk_places_cleanup_title">Clean up places</string>
     <string name="desk_places_cleanup_hint">These place names probably mean the same place. Merging renames the rarer one to the more frequent one – after a confirmation with the numbers.</string>

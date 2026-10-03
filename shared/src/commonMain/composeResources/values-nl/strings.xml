@@ -1234,6 +1234,13 @@
     <string name="desk_list_places_details">Plaatsdetails</string>
     <string name="tipp_place_details">GOV-code en coördinaten per plaats uit het plaatsenbeheer (server vanaf API-niveau 21).</string>
     <string name="desk_places_map">Kaart</string>
+    <string name="desk_set_start_person">Als startpersoon instellen …</string>
+    <string name="desk_start_person_title">Startpersoon instellen</string>
+    <string name="desk_start_person_text">%1$s wordt als eerste getoond bij het openen van deze stamboom.</string>
+    <string name="desk_start_person_me">Alleen voor mij (mijn standaardpersoon, zoals onder „Mijn account”)</string>
+    <string name="desk_start_person_tree">Voor iedereen (standaardpersoon van de stamboom)</string>
+    <string name="desk_start_person_clear">Mijn standaardpersoon verwijderen</string>
+    <string name="desk_start_person_set">Instellen</string>
     <string name="desk_places_cleanup">Opschonen …</string>
     <string name="desk_places_cleanup_title">Plaatsen opschonen</string>
     <string name="desk_places_cleanup_hint">Deze plaatsnamen bedoelen waarschijnlijk dezelfde plaats. Samenvoegen hernoemt de zeldzamere naar de vaker gebruikte – na een bevestiging met de aantallen.</string>

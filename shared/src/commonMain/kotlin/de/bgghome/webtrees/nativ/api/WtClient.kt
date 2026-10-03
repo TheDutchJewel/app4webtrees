@@ -257,6 +257,9 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     suspend fun setBookmark(tree: String, xref: String, add: Boolean): BookmarkList =
         post("Bookmarks", tree, emptyMap(), jsonBody(BookmarkRequest.serializer(), BookmarkRequest(xref, add)), BookmarkList.serializer())
 
+    suspend fun setStartPerson(tree: String, xref: String, forTree: Boolean): StartPersonResult =
+        post("StartPerson", tree, emptyMap(), jsonBody(StartPersonRequest.serializer(), StartPersonRequest(xref, forTree)), StartPersonResult.serializer())
+
     suspend fun anniversaries(tree: String, days: Int): AnniversaryList =
         get("Anniversaries", tree, mapOf("days" to days.toString()), AnniversaryList.serializer())
 

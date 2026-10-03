@@ -1253,6 +1253,13 @@
     <string name="desk_list_places_details">Détails des lieux</string>
     <string name="tipp_place_details">Identifiant GOV et coordonnées de chaque lieu depuis la gestion des lieux (serveur à partir du niveau d’API 21).</string>
     <string name="desk_places_map">Carte</string>
+    <string name="desk_set_start_person">Définir comme personne de départ …</string>
+    <string name="desk_start_person_title">Définir la personne de départ</string>
+    <string name="desk_start_person_text">%1$s est affiché en premier à l’ouverture de cet arbre.</string>
+    <string name="desk_start_person_me">Seulement pour moi (mon individu par défaut, comme dans « Mon compte »)</string>
+    <string name="desk_start_person_tree">Pour tous (individu par défaut de l’arbre)</string>
+    <string name="desk_start_person_clear">Supprimer mon individu par défaut</string>
+    <string name="desk_start_person_set">Définir</string>
     <string name="desk_places_cleanup">Nettoyer …</string>
     <string name="desk_places_cleanup_title">Nettoyer les lieux</string>
     <string name="desk_places_cleanup_hint">Ces noms désignent probablement le même lieu. Fusionner renomme le plus rare en le plus fréquent – après une confirmation avec les chiffres.</string>

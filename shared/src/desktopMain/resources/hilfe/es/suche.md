@@ -8,6 +8,8 @@
 
 **Alt+Home** salta a la persona de inicio: la persona que webtrees conoce para su cuenta (su propio registro o la persona predeterminada del árbol). También es la referencia del código de colores.
 
+**Persona › Establecer como persona de inicio …** convierte a la persona central en persona de inicio: solo para usted (como «Mi cuenta» en webtrees) o, como administrador, para todos como persona predeterminada del árbol. Conviene hacerlo tras importar un archivo GEDCOM en este PC; si no, el programa empieza con la primera persona del archivo.
+
 ## Marcadores
 
 Guarde las personas con las que está trabajando: **Ctrl+D**, **Persona › Añadir marcador** o clic derecho › Añadir marcador. **Ctrl+B** abre la lista de marcadores; un clic abre a la persona, **Quitar** la elimina de la lista. Los marcadores están disponibles cuando el módulo de servidor api4webtrees es lo bastante reciente.
