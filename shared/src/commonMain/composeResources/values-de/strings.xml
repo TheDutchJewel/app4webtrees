@@ -1085,6 +1085,14 @@
     <string name="menu_language_ellipsis">Sprache …</string>
     <string name="language_system">Wie das System</string>
     <string name="lokal_import_progress">„%1$s“ wird eingelesen … %2$s Datensätze</string>
+    <string name="lokal_trees_menu">Stammbäume auf diesem PC …</string>
+    <string name="lokal_trees_title">Stammbäume auf diesem PC</string>
+    <string name="lokal_trees_open">Öffnen</string>
+    <string name="lokal_trees_delete">Löschen</string>
+    <string name="lokal_trees_delete_confirm">„%1$s“ mit %2$d Personen löschen? Das lässt sich nicht rückgängig machen.</string>
+    <string name="lokal_trees_rename">Titel speichern</string>
+    <string name="lokal_trees_current">geöffnet</string>
+    <string name="lokal_trees_new">Weiteren Stammbaum anlegen</string>
 
     <!-- Plausibilitaetspruefung: Fragen zu den Regeln (Kennnummer wie im Regelkatalog) -->
     <string name="regel_010">Stirbt jemand vor seiner Geburt?</string>

@@ -45,13 +45,44 @@ object LokalBetrieb {
      * "Neuen Stammbaum auf diesem PC anlegen", mit [gedcom] aus einer GEDCOM-Datei - blockiert (Auspacken, Datenbank anlegen), also nicht auf dem
      * Hauptthread. Danach zeigt [LokalerZugang] auf den laufenden Server; anmelden macht der Aufrufer.
      */
-    fun anlegen(titel: String, gedcom: File? = null, schritt: (String) -> Unit): Pair<String, LokalerZugang> {
-        val php = checkNotNull(mitgeliefertesPhp()) { "PHP fehlt im Paket" }
-        val zip = checkNotNull(webtreesZip()) { "webtrees fehlt im Paket" }
+    fun anlegen(titel: String, gedcom: File? = null, neu: Boolean = false, schritt: (String) -> Unit): Pair<String, LokalerZugang> {
         server?.beenden()
-        val (s, z) = LokaleEinrichtung(php, zip, apiZip(), sammlungenZip()).einrichten(titel, gedcom, schritt = schritt)
+        val (s, z) = einrichtung().einrichten(titel, gedcom, neu = neu, schritt = schritt)
         server = s
         return s.adresse to z
+    }
+
+    private fun einrichtung(): LokaleEinrichtung {
+        val php = checkNotNull(mitgeliefertesPhp()) { "PHP fehlt im Paket" }
+        val zip = checkNotNull(webtreesZip()) { "webtrees fehlt im Paket" }
+        return LokaleEinrichtung(php, zip, apiZip(), sammlungenZip())
+    }
+
+    /** Die Baeume auf diesem PC (Datei › Stammbaum auf diesem PC › Stammbäume verwalten). Blockiert kurz. */
+    fun baeume(): List<LokalerBaum> = einrichtung().baeumeListe()
+
+    fun umbenennen(name: String, titel: String) = einrichtung().baumTitel(name, titel)
+
+    /**
+     * Baum loeschen - nie den letzten. War es der gemerkte, zeigt der Zugang danach auf den groessten der uebrigen,
+     * der auch Standard in webtrees wird. Liefert den Namen, der jetzt gemerkt ist.
+     */
+    fun loeschen(name: String): String {
+        val e = einrichtung()
+        val zugang = checkNotNull(LokalerZugang.laden()) { "Kein Stammbaum auf diesem PC" }
+        val uebrig = e.baeumeListe().filter { it.name != name }
+        check(uebrig.isNotEmpty()) { "Der letzte Stammbaum kann nicht gelöscht werden" }
+        e.baumLoeschen(name, zugang.benutzer)
+        return nachAufraeumen(e, zugang, uebrig)
+    }
+
+    /** Zugang und webtrees-Standard auf einen vorhandenen Baum richten, falls der gemerkte weg ist. */
+    private fun nachAufraeumen(e: LokaleEinrichtung, zugang: LokalerZugang, uebrig: List<LokalerBaum>): String {
+        if (uebrig.isEmpty() || uebrig.any { it.name == zugang.baum }) return zugang.baum
+        val ziel = uebrig.maxBy { it.personen }.name
+        (LokalerZugang.laden() ?: zugang).copy(baum = ziel).sichern()
+        runCatching { e.standardBaum(ziel) }
+        return ziel
     }
 
     /**
@@ -69,6 +100,14 @@ object LokalBetrieb {
             val s = LokalerServer(php).also { server = it }
             s.starten(wunschPort = zugang.port)
             if (s.port != zugang.port) zugang.copy(port = s.port).sichern()
+            // Leere Reste alter Importversuche weg; zeigte die Merkung auf so einen, den Baum mit den Daten oeffnen
+            runCatching {
+                val e = einrichtung()
+                val vorher = settings.tree
+                val uebrig = e.aufraeumen(zugang.benutzer, zugang.baum)
+                val gemerkt = nachAufraeumen(e, zugang, uebrig)
+                if (vorher.isNotEmpty() && uebrig.none { it.name == vorher }) settings.tree = gemerkt
+            }.onFailure { System.err.println("Lokaler Stammbaum, Aufräumen: ${it.message}") }
             settings.baseUrl = s.adresse.trimEnd('/')
             plattform.client.baseUrl = settings.baseUrl
             runBlocking { plattform.client.login(zugang.benutzer, zugang.passwort) }

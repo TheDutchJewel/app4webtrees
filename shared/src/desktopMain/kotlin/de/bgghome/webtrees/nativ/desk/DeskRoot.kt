@@ -172,6 +172,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     val drucke = DeskDruck(state, viewModel, LocalAppName.current)
     var zoom by remember { mutableStateOf(DeskLayout.prefs.getString("zoom", null)?.toFloatOrNull() ?: 1f) }
     // Texte unter den Symbolen (Ansicht -> Symboltexte); bei Platzmangel fallen sie ohnehin weg.
+    var lokaleBaeume by remember { mutableStateOf(false) }
     var symboltexte by remember { mutableStateOf(DeskLayout.prefs.getBoolean("symboltexte", true)) }
 
     DeskMenuBar(
@@ -186,6 +187,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onTabelle = { tabelle = true },
         onQuellen = if (quellenApi) ({ quellen = "" }) else null,
         onOrte = if (orteApi) ({ orte = "" }) else null,
+        onLokaleBaeume = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ lokaleBaeume = true }) else null,
     )
 
     // Beim Sprachwechsel entsteht alles darunter neu und liest die Texte frisch. Die Menueleiste oben bleibt stehen:
@@ -343,6 +345,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false })
 
         if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
+        if (lokaleBaeume) LokaleBaeumeDialog(state, viewModel, onClose = { lokaleBaeume = false })
         if (Entwuerfe.beendenAnfrage) UngespeichertDialog(viewModel, onWeiter = { Entwuerfe.beendenAnfrage = false; onQuit() }, onAbbrechen = { Entwuerfe.beendenAnfrage = false })
     }
 }
@@ -360,6 +363,7 @@ private fun FrameWindowScope.DeskMenuBar(
     onMerkliste: () -> Unit, onTafel: (TafelArt) -> Unit, onBuch: () -> Unit, onPruefung: () -> Unit, onTabelle: () -> Unit,
     onQuellen: (() -> Unit)? = null,
     onOrte: (() -> Unit)? = null,
+    onLokaleBaeume: (() -> Unit)? = null,
 ) {
     val main = state.screen == Screen.Main
     val loggedIn = state.info?.user?.loggedIn == true
@@ -368,6 +372,7 @@ private fun FrameWindowScope.DeskMenuBar(
         key(de.bgghome.webtrees.nativ.Sprache.aktiv) {
             Menu(stringResource(Res.string.desk_menu_file)) {
                 if (main && (state.info?.trees?.size ?: 0) > 1) Item(stringResource(Res.string.menu_switch_tree), onClick = viewModel::showTreePicker)
+                if (main && onLokaleBaeume != null) Item(stringResource(Res.string.lokal_trees_menu), onClick = onLokaleBaeume)
                 Item(stringResource(Res.string.action_reload), enabled = main, shortcut = KeyShortcut(Key.F5), onClick = viewModel::refresh)
                 Item(stringResource(Res.string.desk_open_browser), enabled = state.baseUrl.isNotEmpty(), onClick = { openWeb(state.detail?.person?.url ?: state.baseUrl) })
                 Separator()
@@ -884,7 +889,10 @@ private fun TreePicker(state: UiState, viewModel: AppViewModel) {
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             trees.forEach { candidate ->
                 DropdownMenuItem(
-                    text = { Text(candidate.title, fontWeight = if (candidate.name == state.tree?.name) FontWeight.SemiBold else FontWeight.Normal) },
+                    text = {
+                        val anzahl = if (candidate.individuals > 0) "  (" + stringResource(Res.string.tree_people_count, candidate.individuals) + ")" else ""
+                        Text(candidate.title + anzahl, fontWeight = if (candidate.name == state.tree?.name) FontWeight.SemiBold else FontWeight.Normal)
+                    },
                     onClick = { open = false; if (candidate.name != state.tree?.name) viewModel.chooseTree(candidate) },
                 )
             }

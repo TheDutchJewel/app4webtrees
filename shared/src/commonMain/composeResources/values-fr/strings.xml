@@ -1085,6 +1085,14 @@
     <string name="menu_language_ellipsis">Langue …</string>
     <string name="language_system">Comme le système</string>
     <string name="lokal_import_progress">Lecture de « %1$s » … %2$s enregistrements</string>
+    <string name="lokal_trees_menu">Arbres sur ce PC …</string>
+    <string name="lokal_trees_title">Arbres sur ce PC</string>
+    <string name="lokal_trees_open">Ouvrir</string>
+    <string name="lokal_trees_delete">Supprimer</string>
+    <string name="lokal_trees_delete_confirm">Supprimer « %1$s » avec %2$d personnes ? Cette action est irréversible.</string>
+    <string name="lokal_trees_rename">Enregistrer le titre</string>
+    <string name="lokal_trees_current">ouvert</string>
+    <string name="lokal_trees_new">Ajouter un autre arbre</string>
 
     <!-- Vérification de cohérence : questions sur les règles (numéro comme dans le catalogue des règles) -->
     <string name="regel_010">Quelqu’un meurt-il avant sa naissance ?</string>

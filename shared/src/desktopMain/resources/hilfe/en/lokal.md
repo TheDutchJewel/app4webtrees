@@ -10,6 +10,10 @@ The file may be UTF-8 (with or without byte order mark), UTF-16, ANSEL or ANSI; 
 
 Photos do not come along from the GEDCOM. Add them in the program, or copy them into the media folder later (see below) and link them in webtrees.
 
+## Several family trees
+
+**File › Family trees on this PC …** lists all trees with their number of people. There you can open one, rename it (change the title, then the tick or Enter) or delete it (never the last one), add another empty tree or import another GEDCOM file. Empty leftovers of earlier failed imports – only the webtrees sample person “John Doe” – are removed automatically at start-up; a tree you created empty yourself is kept.
+
 ## Where the data is
 
 | System | Folder |

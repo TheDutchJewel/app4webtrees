@@ -52,34 +52,7 @@ fun DeskStart(viewModel: AppViewModel) {
 
 @Composable
 private fun LokalAnlegen(viewModel: AppViewModel) {
-    val vorgabe = stringResource(Res.string.lokal_title_default)
-    var titel by remember { mutableStateOf(vorgabe) }
-    var schritt by remember { mutableStateOf<String?>(null) }
-    var fehler by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
     val appName = LocalAppName.current
-
-    // Anlegen, leer oder aus einer GEDCOM-Datei; blockiert (Auspacken, Import), also im Hintergrund.
-    fun anlegen(gedcom: java.io.File?) {
-        fehler = null
-        schritt = "…"
-        // Beim Uebernehmen heisst der Baum wie die Datei, solange der Name nicht von Hand geaendert wurde.
-        val name = titel.trim().takeUnless { it.isEmpty() || (gedcom != null && it == vorgabe) }
-            ?: gedcom?.nameWithoutExtension ?: vorgabe
-        scope.launch {
-            runCatching {
-                val (adresse, zugang) = withContext(Dispatchers.IO) { LokalBetrieb.anlegen(name, gedcom) { schritt = it } }
-                viewModel.client.baseUrl = adresse
-                viewModel.settings.baseUrl = viewModel.client.baseUrl
-                // Gleich den eben angelegten Baum oeffnen, auch wenn schon andere da sind
-                viewModel.settings.tree = zugang.baum
-                viewModel.login(zugang.benutzer, zugang.passwort)
-            }.onFailure { fehler = it.message ?: it.toString() }
-            schritt = null
-        }
-    }
-    val dialogTitel = stringResource(Res.string.lokal_gedcom_choose)
-
     Surface(Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(
@@ -91,40 +64,78 @@ private fun LokalAnlegen(viewModel: AppViewModel) {
                     stringResource(Res.string.lokal_text, appName),
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                OutlinedTextField(
-                    value = titel, onValueChange = { titel = it }, singleLine = true, enabled = schritt == null,
-                    label = { Text(stringResource(Res.string.lokal_title_label)) }, modifier = Modifier.fillMaxWidth(),
-                )
-                Button(
-                    onClick = { anlegen(null) },
-                    enabled = schritt == null && titel.isNotBlank(),
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text(stringResource(Res.string.lokal_create)) }
-                OutlinedButton(
-                    onClick = { gedcomWaehlen(dialogTitel)?.let(::anlegen) },
-                    enabled = schritt == null,
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text(stringResource(Res.string.lokal_gedcom)) }
-                Text(
-                    stringResource(Res.string.lokal_gedcom_hint),
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                schritt?.let {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(Modifier.padding(2.dp).widthIn(max = 18.dp), strokeWidth = 2.dp)
-                        Text(it, style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-                fehler?.let {
-                    // Verstaendlich oben, der rohe Text klein darunter (fuer die Fehlermeldung an uns)
-                    Text(stringResource(Res.string.lokal_error, LokalBetrieb.protokoll), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
-                    Text(it.take(1500), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-                }
+                LokalAnlegenFeld(viewModel)
                 Text(
                     stringResource(Res.string.lokal_hint),
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+        }
+    }
+}
+
+/**
+ * Name, "Stammbaum anlegen", "Aus GEDCOM-Datei übernehmen", Fortschritt und Fehler - im Startbildschirm und im Dialog
+ * "Stammbäume auf diesem PC" (dort mit [neu]: immer ein weiterer Baum, nie der vorhandene).
+ */
+@Composable
+internal fun LokalAnlegenFeld(viewModel: AppViewModel, neu: Boolean = false, onFertig: () -> Unit = {}) {
+    val vorgabe = stringResource(Res.string.lokal_title_default)
+    var titel by remember { mutableStateOf(vorgabe) }
+    var schritt by remember { mutableStateOf<String?>(null) }
+    var fehler by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    // Anlegen, leer oder aus einer GEDCOM-Datei; blockiert (Auspacken, Import), also im Hintergrund.
+    fun anlegen(gedcom: java.io.File?) {
+        fehler = null
+        schritt = "…"
+        // Beim Uebernehmen heisst der Baum wie die Datei, solange der Name nicht von Hand geaendert wurde.
+        val name = titel.trim().takeUnless { it.isEmpty() || (gedcom != null && it == vorgabe) }
+            ?: gedcom?.nameWithoutExtension ?: vorgabe
+        scope.launch {
+            runCatching {
+                val (adresse, zugang) = withContext(Dispatchers.IO) { LokalBetrieb.anlegen(name, gedcom, neu) { schritt = it } }
+                viewModel.client.baseUrl = adresse
+                viewModel.settings.baseUrl = viewModel.client.baseUrl
+                // Gleich den eben angelegten Baum oeffnen, auch wenn schon andere da sind
+                viewModel.settings.tree = zugang.baum
+                viewModel.login(zugang.benutzer, zugang.passwort)
+            }.onSuccess { onFertig() }.onFailure { fehler = it.message ?: it.toString() }
+            schritt = null
+        }
+    }
+    val dialogTitel = stringResource(Res.string.lokal_gedcom_choose)
+
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        OutlinedTextField(
+            value = titel, onValueChange = { titel = it }, singleLine = true, enabled = schritt == null,
+            label = { Text(stringResource(Res.string.lokal_title_label)) }, modifier = Modifier.fillMaxWidth(),
+        )
+        Button(
+            onClick = { anlegen(null) },
+            enabled = schritt == null && titel.isNotBlank(),
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text(stringResource(Res.string.lokal_create)) }
+        OutlinedButton(
+            onClick = { gedcomWaehlen(dialogTitel)?.let(::anlegen) },
+            enabled = schritt == null,
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text(stringResource(Res.string.lokal_gedcom)) }
+        Text(
+            stringResource(Res.string.lokal_gedcom_hint),
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        schritt?.let {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(Modifier.padding(2.dp).widthIn(max = 18.dp), strokeWidth = 2.dp)
+                Text(it, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        fehler?.let {
+            // Verstaendlich oben, der rohe Text klein darunter (fuer die Fehlermeldung an uns)
+            Text(stringResource(Res.string.lokal_error, LokalBetrieb.protokoll), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+            Text(it.take(1500), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
         }
     }
 }

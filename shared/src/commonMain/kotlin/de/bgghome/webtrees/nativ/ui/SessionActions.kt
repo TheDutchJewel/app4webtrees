@@ -198,6 +198,20 @@ internal fun AppViewModel.showTrees(info: Info) {
     }
 }
 
+/**
+ * Baumliste neu lesen, nachdem Baeume umbenannt oder geloescht wurden (Stammbaum auf diesem PC). Der offene Baum bleibt
+ * offen, nur sein Titel wird frisch; ist er weg, geht es weiter wie nach der Anmeldung.
+ */
+fun AppViewModel.reloadTrees() {
+    viewModelScope.launch {
+        val info = runCatching { client.info() }.getOrNull() ?: return@launch
+        val offen = uiState.value.tree?.name
+        val frisch = info.trees.firstOrNull { it.name == offen }
+        if (frisch != null) uiState.update { it.copy(info = info, tree = frisch) }
+        else { uiState.update { it.copy(info = info) }; showTrees(info) }
+    }
+}
+
 fun AppViewModel.showTreePicker() = uiState.update { it.copy(screen = Screen.Trees) }
 
 /** Baumwahl ohne Wechsel verlassen - geht nur, wenn schon ein Baum gewaehlt ist. */

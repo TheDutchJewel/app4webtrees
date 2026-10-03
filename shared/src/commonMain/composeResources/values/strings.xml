@@ -1090,6 +1090,14 @@
     <string name="menu_language_ellipsis">Language …</string>
     <string name="language_system">Like the system</string>
     <string name="lokal_import_progress">Reading “%1$s” … %2$s records</string>
+    <string name="lokal_trees_menu">Family trees on this PC …</string>
+    <string name="lokal_trees_title">Family trees on this PC</string>
+    <string name="lokal_trees_open">Open</string>
+    <string name="lokal_trees_delete">Delete</string>
+    <string name="lokal_trees_delete_confirm">Delete “%1$s” with %2$d people? This cannot be undone.</string>
+    <string name="lokal_trees_rename">Save title</string>
+    <string name="lokal_trees_current">open</string>
+    <string name="lokal_trees_new">Add another family tree</string>
 
     <!-- Plausibilitaetspruefung: Fragen zu den Regeln (Kennnummer wie im Regelkatalog) -->
     <string name="regel_010">Does someone die before being born?</string>

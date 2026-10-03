@@ -186,7 +186,11 @@ fun TreesScreen(state: UiState, onChoose: (de.bgghome.webtrees.nativ.api.TreeInf
             Card(Modifier.fillMaxWidth().clickable { onChoose(tree) }) {
                 ListItem(
                     headlineContent = { Text(tree.title) },
-                    supportingContent = { Text(roleLabel(tree.role)) },
+                    supportingContent = {
+                        // Gleichnamige Baeume (z. B. Reste alter Importversuche) an der Personenzahl auseinanderhalten
+                        val anzahl = if (tree.individuals > 0) " · " + stringResource(Res.string.tree_people_count, tree.individuals) else ""
+                        Text(roleLabel(tree.role) + anzahl)
+                    },
                 )
             }
         }

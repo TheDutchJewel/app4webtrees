@@ -1085,6 +1085,14 @@
     <string name="menu_language_ellipsis">Idioma …</string>
     <string name="language_system">Como el sistema</string>
     <string name="lokal_import_progress">Leyendo «%1$s» … %2$s registros</string>
+    <string name="lokal_trees_menu">Árboles en este PC …</string>
+    <string name="lokal_trees_title">Árboles en este PC</string>
+    <string name="lokal_trees_open">Abrir</string>
+    <string name="lokal_trees_delete">Eliminar</string>
+    <string name="lokal_trees_delete_confirm">¿Eliminar «%1$s» con %2$d personas? No se puede deshacer.</string>
+    <string name="lokal_trees_rename">Guardar título</string>
+    <string name="lokal_trees_current">abierto</string>
+    <string name="lokal_trees_new">Crear otro árbol</string>
 
     <!-- Comprobación de plausibilidad: preguntas de las reglas (número como en el catálogo de reglas) -->
     <string name="regel_010">¿Alguien fallece antes de nacer?</string>

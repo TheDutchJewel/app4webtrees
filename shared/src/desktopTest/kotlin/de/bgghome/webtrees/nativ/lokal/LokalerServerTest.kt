@@ -232,3 +232,60 @@ private class SpeicherAblage : de.bgghome.webtrees.nativ.data.Ablage {
     override fun alle() = m.filterValues { it is String }.mapValues { it.value as String }
     override fun leeren() = m.clear()
 }
+
+/**
+ * Issue 1, Nachgang: vor 1.29 blieb nach jedem gescheiterten Import ein Baum mit der Beispielperson stehen, alle mit
+ * demselben Titel. Aufraeumen nimmt diese Reste weg, aber keinen Baum, den wtWin auf Wunsch leer angelegt hat;
+ * umbenennen trifft nur den einen Baum (Tree::setPreference('title') aendert in webtrees 2.2.6 alle).
+ */
+class LokaleBaeumeTest {
+    private val php = (System.getenv("WTAND_PHP") ?: "/usr/bin/php").let(::File)
+    private val zip = System.getenv("WTAND_WEBTREES_ZIP")?.let(::File)
+    private val api = System.getenv("WTAND_API_ZIP")?.let(::File)
+    private val basis = createTempDirectory("wtlokal").toFile()
+
+    /** Ein Rest wie aus 1.26–1.28: mit der webtrees-Kommandozeile angelegt, nie angefasst. */
+    private fun rest(name: String) {
+        val p = ProcessBuilder(php.absolutePath, "index.php", "--no-interaction", "tree", name, "--create", "--title=Mein Stammbaum")
+            .directory(LokalOrte.webtrees).redirectErrorStream(true).start()
+        val aus = p.inputStream.bufferedReader().readText()
+        assertEquals(0, p.waitFor(), aus)
+    }
+
+    @Test fun resteAufraeumenUmbenennenLoeschen() {
+        val ged = File("../testdaten/falkenrath-1.3.ged").takeIf { it.isFile } ?: File("testdaten/falkenrath-1.3.ged")
+        if (!php.canExecute() || zip?.isFile != true || !ged.isFile) return
+        System.setProperty("wtand.lokal", basis.absolutePath)
+        try {
+            val e = LokaleEinrichtung(php, zip, api)
+            // Gewollt leer angelegt: bleibt, obwohl nur die Beispielperson drinsteht
+            val (s1, z1) = e.einrichten("Familie Test")
+            s1.beenden()
+            assertTrue(e.baeumeListe().single().platzhalter, e.baeumeListe().toString())
+            rest("stammbaum2"); rest("stammbaum3")
+            assertEquals(3, e.baeumeListe().count { it.platzhalter })
+
+            // Naechste Uebernahme raeumt zuerst auf und legt dann daneben an
+            val (s2, z2) = e.einrichten("falkenrath", ged)
+            s2.beenden()
+            val nachher = e.baeumeListe()
+            assertEquals(setOf(z1.baum, z2.baum), nachher.map { it.name }.toSet(), nachher.toString())
+            val daten = nachher.single { it.name == z2.baum }
+            assertTrue(!daten.platzhalter && daten.personen > 400, daten.toString())
+
+            e.baumTitel(z2.baum, "Familie Falkenrath")
+            assertEquals(mapOf(z1.baum to "Familie Test", z2.baum to "Familie Falkenrath"), e.baeumeListe().associate { it.name to it.titel })
+
+            // Ohne Merkung (wie bei arbor95) ist auch der erste ein Rest - der Baum mit den Daten bleibt
+            File(LokalOrte.basis, "leer-angelegt.txt").delete()
+            assertEquals(listOf(z2.baum), e.aufraeumen(z2.benutzer, z1.baum).map { it.name })
+            // Nur noch Reste: einer bleibt, der gemerkte
+            e.baumLoeschen(z2.baum, z2.benutzer)
+            rest("a"); rest("b")
+            assertEquals(listOf("b"), e.aufraeumen(z2.benutzer, "b").map { it.name })
+        } finally {
+            basis.deleteRecursively()
+            System.clearProperty("wtand.lokal")
+        }
+    }
+}

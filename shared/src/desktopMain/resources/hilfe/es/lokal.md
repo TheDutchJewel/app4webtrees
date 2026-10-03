@@ -10,6 +10,10 @@ El archivo puede estar en UTF-8 (con o sin marca de orden de bytes), UTF-16, ANS
 
 Las fotos no vienen con el GEDCOM. Añádalas en el programa o cópielas más tarde en la carpeta de medios (véase abajo) y vincúlelas en webtrees.
 
+## Varios árboles
+
+**Archivo › Árboles en este PC …** muestra todos los árboles con su número de personas. Allí puedes abrir uno, cambiarle el nombre (editar el título, luego la marca o Intro) o eliminarlo (nunca el último), crear otro árbol vacío o importar otro archivo GEDCOM. Los restos vacíos de importaciones fallidas anteriores – solo la persona de ejemplo «John Doe» de webtrees – se eliminan automáticamente al iniciar; un árbol que creaste vacío tú mismo se conserva.
+
 ## Dónde están los datos
 
 | Sistema | Carpeta |

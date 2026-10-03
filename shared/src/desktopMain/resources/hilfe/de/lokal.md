@@ -10,6 +10,10 @@ Die Datei darf in UTF-8 (mit oder ohne Byte-Reihenfolge-Marke), UTF-16, ANSEL od
 
 Fotos kommen aus der GEDCOM nicht mit. Du fügst sie im Programm hinzu oder kopierst sie später in den Medienordner (siehe unten) und verknüpfst sie in webtrees.
 
+## Mehrere Stammbäume
+
+**Datei › Stammbäume auf diesem PC …** zeigt alle Stammbäume mit Personenzahl. Dort kannst du einen öffnen, umbenennen (Titel ändern, Haken oder Enter) oder löschen (nie den letzten), einen weiteren leer anlegen oder eine weitere GEDCOM-Datei übernehmen. Leere Reste früherer, gescheiterter Importe – nur die Beispielperson „John Doe“ von webtrees – räumt das Programm beim Start selbst weg; einen Stammbaum, den du selbst leer angelegt hast, lässt es stehen.
+
 ## Wo die Daten liegen
 
 | System | Ordner |

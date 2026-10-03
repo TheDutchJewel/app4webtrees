@@ -1070,6 +1070,14 @@
     <string name="menu_language_ellipsis">Taal …</string>
     <string name="language_system">Zoals het systeem</string>
     <string name="lokal_import_progress">„%1$s“ wordt ingelezen … %2$s records</string>
+    <string name="lokal_trees_menu">Stambomen op deze pc …</string>
+    <string name="lokal_trees_title">Stambomen op deze pc</string>
+    <string name="lokal_trees_open">Openen</string>
+    <string name="lokal_trees_delete">Verwijderen</string>
+    <string name="lokal_trees_delete_confirm">„%1$s” met %2$d personen verwijderen? Dit kan niet ongedaan worden gemaakt.</string>
+    <string name="lokal_trees_rename">Titel opslaan</string>
+    <string name="lokal_trees_current">geopend</string>
+    <string name="lokal_trees_new">Nog een stamboom aanmaken</string>
     <string name="regel_010">Overlijdt iemand vóór zijn geboorte?</string>
     <string name="regel_011">Trouwt iemand vóór zijn geboorte?</string>
     <string name="regel_012">Trouwt iemand na zijn overlijden?</string>
