@@ -97,7 +97,9 @@ private val AUSSEN = BOX_W + 36.dp
  *  laeuft hinter dem Kasten des Kindes bei zwei Dritteln seiner Breite. */
 private val COL = 245.dp
 private val LINE_X = 222.dp
-private val INFO_H = 236.dp
+/** Der Infokasten steht als feste Leiste ueber der Tafel (zoomt nicht mit) - in der Tafel bleibt dafuer kein Platz frei. */
+private val INFO_H = 0.dp
+private val INFO_LEISTE = 150.dp
 private val ICON_ROW = 32.dp
 
 /** Farbkodierung nach Mary Hill: xref -> Farbe des Streifens am rechten Kastenrand (leer = aus). */
@@ -199,6 +201,10 @@ fun Navigator(
     // Generationen, Stil und Zoom ueber der Tafel, rechts - im Navigator statt in der Symbolleiste
     // (dort fehlte bei 125 % Skalierung der Platz).
     TafelRegler(state.ancestorGenerations, viewModel::setAncestorGenerations, zoom, onZoom, stil) { stil = it; it.speichern() }
+    // Infokasten als Leiste in normaler Groesse - bleibt lesbar, wie klein die Tafel auch eingepasst wird
+    Box(Modifier.fillMaxWidth().height(INFO_LEISTE).padding(horizontal = 12.dp)) {
+        if (detail != null) InfoBox(detail, fIndex, Modifier.fillMaxSize(), onOpen = { onOpenSheet(zentral.xref) }, onPerson = { viewModel.setRoot(it) })
+    }
     // Einpassen: die Tafel fuellt das Fenster, der Zoom vergroessert oder verkleinert davon ausgehend.
     androidx.compose.foundation.layout.BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
         val rand = 24.dp
@@ -402,9 +408,6 @@ private fun Chart(
             }
         }
 
-        // Infokasten oben links
-        if (detail != null) InfoBox(detail, fIndex, Modifier.offset(0.dp, 0.dp).size(BOX_W * 2 + 56.dp, INFO_H - 12.dp), onOpen = { onOpenSheet(zentral.xref) },
-            onPerson = { viewModel.setRoot(it) })
 
         // Kinder in eigenem Rollbereich: viele Kinder rollen, statt die Tafel zu verkleinern
         if (kinder.isNotEmpty()) {
@@ -475,10 +478,10 @@ private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier,
     val roemisch = listOf("I", "II", "III", "IV", "V", "VI", "VII", "VIII")
     val priv = stringResource(Res.string.person_private); val none = stringResource(Res.string.person_no_name)
     Row(modifier.background(colors.surface).border(1.dp, colors.outline).combinedClickable(onClick = onOpen).padding(8.dp)) {
-        Box(Modifier.width(160.dp).fillMaxHeight().border(1.dp, colors.outlineVariant)) {
+        Box(Modifier.width(110.dp).fillMaxHeight().border(1.dp, colors.outlineVariant)) {
             Portrait(p, Modifier.fillMaxSize())
         }
-        Column(Modifier.padding(start = 12.dp).fillMaxHeight().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Column(Modifier.weight(1f).padding(start = 12.dp).fillMaxHeight().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(registerName(p, priv, none), fontSize = 17.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp)
             if (beruf.isNotBlank()) Text(beruf, fontSize = 14.sp, color = colors.onSurfaceVariant)
             if (geburt.isNotBlank()) Text("*  $geburt", fontSize = 14.sp)
@@ -496,6 +499,8 @@ private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier,
                 }, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = gewicht)
             }
             if (tod.isNotBlank()) Text("†  $tod", fontSize = 14.sp)
+        }
+        Column(Modifier.weight(1f).padding(start = 16.dp).fillMaxHeight().verticalScroll(rememberScrollState())) {
             // Geschwister (Halbgeschwister mit ½): ein Klick macht sie zur Zentralperson
             val voll = detail.parentFamilies.flatMap { it.children }.filter { it.xref != p.xref }.distinctBy { it.xref }
             val halb = detail.halfSiblings().map { it.person }.filter { h -> voll.none { it.xref == h.xref } }

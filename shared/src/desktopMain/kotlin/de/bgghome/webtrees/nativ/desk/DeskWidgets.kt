@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,7 +38,8 @@ import androidx.compose.ui.unit.dp
 /** Senkrechte Bildlaufleiste am rechten Rand einer Liste. */
 @Composable
 fun BoxScope.ListenLeiste(state: LazyListState) {
-    VerticalScrollbar(rememberScrollbarAdapter(state), Modifier.align(Alignment.CenterEnd).fillMaxHeight())
+    // matchParentSize: die Leiste richtet sich nach dem Inhalt und blaeht den Bereich nicht bis zur Hoechstgrenze auf
+    Box(Modifier.matchParentSize()) { VerticalScrollbar(rememberScrollbarAdapter(state), Modifier.align(Alignment.CenterEnd).fillMaxHeight()) }
 }
 
 /** Senkrechte Bildlaufleiste fuer einen verticalScroll-Bereich. */
@@ -49,7 +51,7 @@ fun BoxScope.SenkrechteLeiste(state: ScrollState) {
 /** Waagerechte Bildlaufleiste fuer einen horizontalScroll-Bereich. */
 @Composable
 fun BoxScope.WaagerechteLeiste(state: ScrollState) {
-    HorizontalScrollbar(rememberScrollbarAdapter(state), Modifier.align(Alignment.BottomCenter).fillMaxWidth())
+    Box(Modifier.matchParentSize()) { HorizontalScrollbar(rememberScrollbarAdapter(state), Modifier.align(Alignment.BottomCenter).fillMaxWidth()) }
 }
 
 /** Rahmen, solange das Element den Tastaturfokus hat. Vor clickable/combinedClickable setzen. */
