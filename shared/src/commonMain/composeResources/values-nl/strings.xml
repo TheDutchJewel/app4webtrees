@@ -1234,6 +1234,8 @@
     <string name="desk_list_places_details">Plaatsdetails</string>
     <string name="tipp_place_details">GOV-code en coördinaten per plaats uit het plaatsenbeheer (server vanaf API-niveau 21).</string>
     <string name="desk_places_map">Kaart</string>
+    <string name="desk_place_gallery">Meer afbeeldingen (Wikimedia Commons, alleen getoond)</string>
+    <string name="desk_place_gallery_source">Op Wikimedia Commons</string>
     <string name="desk_start_ask_title">Met wie moet de stamboom beginnen?</string>
     <string name="desk_start_ask_text">Het programma toont deze persoon als eerste bij het openen. Later wijzigen: Persoon › Als startpersoon instellen …</string>
     <string name="desk_start_ask_search">Persoon zoeken …</string>

@@ -1,5 +1,9 @@
 package de.bgghome.webtrees.nativ.desk
 
+import androidx.compose.foundation.layout.aspectRatio
+import de.bgghome.webtrees.nativ.ui.WtAlertDialog
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -623,7 +627,7 @@ internal fun ortAussen(o: PlaceDetail, userAgent: String?): OrtAussen {
     val obj = gov?.let { OrtExtern.govObjekt(it) }
     val (heute, frueher) = gov?.let { OrtExtern.govKetten(it) } ?: (emptyList<GovStufe>() to emptyList())
     val qid = obj?.extern?.firstOrNull { it.startsWith("wikidata:", ignoreCase = true) }?.substringAfter(':')
-    val wiki = OrtExtern.wikimedia(o.levels.firstOrNull() ?: o.name, o.lat, o.lng, qid)
+    val wiki = OrtExtern.wikimedia(o.levels.firstOrNull() ?: o.name, o.lat, o.lng, qid, suche = o.levels.take(2).joinToString(" ").ifBlank { o.name })
     val extern = OrtExtern.externeLinks(obj?.extern.orEmpty()) +
         (if (qid == null && wiki.qid != null) listOf("Wikidata" to "https://www.wikidata.org/wiki/${wiki.qid}") else emptyList())
     return OrtAussen(heute, frueher, wiki, gov?.let { OrtExtern.genWiki(it) }, extern)
@@ -638,8 +642,13 @@ private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Uni
     // Titelbild: ein eigenes Foto am Ortsdatensatz geht vor, sonst der Vorschlag aus Wikimedia Commons
     val eigenes = o.location?.media?.firstOrNull { it.isImage && it.thumb != null }
     val vorschlag = aussen?.wiki?.bild
+    // Bilder aus Wikimedia Commons zum Grossansehen: der Vorschlag (wenn er oben steht) und die Galerie darunter
+    val commons = listOfNotNull(vorschlag.takeIf { eigenes == null }) + aussen?.wiki?.galerie.orEmpty()
+    var gross by remember(o.name) { mutableStateOf<Int?>(null) }
+    gross?.let { i -> CommonsBetrachter(commons, i, openWeb) { gross = null } }
     val bild: @Composable () -> Unit = { if (eigenes != null || vorschlag != null) {
-        Box(Modifier.fillMaxWidth().height(200.dp).border(1.dp, farben.outlineVariant)) {
+        Box(Modifier.fillMaxWidth().height(200.dp).border(1.dp, farben.outlineVariant)
+            .then(if (eigenes == null && vorschlag != null) Modifier.clickable { gross = 0 } else Modifier)) {
             coil3.compose.AsyncImage(model = eigenes?.thumb ?: vorschlag?.bild, contentDescription = o.name,
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.fillMaxSize())
             if (eigenes == null && vorschlag != null) {
@@ -648,7 +657,25 @@ private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Uni
                     .padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
-    } }
+    }
+    // Galerie: weitere Bilder aus Wikimedia Commons, nur angezeigt (nichts davon steht im Stammbaum)
+    val galerie = aussen?.wiki?.galerie.orEmpty()
+    if (galerie.isNotEmpty()) {
+        Text(stringResource(Res.string.desk_place_gallery), Modifier.padding(top = 6.dp), style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
+        Row(Modifier.fillMaxWidth().padding(top = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            // Sechs gleich breite Quadrate, die sich nach der Spalte richten
+            (0 until 6).forEach { i ->
+                val b = galerie.getOrNull(i)
+                Box(Modifier.weight(1f).aspectRatio(1f)) {
+                    if (b != null) Tipp(listOfNotNull(b.urheber?.let { "© $it" }, b.lizenz).joinToString(" · ").ifBlank { null }) {
+                        coil3.compose.AsyncImage(model = b.bild, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize().border(1.dp, farben.outlineVariant).clickable { gross = commons.indexOf(b).coerceAtLeast(i) })
+                    }
+                }
+            }
+        }
+    }
+    }
     // Kacheln: Ereignisse nach Art
     val kacheln: @Composable (Int) -> Unit = { jeZeile -> o.eventCounts?.let { z ->
         listOf(z.birth to Res.string.desk_place_births, z.marriage to Res.string.desk_place_marriages,
@@ -884,5 +911,46 @@ internal fun MediumDialog(m: de.bgghome.webtrees.nativ.api.MediaJson, onDismiss:
             }) { Text(stringResource(Res.string.action_save)) }
         },
         dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) } },
+    )
+}
+
+/** Grossansicht der Bilder aus Wikimedia Commons: blaettern mit Knoepfen oder Pfeiltasten, Bildnachweis, Link zur Quelle. */
+@Composable
+private fun CommonsBetrachter(bilder: List<OrtBild>, start: Int, openWeb: (String) -> Unit, onClose: () -> Unit) {
+    if (bilder.isEmpty()) return
+    var i by remember { mutableStateOf(start.coerceIn(0, bilder.lastIndex)) }
+    val b = bilder[i]
+    val fokus = remember { androidx.compose.ui.focus.FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { fokus.requestFocus() } }
+    fun weiter(d: Int) { i = (i + d + bilder.size) % bilder.size }
+    WtAlertDialog(
+        onDismissRequest = onClose,
+        title = { Text("${i + 1} / ${bilder.size}") },
+        text = {
+            Column(Modifier.width(960.dp).focusRequester(fokus).focusable().onPreviewKeyEvent { e ->
+                if (e.type != KeyEventType.KeyDown) false else when (e.key) {
+                    Key.DirectionLeft -> { weiter(-1); true }
+                    Key.DirectionRight -> { weiter(1); true }
+                    else -> false
+                }
+            }, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                coil3.compose.AsyncImage(model = b.bild, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                    modifier = Modifier.fillMaxWidth().height(600.dp).background(MaterialTheme.colorScheme.surfaceVariant))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(listOfNotNull(b.urheber?.let { "© $it" }, b.lizenz).joinToString(" · "), Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(stringResource(Res.string.desk_place_gallery_source) + " ↗", Modifier.clickable { openWeb(b.seite) }.padding(4.dp),
+                        style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        },
+        breite = 1000.dp,
+        confirmButton = {
+            Row {
+                androidx.compose.material3.TextButton(onClick = { weiter(-1) }, enabled = bilder.size > 1) { Text("‹") }
+                androidx.compose.material3.TextButton(onClick = { weiter(1) }, enabled = bilder.size > 1) { Text("›") }
+                androidx.compose.material3.TextButton(onClick = onClose) { Text(stringResource(Res.string.action_close)) }
+            }
+        },
     )
 }

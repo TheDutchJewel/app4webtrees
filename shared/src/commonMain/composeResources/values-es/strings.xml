@@ -1253,6 +1253,8 @@
     <string name="desk_list_places_details">Detalles de lugares</string>
     <string name="tipp_place_details">Identificador GOV y coordenadas de cada lugar del gestor de lugares (servidor desde el nivel de API 21).</string>
     <string name="desk_places_map">Mapa</string>
+    <string name="desk_place_gallery">Más imágenes (Wikimedia Commons, solo mostradas)</string>
+    <string name="desk_place_gallery_source">En Wikimedia Commons</string>
     <string name="desk_start_ask_title">¿Con quién debe empezar el árbol?</string>
     <string name="desk_start_ask_text">El programa muestra primero a esta persona al abrir el árbol. Cambiarlo más tarde: Persona › Establecer como persona de inicio …</string>
     <string name="desk_start_ask_search">Buscar persona …</string>

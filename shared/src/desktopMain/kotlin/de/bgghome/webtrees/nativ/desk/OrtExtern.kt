@@ -38,7 +38,7 @@ data class GovStufe(val id: String, val name: String, val von: Int?, val bis: In
 /** Bild aus Wikimedia Commons mit Angaben fuer den Bildnachweis. */
 data class OrtBild(val bild: String, val seite: String, val urheber: String?, val lizenz: String?)
 
-data class OrtWikimedia(val qid: String?, val bild: OrtBild?, val wikipedia: String?)
+data class OrtWikimedia(val qid: String?, val bild: OrtBild?, val wikipedia: String?, val galerie: List<OrtBild> = emptyList())
 
 /** GOV-Objekt, so weit die Ortsansicht es braucht. */
 data class GovObjekt(val id: String, val name: String, val teilVon: List<Triple<String, Int?, Int?>>, val extern: List<String>)
@@ -144,7 +144,7 @@ object OrtExtern {
      * Wikidata zum Ort: die Kennung aus GOV, sonst Treffer zum Namen, die hoechstens 30 km von den Koordinaten des Orts
      * liegen (naechster zuerst). Bild vom ersten Treffer, der eins hat; Wikipedia in der Oberflaechensprache.
      */
-    fun wikimedia(name: String, lat: Double?, lng: Double?, govQid: String?, sprache: String = Locale.getDefault().language): OrtWikimedia {
+    fun wikimedia(name: String, lat: Double?, lng: Double?, govQid: String?, sprache: String = Locale.getDefault().language, suche: String = name): OrtWikimedia {
         val kandidaten: List<String> = if (govQid != null) listOf(govQid) else {
             if (lat == null || lng == null) return OrtWikimedia(null, null, null)
             val treffer = holen("https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&type=item&limit=7&language=$sprache&search=" + enc(name))
@@ -162,7 +162,29 @@ object OrtExtern {
             holen("https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=sitelinks&sitefilter=${sprache}wiki&ids=$q")
                 .obj()?.get("entities").obj()?.get(q).obj()?.get("sitelinks").obj()?.get("${sprache}wiki").obj()?.get("title").str()
         }?.let { "https://$sprache.wikipedia.org/wiki/" + enc(it.replace(' ', '_')).replace("%2F", "/") }
-        return OrtWikimedia(kandidaten.first(), bild, wiki)
+        // Galerie nur zu einem bestaetigten Ort (wie im Ortsregister), das Hauptbild nicht doppelt
+        val galerie = galerie(suche).filter { it.seite != bild?.seite }.take(6)
+        return OrtWikimedia(kandidaten.first(), bild, wiki, galerie)
+    }
+
+    /**
+     * Weitere Bilder zum Ort aus Wikimedia Commons: Dateisuche nach dem Ortsnamen (mit dem uebergeordneten Ort, damit
+     * gleichnamige Orte anderswo seltener dazwischenrutschen), ohne Wappen und Karten als SVG/PNG, hoechstens 8.
+     */
+    private fun galerie(suche: String): List<OrtBild> {
+        val titel = holen("https://commons.wikimedia.org/w/api.php?action=query&format=json&list=search&srnamespace=6&srlimit=14&srsearch=" + enc(suche))
+            .obj()?.get("query").obj()?.get("search").arr().orEmpty().mapNotNull { it.obj()?.get("title").str() }
+            .filter { t -> t.lowercase().let { !it.endsWith(".svg") && !it.endsWith(".png") } }.take(8)
+        if (titel.isEmpty()) return emptyList()
+        val seiten = holen("https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1200&titles="
+            + titel.joinToString("|") { enc(it) }).obj()?.get("query").obj()?.get("pages").obj() ?: return emptyList()
+        return seiten.values.mapNotNull { seite ->
+            val info = seite.obj()?.get("imageinfo").arr()?.firstOrNull().obj() ?: return@mapNotNull null
+            val meta = info["extmetadata"].obj()
+            fun m(k: String) = meta?.get(k).obj()?.get("value").str()?.replace(Regex("<[^>]*>"), "")?.trim()?.takeIf(String::isNotEmpty)
+            val url = info["thumburl"].str() ?: info["url"].str() ?: return@mapNotNull null
+            OrtBild(url, info["descriptionurl"].str() ?: return@mapNotNull null, m("Artist"), m("LicenseShortName"))
+        }
     }
 
     private fun commonsBild(datei: String): OrtBild? {
