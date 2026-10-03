@@ -886,7 +886,7 @@
     <string name="tipp_template_load">Charger un modèle enregistré ; il remplace les réglages actuels.</string>
     <string name="tipp_calendar">Trié par mois et jour au lieu de l’année – pour les anniversaires et la gazette familiale.</string>
     <string name="tipp_full_dates">Dates complètes (12 mars 1851) au lieu de l’année seule.</string>
-    <string name="tipp_short_places">Seulement le nom de la commune, sans département ni pays, p. ex. « Winterbach » au lieu de « Winterbach, Rems-Murr-Kreis, Württemberg ».</string>
+    <string name="tipp_short_places">Seulement le nom de la commune, sans département ni pays, p. ex. « Winterbach » au lieu de « Winterbach, Rems-Murr-Kreis, Württemberg ». Un nom court défini dans la gestion des lieux est prioritaire.</string>
     <string name="tipp_duplicates">Les ancêtres qui apparaissent par plusieurs lignées (implexe) sont écrits en entier à chaque fois au lieu de « voir n° ».</string>
     <string name="tipp_foldout">Le tableau correspondant en page A3 à la fin du livre, à déplier ; PDF seulement.</string>
     <string name="tipp_book_color">Repère de couleur en marge : dans le livre d’ascendance les quatre lignées des grands-parents, dans le livre de descendance une couleur par enfant du couple souche.</string>
@@ -1275,4 +1275,6 @@
     <string name="desk_place_person_hint">Clic : sélectionner dans la fenêtre principale · double-clic : en faire la personne centrale</string>
     <string name="desk_list_places_notes">Notes</string>
     <string name="desk_list_places_sources">Sources</string>
+    <string name="desk_place_short">Nom court</string>
+    <string name="desk_place_short_hint">Pour les livres quand « Abréger les noms de lieux » est activé</string>
 </resources>

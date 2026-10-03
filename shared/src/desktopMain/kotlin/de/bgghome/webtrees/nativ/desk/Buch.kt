@@ -136,7 +136,18 @@ fun buchDatum(d: DateJson?): String {
     return if (vor != null) "$vor $kern" else kern
 }
 
-internal fun ortText(name: String?, kurz: Boolean): String = name?.let { if (kurz) it.substringBefore(',').trim() else it }.orEmpty()
+/** Kurznamen der Orte aus der Ortsverwaltung (voller Name in Kleinbuchstaben -> Kurzname), vor dem Buchsatz geladen. */
+internal object OrtsKurznamen {
+    @Volatile var je: Map<String, String> = emptyMap()
+
+    suspend fun laden(client: de.bgghome.webtrees.nativ.api.WtClient, tree: String) {
+        je = runCatching { client.placeList(tree).places.mapNotNull { p -> p.shortName?.let { p.name.lowercase() to it } }.toMap() }.getOrDefault(emptyMap())
+    }
+}
+
+/** Ort fuers Buch; gekuerzt: der Kurzname aus der Ortsverwaltung, sonst der erste Teil ("Celle, Niedersachsen" -> "Celle"). */
+internal fun ortText(name: String?, kurz: Boolean): String =
+    name?.let { if (kurz) OrtsKurznamen.je[it.trim().lowercase()] ?: it.substringBefore(',').trim() else it }.orEmpty()
 
 private val EREIGNIS_ZEICHEN = mapOf("BIRT" to "*", "CHR" to "~", "BAPM" to "~", "DEAT" to "†", "BURI" to "▭", "CREM" to "▭")
 

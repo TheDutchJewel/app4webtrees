@@ -875,7 +875,7 @@
     <string name="tipp_template_load">Een opgeslagen sjabloon laden; het vervangt de huidige instellingen.</string>
     <string name="tipp_calendar">Gesorteerd op maand en dag in plaats van op jaar – voor gedenkdagen en de familiekrant.</string>
     <string name="tipp_full_dates">Volledige datums (12 maart 1851) in plaats van alleen het jaar.</string>
-    <string name="tipp_short_places">Alleen de plaatsnaam zonder gemeente en land, bijv. „Winterbach“ in plaats van „Winterbach, Rems-Murr-Kreis, Württemberg“.</string>
+    <string name="tipp_short_places">Alleen de plaatsnaam zonder gemeente en land, bijv. „Winterbach“ in plaats van „Winterbach, Rems-Murr-Kreis, Württemberg“. Een korte naam uit het plaatsenbeheer gaat voor.</string>
     <string name="tipp_duplicates">Voorouders die via meerdere lijnen voorkomen (kwartierverlies) telkens volledig uitschrijven in plaats van „zie nr.“.</string>
     <string name="tipp_foldout">Het bijbehorende schema als A3-pagina achterin het boek, om uit te klappen; alleen in de PDF.</string>
     <string name="tipp_book_color">Kleurmarkering aan de paginarand: in het voorouderboek de vier grootouderlijnen, in het nakomelingenboek één kleur per kind van het stampaar.</string>
@@ -1256,4 +1256,6 @@
     <string name="desk_place_person_hint">Klik: kiezen in het hoofdvenster · dubbelklik: tot proband maken</string>
     <string name="desk_list_places_notes">Notities</string>
     <string name="desk_list_places_sources">Bronnen</string>
+    <string name="desk_place_short">Korte naam</string>
+    <string name="desk_place_short_hint">Voor boeken als „Plaatsnamen inkorten“ aan staat</string>
 </resources>

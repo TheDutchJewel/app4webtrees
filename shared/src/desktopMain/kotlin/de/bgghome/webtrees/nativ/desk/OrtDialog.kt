@@ -137,6 +137,7 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
     val altLat = loc?.lat ?: ort.lat
     val altLng = loc?.lng ?: ort.lng
     var gov by remember { mutableStateOf(altGov) }
+    var kurz by remember { mutableStateOf(loc?.shortName.orEmpty()) }
     var plz by remember { mutableStateOf(loc?.postalCode.orEmpty()) }
     var region by remember { mutableStateOf(loc?.region.orEmpty()) }
     var land by remember { mutableStateOf(loc?.country.orEmpty()) }
@@ -181,6 +182,7 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                         Text(stringResource(Res.string.desk_place_gov_search))
                     }
                 }
+                Field(kurz, { kurz = it }, Res.string.desk_place_short, hint = Res.string.desk_place_short_hint)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(Modifier.weight(0.8f)) { Field(plz, { plz = it }, Res.string.desk_place_postal) }
                     Box(Modifier.weight(1.2f)) { Field(region, { region = it }, Res.string.desk_place_region) }
@@ -254,7 +256,7 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
         },
         confirmButton = {
             val geaendert = gov != altGov || notiz.trim() != altNotiz.trim() || koordGeaendert ||
-                plz.trim() != loc?.postalCode.orEmpty() || region.trim() != loc?.region.orEmpty() || land.trim() != loc?.country.orEmpty()
+                kurz.trim() != loc?.shortName.orEmpty() || plz.trim() != loc?.postalCode.orEmpty() || region.trim() != loc?.region.orEmpty() || land.trim() != loc?.country.orEmpty()
             TextButton(enabled = geaendert && koordOk && !speichert, onClick = {
                 speichert = true; fehler = null
                 val anfrage = PlaceRequest(
@@ -263,6 +265,7 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                     note = notiz.takeIf { it.trim() != altNotiz.trim() },
                     koordinatenAendern = koordGeaendert, lat = b, lng = l,
                     mapData = mapData && istAdmin && koordGeaendert,
+                    shortName = kurz.trim().takeIf { it != loc?.shortName.orEmpty() },
                     postalCode = plz.trim().takeIf { it != loc?.postalCode.orEmpty() },
                     region = region.trim().takeIf { it != loc?.region.orEmpty() },
                     country = land.trim().takeIf { it != loc?.country.orEmpty() },

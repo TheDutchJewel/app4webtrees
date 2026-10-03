@@ -105,6 +105,8 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
         val tree = state.tree; val root = state.root
         value = if (tree == null || root == null) null else withContext(Dispatchers.IO) {
             runCatching {
+                // Kurznamen der Orte fuer "Orte kuerzen" (Server ab API-Stufe 21; sonst bleibt es beim ersten Namensteil)
+                if ((state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_LIST) OrtsKurznamen.laden(viewModel.client, tree.name)
                 if (familien) familienbuchLaden(viewModel.client, tree.name, o.bilder) { fortschritt = it }
                 else if (nachfahren) nachfahrenbuchLaden(viewModel.client, tree.name, root, o.generationen, o.bilder) { fortschritt = it }
                 else vorfahrenbuchLaden(viewModel.client, tree.name, root, o.generationen, o.bilder) { fortschritt = it }

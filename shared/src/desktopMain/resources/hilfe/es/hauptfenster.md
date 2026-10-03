@@ -69,6 +69,8 @@ Con permiso de edición, la nota se escribe directamente en la pestaña **Notas*
 
 Las coordenadas se escriben en decimal o en grados, minutos, segundos; **Desde el portapapeles** toma un par copiado, por ejemplo de Wikipedia. En **Buscar coordenadas …** dos casillas deciden si un resultado aporta las coordenadas y/o código postal, región y país. En la pestaña **Coordenadas**, botones abren el lugar en OpenStreetMap, Bing Maps o Google Maps; **Centrar mapa** lo devuelve al centro. En la pestaña **Personas** el puntero muestra fechas y eventos; un doble clic abre la hoja de la persona.
 
+En **Editar** también se puede indicar un **nombre corto** (GEDCOM-L: abreviatura del nombre del lugar). Los libros con «Abreviar nombres de lugares» lo usan en lugar del nombre completo; sin él toman, como antes, la primera parte del nombre.
+
 ## Secciones: Inicio, Árbol, Fotos
 
 - **Inicio** (Ctrl+1): saludo, próximos aniversarios, cambios recientes en el árbol, la persona de inicio. Los moderadores ven aquí los cambios pendientes y los aceptan o rechazan.

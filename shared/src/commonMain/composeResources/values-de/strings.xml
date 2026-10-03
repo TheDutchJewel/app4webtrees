@@ -886,7 +886,7 @@
     <string name="tipp_template_load">Eine gesicherte Vorlage laden; sie ersetzt die aktuellen Einstellungen.</string>
     <string name="tipp_calendar">Nach Monat und Tag statt nach Jahr sortiert – für Jahrestage und die Familienzeitung.</string>
     <string name="tipp_full_dates">Vollständige Daten (12. März 1851) statt nur des Jahres.</string>
-    <string name="tipp_short_places">Nur der Ortsname ohne Kreis und Land, etwa „Winterbach“ statt „Winterbach, Rems-Murr-Kreis, Württemberg“.</string>
+    <string name="tipp_short_places">Nur der Ortsname ohne Kreis und Land, etwa „Winterbach“ statt „Winterbach, Rems-Murr-Kreis, Württemberg“. Ein Kurzname aus der Ortsverwaltung geht vor.</string>
     <string name="tipp_duplicates">Vorfahren, die über mehrere Linien vorkommen (Ahnenschwund), jedes Mal ganz ausschreiben statt „siehe Nr.“.</string>
     <string name="tipp_foldout">Die passende Tafel als A3-Seite hinten im Buch, zum Ausklappen; nur im PDF.</string>
     <string name="tipp_book_color">Farbmarke am Seitenrand: im Vorfahrenbuch die vier Großeltern-Linien, im Nachfahrenbuch je Kind der Stammeltern eine Farbe.</string>
@@ -1275,4 +1275,6 @@
     <string name="desk_place_person_hint">Klick: im Hauptfenster wählen · Doppelklick: zum Probanden machen</string>
     <string name="desk_list_places_notes">Notizen</string>
     <string name="desk_list_places_sources">Quellen</string>
+    <string name="desk_place_short">Kurzname</string>
+    <string name="desk_place_short_hint">Für Bücher, wenn „Ortsnamen kürzen“ an ist</string>
 </resources>

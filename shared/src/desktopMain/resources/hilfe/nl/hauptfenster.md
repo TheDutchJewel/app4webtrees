@@ -69,6 +69,8 @@ Met bewerkrechten schrijf je de notitie direct in het tabblad **Notities**, voeg
 
 Coördinaten kun je decimaal of in graden, minuten, seconden invoeren; **Uit klembord** neemt een gekopieerd paar over, bijvoorbeeld uit Wikipedia. Bij **Coördinaten zoeken …** bepalen twee vinkjes of een resultaat de coördinaten en/of postcode, regio en land invult. In het tabblad **Coördinaten** openen knoppen de plaats in OpenStreetMap, Bing Maps of Google Maps; **Kaart centreren** zet hem terug in het midden. In het tabblad **Personen** toont de muisaanwijzer levensdata en gebeurtenissen; een dubbelklik opent het persoonsblad.
 
+Bij **Bewerken** kun je ook een **korte naam** invullen (GEDCOM-L: afkorting van de plaatsnaam). Boeken met „Plaatsnamen inkorten“ gebruiken die in plaats van de volledige naam; zonder korte naam nemen ze zoals voorheen het eerste deel van de naam.
+
 ## Onderdelen: Start, Boom, Foto's
 
 - **Start** (Ctrl+1): begroeting, komende gedenkdagen, recente wijzigingen in de stamboom, de startpersoon. Moderators zien hier openstaande wijzigingen en keuren ze goed of af.

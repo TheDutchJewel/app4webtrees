@@ -886,7 +886,7 @@
     <string name="tipp_template_load">Cargar una plantilla guardada; sustituye los ajustes actuales.</string>
     <string name="tipp_calendar">Ordenado por mes y día en lugar de por año, para aniversarios y el boletín familiar.</string>
     <string name="tipp_full_dates">Fechas completas (12 de marzo de 1851) en lugar de solo el año.</string>
-    <string name="tipp_short_places">Solo el nombre de la localidad, sin comarca ni país, p. ej. «Winterbach» en lugar de «Winterbach, Rems-Murr-Kreis, Württemberg».</string>
+    <string name="tipp_short_places">Solo el nombre de la localidad, sin comarca ni país, p. ej. «Winterbach» en lugar de «Winterbach, Rems-Murr-Kreis, Württemberg». Un nombre corto definido en el gestor de lugares tiene prioridad.</string>
     <string name="tipp_duplicates">Los antepasados que aparecen por varias líneas (implexo) se escriben completos cada vez en lugar de «véase n.º».</string>
     <string name="tipp_foldout">El gráfico correspondiente como página A3 al final del libro, para desplegar; solo PDF.</string>
     <string name="tipp_book_color">Marca de color en el margen de la página: en el libro de antepasados las cuatro líneas de los abuelos, en el libro de descendientes un color por cada hijo de la pareja de origen.</string>
@@ -1275,4 +1275,6 @@
     <string name="desk_place_person_hint">Clic: seleccionar en la ventana principal · doble clic: convertir en persona central</string>
     <string name="desk_list_places_notes">Notas</string>
     <string name="desk_list_places_sources">Fuentes</string>
+    <string name="desk_place_short">Nombre corto</string>
+    <string name="desk_place_short_hint">Para los libros cuando «Abreviar nombres de lugares» está activado</string>
 </resources>

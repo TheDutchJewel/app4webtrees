@@ -891,7 +891,7 @@
     <string name="tipp_template_load">Load a saved template; it replaces the current settings.</string>
     <string name="tipp_calendar">Sorted by month and day instead of year – for anniversaries and the family newsletter.</string>
     <string name="tipp_full_dates">Full dates (12 March 1851) instead of the year only.</string>
-    <string name="tipp_short_places">Only the place name without district and country, e.g. “Winterbach” instead of “Winterbach, Rems-Murr-Kreis, Württemberg”.</string>
+    <string name="tipp_short_places">Only the place name without district and country, e.g. “Winterbach” instead of “Winterbach, Rems-Murr-Kreis, Württemberg”. A short name set in the place manager takes precedence.</string>
     <string name="tipp_duplicates">Ancestors who appear via several lines (pedigree collapse) written out in full each time instead of “see no.”.</string>
     <string name="tipp_foldout">The matching chart as an A3 page at the back of the book, to fold out; PDF only.</string>
     <string name="tipp_book_color">Colour mark at the page margin: in the ancestor book the four grandparent lines, in the descendant book one colour per child of the root couple.</string>
@@ -1280,4 +1280,6 @@
     <string name="desk_place_person_hint">Click: select in the main window · double-click: make central person</string>
     <string name="desk_list_places_notes">Notes</string>
     <string name="desk_list_places_sources">Sources</string>
+    <string name="desk_place_short">Short name</string>
+    <string name="desk_place_short_hint">Used in books when “Shorten place names” is on</string>
 </resources>

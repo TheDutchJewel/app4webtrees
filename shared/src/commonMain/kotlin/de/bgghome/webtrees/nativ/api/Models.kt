@@ -304,6 +304,7 @@ data class PlaceRequest(
     val postalCode: String? = null,
     val region: String? = null,
     val country: String? = null,
+    val shortName: String? = null,
 )
 
 /** Ein Ort der Ortsliste - der PLAC-Text, wie er an sichtbaren Ereignissen steht. */
@@ -320,6 +321,8 @@ data class PlaceSummary(
     /** Kennung des _LOC-Datensatzes, wenn der Ort einen hat. */
     val location: String? = null,
     val gov: String? = null,
+    /** Kurzname aus dem _LOC (NAME/ABBR) - fuer "Orte kuerzen" in Buechern. */
+    val shortName: String? = null,
 )
 
 @Serializable
@@ -365,6 +368,7 @@ data class LocationJson(
     val xref: String,
     val name: String = "",
     val gov: String? = null,
+    val shortName: String? = null,
     val postalCode: String? = null,
     val region: String? = null,
     val country: String? = null,

@@ -405,8 +405,8 @@ private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) ->
         if (loc == null) Text(stringResource(Res.string.desk_place_no_record), style = MaterialTheme.typography.bodyMedium, color = farben.onSurfaceVariant)
         else Text(listOf(loc.name, loc.xref).filter(String::isNotBlank).joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
     }
-    // Postleitzahl, Region, Land - so wie andere Programme sie am Ortsdatensatz ablegen
-    listOf(Res.string.desk_place_postal to loc?.postalCode, Res.string.desk_place_region to loc?.region, Res.string.desk_place_country to loc?.country)
+    // Kurzname, Postleitzahl, Region, Land - so wie andere Programme sie am Ortsdatensatz ablegen
+    listOf(Res.string.desk_place_short to loc?.shortName, Res.string.desk_place_postal to loc?.postalCode, Res.string.desk_place_region to loc?.region, Res.string.desk_place_country to loc?.country)
         .forEach { (label, wert) -> if (!wert.isNullOrBlank()) Zeile(label) { SelectionContainer { Text(wert, style = MaterialTheme.typography.bodyMedium) } } }
     loc?.gov?.let { gov ->
         Zeile(Res.string.desk_place_gov) {
