@@ -141,26 +141,7 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
                         when {
                             fehler != null -> Text(fehler.message ?: "?", Modifier.padding(12.dp), color = MaterialTheme.colorScheme.error)
                             liste == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-                            else -> {
-                                val ls = rememberLazyListState()
-                                LazyColumn(Modifier.fillMaxSize(), state = ls) {
-                                    items(treffer, key = { it.xref }) { q ->
-                                        val aktiv = q.xref == gewaehlt
-                                        Column(Modifier.fillMaxWidth().background(if (aktiv) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface)
-                                            .fokusRahmen().clickable { gewaehlt = q.xref }.padding(horizontal = 12.dp, vertical = 6.dp)) {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Text(q.title.ifBlank { q.xref }, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium,
-                                                    fontWeight = if (aktiv) FontWeight.SemiBold else FontWeight.Normal, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                                Text("${q.uses}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                            }
-                                            val unter = listOf(q.author, listOf(q.repository, q.callNumber).filter(String::isNotBlank).joinToString(", ")).filter(String::isNotBlank).joinToString(" · ")
-                                            if (unter.isNotBlank()) Text(unter, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        }
-                                    }
-                                }
-                                ListenLeiste(ls)
-                            }
+                            else -> QuellenListe(treffer, gewaehlt) { gewaehlt = it }
                         }
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -175,7 +156,7 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
                         gewaehlt == null -> Text(stringResource(Res.string.desk_sources_choose), Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         d == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                         d.exceptionOrNull() != null -> Text(d.exceptionOrNull()?.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
-                        else -> QuelleDetail(d.getOrThrow(), viewModel, openWeb, canEdit,
+                        else -> QuelleDetail(d.getOrThrow(), onPerson = viewModel::select, onMitte = viewModel::setRoot, openWeb = openWeb, canEdit = canEdit,
                             onBearbeiten = { dialog = QuellenDialog.Bearbeiten(it) },
                             onVorhanden = { dialog = QuellenDialog.Medium(it) },
                             onMediumLoesen = { q, m ->
@@ -215,6 +196,31 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
     }
 }
 
+/** Die Liste der Quellen: Titel, Zahl der Verweise, darunter Autor und Archiv mit Signatur; ein Klick waehlt. */
+@Composable
+internal fun QuellenListe(treffer: List<de.bgghome.webtrees.nativ.api.SourceSummary>, gewaehlt: String?, onWahl: (String) -> Unit) {
+    Box(Modifier.fillMaxSize()) {
+        val ls = rememberLazyListState()
+        LazyColumn(Modifier.fillMaxSize(), state = ls) {
+            items(treffer, key = { it.xref }) { q ->
+                val aktiv = q.xref == gewaehlt
+                Column(Modifier.fillMaxWidth().background(if (aktiv) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface)
+                    .fokusRahmen().clickable { onWahl(q.xref) }.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(q.title.ifBlank { q.xref }, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = if (aktiv) FontWeight.SemiBold else FontWeight.Normal, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text("${q.uses}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    val unter = listOf(q.author, listOf(q.repository, q.callNumber).filter(String::isNotBlank).joinToString(", ")).filter(String::isNotBlank).joinToString(" · ")
+                    if (unter.isNotBlank()) Text(unter, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
+        ListenLeiste(ls)
+    }
+}
+
 private sealed interface QuellenDialog {
     data object Neu : QuellenDialog
     data class Bearbeiten(val quelle: SourceDetail) : QuellenDialog
@@ -225,8 +231,8 @@ private sealed interface QuellenDialog {
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
-private fun QuelleDetail(
-    q: SourceDetail, viewModel: AppViewModel, openWeb: (String) -> Unit, canEdit: Boolean = false,
+internal fun QuelleDetail(
+    q: SourceDetail, onPerson: (String) -> Unit, onMitte: (String) -> Unit, openWeb: (String) -> Unit, canEdit: Boolean = false,
     onBearbeiten: (SourceDetail) -> Unit = {}, onLoeschen: (SourceDetail) -> Unit = {}, onDatei: (SourceDetail) -> Unit = {},
     onVorhanden: (SourceDetail) -> Unit = {}, onMediumLoesen: (SourceDetail, MediaJson) -> Unit = { _, _ -> },
 ) {
@@ -265,7 +271,7 @@ private fun QuelleDetail(
             Abschnitt(Res.string.desk_source_cited_by)
             if (q.individuals.isEmpty() && q.families.isEmpty()) Text(stringResource(Res.string.desk_source_unused), color = farben.onSurfaceVariant)
             q.individuals.forEach { p ->
-                Row(Modifier.fillMaxWidth().fokusRahmen().combinedClickable(enabled = !p.isPrivate, onDoubleClick = { viewModel.setRoot(p.xref) }) { viewModel.select(p.xref) }
+                Row(Modifier.fillMaxWidth().fokusRahmen().combinedClickable(enabled = !p.isPrivate, onDoubleClick = { onMitte(p.xref) }) { onPerson(p.xref) }
                     .padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(registerName(p.person(), stringResource(Res.string.person_private), stringResource(Res.string.person_no_name)) + jahre(p.person()).let { if (it.isNotEmpty()) "  $it" else "" },
                         Modifier.width(320.dp), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
