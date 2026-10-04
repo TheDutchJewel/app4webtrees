@@ -86,9 +86,10 @@ wtAnd, wtWin, wtTux und wtMac sind keine offiziellen webtrees-Produkte; Fragen u
 Eine native Android-App für [webtrees](https://webtrees.net/) – den eigenen Stammbaum auf Handy und Tablet
 ansehen **und bearbeiten**, mit den eigenen Daten auf dem eigenen Server.
 
-Die App bringt zwei Welten zusammen: die Person, die den Stammbaum am PC akribisch pflegt, und die Familie, die am
-Handy oder Tablet hineinschauen und mit Fotos und Hinweisen beitragen will. Die Detailarbeit bleibt am PC. Was aus der
-App kommt, landet als ausstehende Änderung in derselben webtrees-Installation, unter deren Rechten, Moderation und Regeln.
+So liegt der ganze Stammbaum in der Hosentasche: nachsehen, was bekannt ist, im Archiv oder auf dem Friedhof etwas
+festhalten und Daten ändern. Die ausführliche Pflege, etwa Quellenverwaltung, Tafeln und Bücher, bleibt am PC
+(wtWin, wtTux). Was aus der App kommt, landet als ausstehende Änderung in derselben webtrees-Installation, unter deren
+Rechten, Moderation und Regeln.
 
 | Baum | Lebenslauf | Archiv |
 | - | - | - |
