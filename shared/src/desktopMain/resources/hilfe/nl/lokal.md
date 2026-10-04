@@ -12,7 +12,7 @@ Foto's komen niet mee uit de GEDCOM. Voeg ze toe in het programma, of kopieer ze
 
 ## Meerdere stambomen
 
-**Bestand › Stambomen op deze pc …** toont alle stambomen met het aantal personen. Daar kun je er een openen, hernoemen (titel wijzigen, dan het vinkje of Enter) of verwijderen (nooit de laatste), nog een lege aanmaken of nog een GEDCOM-bestand overnemen. Lege restanten van eerdere mislukte imports – alleen de voorbeeldpersoon „John Doe” van webtrees – ruimt het programma bij het starten zelf op; een stamboom die je zelf leeg hebt aangemaakt, blijft staan.
+**Bestand › Stambomen op deze pc …** toont alle stambomen met het aantal personen. Daar kunt u er een openen, hernoemen (titel wijzigen, dan het vinkje of Enter) of verwijderen (nooit de laatste), nog een lege aanmaken of nog een GEDCOM-bestand overnemen. Lege restanten van eerdere mislukte imports – alleen de voorbeeldpersoon „John Doe” van webtrees – ruimt het programma bij het starten zelf op; een stamboom die u zelf leeg hebt aangemaakt, blijft staan.
 
 ## Waar de gegevens staan
 

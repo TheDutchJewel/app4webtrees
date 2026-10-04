@@ -1052,7 +1052,7 @@
     <string name="assoc_dialog_title">%1$s – %2$s</string>
     <string name="assoc_add_person">Persoon uit de stamboom …</string>
     <string name="assoc_add_free">Zonder record …</string>
-    <string name="assoc_free_hint">Naam, beroep, plaats – bijv. „Jan Jansen, landbouwer te Westkapelle“</string>
+    <string name="assoc_free_hint">Naam, beroep, plaats – bijv. „Friedrich Plate, landbouwer te Celle“</string>
     <string name="assoc_role_godparent">Doopgetuige</string>
     <string name="assoc_role_witness">Getuige</string>
     <string name="assoc_role_other">Anders</string>
@@ -1221,7 +1221,7 @@
     <string name="desk_place_merge_text">De plaats ‘%1$s’ bestaat al. Beide plaatsen worden samengevoegd; notities, bronnen en media van het locatierecord blijven behouden.</string>
     <string name="desk_place_conflict_gov">De GOV-codes verschillen – die van ‘%1$s’ blijft.</string>
     <string name="desk_place_conflict_coords">De coördinaten verschillen – die van ‘%1$s’ blijven.</string>
-    <string name="desk_place_rename_skipped">%1$d gebeurtenissen die je niet mag wijzigen (vergrendeld of vertrouwelijk) houden de oude naam.</string>
+    <string name="desk_place_rename_skipped">%1$d gebeurtenissen die u niet mag wijzigen (vergrendeld of vertrouwelijk) houden de oude naam.</string>
     <string name="desk_place_rename_moderated">Zonder automatische goedkeuring wachten de wijzigingen op een moderator.</string>
     <string name="desk_place_rename_do">Hernoemen</string>
     <string name="desk_place_merge_do">Samenvoegen</string>
@@ -1303,7 +1303,7 @@
     <string name="desk_media_type_map">Kaart</string>
     <string name="desk_media_type_certificate">Akte</string>
     <string name="desk_media_type_other">Overig</string>
-    <string name="desk_media_drop_hint">Je kunt ook bestanden uit de bestandsbeheerder hierheen slepen.</string>
+    <string name="desk_media_drop_hint">U kunt ook bestanden uit de bestandsbeheerder hierheen slepen.</string>
     <string name="desk_note_new">Nieuwe notitie</string>
     <string name="desk_note_edit">Notitie bewerken</string>
     <string name="desk_note_shared">gedeelde notitie – in webtrees bewerken</string>
