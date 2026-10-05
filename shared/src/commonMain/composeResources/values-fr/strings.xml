@@ -387,6 +387,12 @@
     <string name="desk_book_sort_alpha">alphabétique</string>
     <string name="desk_book_sort_chrono">chronologique</string>
     <string name="desk_book_place_filter">Lieu (livre des familles d’une commune, vide = tous)</string>
+    <string name="desk_book_houses">Maisons et fermes</string>
+    <string name="desk_book_houses_option">Maisons et fermes</string>
+    <string name="tipp_book_houses">Fermes et maisons de la gestion des lieux : lieux avec un type (ferme, maison …) dans leur fiche, sous le lieu. Pour chacune son histoire, ses habitants et propriétaires ; les familles renvoient à leur maison.</string>
+    <string name="desk_book_owner">Propriétaire</string>
+    <string name="desk_book_resident">Habitant</string>
+    <string name="desk_book_house_ref">Maison</string>
     <string name="desk_book_coming_family">Le livre de familles suivra.</string>
     <string name="desk_book_title_descendants">Descendance de %1$s</string>
     <string name="desk_book_descendants">Descendance</string>

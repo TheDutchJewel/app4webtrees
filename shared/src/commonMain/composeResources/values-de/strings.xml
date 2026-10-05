@@ -387,6 +387,12 @@
     <string name="desk_book_sort_alpha">alphabetisch</string>
     <string name="desk_book_sort_chrono">chronologisch</string>
     <string name="desk_book_place_filter">Ort (Ortsfamilienbuch, leer = alle)</string>
+    <string name="desk_book_houses">Häuser und Höfe</string>
+    <string name="desk_book_houses_option">Häuser und Höfe</string>
+    <string name="tipp_book_houses">Höfe und Häuser aus der Ortsverwaltung: Orte mit Art (Hof, Haus …) im Ortsdatensatz unter dem Ort. Je Haus Geschichte, Bewohner und Besitzer; die Familien verweisen auf ihr Haus.</string>
+    <string name="desk_book_owner">Besitzer</string>
+    <string name="desk_book_resident">Bewohner</string>
+    <string name="desk_book_house_ref">Haus</string>
     <string name="desk_book_coming_family">Familienbuch folgt.</string>
     <string name="desk_book_title_descendants">Nachfahren von %1$s</string>
     <string name="desk_book_descendants">Nachfahren</string>

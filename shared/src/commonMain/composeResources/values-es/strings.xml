@@ -387,6 +387,12 @@
     <string name="desk_book_sort_alpha">alfabético</string>
     <string name="desk_book_sort_chrono">cronológico</string>
     <string name="desk_book_place_filter">Lugar (libro de familias de la localidad, vacío = todos)</string>
+    <string name="desk_book_houses">Casas y granjas</string>
+    <string name="desk_book_houses_option">Casas y granjas</string>
+    <string name="tipp_book_houses">Granjas y casas del gestor de lugares: lugares con un tipo (granja, casa …) en su registro bajo el lugar. Cada una con su historia, habitantes y propietarios; las familias remiten a su casa.</string>
+    <string name="desk_book_owner">Propietario</string>
+    <string name="desk_book_resident">Habitante</string>
+    <string name="desk_book_house_ref">Casa</string>
     <string name="desk_book_coming_family">El libro de familias llegará más adelante.</string>
     <string name="desk_book_title_descendants">Descendientes de %1$s</string>
     <string name="desk_book_descendants">Descendientes</string>

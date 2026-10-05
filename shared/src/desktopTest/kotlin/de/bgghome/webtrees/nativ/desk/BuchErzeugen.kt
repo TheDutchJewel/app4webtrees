@@ -33,7 +33,7 @@ class BuchErzeugen {
         val t = (System.getenv("WT_BUCH") ?: "I1:7").split(':')
         if (t[0] == "Familien") {
             val o = BuchOptionen(ortFilter = t.getOrNull(1).orEmpty(), familienChronologisch = t.getOrNull(2) == "chrono")
-            val buch = familienbuch(runBlocking { familienbuchLaden(client, baum, true) { println(it) } }, o, titel, "wtTux")
+            val buch = familienbuch(runBlocking { familienbuchLaden(client, baum, true, haeuser = info.api >= de.bgghome.webtrees.nativ.api.API_LOC_HIERARCHY) { println(it) } }, o, titel, "wtTux")
             BuchFormat.entries.forEach { f -> buchSchreiben(buch, f, File(ziel, "familienbuch.${f.endung}")) }
             println("Buch: ${buch.bloecke.size} Bloecke")
             return

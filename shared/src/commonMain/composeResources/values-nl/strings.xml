@@ -379,6 +379,12 @@
     <string name="desk_book_sort_alpha">alfabetisch</string>
     <string name="desk_book_sort_chrono">chronologisch</string>
     <string name="desk_book_place_filter">Plaats (plaatselijk familieboek, leeg = alle)</string>
+    <string name="desk_book_houses">Huizen en boerderijen</string>
+    <string name="desk_book_houses_option">Huizen en boerderijen</string>
+    <string name="tipp_book_houses">Boerderijen en huizen uit het plaatsenbeheer: plaatsen met een soort (boerderij, huis …) in hun locatierecord onder de plaats. Per huis de geschiedenis, bewoners en eigenaren; de gezinnen verwijzen naar hun huis.</string>
+    <string name="desk_book_owner">Eigenaar</string>
+    <string name="desk_book_resident">Bewoner</string>
+    <string name="desk_book_house_ref">Huis</string>
     <string name="desk_book_coming_family">Familieboek volgt.</string>
     <string name="desk_book_title_descendants">Nakomelingen van %1$s</string>
     <string name="desk_book_descendants">Nakomelingen</string>

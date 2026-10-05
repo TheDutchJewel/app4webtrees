@@ -6,7 +6,7 @@
 
 - **Libro de antepasados:** todos los antepasados de la persona central por generación y número Sosa-Stradonitz, con fechas, bautismos, entierros, fuentes y notas. Las cuatro líneas de los abuelos, opcionalmente coloreadas en el margen.
 - **Libro de descendientes:** todos los descendientes generación por generación, con cónyuges, hijos y referencias; números según Saragossa, d’Aboville, Henry o correlativos; colores de rama por cada hijo de la pareja de origen.
-- **Libro de familias:** una entrada por familia, por orden alfabético o cronológico. Con un **filtro de lugar** se convierte en el libro de familias de una localidad. Necesita el árbol completo (api4webtrees 1.9 o posterior en el servidor).
+- **Libro de familias:** una entrada por familia, por orden alfabético o cronológico. Con un **filtro de lugar** se convierte en el libro de familias de una localidad. Necesita el árbol completo (api4webtrees 1.9 o posterior en el servidor). **Casas y granjas** (desde api4webtrees 1.15) añade una parte sobre los edificios: cada granja y casa del lugar del gestor de lugares (registros de lugar con un tipo bajo el lugar) con su historia y sus habitantes y propietarios en orden cronológico, cada uno con remisión a su familia; las familias remiten a su casa (H1, H2 …).
 
 ## Ajustes
 

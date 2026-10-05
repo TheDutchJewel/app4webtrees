@@ -86,6 +86,8 @@ data class BuchOptionen(
     /** Familienbuch: chronologisch statt alphabetisch; Ort = Ortsfamilienbuch (leer = alle Familien). */
     val familienChronologisch: Boolean = false,
     val ortFilter: String = "",
+    /** Familienbuch: Haeuserteil aus den Ortsdatensaetzen (Hoefe/Haeuser mit Art unter dem Ort), ab API-Stufe 27. */
+    val haeuser: Boolean = true,
 )
 
 // ── Formate der Angaben ──

@@ -6,7 +6,7 @@
 
 - **Ancestor book:** all ancestors of the central person by generation and Kekulé number, with dates, baptisms, burials, sources and notes. The four grandparent lines optionally coloured in the margin.
 - **Descendant book:** all descendants generation by generation, with spouses, children and references; numbers after Saragossa, d'Aboville, Henry or serial; branch colours per child of the root couple.
-- **Family book:** one entry per family, alphabetical or chronological. With a **place filter** it becomes a local family book. Needs the whole tree in one piece (api4webtrees 1.9 or later on the server).
+- **Family book:** one entry per family, alphabetical or chronological. With a **place filter** it becomes a local family book. Needs the whole tree in one piece (api4webtrees 1.9 or later on the server). **Houses and farms** (api4webtrees 1.15 or later) adds a section on the buildings: every farm and house of the place from the place manager (location records with a type below the place) with its history and its residents and owners in order of time, each pointing to the family; the families point back to their house (H1, H2 …).
 
 ## Settings
 

@@ -392,6 +392,12 @@
     <string name="desk_book_sort_alpha">alphabetical</string>
     <string name="desk_book_sort_chrono">chronological</string>
     <string name="desk_book_place_filter">Place (local family book, empty = all)</string>
+    <string name="desk_book_houses">Houses and farms</string>
+    <string name="desk_book_houses_option">Houses and farms</string>
+    <string name="tipp_book_houses">Farms and houses from the place manager: places with a type (farm, house …) in their location record below the place. Each with its history, residents and owners; families point to their house.</string>
+    <string name="desk_book_owner">Owner</string>
+    <string name="desk_book_resident">Resident</string>
+    <string name="desk_book_house_ref">House</string>
     <string name="desk_book_coming_family">Family book follows.</string>
     <string name="desk_book_title_descendants">Descendants of %1$s</string>
     <string name="desk_book_descendants">Descendants</string>

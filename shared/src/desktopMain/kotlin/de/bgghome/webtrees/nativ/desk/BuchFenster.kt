@@ -76,6 +76,7 @@ private object BuchWahl {
         nummerierung = Nummerierung.entries.firstOrNull { it.name == prefs.getString("buch_nr", null) } ?: Nummerierung.Saragossa,
         partner = prefs.getBoolean("buch_partner", true), namenstraeger = prefs.getBoolean("buch_namen", false),
         familienChronologisch = prefs.getBoolean("buch_chrono", false), ortFilter = prefs.getString("buch_ort", null).orEmpty(),
+        haeuser = prefs.getBoolean("buch_haeuser", true),
     )
     fun art(): BuchArt = BuchArt.entries.firstOrNull { it.name == prefs.getString("buch_art", null) } ?: BuchArt.Vorfahren
     fun sichern(o: BuchOptionen) {
@@ -84,7 +85,7 @@ private object BuchWahl {
         prefs.putBoolean("buch_doppelt", o.doppelteZeigen); prefs.putBoolean("buch_tafel", o.tafel); prefs.putBoolean("buch_reg_namen", o.namen); prefs.putBoolean("buch_reg_orte", o.orte)
         prefs.putBoolean("buch_reg_berufe", o.berufe); prefs.putBoolean("buch_reg_quellen", o.quellenVerzeichnis); prefs.putString("buch_vorwort", o.vorwort)
         prefs.putString("buch_nr", o.nummerierung.name); prefs.putBoolean("buch_partner", o.partner); prefs.putBoolean("buch_namen", o.namenstraeger)
-        prefs.putBoolean("buch_chrono", o.familienChronologisch); prefs.putString("buch_ort", o.ortFilter)
+        prefs.putBoolean("buch_chrono", o.familienChronologisch); prefs.putString("buch_ort", o.ortFilter); prefs.putBoolean("buch_haeuser", o.haeuser)
     }
 }
 
@@ -107,7 +108,7 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
             runCatching {
                 // Kurznamen der Orte fuer "Orte kuerzen" (Server ab API-Stufe 21; sonst bleibt es beim ersten Namensteil)
                 if ((state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_LIST) OrtsKurznamen.laden(viewModel.client, tree.name)
-                if (familien) familienbuchLaden(viewModel.client, tree.name, o.bilder) { fortschritt = it }
+                if (familien) familienbuchLaden(viewModel.client, tree.name, o.bilder, haeuser = (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_LOC_HIERARCHY) { fortschritt = it }
                 else if (nachfahren) nachfahrenbuchLaden(viewModel.client, tree.name, root, o.generationen, o.bilder) { fortschritt = it }
                 else vorfahrenbuchLaden(viewModel.client, tree.name, root, o.generationen, o.bilder) { fortschritt = it }
             }
@@ -168,6 +169,8 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                             Auswahl(werte[if (o.familienChronologisch) 1 else 0], werte) { w -> o = o.copy(familienChronologisch = werte.indexOf(w) == 1) }
                         }
                         OutlinedTextField(o.ortFilter, { o = o.copy(ortFilter = it) }, label = { Text(stringResource(Res.string.desk_book_place_filter)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                        if ((state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_LOC_HIERARCHY)
+                            Haken(stringResource(Res.string.desk_book_houses_option), o.haeuser, stringResource(Res.string.tipp_book_houses)) { o = o.copy(haeuser = it) }
                     }
                     if (!familien) Einstellung(stringResource(Res.string.desk_chart_person)) { Text(wer, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold) }
                     if (!familien) Einstellung(stringResource(Res.string.desk_chart_generations)) {
