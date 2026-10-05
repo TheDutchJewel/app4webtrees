@@ -146,7 +146,7 @@ fun DeskFamilie(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
     val nachfahren by produceState<Map<String, DescendantNode>>(emptyMap(), root, tree, neu) {
         if (root == null || tree == null) { value = emptyMap(); return@produceState }
         value = withContext(Dispatchers.IO) {
-            runCatching { viewModel.client.descendants(tree, root, 2).tree.families.flatMap { it.children }.associateBy { it.person.xref } }.getOrNull().orEmpty()
+            runCatching { viewModel.client.descendants(tree, root, 3).tree.families.flatMap { it.children }.associateBy { it.person.xref } }.getOrNull().orEmpty()
         }
     }
 
@@ -195,9 +195,14 @@ private fun Familie(
     val karte = KartenAktionen(state, viewModel, openWeb, openSheet, canEdit)
     val scroll = rememberScrollState()
     val farben = MaterialTheme.colorScheme
+    val kinder = familie?.children.orEmpty()
 
-    Box(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize().verticalScroll(scroll).padding(horizontal = 24.dp, vertical = 12.dp)) {
+    androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxSize()) {
+        val gesamtBreite = maxWidth
+        // Drei Baender - Vorfahren, Paar, Nachkommen - teilen sich die Fensterhoehe; erst wenn der Inhalt hoeher ist, wird gerollt
+        Column(Modifier.fillMaxWidth().heightIn(min = maxHeight).verticalScroll(scroll).padding(horizontal = 24.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.SpaceBetween) {
+          Column {
             // ── Generationen nach oben ──
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Spacer(Modifier.weight(1f))
@@ -271,6 +276,8 @@ private fun Familie(
                 Spacer(Modifier.height(12.dp))
             }
 
+          }
+          Column {
             // ── Das Paar als Karten ──
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
                 Box(Modifier.weight(1f)) { PaarKarte(mann, unbekannterPartner("F"), karte, if (familie == null) p.xref else null) }
@@ -281,7 +288,6 @@ private fun Familie(
             }
 
             // ── Statuszeile der Partnerschaft: Heiraten, Zahl der Kinder, Kind hinzufuegen ──
-            val kinder = familie?.children.orEmpty()
             Spacer(Modifier.height(10.dp))
             Row(
                 Modifier.fillMaxWidth().background(farben.surfaceVariant.copy(alpha = 0.5f), MaterialTheme.shapes.small).padding(horizontal = 12.dp, vertical = 6.dp),
@@ -315,17 +321,22 @@ private fun Familie(
                 PatenZeilen(h, onPerson = viewModel::select, modifier = Modifier.fillMaxWidth().padding(top = 6.dp))
             }
 
-            // ── Kinder als Kaesten nebeneinander, darunter Partner und Enkel ──
+          }
+          Column {
+            // ── Kinder mit ihren Partnern als Karten nebeneinander, darunter die Enkel als eigene Reihe ──
             Spacer(Modifier.height(12.dp))
             if (kinder.isEmpty()) {
                 Text(stringResource(Res.string.desk_family_no_children), style = MaterialTheme.typography.bodyMedium,
                     color = farben.onSurfaceVariant, modifier = Modifier.padding(vertical = 8.dp))
             } else {
                 val waagrecht = rememberScrollState()
-                Row(Modifier.fillMaxWidth().horizontalScroll(waagrecht), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
-                    kinder.forEach { k -> KindKarte(k, daten.nachfahren[k.xref], karte) }
+                // So breit, dass alle Kinder nebeneinander passen; unter 300 dp je Kind wird waagrecht gerollt
+                val breite = ((gesamtBreite - 48.dp - 14.dp * (kinder.size - 1)) / kinder.size).coerceAtLeast(250.dp)
+                Row(Modifier.fillMaxWidth().horizontalScroll(waagrecht), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
+                    kinder.forEach { k -> KindFamilie(k, daten.nachfahren[k.xref], karte, breite) }
                 }
             }
+          }
         }
         SenkrechteLeiste(scroll)
     }
@@ -493,47 +504,88 @@ private fun GeschwisterChip(g: Person, halb: Boolean, a: KartenAktionen) {
 }
 
 /**
- * Ein Kind als Kasten: Bild, Name, Geburt und Tod; darunter je Partnerschaft der Partner (anklickbar) und die Enkel als
- * kleine Reiter. Ohne Nachfahrendaten nur die Ehen aus der Personenabfrage. Doppelklick fuehrt in die Familie des Kindes.
+ * Ein Kind mit seiner Familie: das Kind und sein Partner als Karten nebeneinander (⚭ mit Jahr dazwischen), weitere
+ * Partner als Zeilen, darunter die Enkel als kleine Kaesten. Ohne Nachfahrendaten nur die Ehen aus der Personenabfrage.
+ * Doppelklick auf das Kind fuehrt in seine Familie.
  */
 @Composable
-private fun KindKarte(k: Person, node: DescendantNode?, a: KartenAktionen) {
-    val shape = MaterialTheme.shapes.small
+private fun KindFamilie(k: Person, node: DescendantNode?, a: KartenAktionen, breite: Dp) {
     val farben = MaterialTheme.colorScheme
-    Column(Modifier.width(230.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Anklickbar(k, a) { klick ->
-            Column(Modifier.fillMaxWidth().kartenRahmen(k, a, shape, dick = false).then(klick).padding(8.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Avatar(k, 44.dp)
-                    Spacer(Modifier.width(8.dp))
-                    Text(if (k.isPrivate) stringResource(Res.string.person_private) else k.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
-                        maxLines = 2, overflow = TextOverflow.Ellipsis)
-                }
-                if (!k.isPrivate) {
-                    Spacer(Modifier.height(4.dp))
-                    ereignisZeile("*", k.birth ?: k.chr)?.let { Text(it, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-                    ereignisZeile("†", k.death ?: k.buri)?.let { Text(it, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+    val familien = node?.families.orEmpty()
+    val erste = familien.firstOrNull()
+    // Kind und Partner nebeneinander, wenn Platz ist, sonst untereinander (viele Kinder)
+    val nebeneinander = breite >= 460.dp
+    Column(Modifier.width(breite), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        @Composable
+        fun partnerKarte(f: de.bgghome.webtrees.nativ.api.DescendantFamily) {
+            val sp = f.spouse
+            if (sp != null && !sp.isPrivate) KindKarte(sp, a)
+            else Box(Modifier.fillMaxWidth().height(88.dp).border(1.dp, farben.outlineVariant, MaterialTheme.shapes.small), contentAlignment = Alignment.Center) {
+                Text(if (sp?.isPrivate == true) stringResource(Res.string.person_private) else unbekannterPartner(k.sex), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+            }
+        }
+        @Composable
+        fun ringe(f: de.bgghome.webtrees.nativ.api.DescendantFamily, senkrecht: Boolean) {
+            val jahr = f.marriage?.date?.year?.takeIf { it > 0 }?.toString().orEmpty()
+            if (senkrecht) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Text("⚭ $jahr".trim(), style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
+            } else Column(Modifier.width(44.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("⚭", style = MaterialTheme.typography.titleMedium, color = farben.onSurfaceVariant)
+                if (jahr.isNotEmpty()) Text(jahr, style = MaterialTheme.typography.labelSmall, color = farben.onSurfaceVariant)
+            }
+        }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.weight(1f)) { KindKarte(k, a) }
+            if (erste != null && nebeneinander) {
+                ringe(erste, false)
+                Box(Modifier.weight(1f)) { partnerKarte(erste) }
+            } else if (erste == null && k.marriages.isNotEmpty()) {
+                // Nachfahrendaten fehlen (noch): die Ehen als Text
+                Column(Modifier.weight(1f).padding(start = 10.dp)) {
+                    k.marriages.forEach { m -> Text("⚭ " + m.spouse.ifBlank { "?" } + (m.date?.year?.takeIf { it > 0 }?.let { " ($it)" }.orEmpty()),
+                        style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis) }
                 }
             }
         }
-        if (k.isPrivate) return@Column
-        // Partner und Enkel
-        if (node != null && node.families.isNotEmpty()) node.families.forEach { f ->
-            Column(Modifier.fillMaxWidth().padding(start = 10.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                val jahr = f.marriage?.date?.year?.takeIf { it > 0 }?.let { " ($it)" }.orEmpty()
-                val sp = f.spouse
-                if (sp != null && !sp.isPrivate) Anklickbar(sp, a) { klick ->
-                    Text("⚭ " + klarName(sp) + jahr, Modifier.then(klick).padding(horizontal = 4.dp, vertical = 2.dp), style = MaterialTheme.typography.bodySmall,
-                        color = farben.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                } else Text("⚭ " + (if (sp?.isPrivate == true) stringResource(Res.string.person_private) else "?") + jahr, style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
-                @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    f.children.forEach { e -> GeschwisterChip(e.person, false, a) }
-                }
+        if (erste != null && !nebeneinander) { ringe(erste, true); partnerKarte(erste) }
+        // Weitere Partner als Zeilen
+        familien.drop(1).forEach { f ->
+            val sp = f.spouse
+            val jahr = f.marriage?.date?.year?.takeIf { it > 0 }?.let { " ($it)" }.orEmpty()
+            if (sp != null && !sp.isPrivate) Anklickbar(sp, a) { klick ->
+                Text("⚭ " + klarName(sp) + jahr, Modifier.then(klick).padding(horizontal = 4.dp, vertical = 2.dp), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            } else Text("⚭ " + (if (sp?.isPrivate == true) stringResource(Res.string.person_private) else "?") + jahr, style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+        }
+        // Enkel: eine Reihe kleiner Kaesten unter dem Paar
+        val enkel = familien.flatMap { it.children }.map { it.person }.distinctBy { it.xref }
+        if (enkel.isNotEmpty()) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) { Linie() }
+            @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+            val spalten = if (nebeneinander) 3 else 2
+            androidx.compose.foundation.layout.FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp), maxItemsInEachRow = spalten) {
+                enkel.forEach { e -> Box(Modifier.width((breite - 6.dp * (spalten - 1)) / spalten)) { AhnKarte(e, 3, a) } }
             }
-        } else k.marriages.forEach { m ->
-            Text("⚭ " + m.spouse.ifBlank { "?" } + (m.date?.year?.takeIf { it > 0 }?.let { " ($it)" }.orEmpty()), Modifier.padding(start = 10.dp),
-                style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+/** Ein Kind oder sein Partner als Karte: Bild, Name, Geburt und Tod. */
+@Composable
+private fun KindKarte(k: Person, a: KartenAktionen) {
+    val shape = MaterialTheme.shapes.small
+    Anklickbar(k, a) { klick ->
+        Column(Modifier.fillMaxWidth().height(88.dp).kartenRahmen(k, a, shape, dick = false).then(klick).padding(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Avatar(k, 36.dp)
+                Spacer(Modifier.width(8.dp))
+                Text(if (k.isPrivate) stringResource(Res.string.person_private) else k.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            if (!k.isPrivate) {
+                Spacer(Modifier.height(3.dp))
+                Text(ereignisZeile("*", k.birth ?: k.chr) ?: " ", style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(ereignisZeile("†", k.death ?: k.buri) ?: " ", style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
         }
     }
 }

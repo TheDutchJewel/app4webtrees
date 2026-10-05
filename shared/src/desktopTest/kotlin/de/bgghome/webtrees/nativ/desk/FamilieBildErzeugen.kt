@@ -46,15 +46,24 @@ class FamilieBildErzeugen {
             if (vm.state.value.screen == Screen.Trees) vm.state.value.info?.trees?.firstOrNull { it.name == baum }?.let { vm.chooseTree(it) }
         }
         check(vm.state.value.screen == Screen.Main) { "Anmeldung fehlgeschlagen: ${vm.state.value.error} screen=${vm.state.value.screen} busy=${vm.state.value.busy} tree=${vm.state.value.tree?.name} info=${vm.state.value.info?.api}" }
+        // Erst warten, bis der Start die Startperson gesetzt hat - sonst ueberschreibt sie das gewaehlte xref
+        var start = 0
+        while ((vm.state.value.root == null || vm.state.value.busy) && start++ < 100) Thread.sleep(100)
+        Thread.sleep(2000)
         val (bw, bh, dichte) = (System.getenv("WT_BILD") ?: "1900:1000:1.25").split(':')
         (System.getenv("WT_XREFS") ?: "I1").split(' ').filter(String::isNotBlank).forEach { xref ->
+            var w = 0
+            while (vm.state.value.busy && w++ < 100) Thread.sleep(100)
             vm.setRoot(xref)
-            Thread.sleep(1500)
+            w = 0
+            while ((vm.state.value.root != xref || vm.state.value.busy) && w++ < 100) Thread.sleep(100)
+            check(vm.state.value.root == xref) { "Person $xref nicht geladen: ${vm.state.value.error}" }
+            Thread.sleep(2500)
             ImageComposeScene(width = bw.toInt(), height = bh.toInt(), density = Density(dichte.toFloat())) {
                 val st by vm.state.collectAsState()
                 DeskTheme { DeskFamilie(st, vm, {}, {}) }
             }.use { scene ->
-                scene.render(); (1..40).forEach { scene.render(it * 50_000_000L); Thread.sleep(60) }
+                scene.render(); (1..60).forEach { scene.render(it * 50_000_000L); Thread.sleep(60) }
                 File(ziel, "familie-$xref.png").writeBytes(scene.render(2_100_000_000L).encodeToData(EncodedImageFormat.PNG)!!.bytes)
             }
         }
