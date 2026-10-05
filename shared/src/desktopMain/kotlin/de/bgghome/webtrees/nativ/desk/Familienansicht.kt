@@ -5,6 +5,7 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -71,6 +72,14 @@ import de.bgghome.webtrees.nativ.ui.select
 import de.bgghome.webtrees.nativ.ui.setRoot
 import de.bgghome.webtrees.nativ.ui.setSection
 import de.bgghome.webtrees.nativ.ui.treeColors
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.unit.Constraints
+import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
@@ -114,7 +123,7 @@ fun DeskFamilie(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
     val root = state.root
     val tree = state.tree?.name
     var neu by remember { mutableIntStateOf(0) }
-    var generationen by remember { mutableIntStateOf((DeskLayout.prefs.getString("familie_gen", null)?.toIntOrNull() ?: 3).coerceIn(GEN_MIN, GEN_MAX)) }
+    var generationen by remember { mutableIntStateOf((DeskLayout.prefs.getString("familie_gen", null)?.toIntOrNull() ?: 4).coerceIn(GEN_MIN, GEN_MAX)) }
     // Nach dem Speichern (Verwandte hinzufuegen, Ereignis) neu laden
     var warBeschaeftigt by remember { mutableStateOf(false) }
     LaunchedEffect(state.busy) { if (warBeschaeftigt && !state.busy) neu++; warBeschaeftigt = state.busy }
@@ -176,6 +185,7 @@ fun DeskFamilie(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Familie(
     state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, openSheet: ((String) -> Unit)?, daten: PaarDaten,
@@ -197,19 +207,32 @@ private fun Familie(
     val farben = MaterialTheme.colorScheme
     val kinder = familie?.children.orEmpty()
 
-    androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxSize()) {
-        val gesamtBreite = maxWidth
-        // Drei Baender - Vorfahren, Paar, Nachkommen - teilen sich die Fensterhoehe; erst wenn der Inhalt hoeher ist, wird gerollt
-        Column(Modifier.fillMaxWidth().heightIn(min = maxHeight).verticalScroll(scroll).padding(horizontal = 24.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.SpaceBetween) {
+    // Zoom: null = einpassen (Inhalt fuellt die Fensterhoehe, hoechstens 1,8-fach), sonst vom Benutzer per Strg+Mausrad
+    var zoomWahl by remember { mutableStateOf<Float?>(null) }
+    val zoomAkt = remember { mutableStateOf(1f) }
+    Column(Modifier.fillMaxSize()) {
+        // ── Kopfzeile: Generationen nach oben, Zoom ──
+        Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Spacer(Modifier.weight(1f))
+            Text("${(zoomAkt.value * 100).roundToInt()} %", Modifier.clickable { zoomWahl = null }, style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
+            Spacer(Modifier.width(16.dp))
+            Text(stringResource(Res.string.tree_generations, generationen), style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
+            TextButton(onClick = { onGenerationen(generationen - 1) }, enabled = generationen > GEN_MIN) { Text("−") }
+            TextButton(onClick = { onGenerationen(generationen + 1) }, enabled = generationen < GEN_MAX) { Text("+") }
+        }
+        val zoomJetzt by androidx.compose.runtime.rememberUpdatedState(zoomAkt.value)
+        Box(Modifier.fillMaxSize().onPointerEvent(PointerEventType.Scroll, PointerEventPass.Initial) { e ->
+            val c = e.changes.firstOrNull() ?: return@onPointerEvent
+            if (!e.keyboardModifiers.isCtrlPressed || c.scrollDelta.y == 0f) return@onPointerEvent
+            zoomWahl = (zoomJetzt * 1.1f.pow(-c.scrollDelta.y)).coerceIn(ZOOM_MIN, ZOOM_MAX)
+            c.consume()
+        }) {
+          androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxSize()) {
+          val fensterHoehe = maxHeight
+          Box(Modifier.fillMaxSize().verticalScroll(scroll)) {
+          Eingepasst(zoomWahl, fensterHoehe, onZoom = { zoomAkt.value = it }) { gesamtBreite ->
+          Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp)) {
           Column {
-            // ── Generationen nach oben ──
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Spacer(Modifier.weight(1f))
-                Text(stringResource(Res.string.tree_generations, generationen), style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
-                TextButton(onClick = { onGenerationen(generationen - 1) }, enabled = generationen > GEN_MIN) { Text("−") }
-                TextButton(onClick = { onGenerationen(generationen + 1) }, enabled = generationen < GEN_MAX) { Text("+") }
-            }
 
             // ── Vorfahren ab den Grosseltern: oben die aelteste Generation, je Seite 2^(g-1) Plaetze ──
             for (g in generationen downTo 3) {
@@ -225,7 +248,8 @@ private fun Familie(
                                     Box(Modifier.weight(1f)) { if (a != null) AhnKarte(a.person, g, karte) else Spacer(Modifier.fillMaxWidth()) }
                                 }
                             }
-                            if (seite.isNotEmpty()) Linie()
+                            // Jedes Elternpaar dieser Reihe laeuft in einer Linie zu seinem Kind in der Reihe darunter zusammen
+                            if (seite.isNotEmpty()) Verbindungen(bis - von + 1, seite.map { it.n - von }.toSet())
                         }
                     }
                 }
@@ -243,7 +267,7 @@ private fun Familie(
                                 Box(Modifier.weight(1f)) { PersonKarte(eltern?.husband, stringResource(Res.string.desk_unknown_father), karte, kind.xref, "father") }
                                 Box(Modifier.weight(1f)) { PersonKarte(eltern?.wife, stringResource(Res.string.desk_unknown_mother), karte, kind.xref, "mother") }
                             }
-                            Linie()
+                            Verbindungen(2, setOfNotNull(eltern?.husband?.let { 0 }, eltern?.wife?.let { 1 }), hoehe = 22.dp)
                         }
                     }
                 }
@@ -330,15 +354,84 @@ private fun Familie(
                     color = farben.onSurfaceVariant, modifier = Modifier.padding(vertical = 8.dp))
             } else {
                 val waagrecht = rememberScrollState()
-                // So breit, dass alle Kinder nebeneinander passen; unter 300 dp je Kind wird waagrecht gerollt
+                // So breit, dass alle Kinder nebeneinander passen; unter 250 dp je Kind wird waagrecht gerollt
                 val breite = ((gesamtBreite - 48.dp - 14.dp * (kinder.size - 1)) / kinder.size).coerceAtLeast(250.dp)
-                Row(Modifier.fillMaxWidth().horizontalScroll(waagrecht), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
-                    kinder.forEach { k -> KindFamilie(k, daten.nachfahren[k.xref], karte, breite) }
+                Column(Modifier.fillMaxWidth().horizontalScroll(waagrecht)) {
+                    // Linie vom Paar herunter und ueber alle Kinder hinweg
+                    val gesamt = breite * kinder.size + 14.dp * (kinder.size - 1)
+                    KinderLinien(kinder.size, breite, 14.dp, mitte = minOf(gesamt / 2, (gesamtBreite - 48.dp) / 2))
+                    Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
+                        kinder.forEach { k -> KindFamilie(k, daten.nachfahren[k.xref], karte, breite) }
+                    }
                 }
             }
           }
+          }
+          }
+          }
+          SenkrechteLeiste(scroll)
+          }
         }
-        SenkrechteLeiste(scroll)
+    }
+}
+
+private const val ZOOM_MIN = 0.6f
+private const val ZOOM_MAX = 1.8f
+
+/**
+ * Misst den Inhalt in voller Breite und skaliert ihn, bis er die Fensterhoehe fuellt (hoechstens [ZOOM_MAX]), oder auf den
+ * vom Benutzer gewaehlten Faktor. Der Inhalt bekommt die durch den Faktor geteilte Breite, damit er skaliert wieder die
+ * ganze Breite einnimmt; Rollen passt sich der skalierten Hoehe an.
+ */
+@Composable
+private fun Eingepasst(zoomWahl: Float?, fenster: Dp, onZoom: (Float) -> Unit, inhalt: @Composable (breite: Dp) -> Unit) {
+    androidx.compose.ui.layout.SubcomposeLayout(Modifier.fillMaxWidth()) { constraints ->
+        val fensterHoehe = fenster.roundToPx().takeIf { it > 0 }
+        val breite = constraints.maxWidth
+        // Erst messen, wie hoch der Inhalt ohne Zoom ist
+        val mess = subcompose("mess") { inhalt(breite.toDp()) }.first().measure(Constraints(minWidth = breite, maxWidth = breite))
+        val zoom = zoomWahl ?: if (fensterHoehe == null || mess.height == 0) 1f else (fensterHoehe.toFloat() / mess.height).coerceIn(1f, ZOOM_MAX)
+        onZoom(zoom)
+        val innen = (breite / zoom).roundToInt()
+        val p = subcompose("inhalt") { inhalt(innen.toDp()) }.first().measure(Constraints(minWidth = innen, maxWidth = innen))
+        layout(breite, (p.height * zoom).roundToInt()) {
+            p.placeWithLayer(0, 0) { scaleX = zoom; scaleY = zoom; transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0f, 0f) }
+        }
+    }
+}
+
+/**
+ * Verbindungslinien unter einer Ahnenreihe mit [n] gleich breiten Plaetzen: Platz 2k und 2k+1 sind ein Elternpaar und
+ * laufen zur Mitte zusammen, von dort geht es zum Kind in der Reihe darunter (dessen Platz liegt genau unter der Mitte).
+ */
+@Composable
+private fun Verbindungen(n: Int, vorhanden: Set<Int>, hoehe: Dp = 18.dp) {
+    val farbe = treeColors.connector
+    androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(hoehe)) {
+        val w = size.width; val h = size.height; val strich = 1.5.dp.toPx()
+        for (k in 0 until n / 2) {
+            val a = 2 * k; val b = 2 * k + 1
+            if (a !in vorhanden && b !in vorhanden) continue
+            val xa = w * (a + 0.5f) / n; val xb = w * (b + 0.5f) / n; val xm = (xa + xb) / 2
+            if (a in vorhanden) drawLine(farbe, androidx.compose.ui.geometry.Offset(xa, 0f), androidx.compose.ui.geometry.Offset(xa, h / 2), strich)
+            if (b in vorhanden) drawLine(farbe, androidx.compose.ui.geometry.Offset(xb, 0f), androidx.compose.ui.geometry.Offset(xb, h / 2), strich)
+            drawLine(farbe, androidx.compose.ui.geometry.Offset(if (a in vorhanden) xa else xm, h / 2), androidx.compose.ui.geometry.Offset(if (b in vorhanden) xb else xm, h / 2), strich)
+            drawLine(farbe, androidx.compose.ui.geometry.Offset(xm, h / 2), androidx.compose.ui.geometry.Offset(xm, h), strich)
+        }
+    }
+}
+
+/** Vom Paar eine Linie herunter, waagrecht ueber alle Kinder, je Kind ein Abzweig nach unten. */
+@Composable
+private fun KinderLinien(n: Int, breite: Dp, abstand: Dp, mitte: Dp) {
+    val farbe = treeColors.connector
+    androidx.compose.foundation.Canvas(Modifier.width(breite * n + abstand * (n - 1)).height(20.dp)) {
+        val h = size.height; val strich = 1.5.dp.toPx()
+        val xs = (0 until n).map { i -> (breite * i + abstand * i + breite / 2).toPx() }
+        val xm = mitte.toPx()
+        drawLine(farbe, androidx.compose.ui.geometry.Offset(xm, 0f), androidx.compose.ui.geometry.Offset(xm, h / 2), strich)
+        drawLine(farbe, androidx.compose.ui.geometry.Offset(minOf(xs.first(), xm), h / 2), androidx.compose.ui.geometry.Offset(maxOf(xs.last(), xm), h / 2), strich)
+        xs.forEach { x -> drawLine(farbe, androidx.compose.ui.geometry.Offset(x, h / 2), androidx.compose.ui.geometry.Offset(x, h), strich) }
     }
 }
 
