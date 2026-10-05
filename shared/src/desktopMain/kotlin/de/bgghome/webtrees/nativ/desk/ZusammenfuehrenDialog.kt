@@ -150,27 +150,11 @@ internal fun ZusammenfuehrenDialogInhalt(start: Dublette, zugriff: Zusammenfuehr
                     vorschau == null -> Box(Modifier.fillMaxWidth().padding(30.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                     v == null -> Text(vorschau?.exceptionOrNull()?.message ?: "?", color = farben.error)
                     else -> {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Spalte(Modifier.weight(1f), stringResource(Res.string.desk_merge_keeps), v.person1, v.facts1, keep1) { id, an -> keep1 = if (an) keep1 + id else keep1 - id }
-                            Spalte(Modifier.weight(1f), stringResource(Res.string.desk_merge_goes), v.person2, v.facts2, keep2) { id, an -> keep2 = if (an) keep2 + id else keep2 - id }
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            TextButton(onClick = { paar = paar.umgedreht() }) { Text("⇄  " + stringResource(Res.string.desk_merge_swap)) }
-                            Text(stringResource(Res.string.desk_merge_same_hint), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
-                        }
-                        HorizontalDivider(color = farben.outlineVariant)
-                        if (v.links.isEmpty()) Text(stringResource(Res.string.desk_merge_links_none, v.person2.name), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
-                        else Text(stringResource(Res.string.desk_merge_links, v.person1.name, v.links.joinToString { "${it.name} (${it.xref})" }),
-                            style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
-                        if (v.suggestions.isNotEmpty()) {
-                            Text(stringResource(Res.string.desk_merge_suggestions), style = MaterialTheme.typography.labelLarge)
-                            v.suggestions.forEach { s ->
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { weitere = if (s.schluessel in weitere) weitere - s.schluessel else weitere + s.schluessel }) {
-                                    Checkbox(checked = s.schluessel in weitere, onCheckedChange = { weitere = if (it) weitere + s.schluessel else weitere - s.schluessel })
-                                    Text("${rolle(s.role)}: ${s.name1} (${s.xref1})  ←  ${s.name2} (${s.xref2})", style = MaterialTheme.typography.bodyMedium)
-                                }
-                            }
-                        }
+                        ZusammenfuehrenVorschau(v, keep1, keep2, weitere,
+                            onKeep1 = { id, an -> keep1 = if (an) keep1 + id else keep1 - id },
+                            onKeep2 = { id, an -> keep2 = if (an) keep2 + id else keep2 - id },
+                            onWeitere = { k -> weitere = if (k in weitere) weitere - k else weitere + k },
+                            onTauschen = { paar = paar.umgedreht() })
                         fehler?.let { Text(it, color = farben.error) }
                     }
                 }
@@ -195,6 +179,38 @@ internal fun ZusammenfuehrenDialogInhalt(start: Dublette, zugriff: Zusammenfuehr
         },
         dismissButton = { TextButton(onClick = { onClose(geaendert) }) { Text(stringResource(Res.string.action_cancel)) } },
     )
+}
+
+/** Der Inhalt der Vorschau - ohne Dialograhmen, damit er sich auch ohne Server zeichnen laesst. */
+@Composable
+internal fun ZusammenfuehrenVorschau(
+    v: MergePreview, keep1: Set<String>, keep2: Set<String>, weitere: Set<String>,
+    onKeep1: (String, Boolean) -> Unit, onKeep2: (String, Boolean) -> Unit, onWeitere: (String) -> Unit, onTauschen: () -> Unit,
+) {
+    val farben = MaterialTheme.colorScheme
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Spalte(Modifier.weight(1f), stringResource(Res.string.desk_merge_keeps), v.person1, v.facts1, keep1, onKeep1)
+            Spalte(Modifier.weight(1f), stringResource(Res.string.desk_merge_goes), v.person2, v.facts2, keep2, onKeep2)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onTauschen) { Text("⇄  " + stringResource(Res.string.desk_merge_swap)) }
+            Text(stringResource(Res.string.desk_merge_same_hint), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+        }
+        HorizontalDivider(color = farben.outlineVariant)
+        if (v.links.isEmpty()) Text(stringResource(Res.string.desk_merge_links_none, v.person2.name), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+        else Text(stringResource(Res.string.desk_merge_links, v.person1.name, v.links.joinToString { "${it.name} (${it.xref})" }),
+            style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+        if (v.suggestions.isNotEmpty()) {
+            Text(stringResource(Res.string.desk_merge_suggestions), style = MaterialTheme.typography.labelLarge)
+            v.suggestions.forEach { s ->
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { onWeitere(s.schluessel) }) {
+                    Checkbox(checked = s.schluessel in weitere, onCheckedChange = { onWeitere(s.schluessel) })
+                    Text("${rolle(s.role)}: ${s.name1} (${s.xref1})  ←  ${s.name2} (${s.xref2})", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+    }
 }
 
 private val MergeSuggestion.schluessel: String get() = "$xref1|$xref2"
