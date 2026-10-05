@@ -162,7 +162,7 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
                 }
             }
             bearbeiten?.let { o ->
-                OrtDialog(tree.orEmpty(), o, viewModel.client, state.info?.user?.isAdmin == true, openWeb, onDismiss = { bearbeiten = null }) { r ->
+                OrtDialog(tree.orEmpty(), o, viewModel.client, state.info?.user?.isAdmin == true, openWeb, onDismiss = { bearbeiten = null }, apiStufe = state.info?.api ?: 0) { r ->
                     meldung = listOfNotNull(
                         r.linked?.takeIf { it > 0 }?.let { de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_linked, it) },
                         if (r.pending) de.bgghome.webtrees.nativ.Texte.t(Res.string.msg_pending, o.name) else null,
@@ -270,8 +270,8 @@ internal fun OrteInhalt(
 }
 
 private enum class OrtReiter(val titel: StringResource) {
-    Daten(Res.string.desk_place_tab_data), Personen(Res.string.desk_place_tab_people), Notizen(Res.string.desk_tab_notes),
-    Quellen(Res.string.desk_sources_window), Medien(Res.string.tab_media), Koordinaten(Res.string.desk_place_tab_coords),
+    Daten(Res.string.desk_place_tab_data), Personen(Res.string.desk_place_tab_people), Geschichte(Res.string.desk_place_tab_history),
+    Notizen(Res.string.desk_tab_notes), Quellen(Res.string.desk_sources_window), Medien(Res.string.tab_media), Koordinaten(Res.string.desk_place_tab_coords),
 }
 
 @Composable
@@ -283,6 +283,7 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
     // Wie viel in einem Reiter steht - 0 = leer (der Reiter bleibt, steht aber blasser)
     fun anzahl(r: OrtReiter): Int = when (r) {
         OrtReiter.Personen -> o.individuals.size + o.families.size + o.moreIndividuals + o.moreFamilies
+        OrtReiter.Geschichte -> geschichte(o).size
         OrtReiter.Daten -> 1
         OrtReiter.Notizen -> loc?.notes?.size ?: 0
         OrtReiter.Quellen -> loc?.sources?.size ?: 0
@@ -331,6 +332,7 @@ private fun OrtDetail(o: PlaceDetail, viewModel: AppViewModel?, onWahl: (String)
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (reiter) {
                 OrtReiter.Personen -> Rollbar { Personen(o, viewModel, onBlatt) }
+                OrtReiter.Geschichte -> Rollbar { Geschichte(o, viewModel, onBlatt) }
                 OrtReiter.Daten -> Rollbar { Daten(o, onWahl, openWeb, viewModel?.client?.userAgent) }
                 OrtReiter.Notizen -> Rollbar { OrtNotizen(o, pflege) }
                 OrtReiter.Quellen -> Rollbar { OrtQuellen(o, pflege, openWeb) }
@@ -355,6 +357,55 @@ private fun Leer() = Text(stringResource(Res.string.desk_place_nothing), color =
 
 /** "Geburt 1800, Taufe 1800" */
 private fun ereignisse(f: List<PlaceEvent>) = f.joinToString(", ") { e -> listOfNotNull(e.label, e.date?.year?.takeIf { it > 0 }?.toString()).joinToString(" ") }
+
+/**
+ * Ein Eintrag der Ortsgeschichte: ein Ereignis am Ort selbst (EVEN am _LOC: Brand, Umbau ...) oder ein Ereignis einer
+ * Person oder Familie hier (Geburt, Wohnort, Heirat ...). Sortiert nach dem Datum; ohne Datum ans Ende.
+ */
+internal data class GeschichtsEintrag(val jd: Int, val datum: String, val was: String, val wer: String?, val xref: String?, val amOrt: Boolean, val notizen: List<String> = emptyList())
+
+internal fun geschichte(o: PlaceDetail): List<GeschichtsEintrag> {
+    val eintraege = mutableListOf<GeschichtsEintrag>()
+    o.location?.events?.forEach { e ->
+        eintraege += GeschichtsEintrag(e.date?.jd?.takeIf { it > 0 } ?: Int.MAX_VALUE, e.date?.text.orEmpty(),
+            listOfNotNull(e.type ?: e.label.takeIf(String::isNotBlank), e.value).joinToString(": "), null, null, true, e.notes)
+    }
+    o.individuals.forEach { p -> p.facts.forEach { f ->
+        eintraege += GeschichtsEintrag(f.date?.jd?.takeIf { it > 0 } ?: Int.MAX_VALUE, f.date?.text.orEmpty(), f.label, p.name, p.xref, false)
+    } }
+    o.families.forEach { fam -> fam.facts.forEach { f ->
+        eintraege += GeschichtsEintrag(f.date?.jd?.takeIf { it > 0 } ?: Int.MAX_VALUE, f.date?.text.orEmpty(), f.label, fam.name, fam.husband ?: fam.wife, false)
+    } }
+    return eintraege.sortedWith(compareBy({ it.jd }, { !it.amOrt }, { it.wer.orEmpty() }))
+}
+
+/** Reiter Geschichte: Ereignisse am Ort und aller Personen und Familien hier, chronologisch - die Chronik eines Hauses. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun Geschichte(o: PlaceDetail, viewModel: AppViewModel?, onBlatt: ((String) -> Unit)? = null) {
+    val farben = MaterialTheme.colorScheme
+    val eintraege = geschichte(o)
+    if (eintraege.isEmpty()) { Leer(); return }
+    Text(stringResource(Res.string.desk_place_history_hint), Modifier.padding(bottom = 6.dp), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+    eintraege.forEach { e ->
+        Row(Modifier.fillMaxWidth().fokusRahmen()
+            .then(if (e.xref != null && viewModel != null) Modifier.combinedClickable(onDoubleClick = { if (onBlatt != null) onBlatt(e.xref) else viewModel.setRoot(e.xref) }) { viewModel.select(e.xref) } else Modifier)
+            .padding(vertical = 3.dp), verticalAlignment = Alignment.Top) {
+            Text(e.datum, Modifier.width(150.dp), style = MaterialTheme.typography.bodyMedium, color = farben.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Column(Modifier.weight(1f)) {
+                if (e.amOrt) {
+                    // Ereignis des Orts selbst: hervorgehoben, mit Hinweis - so hebt es sich von den Personenereignissen ab
+                    Text(e.was, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = farben.primary)
+                    Text(stringResource(Res.string.desk_place_event_here), style = MaterialTheme.typography.labelSmall, color = farben.outline)
+                    e.notizen.forEach { n -> Text(n, style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant) }
+                } else {
+                    Text(e.was, style = MaterialTheme.typography.bodyMedium)
+                    e.wer?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                }
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -414,9 +465,23 @@ private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) ->
 
     OrtKopf(o, aussen, openWeb) {
         Zeile(Res.string.desk_place_levels) { Text(o.levels.joinToString(" › "), style = MaterialTheme.typography.bodyMedium) }
+        // Art aus dem Ortsdatensatz (Hof, Haus, Gemeinde ...) - macht aus einem Unterort ein Gebaeude
+        loc?.type?.takeIf(String::isNotBlank)?.let { Zeile(Res.string.desk_place_type) { Text(it, style = MaterialTheme.typography.bodyMedium) } }
         o.parent?.let { p -> Zeile(Res.string.desk_place_parent) { Verweis(p) { onWahl(p) } } }
+        // Uebergeordnete Orte aus der _LOC-Hierarchie (GEDCOM-L), wenn sie vom Ortsnamen abweichen oder datiert sind
+        loc?.parents?.takeIf { ps -> ps.any { it.fullName != o.parent || it.date != null } }?.let { ps ->
+            Zeile(Res.string.desk_place_loc_parents) {
+                ps.forEach { p ->
+                    val zusatz = listOfNotNull(p.type, p.date?.text?.takeIf(String::isNotBlank)).joinToString(", ").let { if (it.isEmpty()) "" else "  ($it)" }
+                    Verweis(p.fullName.ifBlank { p.name } + zusatz) { onWahl(p.fullName.ifBlank { p.name }) }
+                }
+            }
+        }
         if (o.children.isNotEmpty()) Zeile(Res.string.desk_place_children) {
-            o.children.forEach { c -> Verweis(c.name.substringBefore(", ") + if (c.events > 0) "  (${c.events})" else "") { onWahl(c.name) } }
+            o.children.forEach { c ->
+                val zusatz = listOfNotNull(c.type, c.events.takeIf { it > 0 }?.toString()).joinToString(", ").let { if (it.isEmpty()) "" else "  ($it)" }
+                Verweis(c.name.substringBefore(", ") + zusatz) { onWahl(c.name) }
+            }
         }
         Zeile(Res.string.desk_place_events) { Text("${o.events}", style = MaterialTheme.typography.bodyMedium) }
         Zeile(Res.string.desk_place_record) {

@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import de.bgghome.webtrees.nativ.api.API_LOC_HIERARCHY
 import de.bgghome.webtrees.nativ.api.PlaceDetail
 import de.bgghome.webtrees.nativ.api.PlaceRequest
 import de.bgghome.webtrees.nativ.api.WriteResult
@@ -129,7 +130,7 @@ private fun koordinatenPaarRoh(text: String): Pair<Double, Double>? {
 
 @Composable
 fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolean, openWeb: (String) -> Unit,
-              onDismiss: () -> Unit, onSaved: (WriteResult) -> Unit) {
+              onDismiss: () -> Unit, apiStufe: Int = 0, onSaved: (WriteResult) -> Unit) {
     val loc = ort.location
     val altGov = loc?.gov.orEmpty()
     val altNotiz = loc?.notes?.firstOrNull().orEmpty()
@@ -138,6 +139,7 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
     val altLng = loc?.lng ?: ort.lng
     var gov by remember { mutableStateOf(altGov) }
     var kurz by remember { mutableStateOf(loc?.shortName.orEmpty()) }
+    var art by remember { mutableStateOf(loc?.type.orEmpty()) }
     var plz by remember { mutableStateOf(loc?.postalCode.orEmpty()) }
     var region by remember { mutableStateOf(loc?.region.orEmpty()) }
     var land by remember { mutableStateOf(loc?.country.orEmpty()) }
@@ -184,7 +186,11 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                         Text(stringResource(Res.string.desk_place_gov_search))
                     }
                 }
-                Field(kurz, { kurz = it }, Res.string.desk_place_short, hint = Res.string.desk_place_short_hint)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(Modifier.weight(1f)) { Field(kurz, { kurz = it }, Res.string.desk_place_short, hint = Res.string.desk_place_short_hint) }
+                    // Art des Orts (TYPE am _LOC) - erst ab API-Stufe 27 gespeichert
+                    if (apiStufe >= API_LOC_HIERARCHY) Box(Modifier.weight(1f)) { Field(art, { art = it }, Res.string.desk_place_type, hint = Res.string.desk_place_type_hint) }
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(Modifier.weight(0.8f)) { Field(plz, { plz = it }, Res.string.desk_place_postal) }
                     Box(Modifier.weight(1.2f)) { Field(region, { region = it }, Res.string.desk_place_region) }
@@ -260,7 +266,7 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
         },
         breite = 1120.dp,
         confirmButton = {
-            val geaendert = gov != altGov || notiz.trim() != altNotiz.trim() || koordGeaendert ||
+            val geaendert = gov != altGov || notiz.trim() != altNotiz.trim() || koordGeaendert || art.trim() != loc?.type.orEmpty() ||
                 kurz.trim() != loc?.shortName.orEmpty() || plz.trim() != loc?.postalCode.orEmpty() || region.trim() != loc?.region.orEmpty() || land.trim() != loc?.country.orEmpty()
             TextButton(enabled = geaendert && koordOk && !speichert, onClick = {
                 speichert = true; fehler = null
@@ -271,6 +277,7 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                     koordinatenAendern = koordGeaendert, lat = b, lng = l,
                     mapData = mapData && istAdmin && koordGeaendert,
                     shortName = kurz.trim().takeIf { it != loc?.shortName.orEmpty() },
+                    type = art.trim().takeIf { it != loc?.type.orEmpty() },
                     postalCode = plz.trim().takeIf { it != loc?.postalCode.orEmpty() },
                     region = region.trim().takeIf { it != loc?.region.orEmpty() },
                     country = land.trim().takeIf { it != loc?.country.orEmpty() },

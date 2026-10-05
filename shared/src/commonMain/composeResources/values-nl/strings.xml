@@ -1182,6 +1182,12 @@
     <string name="desk_place_tab_people">Personen</string>
     <string name="desk_place_tab_data">Gegevens</string>
     <string name="desk_place_tab_coords">Coördinaten</string>
+    <string name="desk_place_tab_history">Geschiedenis</string>
+    <string name="desk_place_type">Soort</string>
+    <string name="desk_place_type_hint">bijv. boerderij, huis, gemeente</string>
+    <string name="desk_place_loc_parents">Bovenliggende plaats (plaatsrecord)</string>
+    <string name="desk_place_event_here">Gebeurtenis van de plaats</string>
+    <string name="desk_place_history_hint">Gebeurtenissen van de plaats zelf en alle gebeurtenissen van personen en gezinnen hier, op volgorde van tijd.</string>
     <string name="desk_place_levels">Niveaus</string>
     <string name="desk_place_parent">Hoort bij</string>
     <string name="desk_place_children">Plaatsen hieronder</string>

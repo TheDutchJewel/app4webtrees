@@ -1201,6 +1201,12 @@
     <string name="desk_place_tab_people">Personen</string>
     <string name="desk_place_tab_data">Daten</string>
     <string name="desk_place_tab_coords">Koordinaten</string>
+    <string name="desk_place_tab_history">Geschichte</string>
+    <string name="desk_place_type">Art</string>
+    <string name="desk_place_type_hint">z. B. Hof, Haus, Gemeinde</string>
+    <string name="desk_place_loc_parents">Übergeordnet (Ortsdatensatz)</string>
+    <string name="desk_place_event_here">Ereignis am Ort</string>
+    <string name="desk_place_history_hint">Ereignisse am Ort selbst und alle Ereignisse von Personen und Familien hier, der Zeit nach.</string>
     <string name="desk_place_levels">Ebenen</string>
     <string name="desk_place_parent">Gehört zu</string>
     <string name="desk_place_children">Orte darunter</string>

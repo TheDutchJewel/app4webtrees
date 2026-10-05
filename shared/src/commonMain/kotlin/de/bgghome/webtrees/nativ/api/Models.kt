@@ -279,6 +279,8 @@ const val API_PLACE_WRITE = 22
 
 /** Ab dieser Stufe: Orte umbenennen und zusammenfuehren (POST PlaceRename). */
 const val API_PLACE_RENAME = 23
+/** Ab Stufe 27: _LOC-Hierarchie (Hoefe/Haeuser als Unterorte), TYPE und Ereignisse am Ort. */
+const val API_LOC_HIERARCHY = 27
 
 @Serializable
 data class PlaceRenameLocation(val from: String? = null, val to: String? = null, val conflicts: List<String> = emptyList())
@@ -317,6 +319,11 @@ data class PlaceRequest(
     val region: String? = null,
     val country: String? = null,
     val shortName: String? = null,
+    /** Art des Orts (TYPE am _LOC: Hof, Haus, Gemeinde ...), ab Stufe 27; "" entfernt. */
+    val type: String? = null,
+    /** Uebergeordneter _LOC (Hierarchie "1 _LOC @L1@"), ab Stufe 27 - nur mit parentAendern; null loest. */
+    val parentAendern: Boolean = false,
+    val parent: String? = null,
 )
 
 /** Ein Ort der Ortsliste - der PLAC-Text, wie er an sichtbaren Ereignissen steht. */
@@ -335,6 +342,8 @@ data class PlaceSummary(
     val gov: String? = null,
     /** Kurzname aus dem _LOC (NAME/ABBR) - fuer "Orte kuerzen" in Buechern. */
     val shortName: String? = null,
+    /** Art des Orts aus dem _LOC (TYPE: Hof, Haus ...), ab Stufe 27. Orte nur aus der _LOC-Hierarchie haben events 0. */
+    val type: String? = null,
 )
 
 @Serializable
@@ -367,18 +376,40 @@ data class PlaceUseFamily(
     val facts: List<PlaceEvent> = emptyList(),
 )
 
+/** Ort darunter; [location] und [type] (Hof, Haus ...) aus dem _LOC, ab Stufe 27. */
 @Serializable
-data class PlaceChild(val name: String, val events: Int = 0)
+data class PlaceChild(val name: String, val events: Int = 0, val location: String? = null, val type: String? = null)
 
 /** Quellenangabe am _LOC: Quelle (xref null bei Text-Quelle) und Seite. */
 @Serializable
 data class LocationSource(val xref: String? = null, val title: String? = null, val page: String? = null)
+
+/** Uebergeordneter Ort in der _LOC-Hierarchie ("1 _LOC @L1@" mit 2 TYPE POLI/RELI/GEOG/CULT und 2 DATE), ab Stufe 27. */
+@Serializable
+data class LocationParent(val xref: String, val name: String = "", val fullName: String = "", val type: String? = null, val date: DateJson? = null)
+
+/** Ereignis am Ort selbst ("1 EVEN" am _LOC: Brand, Umbau, Besitzwechsel ...), ab Stufe 27. */
+@Serializable
+data class LocationEvent(
+    val factId: String = "",
+    val type: String? = null,
+    val label: String = "",
+    val value: String? = null,
+    val date: DateJson? = null,
+    val place: String? = null,
+    val notes: List<String> = emptyList(),
+    val sources: List<LocationSource> = emptyList(),
+)
 
 /** Der GEDCOM-L-Datensatz _LOC eines Orts. */
 @Serializable
 data class LocationJson(
     val xref: String,
     val name: String = "",
+    /** Art des Orts (TYPE: Hof, Haus, Gemeinde ...), ab Stufe 27. */
+    val type: String? = null,
+    val parents: List<LocationParent> = emptyList(),
+    val events: List<LocationEvent> = emptyList(),
     val gov: String? = null,
     val shortName: String? = null,
     val postalCode: String? = null,

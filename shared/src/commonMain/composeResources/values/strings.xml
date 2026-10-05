@@ -1206,6 +1206,12 @@
     <string name="desk_place_tab_people">People</string>
     <string name="desk_place_tab_data">Details</string>
     <string name="desk_place_tab_coords">Coordinates</string>
+    <string name="desk_place_tab_history">History</string>
+    <string name="desk_place_type">Type</string>
+    <string name="desk_place_type_hint">e.g. farm, house, parish</string>
+    <string name="desk_place_loc_parents">Superior place (location record)</string>
+    <string name="desk_place_event_here">Event at the place</string>
+    <string name="desk_place_history_hint">Events of the place itself and all events of individuals and families here, in order of time.</string>
     <string name="desk_place_levels">Levels</string>
     <string name="desk_place_parent">Part of</string>
     <string name="desk_place_children">Places within</string>
