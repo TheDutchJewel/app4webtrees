@@ -35,6 +35,14 @@ Bearbeiten geht nur mit Bearbeitungsrecht in webtrees. Änderungen landen sofort
 - **Notizen und Medien:** Im Reiter **Notizen** legst du allgemeine Notizen zur Person an (**+ Neue Notiz**), änderst und löschst sie; Notizen an Ereignissen stehen darunter zum Lesen. Im Reiter **Medien** hängst du Fotos und Scans an (Datei, vorhandenes Medium, aus dem Archiv oder einfach aus dem Dateimanager hineinziehen), änderst Titel und Art und löst Verknüpfungen; ein Klick auf ein Bild öffnet es. Braucht api4webtrees mit API-Stufe 23.
 - **In webtrees bearbeiten:** alles, was das Programm nicht selbst kann (etwa gemeinsame Notiz-Datensätze), erledigst du auf der Personenseite im Browser. Siehe [webtrees im Browser](hilfe:webtrees).
 
+## Personen zusammenführen
+
+Doppelte Personen entstehen beim Zusammenführen zweier Dateien oder beim Eingeben – derselbe Vorfahr zweimal, einmal als Kind, einmal als Ehemann. Unter **Person › Personen zusammenführen …** (nur für Verwalter des Stammbaums, braucht api4webtrees ab 1.16) stehen alle Paare, die die Plausibilitätsprüfung für doppelt hält: gleicher Name und ein gleiches Ereignisdatum (Regel 219) oder ähnlicher Name mit nahem Geburtsjahr (Regel 228). Dieselben Paare haben in der Prüfung ein Symbol mit zwei zusammenlaufenden Linien. **Paar hinzufügen …** nimmt zwei beliebige Personen, etwa gleichnamige Kinder ohne Daten; in der Personentabelle geht das auch über die rechte Maustaste.
+
+**Zusammenführen …** zeigt beide Personen nebeneinander mit allen Ereignissen. Die erste bleibt, die zweite geht in ihr auf. Angehakt ist alles der ersten und von der zweiten nur, was die erste nicht wortgleich hat; ein „verstorben“ ohne Datum weicht einem Tod mit Datum. Verknüpfungen zu Familien und Medien bleiben immer, Quellen und Notizen an den Ereignissen auch. Alles, was auf die zweite Person zeigte – Familien, Quellenverweise, Patenschaften – zeigt danach auf die erste. Darunter schlägt das Programm weitere Paare vor (Vater, Mutter, Partner und Kinder gleichen Namens); angehakte kommen nach dem Zusammenführen der Reihe nach dran. Hat eine Person zwei Geburten, weil sich die Angaben widersprechen, zeigt das die Prüfung an und du bereinigst es im Personenblatt.
+
+**Rückgängig:** Jedes Zusammenführen steht im Reiter **Protokoll** mit Zeit und Benutzer. **Rückgängig** stellt beide Personen und alle Verweise so wieder her, wie sie waren – auch Tage später, solange seitdem niemand an den betroffenen Datensätzen gearbeitet hat; sonst nennt das Programm die geänderten Datensätze und lässt alles stehen. Ohne Sofortfreigabe warten Zusammenführen und Rückgängig wie jede Änderung auf einen Moderator.
+
 ## Fotos
 
 **Foto hinzufügen** wählt eine Datei vom PC und hängt sie an die Person; das Bild wird passend zum Upload-Limit des Servers verkleinert. Ein Klick auf ein Bild öffnet den Betrachter.

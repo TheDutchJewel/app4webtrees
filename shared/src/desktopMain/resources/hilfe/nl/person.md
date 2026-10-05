@@ -35,6 +35,14 @@ Bewerken vereist bewerkingsrechten in webtrees. Wijzigingen gaan direct naar web
 - **Notities en media:** In het tabblad **Notities** maakt u algemene notities over de persoon aan (**+ Nieuwe notitie**), wijzig en verwijdert u ze; notities bij gebeurtenissen staan eronder om te lezen. In het tabblad **Media** voegt u foto’s en scans toe (bestand, bestaand medium, uit het archief of gewoon uit de bestandsbeheerder slepen), wijzigt u titel en soort en verwijdert u koppelingen; een klik op een afbeelding opent die. Vereist api4webtrees met API-niveau 23.
 - **Bewerken in webtrees:** alles wat het programma zelf niet kan (zoals gedeelde notities), doet u op de persoonspagina in de browser. Zie [webtrees in de browser](hilfe:webtrees).
 
+## Personen samenvoegen
+
+Dubbele personen ontstaan bij het samenvoegen van twee bestanden of bij het invoeren – dezelfde voorouder twee keer, eens als kind, eens als echtgenoot. Onder **Persoon › Personen samenvoegen …** (alleen voor beheerders van de stamboom, vereist api4webtrees 1.16 of nieuwer) staan alle paren die de plausibiliteitscontrole voor dubbel houdt: dezelfde naam en één gelijke gebeurtenisdatum (regel 219) of een vergelijkbare naam met een geboortejaar dichtbij (regel 228). In de controle dragen dezelfde paren een symbool met twee samenkomende lijnen. **Paar toevoegen …** neemt twee willekeurige personen, bijvoorbeeld gelijknamige kinderen zonder gegevens; in de personentabel kan dat ook met de rechtermuisknop.
+
+**Samenvoegen …** toont beide personen naast elkaar met al hun gebeurtenissen. De eerste blijft, de tweede gaat erin op. Aangevinkt is alles van de eerste en van de tweede alleen wat de eerste niet woordelijk heeft; een „overleden“ zonder datum wijkt voor een overlijden met datum. Koppelingen naar gezinnen en media blijven altijd, bronnen en notities bij de gebeurtenissen ook. Alles wat naar de tweede persoon wees – gezinnen, bronverwijzingen, peetschappen – wijst daarna naar de eerste. Daaronder stelt het programma verdere paren voor (vader, moeder, partners en kinderen met dezelfde naam); aangevinkte komen na het samenvoegen aan de beurt. Heeft een persoon daarna twee geboorten omdat de gegevens elkaar tegenspreken, dan toont de controle dat en ruim je het op in het persoonsblad.
+
+**Ongedaan maken:** elke samenvoeging staat in het tabblad **Logboek** met tijd en gebruiker. **Ongedaan maken** herstelt beide personen en alle verwijzingen zoals ze waren – ook dagen later, zolang niemand de betrokken records sindsdien heeft bewerkt; anders noemt het programma de gewijzigde records en laat alles staan. Zonder automatische goedkeuring wachten samenvoegen en ongedaan maken net als elke wijziging op een moderator.
+
 ## Foto's
 
 **Foto toevoegen** kiest een bestand op de pc en hangt het aan de persoon; de afbeelding wordt verkleind tot de uploadlimiet van de server. Een klik op een afbeelding opent de viewer.

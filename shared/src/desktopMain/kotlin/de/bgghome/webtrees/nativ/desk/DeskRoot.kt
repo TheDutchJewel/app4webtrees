@@ -150,6 +150,10 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     // Orte bereinigen sofort oeffnen (aus der Pruefung)
     var orteBereinigen by remember { mutableStateOf(false) }
     val orteApi = (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_LIST
+    // Personen zusammenfuehren: nur Verwalter des Stammbaums, wie in webtrees selbst
+    val mergeApi = state.tree?.role == "manager" && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_MERGE
+    var zusammen by remember { mutableStateOf<String?>(null) }
+    var zusammenPaar by remember { mutableStateOf<de.bgghome.webtrees.nativ.data.Dublette?>(null) }
     val openSheet: (String) -> Unit = { xref -> viewModel.select(xref); sheetOpen = true }
 
     // Zurueck/Vor zwischen Zentralpersonen: das ViewModel kennt nur den Rueckweg, den Vorwaertsweg haelt der Desktop.
@@ -201,6 +205,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onQuellen = if (quellenApi) ({ quellen = "" }) else null,
         onStartperson = if (viewModel.startPersonSupported) ({ startperson = true }) else null,
         onOrte = if (orteApi) ({ orte = "" }) else null,
+        onZusammenfuehren = if (mergeApi) ({ zusammen = "" }) else null,
         onLokaleBaeume = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ lokaleBaeume = true }) else null,
     )
 
@@ -360,8 +365,12 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         tafel?.let { art -> if (state.root != null) TafelFenster(state, viewModel, art, onClose = { tafel = null }) }
         if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
         if (pruefung && state.tree != null) PruefFenster(state, viewModel, openSheet, onClose = { pruefung = false },
-            onOrteBereinigen = if (orteApi && state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME) ({ orteBereinigen = true; orte = "" }) else null)
-        if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false })
+            onOrteBereinigen = if (orteApi && state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME) ({ orteBereinigen = true; orte = "" }) else null,
+            onZusammenfuehren = if (mergeApi) ({ zusammenPaar = it }) else null)
+        if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false },
+            onZusammenfuehren = if (mergeApi) ({ zusammen = it }) else null)
+        zusammen?.let { s -> if (state.tree != null) ZusammenfuehrenFenster(state, viewModel, s, openSheet, onClose = { zusammen = null }) }
+        zusammenPaar?.let { p -> state.tree?.let { t -> ZusammenfuehrenDialog(p, viewModel, t.name, onClose = { geaendert -> zusammenPaar = null; if (geaendert) viewModel.refresh() }) } }
 
         if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
         if (lokaleBaeume) LokaleBaeumeDialog(state, viewModel, onClose = { lokaleBaeume = false })
@@ -382,6 +391,7 @@ private fun FrameWindowScope.DeskMenuBar(
     onMerkliste: () -> Unit, onTafel: (TafelArt) -> Unit, onBuch: () -> Unit, onPruefung: () -> Unit, onTabelle: () -> Unit,
     onQuellen: (() -> Unit)? = null,
     onOrte: (() -> Unit)? = null,
+    onZusammenfuehren: (() -> Unit)? = null,
     onStartperson: (() -> Unit)? = null,
     onLokaleBaeume: (() -> Unit)? = null,
 ) {
@@ -417,6 +427,7 @@ private fun FrameWindowScope.DeskMenuBar(
                     shortcut = KeyShortcut(Key.Enter, ctrl = true), onClick = { selected?.let { viewModel.setRoot(it.person.xref) } })
                 Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,
                     shortcut = KeyShortcut(Key.N, ctrl = true), onClick = { selected?.let { viewModel.requestAddRelative(it.person.xref) } })
+                onZusammenfuehren?.let { Item(stringResource(Res.string.desk_merge_menu), enabled = state.tree != null, onClick = it) }
                 Item(stringResource(Res.string.chip_open_web), enabled = selected != null, onClick = { selected?.let { openWeb(it.person.url) } })
                 if (viewModel.bookmarksSupported) {
                     val root = state.root

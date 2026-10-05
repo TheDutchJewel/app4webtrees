@@ -35,6 +35,14 @@ Editing needs edit rights in webtrees. Changes go to webtrees immediately; depen
 - **Notes and media:** In the **Notes** tab you add general notes about the person (**+ New note**), change and delete them; notes on events are listed below for reading. In the **Media** tab you attach photos and scans (a file, an existing media object, one from the archive or simply dragged from the file manager), change title and type and remove links; a click on a picture opens it. Needs api4webtrees with API level 23.
 - **Edit in webtrees:** everything the program cannot do itself (such as shared note records) you do on the person page in the browser. See [webtrees in the browser](hilfe:webtrees).
 
+## Merging individuals
+
+Duplicate individuals arise when two files are combined or while entering data – the same ancestor twice, once as a child and once as a husband. **Individual › Merge individuals …** (tree managers only, needs api4webtrees 1.16 or newer) lists all pairs the plausibility check takes for duplicates: same name and one identical event date (rule 219) or a similar name with a close year of birth (rule 228). In the check the same pairs show a symbol with two merging lines. **Add pair …** takes any two individuals, such as children with the same name and no data; in the table of individuals the right mouse button does the same.
+
+**Merge …** shows both individuals side by side with all their events. The first stays, the second is absorbed into it. Ticked is everything of the first and from the second only what the first does not have word for word; a “deceased” without a date gives way to a death with a date. Links to families and media always stay, sources and notes at the events too. Everything that pointed to the second individual – families, source citations, godparent roles – points to the first afterwards. Below, the program suggests further pairs (father, mother, spouses and children with the same name); ticked ones follow after the merge. If an individual ends up with two births because the data contradict each other, the check shows it and you clean it up in the individual sheet.
+
+**Undo:** every merge is listed in the **Log** tab with time and user. **Undo** restores both individuals and all links as they were – even days later, as long as nobody has edited the affected records since; otherwise the program names the changed records and leaves everything as it is. Without automatic acceptance, merging and undoing wait for a moderator like any change.
+
 ## Photos
 
 **Add photo** picks a file from the PC and attaches it to the person; the picture is scaled to the server's upload limit. A click on a picture opens the viewer.

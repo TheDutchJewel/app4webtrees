@@ -406,9 +406,18 @@ private class Regeln(val m: PModell, val jetzt: Int, val texte: (String) -> Stri
             )
         }
         "217" -> familien.filter { it.vater == null && it.mutter == null && it.kinder.isEmpty() }.map { T(null, it.xref, w("leere_familie")) }
-        "219" -> personen.filter { it.geb?.voll == true && it.fn.isNotEmpty() && it.vn.isNotEmpty() }
-            .groupBy { Triple(it.vn, it.fn, it.geb!!.tage) }.values.flatMap { ps ->
-                ps.flatMapIndexed { i, a -> ps.drop(i + 1).map { b -> T(a.xref, null, "${n(a)} * ${d(a.geb)} = ${b.xref}", geb(a), geb(b)) } }
+        // Gleicher Name und ein gleiches volles Ereignisdatum (Geburt, Taufe, Tod oder Begraebnis) - die Fakten beider
+        // Personen haengen am Treffer, daraus kommt das Paar fuers Zusammenfuehren
+        "219" -> personen.filter { it.fn.isNotEmpty() && it.vn.isNotEmpty() && (it.geb?.voll == true || it.taufe?.voll == true || it.tod?.voll == true || it.begr?.voll == true) }
+            .groupBy { it.vn to it.fn }.values.flatMap { ps ->
+                ps.flatMapIndexed { i, a -> ps.drop(i + 1).mapNotNull { b ->
+                    val gleich = listOf("*" to (a.geb to b.geb), "~" to (a.taufe to b.taufe), "+" to (a.tod to b.tod), "⚰" to (a.begr to b.begr))
+                        .firstOrNull { (_, paar) -> paar.first?.voll == true && paar.second?.voll == true && paar.first!!.tage == paar.second!!.tage } ?: return@mapNotNull null
+                    val (sym, paar) = gleich
+                    val fa = when (sym) { "*" -> a.gebF; "~" -> a.taufeF; "+" -> a.todF; else -> a.begrF }
+                    val fb = when (sym) { "*" -> b.gebF; "~" -> b.taufeF; "+" -> b.todF; else -> b.begrF }
+                    T(a.xref, null, "${n(a)} $sym ${d(paar.first)} = ${b.xref}", ref(a.xref, fa) ?: geb(a), ref(b.xref, fb) ?: geb(b))
+                } }
             }
         "220" -> familien.mapNotNull { f ->
             val v = m.vater(f) ?: return@mapNotNull null; val mu = m.mutter(f) ?: return@mapNotNull null

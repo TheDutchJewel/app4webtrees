@@ -193,7 +193,8 @@ private class Bearbeitung(val fakt: FactJson, val record: String, val person: St
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, onClose: () -> Unit, onOrteBereinigen: (() -> Unit)? = null) {
+fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, onClose: () -> Unit, onOrteBereinigen: (() -> Unit)? = null,
+    onZusammenfuehren: ((de.bgghome.webtrees.nativ.data.Dublette) -> Unit)? = null) {
     val appName = LocalAppName.current
     val baumTitel = state.tree?.title.orEmpty()
     var aus by remember { mutableStateOf(PruefWahl.aus()) }
@@ -348,7 +349,7 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
                                     LazyColumn(Modifier.fillMaxSize(), state = trefferListe) {
                                         items(zeilen) { t ->
                                             TrefferZeile(t, b, r == null, schwereVon(t.regel), t.schluessel in abgehakt, state.root, state.tree?.canEdit == true,
-                                                viewModel, openSheet, onAbhaken = { abhaken(t) }, onBearbeiten = { bearbeiten = it })
+                                                viewModel, openSheet, onAbhaken = { abhaken(t) }, onBearbeiten = { bearbeiten = it }, onZusammenfuehren = onZusammenfuehren)
                                         }
                                     }
                                     ListenLeiste(trefferListe)
@@ -443,6 +444,7 @@ private fun RegelEinstellung(r: Regel, wert: Double?, schwere: Schwere, onWert: 
 private fun TrefferZeile(
     t: Treffer, b: TreeExport, mitRegel: Boolean, schwere: Schwere, abgehakt: Boolean, root: String?, darfBearbeiten: Boolean,
     viewModel: AppViewModel, openSheet: (String) -> Unit, onAbhaken: () -> Unit, onBearbeiten: (Bearbeitung) -> Unit,
+    onZusammenfuehren: ((de.bgghome.webtrees.nativ.data.Dublette) -> Unit)? = null,
 ) {
     val xref = trefferPerson(t, b)
     val p = b.person(xref)
@@ -485,6 +487,13 @@ private fun TrefferZeile(
                 }
             }
         } else Spacer(Modifier.width(32.dp))
+        // Zwei Pfeile: die beiden Personen eines Dubletten-Treffers zusammenfuehren (nur Verwalter, ab API-Stufe 29)
+        val paar = if (onZusammenfuehren != null && t.regel in de.bgghome.webtrees.nativ.data.DUBLETTEN_REGELN) de.bgghome.webtrees.nativ.data.paarAus(t) else null
+        if (paar != null) Tipp(stringResource(Res.string.desk_merge_do)) {
+            IconButton(onClick = { onZusammenfuehren!!(paar) }, modifier = Modifier.size(32.dp)) {
+                Icon(de.bgghome.webtrees.nativ.ui.MergeIcon, stringResource(Res.string.desk_merge_do), Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        } else if (onZusammenfuehren != null) Spacer(Modifier.width(32.dp))
         // Haken: als geprueft abhaken (oder wieder oeffnen)
         IconButton(onClick = onAbhaken, modifier = Modifier.size(32.dp)) {
             Icon(Icons.Default.Check, stringResource(if (abgehakt) Res.string.desk_check_untick else Res.string.desk_check_tick), Modifier.size(18.dp),

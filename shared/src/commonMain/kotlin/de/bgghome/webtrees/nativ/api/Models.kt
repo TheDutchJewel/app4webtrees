@@ -282,6 +282,54 @@ const val API_PLACE_RENAME = 23
 /** Ab Stufe 27: _LOC-Hierarchie (Hoefe/Haeuser als Unterorte), TYPE und Ereignisse am Ort. */
 const val API_LOC_HIERARCHY = 27
 
+/** Ab Stufe 29: Personen zusammenfuehren (POST Merge, MergeUndo, Merges) - nur Verwalter des Stammbaums. */
+const val API_MERGE = 29
+
+/** Ein Fakt in der Vorschau des Zusammenfuehrens: [same] wortgleich auch bei der anderen Person, [link] bleibt immer, [keep] Vorschlag. */
+@Serializable
+data class MergeFact(val id: String, val tag: String = "", val label: String = "", val text: String = "", val same: Boolean = false, val link: Boolean = false, val keep: Boolean = true)
+
+/** Ein Datensatz, der auf die zweite Person zeigt (Familie, Quelle, Notiz ...). */
+@Serializable
+data class MergeLink(val xref: String, val type: String = "", val name: String = "")
+
+/** Ein weiteres Paar, das wahrscheinlich dieselbe Person ist (father, mother, spouse, child). */
+@Serializable
+data class MergeSuggestion(val role: String = "", val xref1: String, val name1: String = "", val xref2: String, val name2: String = "")
+
+/** Antwort von Merge mit preview. */
+@Serializable
+data class MergePreview(
+    val ok: Boolean = false,
+    val person1: Person,
+    val person2: Person,
+    val facts1: List<MergeFact> = emptyList(),
+    val facts2: List<MergeFact> = emptyList(),
+    val links: List<MergeLink> = emptyList(),
+    val suggestions: List<MergeSuggestion> = emptyList(),
+)
+
+/** Antwort von Merge ohne preview: [xref] bleibt, [removed] ist weg, [mergeId] fuer Rueckgaengig. */
+@Serializable
+data class MergeResult(val ok: Boolean = false, val xref: String = "", val removed: String = "", val mergeId: String = "", val records: Int = 0, val pending: Boolean = false)
+
+/** Ein seitdem geaenderter Datensatz, der das Rueckgaengig verhindert. */
+@Serializable
+data class MergeChanged(val xref: String, val name: String = "")
+
+/** Antwort von MergeUndo; bei ok = false mit [error] "changed-since" und [changed]. */
+@Serializable
+data class MergeUndoResult(val ok: Boolean = false, val preview: Boolean = false, val xref: String = "", val removed: String = "", val records: Int = 0,
+    val pending: Boolean = false, val error: String? = null, val changed: List<MergeChanged> = emptyList())
+
+/** Ein Eintrag im Protokoll der Zusammenfuehrungen (Merges), [undone] = Zeitpunkt des Rueckgaengig oder null. */
+@Serializable
+data class MergeEntry(val id: String, val time: String = "", val user: String = "", val xref: String = "", val name: String = "", val removed: String = "",
+    val removedName: String = "", val records: Int = 0, val undone: String? = null)
+
+@Serializable
+data class MergeList(val ok: Boolean = false, val merges: List<MergeEntry> = emptyList())
+
 @Serializable
 data class PlaceRenameLocation(val from: String? = null, val to: String? = null, val conflicts: List<String> = emptyList())
 

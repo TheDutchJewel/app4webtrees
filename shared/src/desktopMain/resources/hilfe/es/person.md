@@ -35,6 +35,14 @@ Para editar se necesitan derechos de edición en webtrees. Los cambios llegan a 
 - **Notas y medios:** en la pestaña **Notas** se añaden notas generales sobre la persona (**+ Nueva nota**), se cambian y se borran; las notas de los eventos aparecen debajo para leer. En la pestaña **Medios** se adjuntan fotos y escaneos (archivo, medio existente, del archivo o simplemente arrastrado desde el explorador de archivos), se cambian título y tipo y se quitan vínculos; un clic en una imagen la abre. Requiere api4webtrees con nivel de API 23.
 - **Editar en webtrees:** todo lo que el programa no puede hacer por sí mismo (como las notas compartidas) se hace en la página de la persona en el navegador. Véase [webtrees en el navegador](hilfe:webtrees).
 
+## Fusionar personas
+
+Las personas duplicadas surgen al unir dos archivos o al introducir datos: el mismo antepasado dos veces, una como hijo y otra como marido. En **Persona › Fusionar personas …** (solo para administradores del árbol, requiere api4webtrees 1.16 o posterior) aparecen todas las parejas que la comprobación de plausibilidad considera duplicadas: mismo nombre y una fecha de evento idéntica (regla 219) o nombre parecido con año de nacimiento cercano (regla 228). En la comprobación, esas mismas parejas llevan un símbolo con dos líneas que confluyen. **Añadir pareja …** toma dos personas cualesquiera, por ejemplo hijos con el mismo nombre y sin datos; en la tabla de personas también se hace con el botón derecho.
+
+**Fusionar …** muestra ambas personas lado a lado con todos sus eventos. La primera se conserva, la segunda se integra en ella. Está marcado todo lo de la primera y, de la segunda, solo lo que la primera no tiene palabra por palabra; un «fallecido» sin fecha cede ante una defunción con fecha. Los enlaces a familias y medios se conservan siempre, igual que las fuentes y notas de los eventos. Todo lo que apuntaba a la segunda persona – familias, citas de fuentes, padrinazgos – apunta después a la primera. Debajo, el programa propone más parejas (padre, madre, cónyuges e hijos con el mismo nombre); las marcadas siguen tras la fusión. Si una persona queda con dos nacimientos porque los datos se contradicen, la comprobación lo muestra y lo corriges en la ficha de la persona.
+
+**Deshacer:** cada fusión figura en la pestaña **Registro** con hora y usuario. **Deshacer** restaura ambas personas y todos los enlaces tal como estaban – incluso días después, mientras nadie haya editado los registros afectados desde entonces; si no, el programa nombra los registros modificados y no toca nada. Sin aceptación automática, fusionar y deshacer esperan a un moderador como cualquier cambio.
+
 ## Fotos
 
 **Añadir foto** elige un archivo del PC y lo adjunta a la persona; la imagen se reduce al límite de subida del servidor. Un clic en una imagen abre el visor.

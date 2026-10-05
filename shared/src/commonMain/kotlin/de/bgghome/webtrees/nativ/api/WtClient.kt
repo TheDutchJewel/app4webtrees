@@ -29,7 +29,7 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /** Das Modul hat die Anfrage fachlich abgelehnt ({"ok":false,"error":..}). */
-class ApiException(val code: String, val status: Int?) : Exception("API: $code")
+class ApiException(val code: String, val status: Int?, val element: JsonObject? = null) : Exception("API: $code")
 
 /**
  * Die Antwort war kein JSON. Bei webtrees heisst das: nicht (mehr) angemeldet, Baum nicht
@@ -329,6 +329,46 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         return post("PlaceRename", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()), PlaceRenameResult.serializer())
     }
 
+    /** Vorschau zum Zusammenfuehren (ab Stufe 29): beide Personen, Fakten mit Vorschlag, Verweise, weitere Paare. */
+    suspend fun mergePreview(tree: String, xref1: String, xref2: String): MergePreview {
+        val body = kotlinx.serialization.json.buildJsonObject {
+            put("xref1", kotlinx.serialization.json.JsonPrimitive(xref1))
+            put("xref2", kotlinx.serialization.json.JsonPrimitive(xref2))
+            put("preview", kotlinx.serialization.json.JsonPrimitive(true))
+        }
+        return post("Merge", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()), MergePreview.serializer())
+    }
+
+    /** Zusammenfuehren (ab Stufe 29): [xref2] geht in [xref1] auf; [keep1]/[keep2] sind die Fakt-Kennungen, die bleiben. */
+    suspend fun merge(tree: String, xref1: String, xref2: String, keep1: List<String>, keep2: List<String>): MergeResult {
+        val body = kotlinx.serialization.json.buildJsonObject {
+            put("xref1", kotlinx.serialization.json.JsonPrimitive(xref1))
+            put("xref2", kotlinx.serialization.json.JsonPrimitive(xref2))
+            put("keep1", kotlinx.serialization.json.JsonArray(keep1.map { kotlinx.serialization.json.JsonPrimitive(it) }))
+            put("keep2", kotlinx.serialization.json.JsonArray(keep2.map { kotlinx.serialization.json.JsonPrimitive(it) }))
+        }
+        return post("Merge", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()), MergeResult.serializer())
+    }
+
+    /**
+     * Zusammenfuehren rueckgaengig machen (ab Stufe 29). Wurde seitdem an einem Datensatz gearbeitet, kommt
+     * ok = false mit error "changed-since" und den Datensaetzen - kein Fehler, der Aufrufer entscheidet.
+     */
+    suspend fun mergeUndo(tree: String, id: String, preview: Boolean): MergeUndoResult {
+        val body = kotlinx.serialization.json.buildJsonObject {
+            put("id", kotlinx.serialization.json.JsonPrimitive(id))
+            put("preview", kotlinx.serialization.json.JsonPrimitive(preview))
+        }
+        return try {
+            post("MergeUndo", tree, emptyMap(), body.toString().toRequestBody("application/json".toMediaType()), MergeUndoResult.serializer())
+        } catch (e: ApiException) {
+            if (e.code == "changed-since" && e.element != null) json.decodeFromJsonElement(MergeUndoResult.serializer(), e.element) else throw e
+        }
+    }
+
+    /** Das Protokoll der Zusammenfuehrungen dieses Baums, juengste zuerst (ab Stufe 29, nur Verwalter). */
+    suspend fun merges(tree: String): MergeList = get("Merges", tree, emptyMap(), MergeList.serializer())
+
     /** Ein vorhandenes Medienobjekt mit dem Datensatz [xref] verknuepfen (ab Stufe 23). */
     suspend fun linkMedia(tree: String, xref: String, media: String): WriteResult =
         post("Media", tree, mapOf("xref" to xref), kotlinx.serialization.json.buildJsonObject { put("media", kotlinx.serialization.json.JsonPrimitive(media)) }
@@ -562,6 +602,7 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
             throw ApiException(
                 element["error"]?.jsonPrimitive?.contentOrNull ?: "unknown",
                 element["status"]?.jsonPrimitive?.intOrNull,
+                element,
             )
         }
 

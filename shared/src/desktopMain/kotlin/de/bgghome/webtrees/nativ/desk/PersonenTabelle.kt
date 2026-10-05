@@ -175,7 +175,8 @@ private fun csv(zeilen: List<TabellenZeile>, titel: List<String>): String = buil
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PersonenTabelle(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, openWeb: (String) -> Unit, onClose: () -> Unit) {
+fun PersonenTabelle(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, openWeb: (String) -> Unit, onClose: () -> Unit,
+    onZusammenfuehren: ((String) -> Unit)? = null) {
     // Die Tasten (Pfeile, Enter) gehoeren zum Fenster, ihr Ziel (die Zeilen) zum Inhalt: der Inhalt reicht seinen Handler herauf.
     val tasten = remember { mutableStateOf<(KeyEvent) -> Boolean>({ false }) }
     DialogWindow(
@@ -189,13 +190,14 @@ fun PersonenTabelle(state: UiState, viewModel: AppViewModel, openSheet: (String)
             }
         },
     ) {
-        DeskTheme { PersonenTabelleInhalt(state, viewModel, openSheet, openWeb) { tasten.value = it } }
+        DeskTheme { PersonenTabelleInhalt(state, viewModel, openSheet, openWeb, onZusammenfuehren) { tasten.value = it } }
     }
 }
 
 /** Der Inhalt des Tabellenfensters, ohne das Fenster - so laesst er sich auch ohne Bildschirm zeichnen. */
 @Composable
-internal fun PersonenTabelleInhalt(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, openWeb: (String) -> Unit, tastenSetzen: ((KeyEvent) -> Boolean) -> Unit) {
+internal fun PersonenTabelleInhalt(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, openWeb: (String) -> Unit,
+    onZusammenfuehren: ((String) -> Unit)? = null, tastenSetzen: ((KeyEvent) -> Boolean) -> Unit) {
     var fortschritt by remember { mutableStateOf(0 to 0) }
     var neu by remember { mutableStateOf(0) }
     val baum by produceState<Result<List<TabellenZeile>>?>(null, state.tree?.name, neu) {
@@ -304,7 +306,7 @@ internal fun PersonenTabelleInhalt(state: UiState, viewModel: AppViewModel, open
                                             ContextMenuItem(Texte.t(Res.string.action_make_root)) { viewModel.setRoot(z.xref) },
                                             ContextMenuItem(Texte.t(Res.string.desk_sheet)) { openSheet(z.xref) },
                                             ContextMenuItem(Texte.t(Res.string.chip_open_web)) { openWeb(z.url) },
-                                        )
+                                        ) + listOfNotNull(onZusammenfuehren?.let { f -> ContextMenuItem(Texte.t(Res.string.desk_merge_with)) { f(z.xref) } })
                                     }) {
                                         Row(
                                             Modifier.fillMaxWidth()
