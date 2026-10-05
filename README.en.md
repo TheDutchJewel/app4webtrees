@@ -13,6 +13,7 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), for testing"></a>
 </p>
 
+<p align="center"><b>New in 1.35: houses and farms.</b> Buildings are places of their own (GEDCOM-L) – in the place manager with their history (fire, rebuilding, residents and owners in order of time), in the family book as a house section with cross-references. To try it out: <a href="https://github.com/thobgg/falkenrath-demo-tree">demo tree 1.4</a>.</p>
 <p align="center"><b>New in 1.33: five languages.</b> wtWin, wtTux and wtAnd now also speak French, Dutch and Spanish besides German and English – switch under View › Language (on the phone in the menu), with help and plausibility check in every language.</p>
 
 <p align="center"><b>New in 1.31/1.32: godparents and witnesses.</b> Below baptism and marriage the godparents or witnesses appear – linked ones clickable, free-text ones as text (also from the GEDCOM-L fields _GODP/_WITN). Every person shows where they were a godparent or witness themselves. From 1.32 they can also be entered in the person sheet – from the tree or without a record, as in the church register – together with the type of marriage. Needs <a href="https://github.com/thobgg/api4webtrees/releases">api4webtrees 1.12</a> on the server.</p>
