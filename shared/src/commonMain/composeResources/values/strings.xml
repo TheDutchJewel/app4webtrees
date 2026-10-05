@@ -1384,4 +1384,10 @@
     <string name="desk_merge_log_entry">%1$s was absorbed into %2$s</string>
     <string name="desk_merge_log_records">%1$d records</string>
     <string name="desk_merge_undone">undone</string>
+    <!-- Familienansicht: Paarkarten und Statuszeile -->
+    <string name="desk_family_born">Born</string>
+    <string name="desk_family_died">Died</string>
+    <string name="desk_family_status_married">Married</string>
+    <string name="desk_family_status_none">Partnership without marriage details</string>
+    <string name="desk_family_add_child">Child</string>
 </resources>

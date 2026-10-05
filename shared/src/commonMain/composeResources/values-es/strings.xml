@@ -1379,4 +1379,10 @@
     <string name="desk_merge_log_entry">%1$s se integró en %2$s</string>
     <string name="desk_merge_log_records">%1$d registros</string>
     <string name="desk_merge_undone">deshecha</string>
+    <!-- Familienansicht: Paarkarten und Statuszeile -->
+    <string name="desk_family_born">Nacimiento</string>
+    <string name="desk_family_died">Defunción</string>
+    <string name="desk_family_status_married">Casados</string>
+    <string name="desk_family_status_none">Unión sin datos de matrimonio</string>
+    <string name="desk_family_add_child">Hijo/a</string>
 </resources>

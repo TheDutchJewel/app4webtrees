@@ -300,7 +300,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                             when (state.section) {
                                 Section.Home -> HomeSection(state, viewModel, openWeb)
                                 Section.Photos -> PhotosSection(state, viewModel, openWeb)
-                                else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb) else DeskTree(state, viewModel, openWeb)
+                                else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb, openSheet) else DeskTree(state, viewModel, openWeb)
                             }
                         }
                         if (!vollbild) {

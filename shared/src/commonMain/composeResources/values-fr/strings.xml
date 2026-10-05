@@ -1379,4 +1379,10 @@
     <string name="desk_merge_log_entry">%1$s a été absorbé par %2$s</string>
     <string name="desk_merge_log_records">%1$d fiches</string>
     <string name="desk_merge_undone">annulée</string>
+    <!-- Familienansicht: Paarkarten und Statuszeile -->
+    <string name="desk_family_born">Né(e)</string>
+    <string name="desk_family_died">Décédé(e)</string>
+    <string name="desk_family_status_married">Marié(e)s</string>
+    <string name="desk_family_status_none">Union sans indication de mariage</string>
+    <string name="desk_family_add_child">Enfant</string>
 </resources>

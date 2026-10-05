@@ -1379,4 +1379,10 @@
     <string name="desk_merge_log_entry">%1$s wurde in %2$s aufgenommen</string>
     <string name="desk_merge_log_records">%1$d Datensätze</string>
     <string name="desk_merge_undone">rückgängig gemacht</string>
+    <!-- Familienansicht: Paarkarten und Statuszeile -->
+    <string name="desk_family_born">Geboren</string>
+    <string name="desk_family_died">Gestorben</string>
+    <string name="desk_family_status_married">Verheiratet</string>
+    <string name="desk_family_status_none">Partnerschaft ohne Heiratsangabe</string>
+    <string name="desk_family_add_child">Kind</string>
 </resources>
