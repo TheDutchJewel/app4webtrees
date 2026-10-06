@@ -24,13 +24,14 @@ En dézoomant, une case montre moins de choses plutôt que de rapetisser : d'abo
 
 ## Vue famille
 
-Comme « Arbre au centre », mais le milieu montre la **famille** de la personne centrale : en haut les parents des deux conjoints, au milieu le couple avec son mariage, en dessous les enfants avec leurs dates et leurs mariages. Si la personne s'est mariée plusieurs fois, chaque mariage a son propre **onglet**.
+Le milieu montre la **famille** de la personne centrale, disposée comme dans les logiciels de généalogie classiques : en haut les ancêtres des deux conjoints sur **2 à 4 générations** (− et + en haut à droite, mémorisé), en dessous les parents, au milieu le couple sous forme de grandes cartes avec portrait, naissance, décès et profession, entre les deux la ligne d'état avec tous les mariages et le nombre d'enfants, en bas les **enfants avec leurs conjoints** et en dessous les **petits-enfants**. Des lignes continues relient les générations. Si la personne centrale a plusieurs mariages, chacun a son propre **onglet**.
 
-- **Un clic** sélectionne une personne ; le panneau de la personne à droite l'affiche.
-- **Un double-clic** en fait la personne centrale – c'est ainsi que vous parcourez les familles vers le haut (parents) et vers le bas (enfants).
-- **Bouton droit de la souris** : Mettre au centre, Ajouter un parent, Ouvrir dans webtrees.
+- **Ajuster à la fenêtre :** la famille est agrandie jusqu'à remplir la fenêtre (jusqu'à 180 %) ; le pourcentage est affiché en haut à droite. **Ctrl+molette** change le zoom, un clic sur le pourcentage réajuste.
+- **Un clic** sélectionne une personne ; le panneau de la personne à droite l'affiche. **Un double-clic** en fait la personne centrale – c'est ainsi que vous parcourez les familles vers le haut (parents, grands-parents) et vers le bas (enfants, petits-enfants).
+- **Boutons dans les cartes du couple :** Modifier la personne (fiche), Photos, Ajouter un parent. **+ Enfant** dans la ligne d'état ajoute un enfant de cette union.
+- **Bouton droit de la souris** sur chaque carte : Mettre au centre, Fiche de la personne, Ajouter un parent, Ouvrir dans webtrees, Supprimer la personne (avec droits de modification, après confirmation).
 - Un parent manquant apparaît comme « Père inconnu » ou « Mère inconnue » ; avec les droits de modification, **+ ajouter** le crée.
-- La **fratrie** de la personne centrale est affichée au-dessus du couple. **Clavier :** flèche haut vers le père (avec Shift vers la mère), bas vers l'enfant, gauche/droite pour parcourir la fratrie, Tab pour l'onglet suivant.
+- La **fratrie** de la personne centrale est affichée au-dessus du couple. **Clavier :** flèche haut vers le père (avec Shift vers la mère), bas vers l'enfant, gauche/droite pour parcourir la fratrie, Tab vers l'onglet suivant.
 
 La [table des personnes](hilfe:tabelle) (Ctrl+4) montre tout le monde sous forme de tableau.
 

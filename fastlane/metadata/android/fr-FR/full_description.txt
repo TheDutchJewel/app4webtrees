@@ -1,0 +1,25 @@
+wtAnd est une application Android pour webtrees, le logiciel libre de généalogie en ligne. Elle affiche et modifie l’arbre généalogique qui se trouve sur ton propre serveur webtrees – sans compte chez un prestataire, sans abonnement, sans publicité, rien qui retienne tes données en otage.
+
+Fonctions :
+
+* L’arbre au centre : vue en sablier avec ancêtres, conjoints, enfants et petits-enfants, plus frères, sœurs et cousins ; déplacement et zoom libres, déploiement des branches, n’importe quelle personne au centre. En dézoomant, une carte montre moins au lieu de rétrécir, le texte reste lisible
+* Profil : la vie comme chronologie (mariage et naissances des enfants compris), lien de parenté avec toi (« grand-père paternel »), photos, famille, carte des lieux de vie
+* Parrains, marraines et témoins sous le baptême et le mariage ; chaque personne indique où elle a elle-même été parrain ou témoin
+* Saisie : créer, modifier et supprimer des événements – aussi les mariages et autres événements familiaux ; ajouter des parents directement dans l’arbre avec le « + » de chaque carte ; les dates se choisissent, les lieux sont proposés depuis l’arbre
+* Photos : prendre ou choisir une image et la rattacher à une personne ; aperçu des photos de tout l’arbre ; visionneuse avec balayage, pincement et double tap
+* Archives : si le serveur fait tourner le module Sammlungen, l’application montre aussi ses archives – collections par dossier et thématiques, et surtout les images qui ne sont rattachées à personne. Saisir une image en déplacement avec description, date et personnes, enregistrées en EXIF dans le fichier
+* Documents : les PDF s’ouvrent dans la visionneuse de l’application, page par page
+* Anniversaires : anniversaires de naissance, de mariage et de décès à venir, avec rappel quotidien en option
+* Modération : accepter ou refuser les modifications en attente dans l’application
+* Compact sur téléphone, complet sur tablette ; allemand, anglais, français, néerlandais et espagnol, commutables dans l’application
+
+Ce qui n’est pas (encore) natif s’ouvre comme page webtrees dans la même session.
+
+Prérequis :
+
+* Un serveur webtrees (2.2.x) – le tien ou un sur lequel tu as un compte – avec le module api4webtrees dans modules_v4/ (https://github.com/thobgg/api4webtrees). Le cœur de webtrees reste intact.
+* En option : le module Sammlungen (1.6 ou plus récent) pour les archives.
+
+Confidentialité : l’application se connecte avec ton compte webtrees habituel ; chaque requête s’exécute en tant que cet utilisateur, avec les mêmes règles de confidentialité que sur le site. Sur l’appareil : adresse du serveur, nom d’utilisateur et cookie de session – jamais le mot de passe. Pas de sauvegarde cloud des données de l’application, pas d’analyse, pas de publicité, pas de services Google. La carte charge ses tuiles depuis OpenStreetMap.
+
+wtAnd n’est pas un produit officiel de webtrees. Le même code tourne aussi sur PC sous le nom wtWin (Windows) et wtTux (Linux), voir la page du projet.

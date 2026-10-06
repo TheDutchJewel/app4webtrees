@@ -452,6 +452,7 @@ private fun Anklickbar(person: Person, a: KartenAktionen, inhalt: @Composable (M
             a.openSheet?.let { s -> add(ContextMenuItem(Texte.t(Res.string.desk_sheet)) { s(person.xref) }) }
             if (a.canEdit) add(ContextMenuItem(Texte.t(Res.string.action_add_relative)) { a.viewModel.requestAddRelative(person.xref) })
             add(ContextMenuItem(Texte.t(Res.string.chip_open_web)) { a.openWeb(person.url) })
+            if (a.canEdit) add(ContextMenuItem(Texte.t(Res.string.action_delete_person)) { Loeschwahl.person = person.xref to person.name })
         }
     }) {
         inhalt(Modifier.fokusRahmen().combinedClickable(onDoubleClick = { a.viewModel.setRoot(person.xref) }) { a.viewModel.select(person.xref) })

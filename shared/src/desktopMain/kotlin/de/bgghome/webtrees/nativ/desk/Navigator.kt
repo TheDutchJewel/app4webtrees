@@ -664,6 +664,8 @@ private fun PersonBox(
     val name = registerName(person, stringResource(Res.string.person_private), stringResource(Res.string.person_no_name))
     val asCentre = stringResource(Res.string.desk_as_centre); val edit = stringResource(Res.string.desk_sheet); val web = stringResource(Res.string.chip_open_web)
     val merken = stringResource(Res.string.desk_bookmark_add); val merkWeg = stringResource(Res.string.desk_bookmark_remove)
+    val loeschen = stringResource(Res.string.action_delete_person)
+    val darfLoeschen = viewModel.uiState.value.tree?.canEdit == true
     val onSurface = MaterialTheme.colorScheme.onSurface
     val stil = LocalNavStil.current
     val linie = LocalFarben.current[person.xref]
@@ -676,6 +678,7 @@ private fun PersonBox(
             ContextMenuItem(edit) { onOpenSheet(person.xref) },
             if (viewModel.bookmarksSupported) ContextMenuItem(if (viewModel.isBookmarked(person.xref)) merkWeg else merken) { viewModel.toggleBookmark(person.xref) } else null,
             ContextMenuItem(web) { openWeb(person.url) },
+            if (darfLoeschen) ContextMenuItem(loeschen) { Loeschwahl.person = person.xref to person.name } else null,
         )
     }) {
         Row(

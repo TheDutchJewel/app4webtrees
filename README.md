@@ -13,7 +13,12 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), zum Testen"></a>
 </p>
 
-<p align="center"><b>Neu in 1.36: Personen zusammenführen.</b> Doppelte Personen findet die Plausibilitätsprüfung (gleicher Name und gleiches Ereignisdatum, oder ähnlich); unter Person › Personen zusammenführen stehen beide nebeneinander, du wählst, was bleibt – alle Verweise wandern mit. Jedes Zusammenführen steht im Protokoll und lässt sich rückgängig machen, auch Tage später. Braucht api4webtrees 1.16.0; nur für Verwalter des Stammbaums.</p>
+<p align="center"><b>Neu in 1.36: Personen zusammenführen.</b> Doppelte Personen findet die Plausibilitätsprüfung (gleicher Name und gleiches Ereignisdatum, oder ähnlich); unter Person › Personen zusammenführen stehen beide nebeneinander, du wählst, was bleibt – alle Verweise wandern mit. Jedes Zusammenführen steht im Protokoll und lässt sich rückgängig machen, auch Tage später. Braucht api4webtrees 1.17.1; nur für Verwalter des Stammbaums. <b>Familienansicht neu:</b> Vorfahren beider Partner über bis zu vier Generationen, Paarkarten, Kinder mit Partnern und Enkeln, Linien, eingepasst in die Fensterhöhe.</p>
+
+<p align="center">
+  <img src="docs/screenshots/desktop-familienansicht.jpg" alt="Familienansicht: Georg Mohwinkel und Catharine Schulze mit Großeltern, Eltern, Geschwistern, Statuszeile, fünf Kindern, Partner und Enkeln" width="100%">
+  <br><b>Familienansicht</b> (neu in 1.36) – Vorfahren oben, das Paar in der Mitte, Kinder mit Partnern und Enkeln unten, eingepasst in die Fensterhöhe.
+</p>
 
 <p align="center">
   <img src="docs/screenshots/desktop-zusammenfuehren.jpg" alt="Personen zusammenführen: zwei Johann Heinrich Falkenrath nebeneinander, je Ereignis ein Haken, darunter Verweise und ein weiteres Paar" width="100%">

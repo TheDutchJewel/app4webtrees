@@ -1,0 +1,25 @@
+wtAnd es una aplicación Android para webtrees, el software libre de genealogía para la web. Muestra y edita el árbol genealógico que está en tu propio servidor webtrees – sin cuenta en un proveedor, sin suscripción, sin publicidad, nada que retenga tus datos.
+
+Funciones:
+
+* El árbol en el centro: vista de reloj de arena con antepasados, parejas, hijos y nietos, además de hermanos y primos; desplazar y ampliar libremente, desplegar ramas, poner a cualquier persona en el centro. Al alejar, una tarjeta muestra menos en lugar de hacerse más pequeña, y el texto sigue legible
+* Perfil: la vida como cronología (incluidos el matrimonio y los nacimientos de los hijos), parentesco contigo («abuelo paterno»), fotos, familia, mapa de los lugares de la vida
+* Padrinos y testigos bajo el bautismo y el matrimonio; cada persona indica dónde fue padrino o testigo
+* Edición: crear, modificar y borrar eventos – también matrimonios y otros eventos familiares; añadir parientes directamente en el árbol con el «+» de cada tarjeta; las fechas se eligen, los lugares se proponen desde el árbol
+* Fotos: tomar o elegir una imagen y asociarla a una persona; vista general de las fotos de todo el árbol; visor con deslizar, pellizcar y doble toque
+* Archivo: si el servidor ejecuta el módulo Sammlungen, la aplicación muestra también su archivo – colecciones por carpeta y temáticas, y sobre todo las imágenes que no están asociadas a nadie. Capturar una imagen sobre la marcha con descripción, fecha y personas, guardadas como EXIF dentro del archivo
+* Documentos: los PDF se abren en el visor propio de la aplicación, página a página
+* Aniversarios: próximos cumpleaños, aniversarios de boda y de fallecimiento, con recordatorio diario opcional
+* Moderación: aceptar o rechazar cambios pendientes en la aplicación
+* Compacta en el móvil, completa en la tableta; alemán, inglés, francés, neerlandés y español, cambiables en la aplicación
+
+Lo que (aún) no es nativo se abre como página de webtrees en la misma sesión.
+
+Requisitos:
+
+* Un servidor webtrees (2.2.x) – el tuyo o uno en el que tengas cuenta – con el módulo api4webtrees en modules_v4/ (https://github.com/thobgg/api4webtrees). El núcleo de webtrees queda intacto.
+* Opcional: el módulo Sammlungen (1.6 o posterior) para el archivo.
+
+Privacidad: la aplicación inicia sesión con tu cuenta habitual de webtrees; cada petición se ejecuta como ese usuario, con las mismas reglas de privacidad que en la web. En el dispositivo se guardan la dirección del servidor, el nombre de usuario y la cookie de sesión – nunca la contraseña. Sin copia en la nube de los datos de la aplicación, sin análisis, sin publicidad, sin servicios de Google. El mapa carga sus teselas de OpenStreetMap.
+
+wtAnd no es un producto oficial de webtrees. El mismo código funciona en el PC como wtWin (Windows) y wtTux (Linux), véase la página del proyecto.

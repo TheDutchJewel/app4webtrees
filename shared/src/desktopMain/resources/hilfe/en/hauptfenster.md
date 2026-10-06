@@ -24,11 +24,12 @@ When zooming out a card shows less rather than smaller: first without picture an
 
 ## Family view
 
-Like "Tree in the centre", but the middle shows the central person's **family**: at the top the parents of both partners, in the middle the couple with their marriage, below the children with their dates and marriages. If the person married more than once, each marriage has its own **tab**.
+The middle shows the central person's **family**, laid out like classic genealogy programs: at the top the ancestors of both partners over **2 to 4 generations** (− and + at the top right, remembered), below them the parents, in the middle the couple as large cards with portrait, born, died and occupation, between them the status line with all marriages and the number of children, at the bottom the **children with their spouses** and below them the **grandchildren**. Continuous lines connect the generations. If the central person has several marriages, each has its own **tab**.
 
-- **A click** selects a person; the person panel on the right shows them.
-- **Double-click** makes them the central person – this is how you move through the families up (parents) and down (children).
-- **Right mouse button**: Show as focus, Add relative, Open in webtrees.
+- **Fit to window:** the family is enlarged until it fills the window (up to 180 %); the percentage is shown at the top right. **Ctrl+mouse wheel** changes the zoom, a click on the percentage fits again.
+- **A click** selects a person; the person panel on the right shows them. **Double-click** makes them the central person – this is how you move through the families up (parents, grandparents) and down (children, grandchildren).
+- **Buttons in the couple cards:** Edit person (person sheet), Photos, Add relative. **+ Child** in the status line adds a child of this partnership.
+- **Right mouse button** on any card: Show as focus, Person sheet, Add relative, Open in webtrees, Delete person (with edit rights, after confirmation).
 - A missing parent shows "Father unknown" or "Mother unknown"; with edit rights, **+ add** creates them.
 - The central person's **siblings** are shown above the couple. **Keyboard:** up arrow to the father (with Shift to the mother), down to the child, left/right through the siblings, Tab to the next tab.
 

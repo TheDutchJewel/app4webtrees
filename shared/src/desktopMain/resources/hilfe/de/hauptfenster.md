@@ -24,11 +24,12 @@ Beim Herauszoomen zeigt eine Karte weniger statt kleiner: erst ohne Bild und Jah
 
 ## Familienansicht
 
-Wie „Baum im Mittelpunkt“, aber in der Mitte die **Familie** des Probanden: oben die Eltern beider Partner, in der Mitte das Paar mit der Heirat, darunter die Kinder mit ihren Lebensdaten und Ehen. Hat der Proband mehrere Ehen, steht jede auf einem eigenen **Reiter**.
+In der Mitte die **Familie** des Probanden, aufgebaut wie in klassischen Genealogie-Programmen: oben die Vorfahren beider Partner über **2 bis 4 Generationen** (− und + rechts oben, gemerkt), darunter die Eltern, in der Mitte das Paar als große Karten mit Porträt, Geboren, Gestorben und Beruf, dazwischen die Statuszeile mit allen Heiraten und der Zahl der Kinder, unten die **Kinder mit ihren Partnern** und darunter die **Enkel**. Durchgezogene Linien verbinden die Generationen. Hat der Proband mehrere Ehen, steht jede auf einem eigenen **Reiter**.
 
-- **Ein Klick** wählt eine Person, die Personentafel rechts zeigt sie.
-- **Doppelklick** macht sie zum Probanden – so gehst du durch die Familien nach oben (Eltern) und unten (Kinder).
-- **Rechte Maustaste**: Als Proband, Verwandte hinzufügen, in webtrees öffnen.
+- **Einpassen:** Die Familie wird so vergrößert, dass sie das Fenster füllt (bis 180 %); die Prozentzahl steht rechts oben. **Strg+Mausrad** ändert den Zoom, ein Klick auf die Prozentzahl passt wieder ein.
+- **Ein Klick** wählt eine Person, die Personentafel rechts zeigt sie. **Doppelklick** macht sie zum Probanden – so gehst du durch die Familien nach oben (Eltern, Großeltern) und unten (Kinder, Enkel).
+- **Knöpfe in den Paarkarten:** Person bearbeiten (Personenblatt), Fotos, Verwandte hinzufügen. **+ Kind** in der Statuszeile legt ein Kind dieser Partnerschaft an.
+- **Rechte Maustaste** auf jeder Karte: Als Proband, Personenblatt, Verwandte hinzufügen, in webtrees öffnen, Person löschen (mit Bearbeitungsrecht, nach Rückfrage).
 - Fehlt ein Elternteil, steht dort „Vater unbekannt“ bzw. „Mutter unbekannt“; mit Bearbeitungsrecht legst du ihn über **+ hinzufügen** an.
 - Über dem Paar stehen die **Geschwister** des Probanden. **Tastatur:** Pfeil hoch zum Vater (mit Umschalt zur Mutter), runter zum Kind, links/rechts durch die Geschwister, Tab zum nächsten Reiter.
 

@@ -13,7 +13,12 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), for testing"></a>
 </p>
 
-<p align="center"><b>New in 1.36: merging individuals.</b> The plausibility check finds duplicates (same name and one identical event date, or similar); Individual › Merge individuals shows both side by side and you choose what stays – all links move along. Every merge is logged and can be undone, even days later. Needs api4webtrees 1.16.0; tree managers only.</p>
+<p align="center"><b>New in 1.36: merging individuals.</b> The plausibility check finds duplicates (same name and one identical event date, or similar); Individual › Merge individuals shows both side by side and you choose what stays – all links move along. Every merge is logged and can be undone, even days later. Needs api4webtrees 1.17.1; tree managers only. <b>New family view:</b> ancestors of both partners over up to four generations, couple cards, children with spouses and grandchildren, lines, fitted to the window height.</p>
+
+<p align="center">
+  <img src="docs/screenshots/desktop-familienansicht.jpg" alt="Family view: Georg Mohwinkel and Catharine Schulze with grandparents, parents, siblings, status line, five children, a spouse and grandchildren" width="100%">
+  <br><b>Family view</b> (new in 1.36) – ancestors at the top, the couple in the middle, children with spouses and grandchildren at the bottom, fitted to the window height.
+</p>
 
 <p align="center">
   <img src="docs/screenshots/desktop-zusammenfuehren.jpg" alt="Merging individuals: two Johann Heinrich Falkenrath side by side, a tick per event, below the links and a further pair" width="100%">

@@ -24,11 +24,12 @@ Bij het uitzoomen toont een kaart minder in plaats van kleiner: eerst zonder fot
 
 ## Gezinsweergave
 
-Zoals „Boom centraal“, maar in het midden staat het **gezin** van de proband: bovenaan de ouders van beide partners, in het midden het paar met hun huwelijk, daaronder de kinderen met hun data en huwelijken. Is de persoon meer dan eens getrouwd, dan heeft elk huwelijk een eigen **tabblad**.
+In het midden staat het **gezin** van de proband, opgebouwd zoals in klassieke genealogieprogramma's: bovenaan de voorouders van beide partners over **2 tot 4 generaties** (− en + rechtsboven, onthouden), daaronder de ouders, in het midden het paar als grote kaarten met portret, geboren, overleden en beroep, daartussen de statusregel met alle huwelijken en het aantal kinderen, onderaan de **kinderen met hun partners** en daaronder de **kleinkinderen**. Doorlopende lijnen verbinden de generaties. Heeft de proband meerdere huwelijken, dan staat elk op een eigen **tabblad**.
 
-- **Een klik** selecteert een persoon; het persoonspaneel rechts toont hem of haar.
-- **Dubbelklik** maakt de persoon tot proband – zo gaat u door de gezinnen omhoog (ouders) en omlaag (kinderen).
-- **Rechtermuisknop**: Als proband, Verwant toevoegen, Openen in webtrees.
+- **Passend maken:** het gezin wordt vergroot tot het het venster vult (tot 180 %); het percentage staat rechtsboven. **Ctrl+muiswiel** verandert de zoom, een klik op het percentage past weer in.
+- **Een klik** selecteert een persoon; het persoonspaneel rechts toont hem of haar. **Dubbelklik** maakt de persoon tot proband – zo gaat u door de gezinnen omhoog (ouders, grootouders) en omlaag (kinderen, kleinkinderen).
+- **Knoppen in de paarkaarten:** Persoon bewerken (persoonsblad), Foto's, Verwant toevoegen. **+ Kind** in de statusregel voegt een kind van deze relatie toe.
+- **Rechtermuisknop** op elke kaart: Als proband, Persoonsblad, Verwant toevoegen, Openen in webtrees, Persoon verwijderen (met bewerkingsrechten, na bevestiging).
 - Een ontbrekende ouder verschijnt als „Vader onbekend“ of „Moeder onbekend“; met bewerkingsrechten maakt **+ toevoegen** die persoon aan.
 - De **broers en zussen** van de proband staan boven het paar. **Toetsenbord:** pijl omhoog naar de vader (met Shift naar de moeder), omlaag naar het kind, links/rechts door de broers en zussen, Tab naar het volgende tabblad.
 

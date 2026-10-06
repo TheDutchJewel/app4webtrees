@@ -24,11 +24,12 @@ Al alejar el zoom, una tarjeta muestra menos en lugar de hacerse más pequeña: 
 
 ## Vista de familia
 
-Como «Árbol en el centro», pero en el centro aparece la **familia** de la persona central: arriba los padres de ambos miembros de la pareja, en el centro la pareja con su matrimonio y abajo los hijos con sus fechas y matrimonios. Si la persona se casó más de una vez, cada matrimonio tiene su propia **pestaña**.
+En el centro aparece la **familia** de la persona central, dispuesta como en los programas de genealogía clásicos: arriba los antepasados de ambos miembros de la pareja a lo largo de **2 a 4 generaciones** (− y + arriba a la derecha, se recuerda), debajo los padres, en el centro la pareja como tarjetas grandes con retrato, nacimiento, defunción y profesión, entre ambas la línea de estado con todos los matrimonios y el número de hijos, abajo los **hijos con sus cónyuges** y debajo los **nietos**. Líneas continuas unen las generaciones. Si la persona central tiene varios matrimonios, cada uno tiene su propia **pestaña**.
 
-- **Un clic** selecciona a una persona; el panel de persona de la derecha la muestra.
-- **Doble clic** la convierte en persona central: así se recorren las familias hacia arriba (padres) y hacia abajo (hijos).
-- **Botón derecho del ratón**: Mostrar como persona central, Añadir pariente, Abrir en webtrees.
+- **Ajustar a la ventana:** la familia se amplía hasta llenar la ventana (hasta el 180 %); el porcentaje aparece arriba a la derecha. **Ctrl+rueda del ratón** cambia el zoom, un clic en el porcentaje vuelve a ajustar.
+- **Un clic** selecciona a una persona; el panel de persona de la derecha la muestra. **Doble clic** la convierte en persona central: así se recorren las familias hacia arriba (padres, abuelos) y hacia abajo (hijos, nietos).
+- **Botones en las tarjetas de la pareja:** Editar persona (ficha), Fotos, Añadir pariente. **+ Hijo/a** en la línea de estado añade un hijo de esta unión.
+- **Botón derecho del ratón** en cualquier tarjeta: Mostrar como persona central, Ficha de la persona, Añadir pariente, Abrir en webtrees, Eliminar persona (con derechos de edición, tras confirmación).
 - Un progenitor que falta aparece como «Padre desconocido» o «Madre desconocida»; con derechos de edición, **+ añadir** lo crea.
 - Los **hermanos** de la persona central se muestran encima de la pareja. **Teclado:** flecha arriba al padre (con Shift a la madre), abajo al hijo, izquierda/derecha por los hermanos, Tab a la pestaña siguiente.
 

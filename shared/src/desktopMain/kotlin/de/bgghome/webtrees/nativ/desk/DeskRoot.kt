@@ -355,6 +355,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         quellen?.let { start -> if (state.tree != null) QuellenFenster(state, viewModel, start, openWeb, onClose = { quellen = null }) }
         orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null; orteBereinigen = false }, onBlatt = openSheet, bereinigen = orteBereinigen) }
         if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
+        LoeschRueckfrage(viewModel)
         liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
         HilfeFenster()
         if (startperson) StartpersonDialog(state, viewModel, onClose = { startperson = false })
@@ -428,6 +429,8 @@ private fun FrameWindowScope.DeskMenuBar(
                 Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,
                     shortcut = KeyShortcut(Key.N, ctrl = true), onClick = { selected?.let { viewModel.requestAddRelative(it.person.xref) } })
                 onZusammenfuehren?.let { Item(stringResource(Res.string.desk_merge_menu), enabled = state.tree != null, onClick = it) }
+                Item(stringResource(Res.string.action_delete_person), enabled = selected?.canEdit == true,
+                    onClick = { selected?.let { Loeschwahl.person = it.person.xref to it.person.name } })
                 Item(stringResource(Res.string.chip_open_web), enabled = selected != null, onClick = { selected?.let { openWeb(it.person.url) } })
                 if (viewModel.bookmarksSupported) {
                     val root = state.root

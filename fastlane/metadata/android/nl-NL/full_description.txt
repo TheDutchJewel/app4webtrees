@@ -1,0 +1,25 @@
+wtAnd is een Android-app voor webtrees, de vrije genealogiesoftware voor het web. De app toont en bewerkt de stamboom die op je eigen webtrees-server staat – geen account bij een aanbieder, geen abonnement, geen reclame, niets dat je gegevens gegijzeld houdt.
+
+Functies:
+
+* De boom centraal: zandloperweergave met voorouders, partners, kinderen en kleinkinderen, plus broers, zussen en neven en nichten; vrij schuiven en zoomen, takken uitklappen, iedere persoon in het midden zetten. Bij uitzoomen toont een kaart minder in plaats van kleiner, de tekst blijft leesbaar
+* Profiel: het leven als tijdlijn (met huwelijk en geboorten van de kinderen), verwantschap met jezelf („grootvader van vaderskant”), foto’s, gezin, kaart van de levensplaatsen
+* Doopgetuigen en huwelijksgetuigen onder doop en huwelijk; bij iedere persoon staat waar hij of zij zelf getuige was
+* Bewerken: gebeurtenissen aanmaken, wijzigen en verwijderen – ook huwelijken en andere gezinsgebeurtenissen; familieleden direct in de boom toevoegen met de „+” op elke kaart; datums kies je, plaatsen worden uit de boom voorgesteld
+* Foto’s: een foto maken of kiezen en aan een persoon koppelen; foto-overzicht van de hele boom; viewer met vegen, knijpen en dubbeltikken
+* Archief: draait op de server de module Sammlungen, dan toont de app ook het archief – map- en themacollecties en vooral de afbeeldingen die aan niemand hangen. Onderweg een afbeelding vastleggen met beschrijving, datum en personen, als EXIF in het bestand opgeslagen
+* Documenten: pdf’s openen in de eigen viewer van de app, pagina voor pagina
+* Jubilea: komende verjaardagen, trouwdagen en sterfdagen, desgewenst met dagelijkse herinnering
+* Moderatie: openstaande wijzigingen in de app goedkeuren of afwijzen
+* Compact op de telefoon, uitgebreid op de tablet; Duits, Engels, Frans, Nederlands en Spaans, in de app te wisselen
+
+Wat (nog) niet native is, opent als webtrees-pagina in dezelfde sessie.
+
+Vereisten:
+
+* Een webtrees-server (2.2.x) – je eigen of een waarop je een account hebt – met de module api4webtrees in modules_v4/ (https://github.com/thobgg/api4webtrees). De kern van webtrees blijft onaangeroerd.
+* Optioneel: de module Sammlungen (1.6 of nieuwer) voor het archief.
+
+Privacy: de app meldt zich aan met je gewone webtrees-account; elk verzoek loopt als die gebruiker, met dezelfde privacyregels als op de website. Op het apparaat staan serveradres, gebruikersnaam en de sessiecookie – nooit het wachtwoord. Geen cloudback-up van de app-gegevens, geen analyse, geen reclame, geen Google-diensten. De kaart laadt zijn tegels van OpenStreetMap.
+
+wtAnd is geen officieel webtrees-product. Dezelfde code draait op de pc als wtWin (Windows) en wtTux (Linux), zie de projectpagina.
