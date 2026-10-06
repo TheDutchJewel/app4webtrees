@@ -1395,4 +1395,32 @@
     <string name="desk_merge_same_count">%1$d identical entries are not taken over twice.</string>
     <string name="desk_merge_show_all">Show all events</string>
     <string name="desk_merge_show_less">Show differences only</string>
+    <!-- Stufe 30: Aufgaben, Aenderungen, Favoriten, Reihenfolge -->
+    <string name="desk_tasks_window">Research tasks</string>
+    <string name="desk_tasks_open_only">due only</string>
+    <string name="desk_tasks_count">%1$d tasks</string>
+    <string name="desk_tasks_empty">No tasks. Add one via Individual › Add task or from the plausibility check.</string>
+    <string name="desk_task_new">New task …</string>
+    <string name="desk_task_edit">Edit …</string>
+    <string name="desk_task_done">Done</string>
+    <string name="desk_task_for">Task for %1$s</string>
+    <string name="desk_task_text">Task</string>
+    <string name="desk_task_date">Date (empty = today; later = reminder)</string>
+    <string name="desk_task_user">Assigned to</string>
+    <string name="desk_task_note">Note</string>
+    <string name="desk_task_from_check">Check %1$s: %2$s</string>
+    <string name="desk_task_add_menu">Add task …</string>
+    <string name="desk_task_tip">Create a task</string>
+    <string name="desk_changes_window">Recent changes</string>
+    <string name="desk_changes_empty">No changes.</string>
+    <string name="desk_change_created">created</string>
+    <string name="desk_change_updated">changed</string>
+    <string name="desk_change_deleted">deleted</string>
+    <string name="desk_change_pending">awaiting approval</string>
+    <string name="desk_bookmarks_mine">My bookmarks</string>
+    <string name="desk_bookmarks_tree">Favourites of the tree</string>
+    <string name="desk_bookmark_tree_add">Bookmark for the tree</string>
+    <string name="desk_bookmark_tree_remove">Remove from the tree’s favourites</string>
+    <string name="desk_reorder_up">Move up</string>
+    <string name="desk_reorder_down">Move down</string>
 </resources>

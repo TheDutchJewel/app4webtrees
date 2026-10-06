@@ -78,6 +78,15 @@ En **Editar** también se puede indicar un **nombre corto** (GEDCOM-L: abreviatu
 
 En la pestaña **Medios**, el puntero sobre una imagen muestra título, nombre de archivo, formato, tipo, tamaño y dimensiones; **editar** cambia título y tipo (foto, documento, postal …). También se pueden arrastrar archivos desde el explorador de archivos a la pestaña.
 
+## Tareas, marcadores y cambios recientes
+
+Requiere api4webtrees 1.18 o posterior en el servidor; el árbol en este PC lo incluye.
+
+- **Tareas de investigación** (Ver › Tareas de investigación, Ctrl+7): todas las tareas del árbol – las mismas que webtrees muestra en el navegador en el bloque «Tareas de investigación», guardadas en el campo GEDCOM `_TODO` de una persona o familia. Cada una con texto, fecha, responsable y nota. **Nueva tarea …** añade una para la persona central, igual que Persona › **Añadir tarea …**; en la comprobación de plausibilidad el símbolo de tarea convierte un hallazgo en una tarea con el texto de la comprobación. Una fecha futura es un recordatorio y desaparece de la lista con «solo vencidas». **Hecho** elimina la tarea, como hace webtrees.
+- **Marcadores** (Ctrl+B): desde 1.37 son los favoritos de webtrees, visibles también en el navegador en «Mi página › Mis favoritos». Una lista antigua se incorpora en el primer uso. Los administradores pueden fijar favoritos para todos con Persona › **Marcar para el árbol**; aparecen como segundo grupo.
+- **Cambios recientes** (Ver › Cambios recientes, Ctrl+8): quién creó, modificó o eliminó qué registro y cuándo, incluidos los cambios aún no aprobados. Un clic convierte a la persona en central, doble clic abre la ficha.
+- **Orden:** en la ficha de la persona, pestaña Cónyuges/hijos, las flechas ▲▼ mueven uniones e hijos hacia arriba o abajo. Solo cambia el orden de las líneas en el GEDCOM.
+
 ## Secciones: Inicio, Árbol, Fotos
 
 - **Inicio** (Ctrl+1): saludo, próximos aniversarios, cambios recientes en el árbol, la persona de inicio. Los moderadores ven aquí los cambios pendientes y los aceptan o rechazan.

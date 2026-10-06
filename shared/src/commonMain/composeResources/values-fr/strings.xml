@@ -1390,4 +1390,32 @@
     <string name="desk_merge_same_count">%1$d indications identiques ne sont pas reprises deux fois.</string>
     <string name="desk_merge_show_all">Afficher tous les événements</string>
     <string name="desk_merge_show_less">Afficher seulement les différences</string>
+    <!-- Stufe 30: Aufgaben, Aenderungen, Favoriten, Reihenfolge -->
+    <string name="desk_tasks_window">Tâches de recherche</string>
+    <string name="desk_tasks_open_only">seulement les échues</string>
+    <string name="desk_tasks_count">%1$d tâches</string>
+    <string name="desk_tasks_empty">Aucune tâche. Ajoutez-en via Personne › Ajouter une tâche ou depuis le contrôle de plausibilité.</string>
+    <string name="desk_task_new">Nouvelle tâche …</string>
+    <string name="desk_task_edit">Modifier …</string>
+    <string name="desk_task_done">Terminé</string>
+    <string name="desk_task_for">Tâche pour %1$s</string>
+    <string name="desk_task_text">Tâche</string>
+    <string name="desk_task_date">Date (vide = aujourd’hui ; plus tard = rappel)</string>
+    <string name="desk_task_user">Attribuée à</string>
+    <string name="desk_task_note">Note</string>
+    <string name="desk_task_from_check">Contrôle %1$s : %2$s</string>
+    <string name="desk_task_add_menu">Ajouter une tâche …</string>
+    <string name="desk_task_tip">Créer une tâche</string>
+    <string name="desk_changes_window">Modifications récentes</string>
+    <string name="desk_changes_empty">Aucune modification.</string>
+    <string name="desk_change_created">créé</string>
+    <string name="desk_change_updated">modifié</string>
+    <string name="desk_change_deleted">supprimé</string>
+    <string name="desk_change_pending">en attente de validation</string>
+    <string name="desk_bookmarks_mine">Mes favoris</string>
+    <string name="desk_bookmarks_tree">Favoris de l’arbre</string>
+    <string name="desk_bookmark_tree_add">Mettre en favori pour l’arbre</string>
+    <string name="desk_bookmark_tree_remove">Retirer des favoris de l’arbre</string>
+    <string name="desk_reorder_up">Monter</string>
+    <string name="desk_reorder_down">Descendre</string>
 </resources>

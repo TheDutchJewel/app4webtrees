@@ -112,6 +112,8 @@ data class UiState(
     val reminders: Boolean = false,
     /** Merkliste des Benutzers in diesem Baum (ab API-Stufe 11) */
     val bookmarks: List<Person> = emptyList(),
+    /** Favoriten des Stammbaums, die Verwalter fuer alle setzen (ab API-Stufe 30) */
+    val treeBookmarks: List<Person> = emptyList(),
 
     // ── Fotos ────────────────────────────────────────────────────────
     val media: List<MediaJson> = emptyList(),

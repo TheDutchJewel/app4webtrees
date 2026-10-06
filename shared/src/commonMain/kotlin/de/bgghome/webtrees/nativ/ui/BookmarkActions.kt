@@ -16,7 +16,7 @@ internal fun AppViewModel.loadBookmarks() {
     val tree = uiState.value.tree ?: return
     if (!bookmarksSupported) return
     viewModelScope.launch {
-        runCatching { client.bookmarks(tree.name) }.onSuccess { list -> uiState.update { it.copy(bookmarks = list.data) } }
+        runCatching { client.bookmarks(tree.name) }.onSuccess { list -> uiState.update { it.copy(bookmarks = list.data, treeBookmarks = list.treeFavorites) } }
     }
 }
 
@@ -26,7 +26,42 @@ fun AppViewModel.toggleBookmark(xref: String) {
     viewModelScope.launch {
         try {
             val list = client.setBookmark(tree.name, xref, add)
-            uiState.update { it.copy(bookmarks = list.data) }
+            uiState.update { it.copy(bookmarks = list.data, treeBookmarks = list.treeFavorites) }
+        } catch (e: Exception) {
+            fail(e)
+        }
+    }
+}
+
+/** Ab API-Stufe 30: Aufgaben, Reihenfolge, Aenderungsverlauf, Favoriten des Stammbaums. */
+val AppViewModel.tasksSupported: Boolean
+    get() = (uiState.value.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_TASKS && uiState.value.info?.user?.loggedIn == true
+
+fun AppViewModel.isTreeBookmarked(xref: String): Boolean = uiState.value.treeBookmarks.any { it.xref == xref }
+
+/** Favoriten des Stammbaums setzen oder entfernen (nur Verwalter, ab Stufe 30). */
+fun AppViewModel.toggleTreeBookmark(xref: String) {
+    val tree = uiState.value.tree ?: return
+    val add = !isTreeBookmarked(xref)
+    viewModelScope.launch {
+        try {
+            val list = client.setBookmark(tree.name, xref, add, forTree = true)
+            uiState.update { it.copy(bookmarks = list.data, treeBookmarks = list.treeFavorites) }
+        } catch (e: Exception) {
+            fail(e)
+        }
+    }
+}
+
+/** Reihenfolge aendern und die Person danach neu laden (ab Stufe 30). */
+fun AppViewModel.reorder(xref: String, type: String, order: List<String>, reload: String, onDone: () -> Unit = {}) {
+    val tree = uiState.value.tree ?: return
+    viewModelScope.launch {
+        try {
+            client.reorder(tree.name, xref, type, order)
+            select(reload)
+            uiState.update { it.copy(pedigree = null, descendants = null) }
+            onDone()
         } catch (e: Exception) {
             fail(e)
         }

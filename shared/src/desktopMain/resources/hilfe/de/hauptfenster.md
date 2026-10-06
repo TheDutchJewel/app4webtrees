@@ -78,6 +78,15 @@ Unter **Bearbeiten** lässt sich auch ein **Kurzname** eintragen (GEDCOM-L: Abk�
 
 Im Reiter **Medien** zeigt der Mauszeiger über einem Bild Titel, Dateiname, Format, Art, Größe und Bildmaße; **bearbeiten** ändert Titel und Art (Foto, Dokument, Postkarte …). Dateien lassen sich auch einfach aus dem Dateimanager auf den Reiter ziehen.
 
+## Aufgaben, Merkliste und letzte Änderungen
+
+Braucht api4webtrees ab 1.18 auf dem Server; der Stammbaum auf diesem PC bringt es mit.
+
+- **Aufgaben** (Ansicht › Aufgaben, Strg+7): alle Forschungsaufgaben des Stammbaums – dieselben, die webtrees im Browser im Block „Forschungsaufgaben“ zeigt, gespeichert im GEDCOM-Feld `_TODO` an Person oder Familie. Je Aufgabe Text, Datum, Bearbeiter und Notiz. **Neue Aufgabe …** legt eine für den Probanden an, ebenso Person › **Aufgabe hinzufügen …**; in der Plausibilitätsprüfung macht das Aufgaben-Symbol aus einem Treffer eine Aufgabe mit dem Prüftext. Ein Datum in der Zukunft ist eine Wiedervorlage und fällt mit „nur fällige“ aus der Liste. **Erledigt** löscht die Aufgabe, so wie webtrees es tut.
+- **Merkliste** (Strg+B): seit 1.37 sind das die Favoriten von webtrees, sichtbar auch im Browser unter „Meine Seite › Meine Favoriten“. Eine alte Merkliste wird beim ersten Aufruf übernommen. Verwalter können mit Person › **Für den Stammbaum merken** Favoriten für alle setzen; sie stehen in der Merkliste als zweite Gruppe.
+- **Letzte Änderungen** (Ansicht › Letzte Änderungen, Strg+8): wer hat wann welchen Datensatz angelegt, geändert oder gelöscht, auch noch nicht freigegebene Änderungen. Klick macht die Person zum Probanden, Doppelklick öffnet das Personenblatt.
+- **Reihenfolge:** Im Personenblatt, Reiter Partner/Kinder, schieben die Pfeile ▲▼ Partnerschaften und Kinder nach oben oder unten. Es ändert sich nur die Reihenfolge der Zeilen im GEDCOM.
+
 ## Bereiche: Start, Baum, Fotos
 
 - **Start** (Strg+1): Begrüßung, die nächsten Jahrestage, letzte Änderungen im Stammbaum, die Startperson. Moderatoren sehen hier ausstehende Änderungen und nehmen sie an oder verwerfen sie.

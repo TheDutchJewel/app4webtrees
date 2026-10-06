@@ -194,7 +194,7 @@ private class Bearbeitung(val fakt: FactJson, val record: String, val person: St
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, onClose: () -> Unit, onOrteBereinigen: (() -> Unit)? = null,
-    onZusammenfuehren: ((de.bgghome.webtrees.nativ.data.Dublette) -> Unit)? = null) {
+    onZusammenfuehren: ((de.bgghome.webtrees.nativ.data.Dublette) -> Unit)? = null, onAufgabe: ((AufgabeZiel) -> Unit)? = null) {
     val appName = LocalAppName.current
     val baumTitel = state.tree?.title.orEmpty()
     var aus by remember { mutableStateOf(PruefWahl.aus()) }
@@ -349,7 +349,7 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
                                     LazyColumn(Modifier.fillMaxSize(), state = trefferListe) {
                                         items(zeilen) { t ->
                                             TrefferZeile(t, b, r == null, schwereVon(t.regel), t.schluessel in abgehakt, state.root, state.tree?.canEdit == true,
-                                                viewModel, openSheet, onAbhaken = { abhaken(t) }, onBearbeiten = { bearbeiten = it }, onZusammenfuehren = onZusammenfuehren)
+                                                viewModel, openSheet, onAbhaken = { abhaken(t) }, onBearbeiten = { bearbeiten = it }, onZusammenfuehren = onZusammenfuehren, onAufgabe = onAufgabe)
                                         }
                                     }
                                     ListenLeiste(trefferListe)
@@ -445,6 +445,7 @@ private fun TrefferZeile(
     t: Treffer, b: TreeExport, mitRegel: Boolean, schwere: Schwere, abgehakt: Boolean, root: String?, darfBearbeiten: Boolean,
     viewModel: AppViewModel, openSheet: (String) -> Unit, onAbhaken: () -> Unit, onBearbeiten: (Bearbeitung) -> Unit,
     onZusammenfuehren: ((de.bgghome.webtrees.nativ.data.Dublette) -> Unit)? = null,
+    onAufgabe: ((AufgabeZiel) -> Unit)? = null,
 ) {
     val xref = trefferPerson(t, b)
     val p = b.person(xref)
@@ -494,6 +495,12 @@ private fun TrefferZeile(
                 Icon(de.bgghome.webtrees.nativ.ui.MergeIcon, stringResource(Res.string.desk_merge_do), Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else if (onZusammenfuehren != null) Spacer(Modifier.width(32.dp))
+        // Aufgabe: den Treffer als Forschungsaufgabe an die Person haengen (ab API-Stufe 30, mit Bearbeitungsrecht)
+        if (onAufgabe != null && xref != null) Tipp(stringResource(Res.string.desk_task_tip)) {
+            IconButton(onClick = { onAufgabe(AufgabeZiel(xref, p?.name ?: xref, vorgabe = Texte.t(Res.string.desk_task_from_check, t.regel, t.text))) }, modifier = Modifier.size(32.dp)) {
+                Icon(de.bgghome.webtrees.nativ.ui.TaskIcon, stringResource(Res.string.desk_task_tip), Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         // Haken: als geprueft abhaken (oder wieder oeffnen)
         IconButton(onClick = onAbhaken, modifier = Modifier.size(32.dp)) {
             Icon(Icons.Default.Check, stringResource(if (abgehakt) Res.string.desk_check_untick else Res.string.desk_check_tick), Modifier.size(18.dp),

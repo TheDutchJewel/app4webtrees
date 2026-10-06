@@ -254,8 +254,24 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
 
     suspend fun bookmarks(tree: String): BookmarkList = get("Bookmarks", tree, emptyMap(), BookmarkList.serializer())
 
-    suspend fun setBookmark(tree: String, xref: String, add: Boolean): BookmarkList =
-        post("Bookmarks", tree, emptyMap(), jsonBody(BookmarkRequest.serializer(), BookmarkRequest(xref, add)), BookmarkList.serializer())
+    suspend fun setBookmark(tree: String, xref: String, add: Boolean, note: String? = null, forTree: Boolean = false): BookmarkList =
+        post("Bookmarks", tree, emptyMap(), jsonBody(BookmarkRequest.serializer(), BookmarkRequest(xref, add, note, forTree)), BookmarkList.serializer())
+
+    /** Alle Forschungsaufgaben des Baums (ab Stufe 30); [nurOffene] laesst Wiedervorlagen in der Zukunft weg. */
+    suspend fun tasks(tree: String, nurOffene: Boolean): TaskList =
+        get("Tasks", tree, if (nurOffene) mapOf("open" to "1") else emptyMap(), TaskList.serializer())
+
+    /** Aufgabe anlegen oder aendern (ab Stufe 30); erledigt = deleteFact mit der factId. */
+    suspend fun saveTask(tree: String, xref: String, r: TaskRequest): WriteResult =
+        post("Task", tree, mapOf("xref" to xref), jsonBody(TaskRequest.serializer(), r))
+
+    /** Reihenfolge von Kindern (an der Familie), Partnerschaften, Namen oder Medien (ab Stufe 30). */
+    suspend fun reorder(tree: String, xref: String, type: String, order: List<String>): WriteResult =
+        post("Reorder", tree, mapOf("xref" to xref), jsonBody(ReorderRequest.serializer(), ReorderRequest(type, order)))
+
+    /** Aenderungsverlauf des Baums (ab Stufe 30), juengste zuerst; [xref] nur dieser Datensatz. */
+    suspend fun changes(tree: String, limit: Int = 100, xref: String? = null): ChangeList =
+        get("Changes", tree, buildMap { put("limit", limit.toString()); xref?.let { put("xref", it) } }, ChangeList.serializer())
 
     suspend fun setStartPerson(tree: String, xref: String, forTree: Boolean): StartPersonResult =
         post("StartPerson", tree, emptyMap(), jsonBody(StartPersonRequest.serializer(), StartPersonRequest(xref, forTree)), StartPersonResult.serializer())

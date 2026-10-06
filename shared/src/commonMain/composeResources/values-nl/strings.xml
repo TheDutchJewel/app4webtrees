@@ -1371,4 +1371,32 @@
     <string name="desk_merge_same_count">%1$d gelijke gegevens worden niet dubbel overgenomen.</string>
     <string name="desk_merge_show_all">Alle gebeurtenissen tonen</string>
     <string name="desk_merge_show_less">Alleen verschillen tonen</string>
+    <!-- Stufe 30: Aufgaben, Aenderungen, Favoriten, Reihenfolge -->
+    <string name="desk_tasks_window">Onderzoekstaken</string>
+    <string name="desk_tasks_open_only">alleen vervallen</string>
+    <string name="desk_tasks_count">%1$d taken</string>
+    <string name="desk_tasks_empty">Geen taken. Voeg er een toe via Persoon › Taak toevoegen of vanuit de plausibiliteitscontrole.</string>
+    <string name="desk_task_new">Nieuwe taak …</string>
+    <string name="desk_task_edit">Bewerken …</string>
+    <string name="desk_task_done">Klaar</string>
+    <string name="desk_task_for">Taak voor %1$s</string>
+    <string name="desk_task_text">Taak</string>
+    <string name="desk_task_date">Datum (leeg = vandaag; later = herinnering)</string>
+    <string name="desk_task_user">Toegewezen aan</string>
+    <string name="desk_task_note">Notitie</string>
+    <string name="desk_task_from_check">Controle %1$s: %2$s</string>
+    <string name="desk_task_add_menu">Taak toevoegen …</string>
+    <string name="desk_task_tip">Als taak aanmaken</string>
+    <string name="desk_changes_window">Recente wijzigingen</string>
+    <string name="desk_changes_empty">Geen wijzigingen.</string>
+    <string name="desk_change_created">aangemaakt</string>
+    <string name="desk_change_updated">gewijzigd</string>
+    <string name="desk_change_deleted">verwijderd</string>
+    <string name="desk_change_pending">wacht op goedkeuring</string>
+    <string name="desk_bookmarks_mine">Mijn bladwijzers</string>
+    <string name="desk_bookmarks_tree">Favorieten van de stamboom</string>
+    <string name="desk_bookmark_tree_add">Als favoriet voor de stamboom</string>
+    <string name="desk_bookmark_tree_remove">Uit de stamboomfavorieten verwijderen</string>
+    <string name="desk_reorder_up">Omhoog</string>
+    <string name="desk_reorder_down">Omlaag</string>
 </resources>

@@ -78,6 +78,15 @@ Bij **Bewerken** kunt u ook een **korte naam** invullen (GEDCOM-L: afkorting van
 
 In het tabblad **Media** toont de muisaanwijzer boven een afbeelding titel, bestandsnaam, formaat, soort, grootte en afmetingen; **bewerken** wijzigt titel en soort (foto, document, ansichtkaart …). Bestanden kunt u ook gewoon uit de bestandsbeheerder op het tabblad slepen.
 
+## Taken, bladwijzers en recente wijzigingen
+
+Vereist api4webtrees 1.18 of nieuwer op de server; de stamboom op deze pc brengt het mee.
+
+- **Onderzoekstaken** (Beeld › Onderzoekstaken, Ctrl+7): alle onderzoekstaken van de stamboom – dezelfde die webtrees in de browser in het blok „Onderzoekstaken“ toont, opgeslagen in het GEDCOM-veld `_TODO` bij een persoon of gezin. Elk met tekst, datum, toegewezene en notitie. **Nieuwe taak …** voegt er een toe voor de proband, net als Persoon › **Taak toevoegen …**; in de plausibiliteitscontrole maakt het taaksymbool van een bevinding een taak met de controletekst. Een datum in de toekomst is een herinnering en valt met „alleen vervallen“ uit de lijst. **Klaar** verwijdert de taak, zoals webtrees doet.
+- **Bladwijzers** (Ctrl+B): sinds 1.37 zijn dit de favorieten van webtrees, ook zichtbaar in de browser onder „Mijn pagina › Mijn favorieten“. Een oude bladwijzerlijst wordt bij het eerste gebruik overgenomen. Beheerders kunnen met Persoon › **Als favoriet voor de stamboom** favorieten voor iedereen instellen; ze staan als tweede groep in de bladwijzers.
+- **Recente wijzigingen** (Beeld › Recente wijzigingen, Ctrl+8): wie heeft wanneer welk record aangemaakt, gewijzigd of verwijderd, ook nog niet goedgekeurde wijzigingen. Klik maakt de persoon tot proband, dubbelklik opent het persoonsblad.
+- **Volgorde:** in het persoonsblad, tabblad Partners/kinderen, verschuiven de pijlen ▲▼ relaties en kinderen omhoog of omlaag. Alleen de volgorde van de regels in het GEDCOM verandert.
+
 ## Onderdelen: Start, Boom, Foto's
 
 - **Start** (Ctrl+1): begroeting, komende gedenkdagen, recente wijzigingen in de stamboom, de startpersoon. Moderators zien hier openstaande wijzigingen en keuren ze goed of af.

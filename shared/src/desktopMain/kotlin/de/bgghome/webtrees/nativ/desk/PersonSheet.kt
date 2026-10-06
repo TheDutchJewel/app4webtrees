@@ -312,8 +312,17 @@ private fun PartnersTab(
                             val jahr = fam.marriage?.date?.year?.takeIf { it > 0 }?.let { "   oo $it" }.orEmpty()
                             val name = sp?.let { registerName(it, stringResource(Res.string.person_private), stringResource(Res.string.person_no_name)) + jahre(it).let { j -> if (j.isNotEmpty()) "  $j" else "" } }
                                 ?: unbekannterPartner(detail.person.sex)
-                            AuswahlZeile(name + jahr, i == gewaehlt, kursiv = sp == null,
-                                onClick = { gewaehlt = i }, onDoppel = sp?.takeIf { !it.isPrivate }?.let { { viewModel.select(it.xref) } })
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(Modifier.weight(1f)) {
+                                    AuswahlZeile(name + jahr, i == gewaehlt, kursiv = sp == null,
+                                        onClick = { gewaehlt = i }, onDoppel = sp?.takeIf { !it.isPrivate }?.let { { viewModel.select(it.xref) } })
+                                }
+                                // Reihenfolge der Partnerschaften (ab API-Stufe 30, mit Bearbeitungsrecht)
+                                if (canEdit && viewModel.tasksSupported && familien.size > 1) ReihenfolgePfeile(i, familien.size) { ziel ->
+                                    val order = familien.map { it.xref }.toMutableList().also { it.add(ziel, it.removeAt(i)) }
+                                    viewModel.reorder(detail.person.xref, "families", order, detail.person.xref) { gewaehlt = ziel }
+                                }
+                            }
                         }
                         if (familien.isEmpty()) item { Text("–", Modifier.padding(12.dp, 6.dp), color = colors.onSurfaceVariant) }
                     }
@@ -330,9 +339,18 @@ private fun PartnersTab(
                 Box(Modifier.weight(1f)) {
                     LazyColumn(Modifier.fillMaxSize(), state = liste) {
                         val kinder = familie?.children.orEmpty()
-                        items(kinder) { k ->
-                            AuswahlZeile(registerName(k, stringResource(Res.string.person_private), stringResource(Res.string.person_no_name)) + jahre(k).let { if (it.isNotEmpty()) "  $it" else "" },
-                                false, onClick = {}, onDoppel = if (k.isPrivate) null else { { viewModel.select(k.xref) } })
+                        itemsIndexed(kinder) { i, k ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(Modifier.weight(1f)) {
+                                    AuswahlZeile(registerName(k, stringResource(Res.string.person_private), stringResource(Res.string.person_no_name)) + jahre(k).let { if (it.isNotEmpty()) "  $it" else "" },
+                                        false, onClick = {}, onDoppel = if (k.isPrivate) null else { { viewModel.select(k.xref) } })
+                                }
+                                // Reihenfolge der Kinder an der Familie (ab API-Stufe 30, mit Bearbeitungsrecht)
+                                if (canEdit && viewModel.tasksSupported && familie != null && kinder.size > 1) ReihenfolgePfeile(i, kinder.size) { ziel ->
+                                    val order = kinder.map { it.xref }.toMutableList().also { it.add(ziel, it.removeAt(i)) }
+                                    viewModel.reorder(familie.xref, "children", order, detail.person.xref)
+                                }
+                            }
                         }
                         if (kinder.isEmpty()) item { Text("–", Modifier.padding(12.dp, 6.dp), color = colors.onSurfaceVariant) }
                     }
@@ -363,6 +381,15 @@ private fun KopfMitPlus(titel: String, plus: String?, onPlus: () -> Unit) {
 
 /** Zeile einer Auswahlliste: Klick waehlt, Doppelklick oeffnet (ohne [onDoppel] nicht). */
 @OptIn(ExperimentalFoundationApi::class)
+/** Zwei kleine Pfeile: Zeile [i] von [n] nach oben oder unten schieben; [onZiel] bekommt die neue Stelle. */
+@Composable
+private fun ReihenfolgePfeile(i: Int, n: Int, onZiel: (Int) -> Unit) {
+    Row {
+        Tipp(stringResource(Res.string.desk_reorder_up)) { TextButton(onClick = { onZiel(i - 1) }, enabled = i > 0, modifier = Modifier.width(34.dp)) { Text("▲", style = MaterialTheme.typography.labelSmall) } }
+        Tipp(stringResource(Res.string.desk_reorder_down)) { TextButton(onClick = { onZiel(i + 1) }, enabled = i < n - 1, modifier = Modifier.width(34.dp)) { Text("▼", style = MaterialTheme.typography.labelSmall) } }
+    }
+}
+
 @Composable
 private fun AuswahlZeile(text: String, aktiv: Boolean, kursiv: Boolean = false, onClick: () -> Unit, onDoppel: (() -> Unit)?) {
     val colors = MaterialTheme.colorScheme

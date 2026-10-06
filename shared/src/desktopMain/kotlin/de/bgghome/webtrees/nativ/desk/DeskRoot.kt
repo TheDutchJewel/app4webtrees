@@ -4,6 +4,9 @@ package de.bgghome.webtrees.nativ.desk
 
 import de.bgghome.webtrees.nativ.ui.StartpersonDialog
 import de.bgghome.webtrees.nativ.ui.startPersonSupported
+import de.bgghome.webtrees.nativ.ui.toggleTreeBookmark
+import de.bgghome.webtrees.nativ.ui.isTreeBookmarked
+import de.bgghome.webtrees.nativ.ui.tasksSupported
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TooltipArea
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -153,6 +156,11 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     // Personen zusammenfuehren: nur Verwalter des Stammbaums, wie in webtrees selbst
     val mergeApi = state.tree?.role == "manager" && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_MERGE
     var zusammen by remember { mutableStateOf<String?>(null) }
+    // Stufe 30: Aufgaben, Letzte Aenderungen, Aufgabe aus Pruefung/Menue
+    val stufe30 = viewModel.tasksSupported
+    var aufgaben by remember { mutableStateOf(false) }
+    var aenderungen by remember { mutableStateOf(false) }
+    var aufgabeNeu by remember { mutableStateOf<AufgabeZiel?>(null) }
     var zusammenPaar by remember { mutableStateOf<de.bgghome.webtrees.nativ.data.Dublette?>(null) }
     val openSheet: (String) -> Unit = { xref -> viewModel.select(xref); sheetOpen = true }
 
@@ -206,6 +214,9 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onStartperson = if (viewModel.startPersonSupported) ({ startperson = true }) else null,
         onOrte = if (orteApi) ({ orte = "" }) else null,
         onZusammenfuehren = if (mergeApi) ({ zusammen = "" }) else null,
+        onAufgaben = if (stufe30) ({ aufgaben = true }) else null,
+        onAenderungen = if (stufe30) ({ aenderungen = true }) else null,
+        onAufgabeNeu = if (stufe30 && state.tree?.canEdit == true) ({ aufgabeNeu = it }) else null,
         onLokaleBaeume = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ lokaleBaeume = true }) else null,
     )
 
@@ -367,7 +378,11 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         if (buch && state.root != null) BuchFenster(state, viewModel, onClose = { buch = false })
         if (pruefung && state.tree != null) PruefFenster(state, viewModel, openSheet, onClose = { pruefung = false },
             onOrteBereinigen = if (orteApi && state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME) ({ orteBereinigen = true; orte = "" }) else null,
-            onZusammenfuehren = if (mergeApi) ({ zusammenPaar = it }) else null)
+            onZusammenfuehren = if (mergeApi) ({ zusammenPaar = it }) else null,
+            onAufgabe = if (stufe30 && state.tree?.canEdit == true) ({ aufgabeNeu = it }) else null)
+        if (aufgaben && state.tree != null) AufgabenFenster(state, viewModel, openSheet, onClose = { aufgaben = false })
+        if (aenderungen && state.tree != null) AenderungenFenster(state, viewModel, openSheet, onClose = { aenderungen = false })
+        aufgabeNeu?.let { z -> state.tree?.let { t -> AufgabeDialog(z, viewModel, t.name, onClose = { ok -> aufgabeNeu = null; if (ok) viewModel.setRoot(z.xref, remember = false) }) } }
         if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false },
             onZusammenfuehren = if (mergeApi) ({ zusammen = it }) else null)
         zusammen?.let { s -> if (state.tree != null) ZusammenfuehrenFenster(state, viewModel, s, openSheet, onClose = { zusammen = null }) }
@@ -393,6 +408,9 @@ private fun FrameWindowScope.DeskMenuBar(
     onQuellen: (() -> Unit)? = null,
     onOrte: (() -> Unit)? = null,
     onZusammenfuehren: (() -> Unit)? = null,
+    onAufgaben: (() -> Unit)? = null,
+    onAenderungen: (() -> Unit)? = null,
+    onAufgabeNeu: ((AufgabeZiel) -> Unit)? = null,
     onStartperson: (() -> Unit)? = null,
     onLokaleBaeume: (() -> Unit)? = null,
 ) {
@@ -429,6 +447,12 @@ private fun FrameWindowScope.DeskMenuBar(
                 Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,
                     shortcut = KeyShortcut(Key.N, ctrl = true), onClick = { selected?.let { viewModel.requestAddRelative(it.person.xref) } })
                 onZusammenfuehren?.let { Item(stringResource(Res.string.desk_merge_menu), enabled = state.tree != null, onClick = it) }
+                onAufgabeNeu?.let { f -> Item(stringResource(Res.string.desk_task_add_menu), enabled = selected != null, onClick = { selected?.let { f(AufgabeZiel(it.person.xref, it.person.name)) } }) }
+                if (onAufgaben != null && state.tree?.role == "manager") {
+                    val root = state.root
+                    Item(stringResource(if (root != null && viewModel.isTreeBookmarked(root)) Res.string.desk_bookmark_tree_remove else Res.string.desk_bookmark_tree_add),
+                        enabled = root != null, onClick = { root?.let(viewModel::toggleTreeBookmark) })
+                }
                 Item(stringResource(Res.string.action_delete_person), enabled = selected?.canEdit == true,
                     onClick = { selected?.let { Loeschwahl.person = it.person.xref to it.person.name } })
                 Item(stringResource(Res.string.chip_open_web), enabled = selected != null, onClick = { selected?.let { openWeb(it.person.url) } })
@@ -500,6 +524,8 @@ private fun FrameWindowScope.DeskMenuBar(
                 Item(stringResource(Res.string.desk_table_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Four, ctrl = true), onClick = onTabelle)
                 if (onQuellen != null) Item(stringResource(Res.string.desk_sources_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Five, ctrl = true), onClick = onQuellen)
                 if (onOrte != null) Item(stringResource(Res.string.desk_places_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Six, ctrl = true), onClick = onOrte)
+                if (onAufgaben != null) Item(stringResource(Res.string.desk_tasks_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Seven, ctrl = true), onClick = onAufgaben)
+                if (onAenderungen != null) Item(stringResource(Res.string.desk_changes_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Eight, ctrl = true), onClick = onAenderungen)
                 Separator()
                 Menu(stringResource(Res.string.tree_generations, state.ancestorGenerations)) {
                     (2..7).forEach { n ->
@@ -770,27 +796,38 @@ private fun MerklisteFenster(state: UiState, viewModel: AppViewModel, openSheet:
     ) {
         DeskTheme {
             Surface(color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxSize()) {
-                if (state.bookmarks.isEmpty()) {
+                val manager = state.tree?.role == "manager"
+                val stufe30 = viewModel.tasksSupported
+                if (state.bookmarks.isEmpty() && state.treeBookmarks.isEmpty()) {
                     Text(stringResource(Res.string.desk_bookmarks_empty), Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     val list = rememberLazyListState()
+                    @Composable
+                    fun zeile(p: Person, entfernen: (() -> Unit)?) {
+                        Row(
+                            Modifier.fillMaxWidth().fokusRahmen()
+                                .combinedClickable(onClick = { viewModel.setRoot(p.xref) }, onDoubleClick = { openSheet(p.xref) })
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Portrait(p, Modifier.size(32.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(registerName(p, stringResource(Res.string.person_private), stringResource(Res.string.person_no_name)), style = MaterialTheme.typography.bodyMedium, fontWeight = if (p.xref == state.root) FontWeight.SemiBold else FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                if (p.lifespan.isNotBlank()) Text(p.lifespan, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                if (p.note.isNotBlank()) Text(p.note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            }
+                            if (entfernen != null) TextButton(onClick = entfernen) { Text(stringResource(Res.string.desk_remove)) }
+                        }
+                    }
                     Box(Modifier.fillMaxSize()) {
                         LazyColumn(Modifier.fillMaxSize(), state = list) {
-                            items(state.bookmarks, key = { it.xref }) { p ->
-                                Row(
-                                    Modifier.fillMaxWidth().fokusRahmen()
-                                        .combinedClickable(onClick = { viewModel.setRoot(p.xref) }, onDoubleClick = { openSheet(p.xref) })
-                                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Portrait(p, Modifier.size(32.dp))
-                                    Spacer(Modifier.width(8.dp))
-                                    Column(Modifier.weight(1f)) {
-                                        Text(registerName(p, stringResource(Res.string.person_private), stringResource(Res.string.person_no_name)), style = MaterialTheme.typography.bodyMedium, fontWeight = if (p.xref == state.root) FontWeight.SemiBold else FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        if (p.lifespan.isNotBlank()) Text(p.lifespan, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
-                                    TextButton(onClick = { viewModel.toggleBookmark(p.xref) }) { Text(stringResource(Res.string.desk_remove)) }
-                                }
+                            // Ab Stufe 30 zwei Gruppen: meine Merkliste und die Favoriten des Stammbaums (webtrees "Meine Seite")
+                            if (stufe30 && state.treeBookmarks.isNotEmpty()) item { Text(stringResource(Res.string.desk_bookmarks_mine), Modifier.padding(10.dp, 8.dp, 10.dp, 2.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                            items(state.bookmarks, key = { "m" + it.xref }) { p -> zeile(p) { viewModel.toggleBookmark(p.xref) } }
+                            if (stufe30 && state.treeBookmarks.isNotEmpty()) {
+                                item { Text(stringResource(Res.string.desk_bookmarks_tree), Modifier.padding(10.dp, 12.dp, 10.dp, 2.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                                items(state.treeBookmarks, key = { "t" + it.xref }) { p -> zeile(p, if (manager) ({ viewModel.toggleTreeBookmark(p.xref) }) else null) }
                             }
                         }
                         ListenLeiste(list)

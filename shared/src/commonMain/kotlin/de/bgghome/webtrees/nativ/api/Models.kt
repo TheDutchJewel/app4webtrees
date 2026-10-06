@@ -93,6 +93,8 @@ data class Person(
     val chr: EventJson? = null,
     val buri: EventJson? = null,
     val occupation: String? = null,
+    /** Nur in der Merkliste ab API-Stufe 30: die Notiz zum Favoriten. */
+    val note: String = "",
 )
 
 /** Eine Heirat eines Kindes: Partner (leer, wenn privat), Datum und Ort (beides kann fehlen). */
@@ -235,6 +237,9 @@ data class FamilyJson(
     val media: List<MediaJson> = emptyList(),
     /** Nur in stepFamilies: der gemeinsame Elternteil (XREF). */
     val parent: String? = null,
+    /** Ab API-Stufe 30 (nur in der Family-Antwort): Forschungsaufgaben und letzte Aenderung. */
+    val tasks: List<TaskJson> = emptyList(),
+    val lastChange: LastChange? = null,
 )
 
 @Serializable
@@ -251,6 +256,9 @@ data class IndividualDetail(
     val media: List<MediaJson> = emptyList(),
     /** Wo die Person Pate oder Zeuge ist (ab API-Stufe 19, sonst leer), nach Datum. */
     val associatedIn: List<AssociatedIn> = emptyList(),
+    /** Ab API-Stufe 30: Forschungsaufgaben und letzte Aenderung. */
+    val tasks: List<TaskJson> = emptyList(),
+    val lastChange: LastChange? = null,
 )
 
 /** Ein Halbgeschwister und ob es ueber den Vater verwandt ist (sonst ueber die Mutter). */
@@ -535,10 +543,38 @@ data class Descendants(val root: String = "", val generations: Int = 0, val tree
 
 /** Merkliste (ab API-Stufe 11): die gemerkten Personen des Benutzers in diesem Baum. */
 @Serializable
-data class BookmarkList(val data: List<Person> = emptyList())
+data class BookmarkList(val data: List<Person> = emptyList(), /** Ab Stufe 30: die Favoriten des Stammbaums (Verwalter setzen sie). */ val treeFavorites: List<Person> = emptyList())
 
 @Serializable
-data class BookmarkRequest(val xref: String, val add: Boolean)
+data class BookmarkRequest(val xref: String, val add: Boolean, val note: String? = null, val forTree: Boolean = false)
+
+/** Ab Stufe 30: Forschungsaufgaben (webtrees _TODO), Reihenfolge, Aenderungsverlauf, Merkliste in den Favoriten. */
+const val API_TASKS = 30
+
+/** Eine Forschungsaufgabe an Person oder Familie. */
+@Serializable
+data class TaskJson(val record: String, val recordType: String = "INDI", val name: String = "", val factId: String = "", val text: String = "",
+    val date: DateJson? = null, val jd: Int? = null, val user: String = "", val note: String = "", val pending: Boolean = false)
+
+@Serializable
+data class TaskList(val ok: Boolean = false, val today: Int = 0, val tasks: List<TaskJson> = emptyList())
+
+@Serializable
+data class TaskRequest(val factId: String? = null, val text: String, val date: String? = null, val user: String? = null, val note: String? = null)
+
+@Serializable
+data class ReorderRequest(val type: String, val order: List<String>)
+
+/** Letzte Aenderung eines Datensatzes (CHAN). */
+@Serializable
+data class LastChange(val time: String = "", val user: String = "")
+
+/** Ein Eintrag im Aenderungsverlauf des Baums. */
+@Serializable
+data class ChangeEntry(val time: String = "", val user: String = "", val xref: String = "", val type: String = "", val name: String = "", val action: String = "", val pending: Boolean = false)
+
+@Serializable
+data class ChangeList(val ok: Boolean = false, val changes: List<ChangeEntry> = emptyList())
 
 /** Startperson festlegen (ab API-Stufe 24): ohne [forTree] die eigene Standardperson, mit die des Stammbaums. */
 const val API_START_PERSON = 24

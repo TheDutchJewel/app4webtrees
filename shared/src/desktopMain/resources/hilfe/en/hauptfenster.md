@@ -78,6 +78,15 @@ Coordinates can be typed as decimals or in degrees, minutes, seconds; **From cli
 
 In the **Media** tab the mouse pointer over a picture shows title, file name, format, type, size and dimensions; **edit** changes title and type (photo, document, postcard …). Files can also simply be dragged from the file manager onto the tab.
 
+## Tasks, bookmarks and recent changes
+
+Needs api4webtrees 1.18 or newer on the server; the family tree on this PC includes it.
+
+- **Research tasks** (View › Research tasks, Ctrl+7): all research tasks of the tree – the same ones webtrees shows in the browser in the block “Research tasks”, stored in the GEDCOM field `_TODO` at an individual or family. Each with text, date, assignee and note. **New task …** adds one for the central person, as does Individual › **Add task …**; in the plausibility check the task symbol turns a finding into a task with the check text. A date in the future is a reminder and drops out of the list with “due only”. **Done** deletes the task, as webtrees does.
+- **Bookmarks** (Ctrl+B): since 1.37 these are webtrees’ favourites, also visible in the browser under “My page › My favourites”. An old bookmark list is taken over on first use. Managers can set favourites for everyone with Individual › **Bookmark for the tree**; they appear in the bookmarks as a second group.
+- **Recent changes** (View › Recent changes, Ctrl+8): who created, changed or deleted which record and when, including changes not yet approved. A click makes the person the central person, a double-click opens the person sheet.
+- **Order:** in the person sheet, tab Partners/children, the arrows ▲▼ move partnerships and children up or down. Only the order of the lines in the GEDCOM changes.
+
 ## Sections: Home, Tree, Photos
 
 - **Home** (Ctrl+1): greeting, upcoming anniversaries, recent changes in the tree, the start person. Moderators see pending changes here and accept or reject them.

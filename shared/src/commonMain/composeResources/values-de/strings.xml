@@ -1390,4 +1390,32 @@
     <string name="desk_merge_same_count">%1$d gleiche Angaben werden nicht doppelt übernommen.</string>
     <string name="desk_merge_show_all">Alle Ereignisse anzeigen</string>
     <string name="desk_merge_show_less">Nur Unterschiede anzeigen</string>
+    <!-- Stufe 30: Aufgaben, Aenderungen, Favoriten, Reihenfolge -->
+    <string name="desk_tasks_window">Aufgaben</string>
+    <string name="desk_tasks_open_only">nur fällige</string>
+    <string name="desk_tasks_count">%1$d Aufgaben</string>
+    <string name="desk_tasks_empty">Keine Aufgaben. Aufgaben legst du über Person › Aufgabe hinzufügen oder aus der Plausibilitätsprüfung an.</string>
+    <string name="desk_task_new">Neue Aufgabe …</string>
+    <string name="desk_task_edit">Bearbeiten …</string>
+    <string name="desk_task_done">Erledigt</string>
+    <string name="desk_task_for">Aufgabe für %1$s</string>
+    <string name="desk_task_text">Aufgabe</string>
+    <string name="desk_task_date">Datum (leer = heute; später = Wiedervorlage)</string>
+    <string name="desk_task_user">Bearbeiter</string>
+    <string name="desk_task_note">Notiz</string>
+    <string name="desk_task_from_check">Prüfung %1$s: %2$s</string>
+    <string name="desk_task_add_menu">Aufgabe hinzufügen …</string>
+    <string name="desk_task_tip">Als Aufgabe anlegen</string>
+    <string name="desk_changes_window">Letzte Änderungen</string>
+    <string name="desk_changes_empty">Keine Änderungen.</string>
+    <string name="desk_change_created">angelegt</string>
+    <string name="desk_change_updated">geändert</string>
+    <string name="desk_change_deleted">gelöscht</string>
+    <string name="desk_change_pending">wartet auf Freigabe</string>
+    <string name="desk_bookmarks_mine">Meine Merkliste</string>
+    <string name="desk_bookmarks_tree">Favoriten des Stammbaums</string>
+    <string name="desk_bookmark_tree_add">Für den Stammbaum merken</string>
+    <string name="desk_bookmark_tree_remove">Aus den Stammbaum-Favoriten entfernen</string>
+    <string name="desk_reorder_up">Nach oben</string>
+    <string name="desk_reorder_down">Nach unten</string>
 </resources>

@@ -1390,4 +1390,32 @@
     <string name="desk_merge_same_count">%1$d datos idénticos no se incorporan dos veces.</string>
     <string name="desk_merge_show_all">Mostrar todos los eventos</string>
     <string name="desk_merge_show_less">Mostrar solo las diferencias</string>
+    <!-- Stufe 30: Aufgaben, Aenderungen, Favoriten, Reihenfolge -->
+    <string name="desk_tasks_window">Tareas de investigación</string>
+    <string name="desk_tasks_open_only">solo vencidas</string>
+    <string name="desk_tasks_count">%1$d tareas</string>
+    <string name="desk_tasks_empty">No hay tareas. Añade una en Persona › Añadir tarea o desde la comprobación de plausibilidad.</string>
+    <string name="desk_task_new">Nueva tarea …</string>
+    <string name="desk_task_edit">Editar …</string>
+    <string name="desk_task_done">Hecho</string>
+    <string name="desk_task_for">Tarea para %1$s</string>
+    <string name="desk_task_text">Tarea</string>
+    <string name="desk_task_date">Fecha (vacía = hoy; posterior = recordatorio)</string>
+    <string name="desk_task_user">Asignada a</string>
+    <string name="desk_task_note">Nota</string>
+    <string name="desk_task_from_check">Comprobación %1$s: %2$s</string>
+    <string name="desk_task_add_menu">Añadir tarea …</string>
+    <string name="desk_task_tip">Crear tarea</string>
+    <string name="desk_changes_window">Cambios recientes</string>
+    <string name="desk_changes_empty">No hay cambios.</string>
+    <string name="desk_change_created">creado</string>
+    <string name="desk_change_updated">modificado</string>
+    <string name="desk_change_deleted">eliminado</string>
+    <string name="desk_change_pending">pendiente de aprobación</string>
+    <string name="desk_bookmarks_mine">Mis marcadores</string>
+    <string name="desk_bookmarks_tree">Favoritos del árbol</string>
+    <string name="desk_bookmark_tree_add">Marcar para el árbol</string>
+    <string name="desk_bookmark_tree_remove">Quitar de los favoritos del árbol</string>
+    <string name="desk_reorder_up">Subir</string>
+    <string name="desk_reorder_down">Bajar</string>
 </resources>

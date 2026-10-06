@@ -78,6 +78,15 @@ Les coordonnées se saisissent en décimal ou en degrés, minutes, secondes ; **
 
 Dans l’onglet **Médias**, le pointeur sur une image montre titre, nom de fichier, format, type, taille et dimensions ; **modifier** change titre et type (photo, document, carte postale …). On peut aussi glisser des fichiers depuis le gestionnaire de fichiers sur l’onglet.
 
+## Tâches, favoris et modifications récentes
+
+Nécessite api4webtrees 1.18 ou plus sur le serveur ; l’arbre sur ce PC l’inclut.
+
+- **Tâches de recherche** (Affichage › Tâches de recherche, Ctrl+7) : toutes les tâches de l’arbre – les mêmes que webtrees montre dans le navigateur dans le bloc « Tâches de recherche », enregistrées dans le champ GEDCOM `_TODO` d’une personne ou d’une famille. Chacune avec texte, date, responsable et note. **Nouvelle tâche …** en ajoute une pour la personne centrale, comme Personne › **Ajouter une tâche …** ; dans le contrôle de plausibilité, le symbole de tâche transforme un résultat en tâche avec le texte du contrôle. Une date future est un rappel et disparaît de la liste avec « seulement les échues ». **Terminé** supprime la tâche, comme le fait webtrees.
+- **Favoris** (Ctrl+B) : depuis la 1.37 ce sont les favoris de webtrees, visibles aussi dans le navigateur sous « Ma page › Mes favoris ». Une ancienne liste est reprise au premier appel. Les gestionnaires peuvent définir des favoris pour tous avec Personne › **Mettre en favori pour l’arbre** ; ils apparaissent en second groupe.
+- **Modifications récentes** (Affichage › Modifications récentes, Ctrl+8) : qui a créé, modifié ou supprimé quelle fiche et quand, y compris les modifications pas encore validées. Un clic met la personne au centre, un double-clic ouvre la fiche.
+- **Ordre :** dans la fiche de la personne, onglet Conjoints/enfants, les flèches ▲▼ déplacent unions et enfants vers le haut ou le bas. Seul l’ordre des lignes dans le GEDCOM change.
+
 ## Sections : Accueil, Arbre, Photos
 
 - **Accueil** (Ctrl+1) : message d'accueil, anniversaires à venir, modifications récentes de l'arbre, la personne de départ. Les modérateurs voient ici les modifications en attente et les acceptent ou les refusent.

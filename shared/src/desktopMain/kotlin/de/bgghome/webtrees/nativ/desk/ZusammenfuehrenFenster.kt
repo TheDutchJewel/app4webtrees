@@ -215,8 +215,8 @@ private fun Protokoll(protokoll: Result<List<MergeEntry>>?, onRueckgaengig: (Mer
                         Column(Modifier.weight(1f)) {
                             Text(stringResource(Res.string.desk_merge_log_entry, "${e.removedName} (${e.removed})", "${e.name} (${e.xref})"),
                                 style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(listOfNotNull(zeit(e.time), e.user.takeIf { it.isNotBlank() }, Texte.t(Res.string.desk_merge_log_records, e.records),
-                                e.undone?.let { stringResource(Res.string.desk_merge_undone) + " " + zeit(it) }).joinToString(" · "),
+                            Text(listOfNotNull(isoZeit(e.time), e.user.takeIf { it.isNotBlank() }, Texte.t(Res.string.desk_merge_log_records, e.records),
+                                e.undone?.let { stringResource(Res.string.desk_merge_undone) + " " + isoZeit(it) }).joinToString(" · "),
                                 style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
                         }
                         OutlinedButton(onClick = { onRueckgaengig(e) }, enabled = e.undone == null, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_merge_undo)) }
@@ -229,7 +229,7 @@ private fun Protokoll(protokoll: Result<List<MergeEntry>>?, onRueckgaengig: (Mer
 }
 
 /** "2026-10-05T14:49:45+02:00" -> "05.10.2026 14:49" in der Schreibweise der Oberflaeche. */
-private fun zeit(iso: String): String = runCatching {
+internal fun isoZeit(iso: String): String = runCatching {
     java.time.OffsetDateTime.parse(iso).toLocalDateTime()
         .format(java.time.format.DateTimeFormatter.ofLocalizedDateTime(java.time.format.FormatStyle.SHORT).withLocale(java.util.Locale.getDefault()))
 }.getOrDefault(iso)
