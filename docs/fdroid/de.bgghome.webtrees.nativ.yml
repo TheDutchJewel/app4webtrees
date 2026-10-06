@@ -15,7 +15,7 @@ Binaries: https://github.com/thobgg/app4webtrees/releases/download/v%v/wtAnd-v%v
 Builds:
   - versionName: '1.36'
     versionCode: 38
-    commit: HASH-DES-TAGS-v1.36
+    commit: fc0e744420dfbd7d630c624cc1fa6656d154a5ff
     subdir: app
     gradle:
       - yes
