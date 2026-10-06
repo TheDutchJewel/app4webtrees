@@ -1,0 +1,1 @@
+Plausibility rule 219 for possible duplicates now also matches on an identical date of baptism, death or burial, not only birth. The merging of individuals that this release brings is a PC feature (wtWin, wtTux).

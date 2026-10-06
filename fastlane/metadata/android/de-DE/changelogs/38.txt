@@ -1,0 +1,1 @@
+Prüfregel 219 für mögliche Doppelte erkennt jetzt auch ein gleiches Datum von Taufe, Tod oder Begräbnis, nicht nur der Geburt. Das Zusammenführen von Personen, das diese Version bringt, ist eine PC-Funktion (wtWin, wtTux).

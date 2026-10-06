@@ -9,8 +9,9 @@ plugins {
 }
 
 // Release-Signierung: liest Keystore-Angaben aus keystore.properties (nicht
-// einchecken). Fehlt die Datei, wird mit dem Debug-Key signiert statt den Build
-// zu brechen — gleiches Muster wie mpd-app.
+// einchecken). Fehlt die Datei, bleibt der Release-Build unsigniert
+// (app-release-unsigned.apk) - so erwartet es der F-Droid-Buildserver, der das
+// APK selbst gegen die veroeffentlichte Signatur prueft.
 val keystorePropsFile = rootProject.file("keystore.properties")
 val keystoreProps = Properties().apply {
     if (keystorePropsFile.exists()) FileInputStream(keystorePropsFile).use { load(it) }
@@ -49,10 +50,11 @@ android {
         }
         release {
             isMinifyEnabled = false
-            signingConfig = if (keystorePropsFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
+            // Kein META-INF/version-control-info.textproto (Commit-Hash des Bauplatzes) ins APK:
+            // sonst ist der F-Droid-Bau nie byte-gleich zum veroeffentlichten APK.
+            vcsInfo { include = false }
+            if (keystorePropsFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
             }
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }

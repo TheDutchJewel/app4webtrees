@@ -1,0 +1,1 @@
+Events show when a change is still waiting for approval (needs api4webtrees 1.15.0 on the server). Otherwise as 1.34; the big new features of this release (houses and farms as places) concern wtWin and wtTux on the PC.

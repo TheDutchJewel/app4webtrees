@@ -1,0 +1,1 @@
+Ereignisse zeigen, wenn eine Änderung noch auf Freigabe wartet (braucht api4webtrees 1.15.0 auf dem Server). Sonst wie 1.34; die großen Neuerungen dieser Version (Höfe und Häuser als Orte) betreffen wtWin und wtTux am PC.

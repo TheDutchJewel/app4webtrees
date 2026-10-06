@@ -1,0 +1,29 @@
+Categories:
+  - Science & Education
+License: GPL-3.0-or-later
+AuthorName: thobgg
+SourceCode: https://github.com/thobgg/app4webtrees
+IssueTracker: https://github.com/thobgg/app4webtrees/issues
+Changelog: https://github.com/thobgg/app4webtrees/releases
+
+AutoName: wtAnd
+
+RepoType: git
+Repo: https://github.com/thobgg/app4webtrees.git
+Binaries: https://github.com/thobgg/app4webtrees/releases/download/v%v/wtAnd-v%v.apk
+
+Builds:
+  - versionName: '1.36'
+    versionCode: 38
+    commit: HASH-DES-TAGS-v1.36
+    subdir: app
+    gradle:
+      - yes
+
+AllowedAPKSigningKeys: 93a5862d9c0f15e28b8ab649fbfa9969a9556e46e2500a66d4b557f350440255
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+$
+UpdateCheckData: gradle.properties|wtand.versionCode=(\d+)|.|wtand.versionName=(.+)
+CurrentVersion: '1.36'
+CurrentVersionCode: 38
