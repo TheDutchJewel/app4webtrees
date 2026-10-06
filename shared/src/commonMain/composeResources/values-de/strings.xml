@@ -1418,4 +1418,6 @@
     <string name="desk_bookmark_tree_remove">Aus den Stammbaum-Favoriten entfernen</string>
     <string name="desk_reorder_up">Nach oben</string>
     <string name="desk_reorder_down">Nach unten</string>
+    <string name="desk_add_person">Person hinzufügen</string>
+    <string name="desk_status_persons">%1$d Personen</string>
 </resources>

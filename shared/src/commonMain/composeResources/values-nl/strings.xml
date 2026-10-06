@@ -1399,4 +1399,6 @@
     <string name="desk_bookmark_tree_remove">Uit de stamboomfavorieten verwijderen</string>
     <string name="desk_reorder_up">Omhoog</string>
     <string name="desk_reorder_down">Omlaag</string>
+    <string name="desk_add_person">Persoon toevoegen</string>
+    <string name="desk_status_persons">%1$d personen</string>
 </resources>

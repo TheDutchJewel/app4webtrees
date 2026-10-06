@@ -82,6 +82,7 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.StringResource as StringResourceRef
 import org.jetbrains.compose.resources.stringResource
 
 /*
@@ -119,7 +120,7 @@ private const val GEN_MIN = 2
 private const val GEN_MAX = 4
 
 @Composable
-fun DeskFamilie(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, openSheet: ((String) -> Unit)? = null) {
+fun DeskFamilie(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, openSheet: ((String) -> Unit)? = null, onSuche: (() -> Unit)? = null) {
     val root = state.root
     val tree = state.tree?.name
     var neu by remember { mutableIntStateOf(0) }
@@ -178,7 +179,7 @@ fun DeskFamilie(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
             root == null -> {}
             fehler != null -> Text(fehler.message ?: "?", Modifier.padding(24.dp), color = MaterialTheme.colorScheme.error)
             p == null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-            else -> Familie(state, viewModel, openWeb, openSheet, PaarDaten(p, partner?.takeIf { it.person.xref == partnerXref }, ahnen, nachfahren),
+            else -> Familie(state, viewModel, openWeb, openSheet, onSuche, PaarDaten(p, partner?.takeIf { it.person.xref == partnerXref }, ahnen, nachfahren),
                 familien, familie, reiter, onReiter = { reiter = it }, generationen = generationen,
                 onGenerationen = { generationen = it.coerceIn(GEN_MIN, GEN_MAX); DeskLayout.prefs.putString("familie_gen", generationen.toString()) })
         }
@@ -188,7 +189,7 @@ fun DeskFamilie(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Familie(
-    state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, openSheet: ((String) -> Unit)?, daten: PaarDaten,
+    state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, openSheet: ((String) -> Unit)?, onSuche: (() -> Unit)?, daten: PaarDaten,
     familien: List<FamilyJson>, familie: FamilyJson?, reiter: Int, onReiter: (Int) -> Unit, generationen: Int, onGenerationen: (Int) -> Unit,
 ) {
     val p = daten.proband.person
@@ -211,14 +212,42 @@ private fun Familie(
     var zoomWahl by remember { mutableStateOf<Float?>(null) }
     val zoomAkt = remember { mutableStateOf(1f) }
     Column(Modifier.fillMaxSize()) {
-        // ── Kopfzeile: Generationen nach oben, Zoom ──
-        Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        // ── Kopfband: das Paar mit Namen und Kinderzahl ──
+        val kinderZahl = familie?.children?.size ?: 0
+        val titel = listOfNotNull(mann?.let { if (it.isPrivate) stringResource(Res.string.person_private) else klarName(it) }, frau?.let { if (it.isPrivate) stringResource(Res.string.person_private) else klarName(it) })
+            .joinToString(" & ").ifBlank { klarName(p) }
+        Row(Modifier.fillMaxWidth().background(farben.primaryContainer).padding(horizontal = 24.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(titel, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = farben.onPrimaryContainer, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+            if (familie != null) Text(stringResource(Res.string.desk_family_children, kinderZahl), style = MaterialTheme.typography.bodyMedium, color = farben.onPrimaryContainer)
+        }
+        // ── Zweite Leiste: Person hinzufuegen, Gehe zu, Generationen, Zoom ──
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (canEdit) {
+                var offen by remember { mutableStateOf(false) }
+                val eltern = daten.proband.parentFamilies.firstOrNull()
+                Box {
+                    TextButton(onClick = { offen = true }) { Text("+ " + stringResource(Res.string.desk_add_person) + " ▾") }
+                    androidx.compose.material3.DropdownMenu(expanded = offen, onDismissRequest = { offen = false }) {
+                        @Composable fun eintrag(text: StringResourceRef, vorwahl: String, fam: String? = null) = androidx.compose.material3.DropdownMenuItem(text = { Text(stringResource(text)) },
+                            onClick = { offen = false; Verwandtenwahl.vorwahl = vorwahl; Verwandtenwahl.familie = fam; viewModel.requestAddRelative(p.xref) })
+                        if (eltern?.husband == null) eintrag(Res.string.rel_father, "father")
+                        if (eltern?.wife == null) eintrag(Res.string.rel_mother, "mother")
+                        eintrag(Res.string.rel_partner, "spouse")
+                        eintrag(Res.string.rel_child, "child", familie?.xref)
+                    }
+                }
+            }
+            onSuche?.let { TextButton(onClick = it) { Text(stringResource(Res.string.desk_goto) + " …") } }
             Spacer(Modifier.weight(1f))
             Text("${(zoomAkt.value * 100).roundToInt()} %", Modifier.clickable { zoomWahl = null }, style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
-            Spacer(Modifier.width(16.dp))
-            Text(stringResource(Res.string.tree_generations, generationen), style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
-            TextButton(onClick = { onGenerationen(generationen - 1) }, enabled = generationen > GEN_MIN) { Text("−") }
-            TextButton(onClick = { onGenerationen(generationen + 1) }, enabled = generationen < GEN_MAX) { Text("+") }
+            Spacer(Modifier.width(12.dp))
+            var genOffen by remember { mutableStateOf(false) }
+            Box {
+                TextButton(onClick = { genOffen = true }) { Text(stringResource(Res.string.tree_generations, generationen) + " ▾") }
+                androidx.compose.material3.DropdownMenu(expanded = genOffen, onDismissRequest = { genOffen = false }) {
+                    (GEN_MIN..GEN_MAX).forEach { g -> androidx.compose.material3.DropdownMenuItem(text = { Text(stringResource(Res.string.tree_generations, g)) }, onClick = { genOffen = false; onGenerationen(g) }) }
+                }
+            }
         }
         val zoomJetzt by androidx.compose.runtime.rememberUpdatedState(zoomAkt.value)
         Box(Modifier.fillMaxSize().onPointerEvent(PointerEventType.Scroll, PointerEventPass.Initial) { e ->

@@ -276,14 +276,12 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalPlaceOpener provides ortOeffnen) {
             Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 Column(Modifier.fillMaxSize()) {
-                    if (layout == DeskLayout.Navigator) {
-                        ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true }, onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
-                            symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
-                            onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null)
-                    } else {
-                        WorkspaceBar(state, viewModel, familie = layout == DeskLayout.Family, onQuellen = if (quellenApi) ({ quellen = "" }) else null,
-                            onOrte = if (orteApi) ({ orte = "" }) else null)
-                    }
+                    // Eine Symbolleiste fuer alle drei Aufbauten; "Gehe zu" springt im Navigator in den Dialog, sonst ins Suchfeld
+                    ClassicToolbar(state, viewModel, openWeb, onGoTo = { if (layout == DeskLayout.Navigator) goTo = true else runCatching { search.requestFocus() } },
+                        onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
+                        symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
+                        onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null,
+                        layout = layout, onAufgaben = if (stufe30) ({ aufgaben = true }) else null, onAenderungen = if (stufe30) ({ aenderungen = true }) else null)
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Box(Modifier.fillMaxWidth().height(3.dp)) {
                         if (state.busy || state.loadingDetail || state.loadingPeople) LinearProgressIndicator(Modifier.fillMaxSize())
@@ -311,7 +309,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                             when (state.section) {
                                 Section.Home -> HomeSection(state, viewModel, openWeb)
                                 Section.Photos -> PhotosSection(state, viewModel, openWeb)
-                                else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb, openSheet) else DeskTree(state, viewModel, openWeb)
+                                else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb, openSheet, onSuche = { runCatching { search.requestFocus() } }) else DeskTree(state, viewModel, openWeb)
                             }
                         }
                         if (!vollbild) {
@@ -660,6 +658,9 @@ private fun ClassicToolbar(
     onMerkliste: () -> Unit, onListe: (ListenArt) -> Unit, onTabelle: () -> Unit, onTafel: (TafelArt) -> Unit, onPruefung: () -> Unit, onQuit: () -> Unit,
     onQuellen: (() -> Unit)? = null,
     onOrte: (() -> Unit)? = null,
+    layout: DeskLayout = DeskLayout.Navigator,
+    onAufgaben: (() -> Unit)? = null,
+    onAenderungen: (() -> Unit)? = null,
 ) {
     val canEdit = state.tree?.canEdit == true
     val manager = state.tree?.role == "manager"
@@ -695,15 +696,22 @@ private fun ClassicToolbar(
         add(Knopf(DruckerIcon, stringResource(Res.string.desk_print), enabled = state.root != null, onClick = drucke::personenblatt))
         add(Trenner)
         add(Knopf(Icons.Default.Home, stringResource(Res.string.nav_home), active = state.section == Section.Home) { viewModel.setSection(Section.Home) })
-        add(Knopf(TreeIcon, stringResource(Res.string.desk_layout_navigator), active = state.section == Section.Tree || state.section == Section.Search) { viewModel.setSection(Section.Tree) })
+        add(Knopf(TreeIcon, stringResource(when (layout) { DeskLayout.Family -> Res.string.nav_family; DeskLayout.Navigator -> Res.string.desk_layout_navigator; else -> Res.string.nav_tree }),
+            active = state.section == Section.Tree || state.section == Section.Search) { viewModel.setSection(Section.Tree) })
         add(Knopf(PhotoIcon, stringResource(Res.string.nav_photos), active = state.section == Section.Photos) { viewModel.setSection(Section.Photos) })
         add(Trenner)
         // Die Plausibilitaetspruefung des Programms; "Stammbaum pruefen" von webtrees bleibt im Menue webtrees.
         add(Knopf(Icons.Default.Check, stringResource(Res.string.desk_check), enabled = state.tree != null, onClick = onPruefung))
         add(Knopf(Icons.Default.Place, stringResource(Res.string.desk_web_places), enabled = state.tree != null) { onOrte?.invoke() ?: web("/tree/$t/place-list") })
         add(Knopf(SourceIcon, stringResource(Res.string.desk_web_sources), enabled = state.tree != null) { onQuellen?.invoke() ?: web("/tree/$t/source-list") })
+        if (onAufgaben != null) add(Knopf(de.bgghome.webtrees.nativ.ui.TaskIcon, stringResource(Res.string.desk_tasks_window), enabled = state.tree != null, onClick = onAufgaben))
+        if (onAenderungen != null) add(Knopf(de.bgghome.webtrees.nativ.ui.HistoryIcon, stringResource(Res.string.desk_changes_window), enabled = state.tree != null, onClick = onAenderungen))
         add(Knopf(Icons.AutoMirrored.Filled.ExitToApp, "webtrees") { openWeb(state.detail?.person?.url ?: state.baseUrl) })
         add(Trenner)
+        add(Knopf(de.bgghome.webtrees.nativ.ui.LanguageIcon, stringResource(Res.string.menu_language), menu = { close ->
+            DropdownMenuItem(text = { Text(stringResource(Res.string.language_system)) }, onClick = { close(); Sprache.setzen(null); viewModel.refresh() })
+            Sprache.ALLE.forEach { (code, name) -> DropdownMenuItem(text = { Text(name) }, onClick = { close(); Sprache.setzen(code); viewModel.refresh() }) }
+        }))
         add(Knopf(HelpIcon, stringResource(Res.string.desk_help), onClick = onAbout))
         add(Knopf(Icons.Default.Close, stringResource(Res.string.desk_quit), onClick = onQuit))
     }
@@ -1127,7 +1135,8 @@ private fun StatusBar(state: UiState, version: String, appName: String) {
     val host = state.baseUrl.toHttpUrlOrNull()?.let { url -> url.host + (if (url.port != 80 && url.port != 443) ":${url.port}" else "") } ?: state.baseUrl
     val user = state.info?.user
     val who = if (user?.loggedIn == true) stringResource(Res.string.trees_signed_in_as, user.userName) else stringResource(Res.string.desk_guest)
-    val parts = listOfNotNull(host.takeIf { it.isNotEmpty() }, state.tree?.title, who, state.tree?.role?.let { roleLabel(it) },
+    val parts = listOfNotNull(host.takeIf { it.isNotEmpty() }, state.tree?.title, state.tree?.individuals?.takeIf { it > 0 }?.let { stringResource(Res.string.desk_status_persons, it) },
+        who, state.tree?.role?.let { roleLabel(it) },
         if (WtClient.isCleartext(state.baseUrl)) stringResource(Res.string.http_home_hint) else null)
     Surface(color = MaterialTheme.colorScheme.surface) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
