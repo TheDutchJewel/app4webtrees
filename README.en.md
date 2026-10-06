@@ -13,6 +13,8 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), for testing"></a>
 </p>
 
+<p align="center"><b>New in 1.37: tasks, bookmarks, changes.</b> Research tasks as in webtrees (View › Research tasks, also from the plausibility check), bookmarks in webtrees’ favourites with favourites for the whole tree, the tree’s recent changes, arrows to reorder partners and children, and a compact merge dialog. Needs api4webtrees 1.18.0 – with it the interface is complete.</p>
+
 <p align="center"><b>New in 1.36: merging individuals.</b> The plausibility check finds duplicates (same name and one identical event date, or similar); Individual › Merge individuals shows both side by side and you choose what stays – all links move along. Every merge is logged and can be undone, even days later. Needs api4webtrees 1.17.1; tree managers only. <b>New family view:</b> ancestors of both partners over up to four generations, couple cards, children with spouses and grandchildren, lines, fitted to the window height.</p>
 
 <p align="center">

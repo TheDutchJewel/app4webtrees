@@ -13,6 +13,8 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), zum Testen"></a>
 </p>
 
+<p align="center"><b>Neu in 1.37: Aufgaben, Merkliste, Änderungen.</b> Forschungsaufgaben wie in webtrees (Ansicht › Aufgaben, auch aus der Plausibilitätsprüfung), die Merkliste in den webtrees-Favoriten mit Favoriten für den ganzen Stammbaum, die letzten Änderungen des Baums, Pfeile für die Reihenfolge von Partnern und Kindern, und ein kompakter Dialog zum Zusammenführen. Braucht api4webtrees 1.18.0 – damit ist die Schnittstelle vollständig.</p>
+
 <p align="center"><b>Neu in 1.36: Personen zusammenführen.</b> Doppelte Personen findet die Plausibilitätsprüfung (gleicher Name und gleiches Ereignisdatum, oder ähnlich); unter Person › Personen zusammenführen stehen beide nebeneinander, du wählst, was bleibt – alle Verweise wandern mit. Jedes Zusammenführen steht im Protokoll und lässt sich rückgängig machen, auch Tage später. Braucht api4webtrees 1.17.1; nur für Verwalter des Stammbaums. <b>Familienansicht neu:</b> Vorfahren beider Partner über bis zu vier Generationen, Paarkarten, Kinder mit Partnern und Enkeln, Linien, eingepasst in die Fensterhöhe.</p>
 
 <p align="center">
