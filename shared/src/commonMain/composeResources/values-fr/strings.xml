@@ -16,6 +16,10 @@
     <string name="setup_address">Adresse</string>
     <string name="setup_connect">Connecter</string>
     <string name="setup_connecting">Connexion …</string>
+    <string name="setup_basic_auth_open">Le serveur demande un nom d’utilisateur et un mot de passe avant webtrees (protection du répertoire) ?</string>
+    <string name="setup_basic_auth_help">Seulement si votre serveur web protège tout le site par ses propres identifiants (le navigateur affiche une petite fenêtre de connexion avant webtrees, p. ex. .htaccess). Saisissez-les ici ; la connexion à webtrees se fait ensuite séparément.</string>
+    <string name="setup_basic_auth_user">Protection du répertoire : nom d’utilisateur</string>
+    <string name="setup_basic_auth_password">Protection du répertoire : mot de passe</string>
     <string name="login_server_info">webtrees %1$s · module %2$s</string>
     <string name="login_user">Nom d’utilisateur ou e-mail</string>
     <string name="login_password">Mot de passe</string>
@@ -151,7 +155,8 @@
     <string name="err_http_only">Sans chiffrement (http://), l’application ne se connecte qu’au sein de votre réseau domestique, p. ex. http://192.168.178.20:8095. Pour un serveur sur Internet, veuillez saisir l’adresse avec https://.</string>
     <string name="http_home_hint">Non chiffré – réseau domestique uniquement. Pour un accès en déplacement : configurez HTTPS.</string>
     <string name="err_module_too_old">Le module « api4webtrees » sur le serveur est trop ancien pour cette application (version %1$s). Veuillez le mettre à jour dans webtrees sous modules_v4.</string>
-    <string name="err_login_wall">Le serveur demande sa propre authentification avant webtrees (p. ex. SSO, OAuth ou protection par mot de passe du serveur web). L’application ne peut pas s’y connecter. L’administrateur peut laisser passer les requêtes de l’application ; la connexion à webtrees elle-même reste requise.</string>
+    <string name="err_login_wall">Le serveur demande sa propre authentification avant webtrees (p. ex. SSO, OAuth ou protection par mot de passe du serveur web). S’il s’agit d’une protection par mot de passe du serveur web (le navigateur affiche une petite fenêtre de connexion), saisissez le nom d’utilisateur et le mot de passe sous « protection du répertoire » sur cet écran. Avec un service SSO, l’administrateur doit laisser passer les requêtes de l’application ; la connexion à webtrees elle-même reste requise.</string>
+    <string name="err_basic_auth_rejected">Le serveur web a refusé le nom d’utilisateur ou le mot de passe de la protection du répertoire. Vérifiez les deux sous « protection du répertoire » sur cet écran.</string>
     <!-- Nouvelle structure de la page de profil -->
     <string name="nav_home">Accueil</string>
     <string name="nav_tree">Arbre</string>

@@ -13,6 +13,7 @@ import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.Credentials
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -46,7 +47,19 @@ class NotJsonException(
  * 401/407, eine Umleitung auf einen anderen Host oder JSON, das nicht von api4webtrees stammt. Frueher las
  * die App solches JSON als Info mit api=0 und meldete "Modul zu alt".
  */
-class LoginWallException(val httpStatus: Int, val host: String = "") : Exception("Anmeldung vor webtrees (HTTP $httpStatus $host)")
+class LoginWallException(
+    val httpStatus: Int,
+    val host: String = "",
+    /** Die App hat Zugangsdaten fuer den Verzeichnisschutz mitgeschickt, und der Webserver hat sie abgelehnt (401). */
+    val zugangsdatenAbgelehnt: Boolean = false,
+) : Exception("Anmeldung vor webtrees (HTTP $httpStatus $host)")
+
+/**
+ * Zugangsdaten eines Verzeichnisschutzes des Webservers (HTTP Basic Auth, .htaccess/.htpasswd), der VOR webtrees sitzt.
+ * Gehoeren zum Server, nicht zum webtrees-Konto: Sie gehen als Authorization-Header mit jeder Anfrage an genau diesen
+ * Host - API, Bilder, Hintergrunddienst - und an keinen anderen (seit 06.10.2026, zweite Anfrage von Nutzern).
+ */
+data class BasicAuth(val user: String, val password: String)
 
 /**
  * Ein Schreibzugriff wurde gesendet, aber die Verbindung brach ab, bevor eine Antwort kam. Ob der Server
@@ -97,12 +110,17 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .addInterceptor { chain ->
-            chain.proceed(
-                chain.request().newBuilder()
-                    .header("User-Agent", userAgent)
-                    .header("Accept-Language", Locale.getDefault().toLanguageTag() + ",en;q=0.5")
-                    .build()
-            )
+            val builder = chain.request().newBuilder()
+                .header("User-Agent", userAgent)
+                .header("Accept-Language", Locale.getDefault().toLanguageTag() + ",en;q=0.5")
+            // Verzeichnisschutz: vorab mitschicken (kein doppelter Umlauf je Anfrage), aber nur an den eigenen Server.
+            // Leitet der Server auf einen anderen Host um, nimmt OkHttp den Header ohnehin weg.
+            basicAuth?.let { auth ->
+                if (chain.request().url.host.equals(serverHost, ignoreCase = true)) {
+                    builder.header("Authorization", Credentials.basic(auth.user, auth.password, Charsets.UTF_8))
+                }
+            }
+            chain.proceed(builder.build())
         }
         // Unverschluesselt nur im Heimnetz - vor JEDER Anfrage, auch nach einer Weiterleitung (Sitzungs-Cookie!) und fuer
         // Bilder. Geprueft wird der Name und die Adresse, zu der die Verbindung tatsaechlich besteht; gesendet ist noch nichts.
@@ -141,6 +159,26 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
 
     private var csrf: String = ""
 
+    /** Host der Basis-URL, fuer den Verzeichnisschutz (leer, solange keine Adresse gesetzt ist). */
+    private val serverHost: String get() = baseUrl.toHttpUrlOrNull()?.host.orEmpty()
+
+    /**
+     * Zugangsdaten des Verzeichnisschutzes, siehe [BasicAuth]; null = keiner. Liegen in der Ablage des Clients, damit
+     * auch der Hintergrunddienst (Jahrestage) sie kennt. Bleiben beim Abmelden von webtrees erhalten, sie gehoeren zum Server.
+     */
+    var basicAuth: BasicAuth?
+        get() {
+            val user = prefs.getString("basicUser", null) ?: return null
+            return BasicAuth(user, prefs.getString("basicPass", "").orEmpty())
+        }
+        set(value) {
+            if (value == null || value.user.isEmpty()) {
+                prefs.putString("basicUser", null)
+                prefs.putString("basicPass", null)
+            } else {
+                prefs.putStrings(mapOf("basicUser" to value.user, "basicPass" to value.password))
+            }
+        }
 
     /** Name des Moduls in der Route - siehe Klassenkommentar. */
     var module: String
@@ -601,7 +639,10 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
             val text = response.body?.string().orEmpty()
 
             // webtrees selbst antwortet nie mit 401/407 - das tut eine vorgeschaltete Anmeldung (SSO, Basic-Auth, Proxy).
-            if (response.code == 401 || response.code == 407) throw LoginWallException(response.code)
+            // 401 trotz mitgeschickter Zugangsdaten: der Verzeichnisschutz hat sie abgelehnt.
+            if (response.code == 401 || response.code == 407) {
+                throw LoginWallException(response.code, zugangsdatenAbgelehnt = response.code == 401 && basicAuth != null)
+            }
 
             if (!type.contains("json")) {
                 // Umleitung auf einen anderen Host und dort kein JSON: die Anmeldeseite eines SSO-Dienstes.

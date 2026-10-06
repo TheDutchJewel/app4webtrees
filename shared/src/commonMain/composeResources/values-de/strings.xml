@@ -16,6 +16,10 @@
     <string name="setup_address">Adresse</string>
     <string name="setup_connect">Verbinden</string>
     <string name="setup_connecting">Verbinde …</string>
+    <string name="setup_basic_auth_open">Server verlangt vor webtrees Benutzername und Passwort (Verzeichnisschutz)?</string>
+    <string name="setup_basic_auth_help">Nur wenn Dein Webserver die ganze Seite mit eigenem Benutzernamen und Passwort schützt (der Browser zeigt vor webtrees ein kleines Anmeldefenster, z. B. .htaccess). Diese Zugangsdaten hier eintragen; die Anmeldung bei webtrees folgt getrennt.</string>
+    <string name="setup_basic_auth_user">Verzeichnisschutz: Benutzername</string>
+    <string name="setup_basic_auth_password">Verzeichnisschutz: Passwort</string>
     <string name="login_server_info">webtrees %1$s · Modul %2$s</string>
     <string name="login_user">Benutzername oder E-Mail</string>
     <string name="login_password">Passwort</string>
@@ -151,7 +155,8 @@
     <string name="err_http_only">Ohne Verschlüsselung (http://) verbindet sich die App nur im Heimnetz, z. B. mit http://192.168.178.20:8095. Für einen Server im Internet bitte die Adresse mit https:// eingeben.</string>
     <string name="http_home_hint">Unverschlüsselt – nur im Heimnetz. Für unterwegs: HTTPS einrichten.</string>
     <string name="err_module_too_old">Das Modul „api4webtrees“ auf dem Server ist zu alt für diese App (Version %1$s). Bitte aktualisiere es in webtrees unter modules_v4.</string>
-    <string name="err_login_wall">Vor webtrees verlangt der Server eine eigene Anmeldung (z. B. SSO, OAuth oder ein Passwortschutz des Webservers). Dort kann sich die App nicht anmelden. Der Betreiber kann die Anfragen der App an dieser Anmeldung vorbeileiten, die Anmeldung bei webtrees selbst bleibt bestehen.</string>
+    <string name="err_login_wall">Vor webtrees verlangt der Server eine eigene Anmeldung (z. B. SSO, OAuth oder ein Passwortschutz des Webservers). Ist es ein Passwortschutz des Webservers (der Browser zeigt ein kleines Anmeldefenster), trage Benutzername und Passwort unter „Verzeichnisschutz“ auf diesem Bildschirm ein. Bei einem SSO-Dienst muss der Betreiber die Anfragen der App an der Anmeldung vorbeileiten; die Anmeldung bei webtrees selbst bleibt bestehen.</string>
+    <string name="err_basic_auth_rejected">Der Webserver hat Benutzername oder Passwort des Verzeichnisschutzes abgelehnt. Prüfe beides unter „Verzeichnisschutz“ auf diesem Bildschirm.</string>
     <!-- Neue Struktur der Profilseite -->
     <string name="nav_home">Start</string>
     <string name="nav_tree">Baum</string>

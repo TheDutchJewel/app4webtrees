@@ -15,6 +15,10 @@
     <string name="setup_address">Adres</string>
     <string name="setup_connect">Verbinden</string>
     <string name="setup_connecting">Verbinden …</string>
+    <string name="setup_basic_auth_open">Vraagt de server vóór webtrees om een gebruikersnaam en wachtwoord (mapbeveiliging)?</string>
+    <string name="setup_basic_auth_help">Alleen als je webserver de hele site met een eigen gebruikersnaam en wachtwoord beveiligt (de browser toont vóór webtrees een klein aanmeldvenster, bijv. .htaccess). Vul die gegevens hier in; de aanmelding bij webtrees volgt apart.</string>
+    <string name="setup_basic_auth_user">Mapbeveiliging: gebruikersnaam</string>
+    <string name="setup_basic_auth_password">Mapbeveiliging: wachtwoord</string>
     <string name="login_server_info">webtrees %1$s · module %2$s</string>
     <string name="login_user">Gebruikersnaam of e-mailadres</string>
     <string name="login_password">Wachtwoord</string>
@@ -150,7 +154,8 @@
     <string name="err_http_only">Zonder versleuteling (http://) maakt de app alleen verbinding binnen uw thuisnetwerk, bijv. http://192.168.178.20:8095. Voer voor een server op internet het adres in met https://.</string>
     <string name="http_home_hint">Onversleuteld – alleen in het thuisnetwerk. Voor onderweg: HTTPS instellen.</string>
     <string name="err_module_too_old">De module „api4webtrees“ op de server is te oud voor deze app (versie %1$s). Werk deze in webtrees onder modules_v4 bij.</string>
-    <string name="err_login_wall">De server vraagt vóór webtrees om een eigen aanmelding (bijv. SSO, OAuth of een wachtwoordbeveiliging van de webserver). Daar kan de app zich niet aanmelden. De beheerder kan de verzoeken van de app langs die aanmelding leiden; de aanmelding bij webtrees zelf blijft gelden.</string>
+    <string name="err_login_wall">De server vraagt vóór webtrees om een eigen aanmelding (bijv. SSO, OAuth of een wachtwoordbeveiliging van de webserver). Is het een wachtwoordbeveiliging van de webserver (de browser toont een klein aanmeldvenster), vul dan gebruikersnaam en wachtwoord in onder „mapbeveiliging” op dit scherm. Bij een SSO-dienst moet de beheerder de verzoeken van de app langs die aanmelding leiden; de aanmelding bij webtrees zelf blijft gelden.</string>
+    <string name="err_basic_auth_rejected">De webserver heeft de gebruikersnaam of het wachtwoord van de mapbeveiliging geweigerd. Controleer beide onder „mapbeveiliging” op dit scherm.</string>
     <string name="nav_home">Start</string>
     <string name="nav_tree">Boom</string>
     <string name="nav_search">Zoeken</string>

@@ -21,6 +21,10 @@
     <string name="setup_address">Address</string>
     <string name="setup_connect">Connect</string>
     <string name="setup_connecting">Connecting …</string>
+    <string name="setup_basic_auth_open">Server asks for a user name and password before webtrees (directory protection)?</string>
+    <string name="setup_basic_auth_help">Only if your web server protects the whole site with its own user name and password (the browser shows a small sign-in box before webtrees opens, e.g. .htaccess). Enter those here; the webtrees sign-in follows separately.</string>
+    <string name="setup_basic_auth_user">Directory protection: user name</string>
+    <string name="setup_basic_auth_password">Directory protection: password</string>
     <string name="login_server_info">webtrees %1$s · module %2$s</string>
     <string name="login_user">Username or email</string>
     <string name="login_password">Password</string>
@@ -156,7 +160,8 @@
     <string name="err_http_only">Without encryption (http://) the app only connects within your home network, e.g. http://192.168.178.20:8095. For a server on the internet, please enter the address with https://.</string>
     <string name="http_home_hint">Unencrypted – home network only. For access on the go: set up HTTPS.</string>
     <string name="err_module_too_old">The “api4webtrees” module on the server is too old for this app (version %1$s). Please update it in webtrees under modules_v4.</string>
-    <string name="err_login_wall">The server asks for its own sign-in before webtrees (e.g. SSO, OAuth or web server password protection). The app cannot sign in there. The operator can let the app’s requests bypass that sign-in; the webtrees login itself still applies.</string>
+    <string name="err_login_wall">The server asks for its own sign-in before webtrees (e.g. SSO, OAuth or web server password protection). If it is a password protection of the web server (the browser shows a small sign-in box), enter that user name and password under “directory protection” on this screen. With an SSO service the operator has to let the app’s requests bypass that sign-in; the webtrees login itself still applies.</string>
+    <string name="err_basic_auth_rejected">The web server rejected the user name or password of the directory protection. Check both under “directory protection” on this screen.</string>
     <!-- Neue Struktur der Profilseite -->
     <string name="nav_home">Home</string>
     <string name="nav_tree">Tree</string>

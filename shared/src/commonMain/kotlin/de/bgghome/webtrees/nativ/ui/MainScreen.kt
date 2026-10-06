@@ -106,7 +106,7 @@ fun AppRoot(viewModel: AppViewModel) {
 
     when (state.screen) {
         Screen.Loading -> LoadingScreen()
-        Screen.Setup -> SetupScreen(state, viewModel::submitUrl)
+        Screen.Setup -> SetupScreen(state) { url, basicAuth -> viewModel.submitUrl(url, basicAuth) }
         Screen.Login -> LoginScreen(state, viewModel::login, viewModel::continueAsGuest, viewModel::changeServer)
         Screen.Trees -> TreesScreen(state, viewModel::chooseTree, viewModel::logout, viewModel::showLogin, onCancel = if (state.tree != null) viewModel::cancelTreePicker else null)
         Screen.Main -> MainScreen(state, viewModel, openWeb = { webUrl = it })

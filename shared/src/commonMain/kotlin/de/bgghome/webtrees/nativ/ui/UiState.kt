@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.ui
 
+import de.bgghome.webtrees.nativ.api.BasicAuth
 import de.bgghome.webtrees.nativ.api.Anniversary
 import de.bgghome.webtrees.nativ.api.ArchiveEntry
 import de.bgghome.webtrees.nativ.api.ArchiveOverview
@@ -61,6 +62,10 @@ data class UiState(
     val message: String? = null,
     val baseUrl: String = "",
     val userName: String = "",
+    /** Zugangsdaten des Verzeichnisschutzes (Vorbelegung des Adressbildschirms), siehe WtClient.basicAuth. */
+    val basicAuth: BasicAuth? = null,
+    /** Der letzte Fehler war eine Anmeldung vor webtrees - der Adressbildschirm klappt dann die Felder dafuer auf. */
+    val loginWall: Boolean = false,
     /** Kopplungs-Link, der noch bestaetigt werden muss - jede Webseite koennte einen solchen Link ausloesen. */
     val pendingConnect: ConnectRequest? = null,
     val info: Info? = null,

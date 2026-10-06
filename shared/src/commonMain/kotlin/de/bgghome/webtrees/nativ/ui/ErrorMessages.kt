@@ -46,7 +46,7 @@ fun explain(e: Exception): String = when (e) {
         404 -> Texte.t(Res.string.err_module_missing)
         else -> Texte.t(Res.string.err_unexpected, e.httpStatus)
     }
-    is LoginWallException -> Texte.t(Res.string.err_login_wall)
+    is LoginWallException -> if (e.zugangsdatenAbgelehnt) Texte.t(Res.string.err_basic_auth_rejected) else Texte.t(Res.string.err_login_wall)
     is UserMessageException -> e.message.orEmpty()
     is WriteInterruptedException -> Texte.t(Res.string.err_write_interrupted)
     is WriteUnclearException -> Texte.t(Res.string.err_write_unclear)

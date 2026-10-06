@@ -2,7 +2,9 @@ package de.bgghome.webtrees.nativ.ui
 
 import androidx.lifecycle.viewModelScope
 import de.bgghome.webtrees.nativ.res.*
+import de.bgghome.webtrees.nativ.api.BasicAuth
 import de.bgghome.webtrees.nativ.api.Info
+import de.bgghome.webtrees.nativ.api.LoginWallException
 import de.bgghome.webtrees.nativ.api.TreeInfo
 import de.bgghome.webtrees.nativ.api.WtClient
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +16,7 @@ import kotlinx.coroutines.launch
 // Erweiterungen von AppViewModel (siehe dort); der Zustand liegt in uiState.
 
 internal fun AppViewModel.start() {
+    uiState.update { it.copy(basicAuth = client.basicAuth) }
     if (settings.baseUrl.isEmpty()) {
         uiState.update { it.copy(screen = Screen.Setup) }
         return
@@ -24,17 +27,22 @@ internal fun AppViewModel.start() {
             applyInfo(client.info())
         } catch (e: Exception) {
             // Server gerade nicht erreichbar o. ae.: zur Adress-Eingabe, Adresse bleibt vorbelegt.
-            uiState.update { it.copy(screen = Screen.Setup, error = explain(e)) }
+            uiState.update { it.copy(screen = Screen.Setup, error = explain(e), loginWall = e is LoginWallException) }
         }
     }
 }
 
-fun AppViewModel.submitUrl(input: String) {
+/**
+ * @param basicAuth Zugangsdaten eines Verzeichnisschutzes vor webtrees (Felder "Verzeichnisschutz" auf dem
+ *                  Adressbildschirm), null = keiner. Werden mit der Adresse gespeichert, auch bei einem Fehlschlag,
+ *                  damit sie beim naechsten Versuch noch dastehen.
+ */
+fun AppViewModel.submitUrl(input: String, basicAuth: BasicAuth? = null) {
     val url = WtClient.normalizeBaseUrl(input)
 
     if (url.isEmpty()) return
 
-    uiState.update { it.copy(busy = true, error = null) }
+    uiState.update { it.copy(busy = true, error = null, loginWall = false) }
 
     viewModelScope.launch {
         if (rejectCleartext(input)) {
@@ -42,13 +50,14 @@ fun AppViewModel.submitUrl(input: String) {
             return@launch
         }
         client.baseUrl = input
-        uiState.update { it.copy(baseUrl = url) }
+        client.basicAuth = basicAuth?.takeIf { it.user.isNotBlank() }
+        uiState.update { it.copy(baseUrl = url, basicAuth = client.basicAuth) }
         try {
             val info = client.info()
             settings.baseUrl = url
             applyInfo(info)
         } catch (e: Exception) {
-            uiState.update { it.copy(busy = false, error = explain(e)) }
+            uiState.update { it.copy(busy = false, error = explain(e), loginWall = e is LoginWallException) }
         }
     }
 }
@@ -132,8 +141,11 @@ fun AppViewModel.confirmConnect() {
     val request = uiState.value.pendingConnect ?: return
 
     client.cookieJar.clear()
+    // Zugangsdaten des Verzeichnisschutzes gelten fuer den Server: bei einem anderen Host verfallen sie.
+    val previousHost = client.baseUrl.substringAfter("://").substringBefore("/")
     client.baseUrl = request.url
-    uiState.update { UiState(screen = Screen.Loading, baseUrl = client.baseUrl, busy = true) }
+    if (!client.baseUrl.substringAfter("://").substringBefore("/").equals(previousHost, ignoreCase = true)) client.basicAuth = null
+    uiState.update { UiState(screen = Screen.Loading, baseUrl = client.baseUrl, basicAuth = client.basicAuth, busy = true) }
 
     viewModelScope.launch {
         try {
@@ -144,7 +156,9 @@ fun AppViewModel.confirmConnect() {
             uiState.update { it.copy(userName = paired.user) }
             applyInfo(client.info())
         } catch (e: Exception) {
-            uiState.update { it.copy(screen = Screen.Setup, busy = false, error = explain(e)) }
+            // Anmeldewand: zur Adress-Eingabe mit aufgeklappten Feldern fuer den Verzeichnisschutz; der Einmal-Code
+            // ist noch nicht eingeloest (die Anfrage kam nie bei webtrees an), danach geht es per Benutzername weiter.
+            uiState.update { it.copy(screen = Screen.Setup, busy = false, error = explain(e), loginWall = e is LoginWallException) }
         }
     }
 }
@@ -163,7 +177,7 @@ fun AppViewModel.logout() {
     viewModelScope.launch {
         client.logout()
         settings.tree = ""
-        uiState.update { UiState(screen = Screen.Login, baseUrl = settings.baseUrl, userName = settings.userName) }
+        uiState.update { UiState(screen = Screen.Login, baseUrl = settings.baseUrl, userName = settings.userName, basicAuth = client.basicAuth) }
         runCatching { client.info() }.onSuccess { info -> uiState.update { it.copy(info = info) } }
     }
 }

@@ -41,6 +41,7 @@ import org.jetbrains.compose.resources.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import de.bgghome.webtrees.nativ.api.BasicAuth
 import de.bgghome.webtrees.nativ.api.WtClient
 import de.bgghome.webtrees.nativ.res.*
 
@@ -72,10 +73,18 @@ fun LoadingScreen() {
 }
 
 @Composable
-fun SetupScreen(state: UiState, onSubmit: (String) -> Unit) {
+fun SetupScreen(state: UiState, onSubmit: (String, BasicAuth?) -> Unit) {
     var url by rememberSaveable { mutableStateOf(state.baseUrl) }
     var ausAblage by rememberSaveable { mutableStateOf(false) }
     var getippt by rememberSaveable { mutableStateOf(false) }
+
+    // Verzeichnisschutz des Webservers (.htaccess): zwei Felder, eingeklappt, solange sie niemand braucht. Sie klappen
+    // von selbst auf, wenn schon Zugangsdaten gespeichert sind oder der Server gerade eine Anmeldewand gemeldet hat.
+    var schutzUser by rememberSaveable { mutableStateOf(state.basicAuth?.user.orEmpty()) }
+    var schutzPass by rememberSaveable { mutableStateOf(state.basicAuth?.password.orEmpty()) }
+    var schutzOffen by rememberSaveable { mutableStateOf(state.basicAuth != null) }
+    if (state.loginWall) schutzOffen = true
+    fun abschicken() = onSubmit(url, schutzUser.trim().takeIf { it.isNotEmpty() }?.let { BasicAuth(it, schutzPass) })
 
     // wtWin/wtTux: Steht in der Zwischenablage eine Adresse (Knopf "Adresse kopieren" auf der Seite "App"), kommt sie
     // von selbst ins leere Feld - auch wenn sie erst kopiert wird, waehrend dieser Bildschirm schon offen ist.
@@ -113,11 +122,27 @@ fun SetupScreen(state: UiState, onSubmit: (String) -> Unit) {
             label = { Text(stringResource(Res.string.setup_address)) },
             placeholder = { Text("https://example.org/webtrees") },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go),
-            keyboardActions = KeyboardActions(onGo = { onSubmit(url) }),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = if (schutzOffen) ImeAction.Next else ImeAction.Go),
+            keyboardActions = KeyboardActions(onGo = { abschicken() }),
             modifier = Modifier.fillMaxWidth(),
         )
-        Button(onClick = { onSubmit(url) }, enabled = !state.busy && url.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
+        if (schutzOffen) {
+            Text(stringResource(Res.string.setup_basic_auth_help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            OutlinedTextField(
+                value = schutzUser, onValueChange = { schutzUser = it }, label = { Text(stringResource(Res.string.setup_basic_auth_user)) },
+                singleLine = true, keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next), modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                value = schutzPass, onValueChange = { schutzPass = it }, label = { Text(stringResource(Res.string.setup_basic_auth_password)) },
+                singleLine = true, visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Go),
+                keyboardActions = KeyboardActions(onGo = { abschicken() }),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        } else {
+            TextButton(onClick = { schutzOffen = true }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(Res.string.setup_basic_auth_open)) }
+        }
+        Button(onClick = { abschicken() }, enabled = !state.busy && url.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
             Text(if (state.busy) stringResource(Res.string.setup_connecting) else stringResource(Res.string.setup_connect))
         }
         if (ausAblage) {

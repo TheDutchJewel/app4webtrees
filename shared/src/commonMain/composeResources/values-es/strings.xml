@@ -16,6 +16,10 @@
     <string name="setup_address">Dirección</string>
     <string name="setup_connect">Conectar</string>
     <string name="setup_connecting">Conectando …</string>
+    <string name="setup_basic_auth_open">¿El servidor pide usuario y contraseña antes de webtrees (protección de directorio)?</string>
+    <string name="setup_basic_auth_help">Solo si tu servidor web protege todo el sitio con su propio usuario y contraseña (el navegador muestra una pequeña ventana de acceso antes de webtrees, p. ej. .htaccess). Introdúcelos aquí; el inicio de sesión en webtrees se hace aparte.</string>
+    <string name="setup_basic_auth_user">Protección de directorio: usuario</string>
+    <string name="setup_basic_auth_password">Protección de directorio: contraseña</string>
     <string name="login_server_info">webtrees %1$s · módulo %2$s</string>
     <string name="login_user">Nombre de usuario o correo electrónico</string>
     <string name="login_password">Contraseña</string>
@@ -151,7 +155,8 @@
     <string name="err_http_only">Sin cifrado (http://) la app solo se conecta dentro de su red doméstica, p. ej. http://192.168.178.20:8095. Para un servidor en internet, introduzca la dirección con https://.</string>
     <string name="http_home_hint">Sin cifrar: solo en la red doméstica. Para acceder desde fuera: configure HTTPS.</string>
     <string name="err_module_too_old">El módulo «api4webtrees» del servidor es demasiado antiguo para esta app (versión %1$s). Actualícelo en webtrees en modules_v4.</string>
-    <string name="err_login_wall">El servidor exige un inicio de sesión propio antes de webtrees (p. ej. SSO, OAuth o protección por contraseña del servidor web). La app no puede iniciar sesión ahí. El operador puede dejar pasar las solicitudes de la app sin ese inicio de sesión; el inicio de sesión en webtrees se mantiene.</string>
+    <string name="err_login_wall">El servidor exige un inicio de sesión propio antes de webtrees (p. ej. SSO, OAuth o protección por contraseña del servidor web). Si es una protección por contraseña del servidor web (el navegador muestra una pequeña ventana de acceso), introduce usuario y contraseña en «protección de directorio» en esta pantalla. Con un servicio SSO, el operador debe dejar pasar las solicitudes de la app; el inicio de sesión en webtrees se mantiene.</string>
+    <string name="err_basic_auth_rejected">El servidor web rechazó el usuario o la contraseña de la protección de directorio. Comprueba ambos en «protección de directorio» en esta pantalla.</string>
     <!-- Nueva estructura de la página de perfil -->
     <string name="nav_home">Inicio</string>
     <string name="nav_tree">Árbol</string>
