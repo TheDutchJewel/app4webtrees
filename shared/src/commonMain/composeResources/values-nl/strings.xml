@@ -1401,4 +1401,12 @@
     <string name="desk_reorder_down">Omlaag</string>
     <string name="desk_add_person">Persoon toevoegen</string>
     <string name="desk_status_persons">%1$d personen</string>
+    <string name="msg_person_linked">Persoon gekoppeld</string>
+    <string name="relative_exists">Bestaat misschien al:</string>
+    <string name="relative_link_instead">Koppelen in plaats van nieuw</string>
+    <string name="desk_link_existing">Bestaande persoon koppelen …</string>
+    <string name="desk_link_title">Bestaande persoon aan %1$s koppelen</string>
+    <string name="desk_link_who">Welke persoon?</string>
+    <string name="desk_link_hint">De persoon blijft zoals hij is; alleen de koppeling ontstaat – als kind in de gekozen relatie, als partner een nieuw gezin, als vader of moeder het oudergezin.</string>
+    <string name="desk_link_do">Koppelen</string>
 </resources>

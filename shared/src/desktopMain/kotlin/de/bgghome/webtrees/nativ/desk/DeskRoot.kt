@@ -46,6 +46,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.items
@@ -355,7 +356,13 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                     suggestPlaces = viewModel.placeSuggestions(),
                     onDismiss = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled() },
                     onSave = { Verwandtenwahl.leeren(); viewModel.addRelativeHandled(); viewModel.addRelative(it) },
-                    initialRelation = Verwandtenwahl.vorwahl, initialFamily = Verwandtenwahl.familie,
+                    initialRelation = Verwandtenwahl.vorwahl, initialFamily = Verwandtenwahl.familie, initialSex = Verwandtenwahl.geschlecht,
+                    // Dublettenwarnung: gleichnamige Personen anzeigen und statt neu anzulegen anfuegen
+                    suche = { q -> state.tree?.let { t -> runCatching { viewModel.client.individuals(t.name, q, 1).data }.getOrNull() }.orEmpty() },
+                    onLink = { p, rel, fam ->
+                        Verwandtenwahl.leeren(); viewModel.addRelativeHandled()
+                        viewModel.linkRelative(de.bgghome.webtrees.nativ.api.LinkRequest(p.xref, rel, detail.person.xref, fam))
+                    },
                 )
             }
 
@@ -365,6 +372,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         orte?.let { start -> if (state.tree != null) OrteFenster(state, viewModel, start, openWeb, onClose = { orte = null; orteBereinigen = false }, onBlatt = openSheet, bereinigen = orteBereinigen) }
         if (goTo) GoToDialog(state, viewModel, openWeb, onClose = { goTo = false })
         LoeschRueckfrage(viewModel)
+        Anfuegewahl.person?.let { z -> state.tree?.let { t -> if (t.canEdit) AnfuegenDialog(z, viewModel, t.name, onClose = { Anfuegewahl.person = null }) } }
         liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
         HilfeFenster()
         if (startperson) StartpersonDialog(state, viewModel, onClose = { startperson = false })
@@ -445,6 +453,7 @@ private fun FrameWindowScope.DeskMenuBar(
                 Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,
                     shortcut = KeyShortcut(Key.N, ctrl = true), onClick = { selected?.let { viewModel.requestAddRelative(it.person.xref) } })
                 onZusammenfuehren?.let { Item(stringResource(Res.string.desk_merge_menu), enabled = state.tree != null, onClick = it) }
+                Item(stringResource(Res.string.desk_link_existing), enabled = selected?.canEdit == true, onClick = { selected?.let { Anfuegewahl.person = it.person } })
                 onAufgabeNeu?.let { f -> Item(stringResource(Res.string.desk_task_add_menu), enabled = selected != null, onClick = { selected?.let { f(AufgabeZiel(it.person.xref, it.person.name)) } }) }
                 if (onAufgaben != null && state.tree?.role == "manager") {
                     val root = state.root
@@ -459,6 +468,12 @@ private fun FrameWindowScope.DeskMenuBar(
                     Item(stringResource(if (root != null && viewModel.isBookmarked(root)) Res.string.desk_bookmark_remove else Res.string.desk_bookmark_add),
                         enabled = root != null, shortcut = KeyShortcut(Key.D, ctrl = true), onClick = { root?.let(viewModel::toggleBookmark) })
                     Item(stringResource(Res.string.desk_bookmarks), shortcut = KeyShortcut(Key.B, ctrl = true), onClick = onMerkliste)
+                    if (state.bookmarks.isNotEmpty()) Menu(stringResource(Res.string.desk_bookmarks_mine)) {
+                        state.bookmarks.take(25).forEach { p -> Item(p.name + if (p.lifespan.isNotBlank()) "  (${p.lifespan})" else "", onClick = { viewModel.setRoot(p.xref) }) }
+                    }
+                    if (state.treeBookmarks.isNotEmpty()) Menu(stringResource(Res.string.desk_bookmarks_tree)) {
+                        state.treeBookmarks.take(25).forEach { p -> Item(p.name + if (p.lifespan.isNotBlank()) "  (${p.lifespan})" else "", onClick = { viewModel.setRoot(p.xref) }) }
+                    }
                 }
                 Separator()
                 Item(stringResource(Res.string.action_back), enabled = nav.kannZurueck, shortcut = KeyShortcut(Key.DirectionLeft, alt = true), onClick = nav.zurueck)
@@ -1048,14 +1063,18 @@ private fun IndexRow(person: Person, selected: Boolean, root: Boolean, viewModel
     val profile = stringResource(Res.string.action_profile)
     val web = stringResource(Res.string.chip_open_web)
     val merken = stringResource(Res.string.desk_bookmark_add); val merkWeg = stringResource(Res.string.desk_bookmark_remove)
+    val anfuegen = stringResource(Res.string.desk_link_existing)
     ContextMenuArea(items = {
         if (person.isPrivate) emptyList() else listOf(
             ContextMenuItem(makeRoot) { viewModel.setRoot(person.xref) },
             ContextMenuItem(profile) { viewModel.select(person.xref) },
             if (viewModel.bookmarksSupported) ContextMenuItem(if (viewModel.isBookmarked(person.xref)) merkWeg else merken) { viewModel.toggleBookmark(person.xref) } else null,
             ContextMenuItem(web) { openWeb(person.url) },
+            if (viewModel.uiState.value.tree?.canEdit == true) ContextMenuItem(anfuegen) { Anfuegewahl.person = person } else null,
         ).filterNotNull()
     }) {
+      // Beim Darueberfahren: Bild und Lebensdaten
+      TooltipArea(tooltip = { if (!person.isPrivate) PersonKurzinfo(person) }, delayMillis = 600) {
         Row(
             Modifier
                 .fillMaxWidth()
@@ -1072,6 +1091,27 @@ private fun IndexRow(person: Person, selected: Boolean, root: Boolean, viewModel
                 if (person.lifespan.isNotBlank()) {
                     Text(person.lifespan, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
+            }
+        }
+    }
+      }
+}
+
+/** Kleine Karte fuer Tooltips: Bild, Name, Geburt, Tod, Beruf. */
+@Composable
+internal fun PersonKurzinfo(person: Person) {
+    fun zeile(z: String, e: de.bgghome.webtrees.nativ.api.EventJson?): String? {
+        val d = e?.date?.text.orEmpty(); val o = e?.place?.name.orEmpty()
+        return if (d.isBlank() && o.isBlank()) null else "$z " + listOf(d, o).filter(String::isNotBlank).joinToString(", ")
+    }
+    Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp, shape = MaterialTheme.shapes.small, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+        Row(Modifier.padding(10.dp).widthIn(max = 420.dp), verticalAlignment = Alignment.CenterVertically) {
+            Avatar(person, 56.dp)
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text(person.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                listOfNotNull(zeile("*", person.birth ?: person.chr), zeile("†", person.death ?: person.buri), person.occupation?.takeIf { it.isNotBlank() })
+                    .forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
         }
     }

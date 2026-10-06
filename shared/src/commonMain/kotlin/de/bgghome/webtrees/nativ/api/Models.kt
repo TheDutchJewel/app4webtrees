@@ -565,6 +565,10 @@ data class TaskRequest(val factId: String? = null, val text: String, val date: S
 @Serializable
 data class ReorderRequest(val type: String, val order: List<String>)
 
+/** Vorhandene Person anfuegen (Route Link, ab Stufe 8): [individual] wird [relation] von [relativeTo]. */
+@Serializable
+data class LinkRequest(val individual: String, val relation: String, val relativeTo: String, val family: String? = null, val marriageDate: String? = null, val marriagePlace: String? = null)
+
 /** Letzte Aenderung eines Datensatzes (CHAN). */
 @Serializable
 data class LastChange(val time: String = "", val user: String = "")

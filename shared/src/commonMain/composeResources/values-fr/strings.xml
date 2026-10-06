@@ -1420,4 +1420,12 @@
     <string name="desk_reorder_down">Descendre</string>
     <string name="desk_add_person">Ajouter une personne</string>
     <string name="desk_status_persons">%1$d personnes</string>
+    <string name="msg_person_linked">Personne rattachée</string>
+    <string name="relative_exists">Existe peut-être déjà :</string>
+    <string name="relative_link_instead">Rattacher au lieu de créer</string>
+    <string name="desk_link_existing">Rattacher une personne existante …</string>
+    <string name="desk_link_title">Rattacher une personne existante à %1$s</string>
+    <string name="desk_link_who">Quelle personne ?</string>
+    <string name="desk_link_hint">La personne reste telle quelle ; seul le lien est créé – comme enfant dans l’union choisie, comme conjoint une nouvelle famille, comme père ou mère la famille des parents.</string>
+    <string name="desk_link_do">Rattacher</string>
 </resources>

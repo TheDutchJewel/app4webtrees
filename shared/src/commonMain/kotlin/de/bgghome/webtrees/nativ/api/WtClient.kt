@@ -257,6 +257,10 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     suspend fun setBookmark(tree: String, xref: String, add: Boolean, note: String? = null, forTree: Boolean = false): BookmarkList =
         post("Bookmarks", tree, emptyMap(), jsonBody(BookmarkRequest.serializer(), BookmarkRequest(xref, add, note, forTree)), BookmarkList.serializer())
 
+    /** Zwei vorhandene Personen verknuepfen (ab Stufe 8): als Kind, Partner, Vater oder Mutter. */
+    suspend fun link(tree: String, r: LinkRequest): WriteResult =
+        post("Link", tree, emptyMap(), jsonBody(LinkRequest.serializer(), r))
+
     /** Alle Forschungsaufgaben des Baums (ab Stufe 30); [nurOffene] laesst Wiedervorlagen in der Zukunft weg. */
     suspend fun tasks(tree: String, nurOffene: Boolean): TaskList =
         get("Tasks", tree, if (nurOffene) mapOf("open" to "1") else emptyMap(), TaskList.serializer())

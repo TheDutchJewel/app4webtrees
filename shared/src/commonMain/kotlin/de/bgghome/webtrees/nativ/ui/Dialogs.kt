@@ -19,6 +19,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -196,6 +198,12 @@ fun RelativeDialog(
     initialRelation: String? = null,
     /** Vorauswahl der Familie fuer ein Kind (Familien-XREF); ohne sie die erste. */
     initialFamily: String? = null,
+    /** Vorauswahl des Geschlechts ("M"/"F"), etwa von "+ Sohn" / "+ Tochter". */
+    initialSex: String? = null,
+    /** Dublettenwarnung: sucht Personen nach Namen; null = keine Warnung (Handy). */
+    suche: (suspend (String) -> List<Person>)? = null,
+    /** "Anfuegen statt neu": die gefundene Person wird mit der gewaehlten Beziehung (und Familie) verknuepft. */
+    onLink: ((Person, String, String?) -> Unit)? = null,
 ) {
     val person = target.person
     val ownSurname = person.sortName.substringBefore(',', "").trim()
@@ -207,7 +215,16 @@ fun RelativeDialog(
     var surname by remember(relation) {
         mutableStateOf(if (relation == "father" || (relation == "child" && person.sex != "F")) ownSurname else "")
     }
-    var sex by remember { mutableStateOf("U") }
+    var sex by remember { mutableStateOf(initialSex ?: "U") }
+    // Gibt es die Person vielleicht schon? Nach kurzer Pause beim Tippen suchen (gleicher Vor- und Nachname).
+    var dubletten by remember { mutableStateOf(emptyList<Person>()) }
+    if (suche != null) LaunchedEffect(given, surname) {
+        if (given.isBlank() || surname.isBlank()) { dubletten = emptyList(); return@LaunchedEffect }
+        delay(500)
+        val vn = given.trim().lowercase(); val fn = surname.trim().lowercase()
+        dubletten = runCatching { suche("${given.trim()} ${surname.trim()}") }.getOrDefault(emptyList())
+            .filter { it.xref != person.xref && !it.isPrivate && it.given.lowercase().startsWith(vn) && it.surname.lowercase() == fn }.take(3)
+    }
     val birthDate = rememberDateInput()
     var birthPlace by remember { mutableStateOf("") }
     // Eltern eines Verstorbenen sind fast immer selbst verstorben.
@@ -239,6 +256,15 @@ fun RelativeDialog(
 
                 Field(given, { given = it }, Res.string.field_given)
                 Field(surname, { surname = it }, Res.string.field_surname)
+                if (dubletten.isNotEmpty()) {
+                    Text(stringResource(Res.string.relative_exists), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.error)
+                    dubletten.forEach { d ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(d.name + if (d.lifespan.isNotBlank()) "  (${d.lifespan})" else "", Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                            if (onLink != null) TextButton(onClick = { onLink(d, relation, family.takeIf { relation == "child" }) }) { Text(stringResource(Res.string.relative_link_instead)) }
+                        }
+                    }
+                }
 
                 // Vater und Mutter haben ihr Geschlecht schon durch die Beziehung
                 if (relation != "father" && relation != "mother") {

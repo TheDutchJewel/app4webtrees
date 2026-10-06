@@ -1420,4 +1420,12 @@
     <string name="desk_reorder_down">Bajar</string>
     <string name="desk_add_person">Añadir persona</string>
     <string name="desk_status_persons">%1$d personas</string>
+    <string name="msg_person_linked">Persona vinculada</string>
+    <string name="relative_exists">Quizá ya existe:</string>
+    <string name="relative_link_instead">Vincular en vez de crear</string>
+    <string name="desk_link_existing">Vincular persona existente …</string>
+    <string name="desk_link_title">Vincular una persona existente a %1$s</string>
+    <string name="desk_link_who">¿Qué persona?</string>
+    <string name="desk_link_hint">La persona se queda como está; solo se crea el vínculo – como hijo en la unión elegida, como cónyuge una nueva familia, como padre o madre la familia de los padres.</string>
+    <string name="desk_link_do">Vincular</string>
 </resources>

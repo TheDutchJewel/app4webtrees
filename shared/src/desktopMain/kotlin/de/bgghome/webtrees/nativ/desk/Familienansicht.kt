@@ -99,7 +99,9 @@ import org.jetbrains.compose.resources.stringResource
 object Verwandtenwahl {
     var vorwahl: String? by mutableStateOf(null)
     var familie: String? by mutableStateOf(null)
-    fun leeren() { vorwahl = null; familie = null }
+    /** Geschlecht vorbelegen ("M"/"F"), von "+ Sohn" / "+ Tochter". */
+    var geschlecht: String? by mutableStateOf(null)
+    fun leeren() { vorwahl = null; familie = null; geschlecht = null }
 }
 
 /** Die Familie des Probanden auf dem gewaehlten Reiter; Eltern je Partner aus dessen erster Herkunftsfamilie. */
@@ -234,6 +236,8 @@ private fun Familie(
                         if (eltern?.wife == null) eintrag(Res.string.rel_mother, "mother")
                         eintrag(Res.string.rel_partner, "spouse")
                         eintrag(Res.string.rel_child, "child", familie?.xref)
+                        HorizontalDivider()
+                        androidx.compose.material3.DropdownMenuItem(text = { Text(stringResource(Res.string.desk_link_existing)) }, onClick = { offen = false; Anfuegewahl.person = p })
                     }
                 }
             }
@@ -364,8 +368,14 @@ private fun Familie(
                     }
                 }
                 Text(stringResource(Res.string.desk_family_children, kinder.size), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
-                if (canEdit) TextButton(onClick = { Verwandtenwahl.vorwahl = "child"; Verwandtenwahl.familie = familie?.xref; viewModel.requestAddRelative(p.xref) }, modifier = Modifier.height(30.dp)) {
-                    Text("+ " + stringResource(Res.string.desk_family_add_child), style = MaterialTheme.typography.labelMedium)
+                if (canEdit) {
+                    // + Sohn / + Tochter: Kind dieser Partnerschaft mit vorbelegtem Geschlecht
+                    TextButton(onClick = { Verwandtenwahl.vorwahl = "child"; Verwandtenwahl.familie = familie?.xref; Verwandtenwahl.geschlecht = "M"; viewModel.requestAddRelative(p.xref) }, modifier = Modifier.height(30.dp)) {
+                        Text("+ " + stringResource(Res.string.rel_son), style = MaterialTheme.typography.labelMedium)
+                    }
+                    TextButton(onClick = { Verwandtenwahl.vorwahl = "child"; Verwandtenwahl.familie = familie?.xref; Verwandtenwahl.geschlecht = "F"; viewModel.requestAddRelative(p.xref) }, modifier = Modifier.height(30.dp)) {
+                        Text("+ " + stringResource(Res.string.rel_daughter), style = MaterialTheme.typography.labelMedium)
+                    }
                 }
             }
 
@@ -480,6 +490,7 @@ private fun Anklickbar(person: Person, a: KartenAktionen, inhalt: @Composable (M
             add(ContextMenuItem(Texte.t(Res.string.action_make_root)) { a.viewModel.setRoot(person.xref) })
             a.openSheet?.let { s -> add(ContextMenuItem(Texte.t(Res.string.desk_sheet)) { s(person.xref) }) }
             if (a.canEdit) add(ContextMenuItem(Texte.t(Res.string.action_add_relative)) { a.viewModel.requestAddRelative(person.xref) })
+            if (a.canEdit) add(ContextMenuItem(Texte.t(Res.string.desk_link_existing)) { Anfuegewahl.person = person })
             add(ContextMenuItem(Texte.t(Res.string.chip_open_web)) { a.openWeb(person.url) })
             if (a.canEdit) add(ContextMenuItem(Texte.t(Res.string.action_delete_person)) { Loeschwahl.person = person.xref to person.name })
         }

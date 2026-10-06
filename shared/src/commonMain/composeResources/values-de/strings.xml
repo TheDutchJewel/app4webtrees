@@ -1420,4 +1420,12 @@
     <string name="desk_reorder_down">Nach unten</string>
     <string name="desk_add_person">Person hinzufügen</string>
     <string name="desk_status_persons">%1$d Personen</string>
+    <string name="msg_person_linked">Person angefügt</string>
+    <string name="relative_exists">Gibt es vielleicht schon:</string>
+    <string name="relative_link_instead">Anfügen statt neu</string>
+    <string name="desk_link_existing">Vorhandene Person anfügen …</string>
+    <string name="desk_link_title">Vorhandene Person an %1$s anfügen</string>
+    <string name="desk_link_who">Welche Person?</string>
+    <string name="desk_link_hint">Die Person bleibt, wie sie ist; es entsteht nur die Verknüpfung – als Kind in die gewählte Partnerschaft, als Partner eine neue Familie, als Vater oder Mutter die Elternfamilie.</string>
+    <string name="desk_link_do">Anfügen</string>
 </resources>

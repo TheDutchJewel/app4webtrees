@@ -183,6 +183,11 @@ fun AppViewModel.deletePerson(xref: String) {
     }
 }
 
+/** Vorhandene Person als Verwandten anfuegen (Route Link) - statt eine neue anzulegen. */
+fun AppViewModel.linkRelative(request: de.bgghome.webtrees.nativ.api.LinkRequest) = write(Res.string.msg_person_linked) { tree, _ ->
+    client.link(tree, request)
+}
+
 fun AppViewModel.addRelative(request: AddIndividualRequest) = write(Res.string.msg_person_created) { tree, _ ->
     client.addIndividual(tree, request)
 }

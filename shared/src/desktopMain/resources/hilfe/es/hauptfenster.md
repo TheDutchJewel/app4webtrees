@@ -28,7 +28,7 @@ En el centro aparece la **familia** de la persona central, dispuesta como en los
 
 - **Ajustar a la ventana:** la familia se amplía hasta llenar la ventana (hasta el 180 %); el porcentaje aparece arriba a la derecha. **Ctrl+rueda del ratón** cambia el zoom, un clic en el porcentaje vuelve a ajustar.
 - **Un clic** selecciona a una persona; el panel de persona de la derecha la muestra. **Doble clic** la convierte en persona central: así se recorren las familias hacia arriba (padres, abuelos) y hacia abajo (hijos, nietos).
-- **Botones en las tarjetas de la pareja:** Editar persona (ficha), Fotos, Añadir pariente. **+ Hijo/a** en la línea de estado añade un hijo de esta unión.
+- **Botones en las tarjetas de la pareja:** Editar persona (ficha), Fotos, Añadir pariente. **+ Hijo** y **+ Hija** en la línea de estado añaden un hijo de esta unión con el sexo preseleccionado. Encima de la familia: **+ Añadir persona ▾** (padre, madre, cónyuge, hijo o **vincular una persona existente**, es decir, enlazar un registro existente en vez de crear uno nuevo), **Ir a** y las generaciones. Al crear, el diálogo avisa si ya existe una persona con el mismo nombre y ofrece «Vincular en vez de crear».
 - **Botón derecho del ratón** en cualquier tarjeta: Mostrar como persona central, Ficha de la persona, Añadir pariente, Abrir en webtrees, Eliminar persona (con derechos de edición, tras confirmación).
 - Un progenitor que falta aparece como «Padre desconocido» o «Madre desconocida»; con derechos de edición, **+ añadir** lo crea.
 - Los **hermanos** de la persona central se muestran encima de la pareja. **Teclado:** flecha arriba al padre (con Shift a la madre), abajo al hijo, izquierda/derecha por los hermanos, Tab a la pestaña siguiente.

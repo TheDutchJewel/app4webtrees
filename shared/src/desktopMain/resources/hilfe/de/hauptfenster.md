@@ -28,7 +28,7 @@ In der Mitte die **Familie** des Probanden, aufgebaut wie in klassischen Genealo
 
 - **Einpassen:** Die Familie wird so vergrößert, dass sie das Fenster füllt (bis 180 %); die Prozentzahl steht rechts oben. **Strg+Mausrad** ändert den Zoom, ein Klick auf die Prozentzahl passt wieder ein.
 - **Ein Klick** wählt eine Person, die Personentafel rechts zeigt sie. **Doppelklick** macht sie zum Probanden – so gehst du durch die Familien nach oben (Eltern, Großeltern) und unten (Kinder, Enkel).
-- **Knöpfe in den Paarkarten:** Person bearbeiten (Personenblatt), Fotos, Verwandte hinzufügen. **+ Kind** in der Statuszeile legt ein Kind dieser Partnerschaft an.
+- **Knöpfe in den Paarkarten:** Person bearbeiten (Personenblatt), Fotos, Verwandte hinzufügen. **+ Sohn** und **+ Tochter** in der Statuszeile legen ein Kind dieser Partnerschaft mit vorbelegtem Geschlecht an. Über der Familie: **+ Person hinzufügen ▾** (Vater, Mutter, Partner, Kind oder eine **vorhandene Person anfügen**, also einen bestehenden Datensatz verknüpfen statt neu anzulegen), **Gehe zu** und die Generationen. Beim Anlegen warnt der Dialog, wenn es eine gleichnamige Person schon gibt, und bietet „Anfügen statt neu“.
 - **Rechte Maustaste** auf jeder Karte: Als Proband, Personenblatt, Verwandte hinzufügen, in webtrees öffnen, Person löschen (mit Bearbeitungsrecht, nach Rückfrage).
 - Fehlt ein Elternteil, steht dort „Vater unbekannt“ bzw. „Mutter unbekannt“; mit Bearbeitungsrecht legst du ihn über **+ hinzufügen** an.
 - Über dem Paar stehen die **Geschwister** des Probanden. **Tastatur:** Pfeil hoch zum Vater (mit Umschalt zur Mutter), runter zum Kind, links/rechts durch die Geschwister, Tab zum nächsten Reiter.

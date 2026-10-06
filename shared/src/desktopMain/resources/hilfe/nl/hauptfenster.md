@@ -28,7 +28,7 @@ In het midden staat het **gezin** van de proband, opgebouwd zoals in klassieke g
 
 - **Passend maken:** het gezin wordt vergroot tot het het venster vult (tot 180 %); het percentage staat rechtsboven. **Ctrl+muiswiel** verandert de zoom, een klik op het percentage past weer in.
 - **Een klik** selecteert een persoon; het persoonspaneel rechts toont hem of haar. **Dubbelklik** maakt de persoon tot proband – zo gaat u door de gezinnen omhoog (ouders, grootouders) en omlaag (kinderen, kleinkinderen).
-- **Knoppen in de paarkaarten:** Persoon bewerken (persoonsblad), Foto's, Verwant toevoegen. **+ Kind** in de statusregel voegt een kind van deze relatie toe.
+- **Knoppen in de paarkaarten:** Persoon bewerken (persoonsblad), Foto's, Verwant toevoegen. **+ Zoon** en **+ Dochter** in de statusregel voegen een kind van deze relatie toe met vooraf ingesteld geslacht. Boven het gezin: **+ Persoon toevoegen ▾** (vader, moeder, partner, kind of een **bestaande persoon koppelen**, dus een bestaand record verbinden in plaats van nieuw aanmaken), **Ga naar** en de generaties. Bij het aanmaken waarschuwt het dialoogvenster als er al een persoon met dezelfde naam is en biedt „Koppelen in plaats van nieuw“.
 - **Rechtermuisknop** op elke kaart: Als proband, Persoonsblad, Verwant toevoegen, Openen in webtrees, Persoon verwijderen (met bewerkingsrechten, na bevestiging).
 - Een ontbrekende ouder verschijnt als „Vader onbekend“ of „Moeder onbekend“; met bewerkingsrechten maakt **+ toevoegen** die persoon aan.
 - De **broers en zussen** van de proband staan boven het paar. **Toetsenbord:** pijl omhoog naar de vader (met Shift naar de moeder), omlaag naar het kind, links/rechts door de broers en zussen, Tab naar het volgende tabblad.

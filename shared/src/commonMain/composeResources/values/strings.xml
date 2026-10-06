@@ -1425,4 +1425,12 @@
     <string name="desk_reorder_down">Move down</string>
     <string name="desk_add_person">Add person</string>
     <string name="desk_status_persons">%1$d individuals</string>
+    <string name="msg_person_linked">Person linked</string>
+    <string name="relative_exists">May already exist:</string>
+    <string name="relative_link_instead">Link instead</string>
+    <string name="desk_link_existing">Link existing person …</string>
+    <string name="desk_link_title">Link an existing person to %1$s</string>
+    <string name="desk_link_who">Which person?</string>
+    <string name="desk_link_hint">The person stays as they are; only the link is created – as a child into the chosen partnership, as a spouse a new family, as father or mother the parent family.</string>
+    <string name="desk_link_do">Link</string>
 </resources>
