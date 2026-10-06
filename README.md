@@ -179,13 +179,22 @@ schon dabei) verbindet ein Klick das Programm mit dem eigenen Konto – Adresse 
 
 Der Link trägt einen Einmal-Code, der 10 Minuten und genau einmal gilt; das Passwort erreicht das Gerät nie.
 
+**Verzeichnisschutz (ab 1.38):** Schützt der Webserver die ganze Seite mit eigenem Benutzernamen und Passwort
+(.htaccess/.htpasswd, der Browser zeigt vor webtrees ein kleines Anmeldefenster, etwa gegen Daten sammelnde Bots), tippt
+man diese Zugangsdaten auf dem Adressbildschirm unter **„Verzeichnisschutz“** ein. Die App schickt sie mit jeder Anfrage
+an genau diesen Server mit, auch für Bilder und die Erinnerung an Jahrestage; die Anmeldung bei webtrees folgt getrennt.
+Die Felder klappen von selbst auf, wenn der Server so eine Anmeldung verlangt. Bei SSO-Diensten (Authelia, Authentik,
+oauth2-proxy, Cloudflare Access) hilft das nicht, dort muss der Betreiber die Anfragen der App durchlassen, siehe die
+README von api4webtrees.
+
 ## Datenschutz
 
 - Die App meldet sich mit dem normalen webtrees-Konto an. Jede Anfrage läuft als dieser Benutzer – es gelten dieselben
   Datenschutzregeln wie auf der Website (lebende Personen, gesperrte Einträge, private Bäume).
 - Änderungen landen sofort in webtrees: mit „Änderungen automatisch annehmen" gelten sie gleich, sonst warten sie auf
   die Freigabe durch einen Moderator.
-- Gespeichert werden Serveradresse, Benutzername und das Sitzungs-Cookie – **nie das Passwort**. Kein Cloud-Backup der
+- Gespeichert werden Serveradresse, Benutzername und das Sitzungs-Cookie – **nie das webtrees-Passwort**. Nur die
+  Zugangsdaten eines Verzeichnisschutzes (falls eingetragen) bleiben auf dem Gerät, sie müssen bei jeder Anfrage mit. Kein Cloud-Backup der
   App-Daten, keine Analyse, keine Werbung, keine Google-Dienste.
 - Berechtigungen: Internet. Für die abschaltbare tägliche Erinnerung an Jahrestage: Benachrichtigungen (wird erst beim
   Einschalten erfragt) sowie die üblichen Rechte des Android-Aufgabenplaners (Netzwerkstatus, Start nach Neustart,

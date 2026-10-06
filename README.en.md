@@ -179,13 +179,22 @@ one click connects the program to your own account – nobody has to type the ad
 
 The link carries a one-time code that is valid for 10 minutes and exactly once; the password never reaches the device.
 
+**Directory protection (1.38 or later):** if the web server protects the whole site with its own user name and password
+(.htaccess/.htpasswd, the browser shows a small sign-in box before webtrees, e.g. to keep data-harvesting bots out), enter
+those credentials on the address screen under **“directory protection”**. The app sends them with every request to
+exactly that server, including pictures and the anniversary reminder; the webtrees sign-in follows separately. The
+fields open by themselves when the server asks for such a sign-in. This does not help with SSO services (Authelia,
+Authentik, oauth2-proxy, Cloudflare Access); there the operator has to let the app's requests through, see the
+api4webtrees README.
+
 ## Privacy
 
 - The app signs in with your normal webtrees account. Every request runs as that user – the same privacy rules apply as
   on the website (living individuals, restricted facts, private trees).
 - Changes go straight to webtrees: with “automatically accept changes” they are final, otherwise they wait for a
   moderator.
-- Stored on the device: server address, user name and the session cookie – **never the password**. No cloud backup of
+- Stored on the device: server address, user name and the session cookie – **never the webtrees password**. Only the
+  credentials of a directory protection (if entered) stay on the device, they have to go with every request. No cloud backup of
   the app data, no analytics, no ads, no Google services.
 - Permissions: internet. For the optional daily anniversary reminder: notifications (requested only when you switch it
   on) plus the usual rights of Android's job scheduler (network state, start after reboot, wake lock, foreground
