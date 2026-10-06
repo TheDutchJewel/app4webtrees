@@ -16,6 +16,8 @@ Condition : webtrees 2.2 avec le module **api4webtrees**. C'est la personne qui 
 2. Cliquez sur **Connecter**.
 3. Connectez-vous avec votre nom d'utilisateur (ou e-mail) et votre mot de passe. **Consulter sans se connecter** n'affiche que ce que voient les visiteurs du site.
 
+> **Protection du répertoire :** si le navigateur affiche, avant webtrees, une petite fenêtre de connexion du serveur web (.htaccess), ouvrez « Le serveur demande un nom d'utilisateur et un mot de passe avant webtrees » sur l'écran d'adresse et saisissez-y ces identifiants. Le programme les envoie avec chaque requête à ce serveur ; vous vous connectez ensuite comme d'habitude. Lorsque le serveur exige une telle connexion, les champs s'ouvrent d'eux-mêmes.
+
 Vous vous connectez avec votre compte webtrees habituel. Les mêmes droits s'appliquent que sur le site : ce que vous ne voyez pas là-bas, vous ne le voyez pas ici ; ce que vous pouvez y modifier, vous pouvez le modifier ici.
 
 > Les adresses non chiffrées (`http://`) ne sont acceptées que sur votre réseau domestique, p. ex. `http://192.168.178.73:8095`. Hors de chez vous, le serveur doit utiliser HTTPS.

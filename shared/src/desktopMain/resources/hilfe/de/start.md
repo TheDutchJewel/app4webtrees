@@ -16,6 +16,8 @@ Voraussetzung: ein webtrees 2.2 mit dem Modul **api4webtrees**. Das Modul instal
 2. **Verbinden** klicken.
 3. Mit Benutzername (oder E-Mail) und Passwort anmelden. **Ohne Anmeldung ansehen** zeigt nur, was Gäste auf der Website sehen.
 
+> **Verzeichnisschutz:** Zeigt der Browser vor webtrees ein kleines Anmeldefenster des Webservers (.htaccess), klappe auf dem Adressbildschirm „Server verlangt vor webtrees Benutzername und Passwort“ auf und trage diese Zugangsdaten dort ein. Das Programm schickt sie mit jeder Anfrage an diesen Server mit; angemeldet wird danach wie gewohnt. Meldet der Server so eine Anmeldung, klappen die Felder von selbst auf.
+
 Du meldest dich mit deinem normalen webtrees-Konto an. Es gelten dieselben Rechte wie auf der Website: Was du dort nicht siehst, siehst du auch hier nicht; was du dort bearbeiten darfst, darfst du auch hier bearbeiten.
 
 > Unverschlüsselte Adressen (`http://`) nimmt das Programm nur im Heimnetz an, zum Beispiel `http://192.168.178.73:8095`. Für unterwegs braucht der Server HTTPS.

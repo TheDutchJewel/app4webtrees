@@ -16,6 +16,8 @@ Voorwaarde: webtrees 2.2 met de module **api4webtrees**. Wie de server beheert, 
 2. Klik op **Verbinden**.
 3. Meld u aan met gebruikersnaam (of e-mailadres) en wachtwoord. **Bekijken zonder aan te melden** toont alleen wat bezoekers op de website zien.
 
+> **Mapbeveiliging:** toont de browser vóór webtrees een klein aanmeldvenster van de webserver (.htaccess), klap dan op het adresscherm „Vraagt de server vóór webtrees om een gebruikersnaam en wachtwoord” open en vul die gegevens daar in. Het programma stuurt ze met elk verzoek naar deze server mee; daarna meldt u zich aan zoals gewoonlijk. Vraagt de server om zo'n aanmelding, dan klappen de velden vanzelf open.
+
 U meldt zich aan met uw gewone webtrees-account. Dezelfde rechten gelden als op de website: wat u daar niet kunt zien, ziet u hier ook niet; wat u daar mag bewerken, mag u hier ook bewerken.
 
 > Onversleutelde adressen (`http://`) worden alleen in het thuisnetwerk geaccepteerd, bijv. `http://192.168.178.73:8095`. Buitenshuis heeft de server HTTPS nodig.

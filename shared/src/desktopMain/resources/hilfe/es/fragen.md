@@ -8,7 +8,7 @@ Las versiones nuevas aparecen en **github.com/thobgg/app4webtrees/releases**. El
 
 ## Lo que guarda el programa
 
-- Dirección del servidor, nombre de usuario y la cookie de sesión, **nunca la contraseña**.
+- Dirección del servidor, nombre de usuario y la cookie de sesión, **nunca la contraseña de webtrees**. Solo los datos de una protección de directorio (si se introducen) quedan en el PC: deben acompañar cada solicitud.
 - Sus ajustes (disposición, aspecto, ajustes de gráficos y listas, reglas de color, lista de marcas de la comprobación) en este PC.
 - Para el árbol genealógico en este PC: el árbol entero en la carpeta `app4webtrees`, incluido el acceso al webtrees local.
 - Sin analíticas, sin publicidad, sin cesión de datos.

@@ -8,7 +8,7 @@ New versions appear at **github.com/thobgg/app4webtrees/releases**. The Windows 
 
 ## What the program stores
 
-- Server address, user name and the session cookie, **never the password**.
+- Server address, user name and the session cookie, **never the webtrees password**. Only the credentials of a directory protection (if entered) stay on the PC, they have to go with every request.
 - Your settings (layout, appearance, chart and list settings, colour rules, tick list of the check) on this PC.
 - For the family tree on this PC: the whole tree in the folder `app4webtrees` including the login to the local webtrees.
 - No analytics, no advertising, no sharing.

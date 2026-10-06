@@ -8,7 +8,7 @@ Les nouvelles versions paraissent sur **github.com/thobgg/app4webtrees/releases*
 
 ## Ce que le programme enregistre
 
-- L'adresse du serveur, le nom d'utilisateur et le cookie de session, **jamais le mot de passe**.
+- L'adresse du serveur, le nom d'utilisateur et le cookie de session, **jamais le mot de passe webtrees**. Seuls les identifiants d'une protection du répertoire (si saisis) restent sur le PC : ils doivent accompagner chaque requête.
 - Vos réglages (disposition, apparence, réglages des tableaux et des listes, règles de couleur, liste des coches de la vérification) sur cet ordinateur.
 - Pour l'arbre généalogique sur cet ordinateur : l'arbre entier dans le dossier `app4webtrees`, y compris l'accès au webtrees local.
 - Pas de statistiques d'utilisation, pas de publicité, aucune transmission à des tiers.

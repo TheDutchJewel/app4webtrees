@@ -16,6 +16,8 @@ Requisito: webtrees 2.2 con el módulo **api4webtrees**. Quien administra el ser
 2. Haga clic en **Conectar**.
 3. Inicie sesión con el nombre de usuario (o el correo electrónico) y la contraseña. **Ver sin iniciar sesión** muestra solo lo que ven los visitantes del sitio web.
 
+> **Protección de directorio:** si el navegador muestra antes de webtrees una pequeña ventana de acceso del servidor web (.htaccess), despliegue en la pantalla de dirección «¿El servidor pide usuario y contraseña antes de webtrees?» e introduzca ahí esos datos. El programa los envía con cada solicitud a este servidor; después inicia sesión como de costumbre. Si el servidor exige ese acceso, los campos se despliegan solos.
+
 Se inicia sesión con la cuenta normal de webtrees. Se aplican los mismos derechos que en el sitio web: lo que no puede ver allí, tampoco lo ve aquí; lo que puede editar allí, también puede editarlo aquí.
 
 > Las direcciones sin cifrar (`http://`) solo se aceptan en la red doméstica, p. ej. `http://192.168.178.73:8095`. Fuera de casa, el servidor necesita HTTPS.

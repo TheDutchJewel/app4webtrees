@@ -16,6 +16,8 @@ Requirement: webtrees 2.2 with the module **api4webtrees**. Whoever runs the ser
 2. Click **Connect**.
 3. Sign in with user name (or e-mail) and password. **View without signing in** shows only what visitors see on the website.
 
+> **Directory protection:** if the browser shows a small sign-in box of the web server (.htaccess) before webtrees, open “Server asks for a user name and password before webtrees” on the address screen and enter those credentials there. The program sends them with every request to this server; you then sign in as usual. When the server asks for such a sign-in, the fields open by themselves.
+
 You sign in with your normal webtrees account. The same rights apply as on the website: what you cannot see there, you cannot see here; what you may edit there, you may edit here.
 
 > Unencrypted addresses (`http://`) are accepted only on your home network, e.g. `http://192.168.178.73:8095`. Away from home, the server needs HTTPS.
