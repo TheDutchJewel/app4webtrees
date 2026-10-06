@@ -1385,4 +1385,9 @@
     <string name="desk_family_status_married">Verheiratet</string>
     <string name="desk_family_status_none">Partnerschaft ohne Heiratsangabe</string>
     <string name="desk_family_add_child">Kind</string>
+    <string name="desk_merge_adds">Kommt dazu von %1$s:</string>
+    <string name="desk_merge_adds_none">Nichts Neues: %1$s ist in %2$s vollständig enthalten.</string>
+    <string name="desk_merge_same_count">%1$d gleiche Angaben werden nicht doppelt übernommen.</string>
+    <string name="desk_merge_show_all">Alle Ereignisse anzeigen</string>
+    <string name="desk_merge_show_less">Nur Unterschiede anzeigen</string>
 </resources>

@@ -160,7 +160,7 @@ internal fun ZusammenfuehrenDialogInhalt(start: Dublette, zugriff: Zusammenfuehr
                 }
             }
         },
-        breite = 1100.dp,
+        breite = 900.dp,
         confirmButton = {
             TextButton(enabled = v != null && !laeuft, onClick = {
                 val p = v ?: return@TextButton
@@ -186,17 +186,41 @@ internal fun ZusammenfuehrenDialogInhalt(start: Dublette, zugriff: Zusammenfuehr
 internal fun ZusammenfuehrenVorschau(
     v: MergePreview, keep1: Set<String>, keep2: Set<String>, weitere: Set<String>,
     onKeep1: (String, Boolean) -> Unit, onKeep2: (String, Boolean) -> Unit, onWeitere: (String) -> Unit, onTauschen: () -> Unit,
+    alleAnfangs: Boolean = false,
 ) {
     val farben = MaterialTheme.colorScheme
+    // Kompakt (Normalfall): nur, was von der zweiten Person dazukommt; "Alle Ereignisse anzeigen" klappt die Gegenueberstellung auf
+    var alle by remember { mutableStateOf(alleAnfangs) }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Spalte(Modifier.weight(1f), stringResource(Res.string.desk_merge_keeps), v.person1, v.facts1, keep1, onKeep1)
-            Spalte(Modifier.weight(1f), stringResource(Res.string.desk_merge_goes), v.person2, v.facts2, keep2, onKeep2)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            KopfKarte(Modifier.weight(1f), stringResource(Res.string.desk_merge_keeps), v.person1)
+            Tipp(stringResource(Res.string.desk_merge_swap)) { TextButton(onClick = onTauschen) { Text("⇄") } }
+            KopfKarte(Modifier.weight(1f), stringResource(Res.string.desk_merge_goes), v.person2)
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = onTauschen) { Text("⇄  " + stringResource(Res.string.desk_merge_swap)) }
+        if (!alle) {
+            val dazu = v.facts2.filter { !it.link && !it.same }
+            val gleich = v.facts2.count { !it.link && it.same }
+            if (dazu.isEmpty()) Text(stringResource(Res.string.desk_merge_adds_none, v.person2.name, v.person1.name), style = MaterialTheme.typography.bodyMedium)
+            else {
+                Text(stringResource(Res.string.desk_merge_adds, v.person2.name), style = MaterialTheme.typography.labelLarge)
+                dazu.forEach { f ->
+                    val an = f.id in keep2
+                    Row(Modifier.fillMaxWidth().clickable { onKeep2(f.id, !an) }, verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = an, onCheckedChange = { onKeep2(f.id, it) })
+                        Text(f.label.ifBlank { f.tag }, Modifier.width(150.dp), style = MaterialTheme.typography.labelMedium)
+                        Text(f.text.ifBlank { "–" }, style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+            }
+            if (gleich > 0) Text(stringResource(Res.string.desk_merge_same_count, gleich), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+        } else {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Spalte(Modifier.weight(1f), stringResource(Res.string.desk_merge_keeps), v.person1, v.facts1, keep1, onKeep1)
+                Spalte(Modifier.weight(1f), stringResource(Res.string.desk_merge_goes), v.person2, v.facts2, keep2, onKeep2)
+            }
             Text(stringResource(Res.string.desk_merge_same_hint), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
         }
+        TextButton(onClick = { alle = !alle }) { Text(stringResource(if (alle) Res.string.desk_merge_show_less else Res.string.desk_merge_show_all)) }
         HorizontalDivider(color = farben.outlineVariant)
         if (v.links.isEmpty()) Text(stringResource(Res.string.desk_merge_links_none, v.person2.name), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
         else Text(stringResource(Res.string.desk_merge_links, v.person1.name, v.links.joinToString { "${it.name} (${it.xref})" }),
@@ -210,6 +234,17 @@ internal fun ZusammenfuehrenVorschau(
                 }
             }
         }
+    }
+}
+
+/** Kopf der kompakten Ansicht: wer bleibt, wer aufgeht - Name, Kennung, Lebensdaten. */
+@Composable
+private fun KopfKarte(modifier: Modifier, kopf: String, person: Person) {
+    val farben = MaterialTheme.colorScheme
+    Column(modifier.border(1.dp, farben.outlineVariant).padding(horizontal = 10.dp, vertical = 6.dp)) {
+        Text(kopf, style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
+        Text(person.name + "  (" + person.xref + ")", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(person.lifespan.ifBlank { " " }, style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
     }
 }
 

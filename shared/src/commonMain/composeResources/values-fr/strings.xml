@@ -1385,4 +1385,9 @@
     <string name="desk_family_status_married">Marié(e)s</string>
     <string name="desk_family_status_none">Union sans indication de mariage</string>
     <string name="desk_family_add_child">Enfant</string>
+    <string name="desk_merge_adds">Ajouté depuis %1$s :</string>
+    <string name="desk_merge_adds_none">Rien de nouveau : %1$s est entièrement contenu dans %2$s.</string>
+    <string name="desk_merge_same_count">%1$d indications identiques ne sont pas reprises deux fois.</string>
+    <string name="desk_merge_show_all">Afficher tous les événements</string>
+    <string name="desk_merge_show_less">Afficher seulement les différences</string>
 </resources>

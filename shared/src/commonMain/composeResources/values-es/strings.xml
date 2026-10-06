@@ -1385,4 +1385,9 @@
     <string name="desk_family_status_married">Casados</string>
     <string name="desk_family_status_none">Unión sin datos de matrimonio</string>
     <string name="desk_family_add_child">Hijo/a</string>
+    <string name="desk_merge_adds">Se añade de %1$s:</string>
+    <string name="desk_merge_adds_none">Nada nuevo: %1$s está completamente contenido en %2$s.</string>
+    <string name="desk_merge_same_count">%1$d datos idénticos no se incorporan dos veces.</string>
+    <string name="desk_merge_show_all">Mostrar todos los eventos</string>
+    <string name="desk_merge_show_less">Mostrar solo las diferencias</string>
 </resources>

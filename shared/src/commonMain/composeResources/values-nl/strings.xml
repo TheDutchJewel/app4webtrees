@@ -1366,4 +1366,9 @@
     <string name="desk_family_status_married">Gehuwd</string>
     <string name="desk_family_status_none">Relatie zonder huwelijksgegevens</string>
     <string name="desk_family_add_child">Kind</string>
+    <string name="desk_merge_adds">Komt erbij van %1$s:</string>
+    <string name="desk_merge_adds_none">Niets nieuws: %1$s is volledig in %2$s vervat.</string>
+    <string name="desk_merge_same_count">%1$d gelijke gegevens worden niet dubbel overgenomen.</string>
+    <string name="desk_merge_show_all">Alle gebeurtenissen tonen</string>
+    <string name="desk_merge_show_less">Alleen verschillen tonen</string>
 </resources>

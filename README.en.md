@@ -21,8 +21,8 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/desktop-zusammenfuehren.jpg" alt="Merging individuals: two Johann Heinrich Falkenrath side by side, a tick per event, below the links and a further pair" width="100%">
-  <br><b>Merging individuals</b> (from 1.36) – left stays, right is absorbed; identical events of the second are unticked, links always stay; below, what will point to the remaining individual and further pairs.
+  <img src="docs/screenshots/desktop-zusammenfuehren.jpg" alt="Merging individuals: Johann Heinrich Falkenrath stays, the second copy is absorbed; one residence is added, below the links and a further pair" width="100%">
+  <br><b>Merging individuals</b> (from 1.36) – who stays, who is absorbed, and only what is added from the second individual; below, what will point to the remaining individual and further pairs. “Show all events” opens the full side-by-side comparison.
 </p>
 
 <p align="center"><b>New in 1.35: houses and farms.</b> Buildings are places of their own (GEDCOM-L) – in the place manager with their history (fire, rebuilding, residents and owners in order of time), in the family book as a house section with cross-references. To try it out: <a href="https://github.com/thobgg/falkenrath-demo-tree">demo tree 1.4</a>.</p>

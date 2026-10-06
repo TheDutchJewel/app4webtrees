@@ -21,8 +21,8 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/desktop-zusammenfuehren.jpg" alt="Personen zusammenführen: zwei Johann Heinrich Falkenrath nebeneinander, je Ereignis ein Haken, darunter Verweise und ein weiteres Paar" width="100%">
-  <br><b>Personen zusammenführen</b> (ab 1.36) – links bleibt, rechts geht auf; wortgleiche Ereignisse der zweiten Person sind abgewählt, Verknüpfungen bleiben immer; darunter, was danach auf die bleibende Person zeigt, und weitere Paare.
+  <img src="docs/screenshots/desktop-zusammenfuehren.jpg" alt="Personen zusammenführen: Johann Heinrich Falkenrath bleibt, die zweite Fassung geht auf; dazu kommt ein Wohnort, darunter Verweise und ein weiteres Paar" width="100%">
+  <br><b>Personen zusammenführen</b> (ab 1.36) – wer bleibt, wer aufgeht, und nur das, was von der zweiten Person dazukommt; darunter, was danach auf die bleibende Person zeigt, und weitere Paare. „Alle Ereignisse anzeigen“ klappt die vollständige Gegenüberstellung auf.
 </p>
 
 <p align="center"><b>Neu in 1.35: Häuser und Höfe.</b> Gebäude sind eigene Orte nach GEDCOM-L – in der Ortsverwaltung mit ihrer Geschichte (Brand, Umbau, Bewohner, Besitzer der Zeit nach), im Familienbuch als Häuserteil mit Querverweisen. Zum Ausprobieren: <a href="https://github.com/thobgg/falkenrath-demo-tree">Demo-Stammbaum 1.4</a>.</p>

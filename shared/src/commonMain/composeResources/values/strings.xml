@@ -1390,4 +1390,9 @@
     <string name="desk_family_status_married">Married</string>
     <string name="desk_family_status_none">Partnership without marriage details</string>
     <string name="desk_family_add_child">Child</string>
+    <string name="desk_merge_adds">Added from %1$s:</string>
+    <string name="desk_merge_adds_none">Nothing new: %1$s is completely contained in %2$s.</string>
+    <string name="desk_merge_same_count">%1$d identical entries are not taken over twice.</string>
+    <string name="desk_merge_show_all">Show all events</string>
+    <string name="desk_merge_show_less">Show differences only</string>
 </resources>

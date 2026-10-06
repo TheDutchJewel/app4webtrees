@@ -58,7 +58,7 @@ class ZusammenfuehrenBildErzeugen {
             links = listOf(MergeLink("F201", "FAM", "Johann Heinrich Falkenrath + Anna Dorothea Wichmann"), MergeLink("S5", "SOUR", "Kirchenbuch Celle, Taufen 1790–1820")),
             suggestions = listOf(MergeSuggestion("spouse", "I53", "Anna Dorothea Wichmann", "I413", "Anna Dorothea Wichmann")),
         )
-        ImageComposeScene(width = 2200, height = 1240, density = Density(2f)) {
+        ImageComposeScene(width = 1800, height = 760, density = Density(2f)) {
             DeskTheme {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).padding(16.dp)) {
                     ZusammenfuehrenVorschau(v, vorschlag(v.facts1), vorschlag(v.facts2), setOf("I53|I413"), { _, _ -> }, { _, _ -> }, {}, {})
