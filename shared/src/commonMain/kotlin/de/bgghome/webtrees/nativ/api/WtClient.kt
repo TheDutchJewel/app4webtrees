@@ -324,14 +324,17 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         return postRoute("/tree/$tree/archiv/api/exif", form, ExifWriteResult.serializer())
     }
 
-    /** Gesichter eines Archivbildes schreiben (ersetzt alle Face-Bereiche der Datei) - Modul Sammlungen ab Stufe 5. */
+    /**
+     * Gesichter eines Archivbildes schreiben (ersetzt alle Face-Bereiche der Datei) - Modul Sammlungen ab Stufe 5, ueber die
+     * Route exif: nur pfad und bereiche, die Beschriftung bleibt (nicht Gesendetes aendert das Modul ab Stufe 5 nicht).
+     */
     suspend fun writeRegions(tree: String, pfad: String, bereiche: List<Bereich>): ExifWriteResult {
         val form = FormBody.Builder()
             .add("pfad", pfad)
             .add("bereiche", json.encodeToString(kotlinx.serialization.builtins.ListSerializer(Bereich.serializer()), bereiche))
             .build()
 
-        return postRoute("/tree/$tree/archiv/api/bereiche", form, ExifWriteResult.serializer())
+        return postRoute("/tree/$tree/archiv/api/exif", form, ExifWriteResult.serializer())
     }
 
     /** Aeltere Module kappen generations selbst (bis 1.8: 7, ab 1.9: 12) und nennen die gelieferte Tiefe; siblings ab Stufe 15. */
