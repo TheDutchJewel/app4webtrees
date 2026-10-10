@@ -50,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.debounce
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -79,8 +80,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogWindow
-import androidx.compose.ui.window.rememberDialogState
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.rememberWindowState
 import coil3.compose.AsyncImage
 import de.bgghome.webtrees.nativ.api.ArchiveCollection
 import de.bgghome.webtrees.nativ.api.ArchiveEntry
@@ -132,7 +134,7 @@ private const val ARCHIV_SEITE = 120
 
 private fun schluessel(e: ArchiveEntry) = e.pfad ?: e.original.ifEmpty { e.datei }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class, kotlinx.coroutines.FlowPreview::class)
 @Composable
 fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, onClose: () -> Unit) {
     val tree = state.tree?.name ?: return
@@ -243,9 +245,21 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
         }
     }
 
-    DialogWindow(
+    // Normales Fenster (minimieren, maximieren, Groesse aendern); Groesse und Maximiert bleiben gemerkt
+    val fenster = rememberWindowState(
+        placement = if (DeskLayout.prefs.getString("archiv_max", null) == "1") WindowPlacement.Maximized else WindowPlacement.Floating,
+        width = (DeskLayout.prefs.getString("archiv_breite", null)?.toFloatOrNull() ?: 1280f).dp,
+        height = (DeskLayout.prefs.getString("archiv_hoehe", null)?.toFloatOrNull() ?: 820f).dp,
+    )
+    LaunchedEffect(fenster) {
+        snapshotFlow { Triple(fenster.placement, fenster.size.width.value, fenster.size.height.value) }.debounce(500).collect { (art, breite, hoehe) ->
+            DeskLayout.prefs.putString("archiv_max", if (art == WindowPlacement.Maximized) "1" else "0")
+            if (art == WindowPlacement.Floating) DeskLayout.prefs.putStrings(mapOf("archiv_breite" to breite.toString(), "archiv_hoehe" to hoehe.toString()))
+        }
+    }
+    Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_archive_window) + " – " + state.tree?.title.orEmpty(),
-        state = rememberDialogState(width = 1280.dp, height = 820.dp),
+        state = fenster,
         onPreviewKeyEvent = { e ->
             when {
                 e.type != KeyEventType.KeyDown -> false

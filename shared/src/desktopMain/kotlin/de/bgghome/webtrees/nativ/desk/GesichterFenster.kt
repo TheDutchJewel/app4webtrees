@@ -36,6 +36,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.debounce
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -54,8 +56,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogWindow
-import androidx.compose.ui.window.rememberDialogState
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.rememberWindowState
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import de.bgghome.webtrees.nativ.api.ArchiveEntry
@@ -100,6 +103,7 @@ class GesichterZustand(val eintrag: ArchiveEntry, bearbeiten: Boolean) {
     fun entfernen(i: Int) { bereiche.removeAt(i); gewaehlt = null; ueber = null; geaendert = true }
 }
 
+@OptIn(kotlinx.coroutines.FlowPreview::class)
 @Composable
 fun GesichterFenster(
     eintrag: ArchiveEntry, tree: String, viewModel: AppViewModel, bearbeiten: Boolean,
@@ -107,10 +111,22 @@ fun GesichterFenster(
 ) {
     val z = remember(eintrag.pfad) { GesichterZustand(eintrag, bearbeiten) }
     val schliessen = { if (z.geaendert) z.verwerfen = true else onClose() }
-    DialogWindow(
+    // Normales Fenster (minimieren, maximieren, Groesse aendern); Groesse und Maximiert bleiben gemerkt
+    val fenster = rememberWindowState(
+        placement = if (DeskLayout.prefs.getString("gesichter_max", null) == "1") WindowPlacement.Maximized else WindowPlacement.Floating,
+        width = (DeskLayout.prefs.getString("gesichter_breite", null)?.toFloatOrNull() ?: 1300f).dp,
+        height = (DeskLayout.prefs.getString("gesichter_hoehe", null)?.toFloatOrNull() ?: 860f).dp,
+    )
+    LaunchedEffect(fenster) {
+        snapshotFlow { Triple(fenster.placement, fenster.size.width.value, fenster.size.height.value) }.debounce(500).collect { (art, breite, hoehe) ->
+            DeskLayout.prefs.putString("gesichter_max", if (art == WindowPlacement.Maximized) "1" else "0")
+            if (art == WindowPlacement.Floating) DeskLayout.prefs.putStrings(mapOf("gesichter_breite" to breite.toString(), "gesichter_hoehe" to hoehe.toString()))
+        }
+    }
+    Window(
         onCloseRequest = schliessen,
         title = stringResource(Res.string.desk_faces_window) + " – " + eintrag.bildunterschrift.ifEmpty { eintrag.datei },
-        state = rememberDialogState(width = 1300.dp, height = 860.dp),
+        state = fenster,
         onPreviewKeyEvent = { e ->
             when {
                 e.type != KeyEventType.KeyDown -> false
