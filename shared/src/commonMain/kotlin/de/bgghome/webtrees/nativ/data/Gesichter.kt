@@ -42,6 +42,14 @@ object Gesichter {
         return Bereich(x = x1, y = y1, w = x2 - x1, h = y2 - y1)
     }
 
+    /** Rahmen um [dx]/[dy] (normiert) verschieben, ohne dass er das Bild verlaesst. */
+    fun verschoben(b: Bereich, dx: Double, dy: Double): Bereich =
+        b.copy(x = (b.x + dx).coerceIn(0.0, 1.0 - b.w), y = (b.y + dy).coerceIn(0.0, 1.0 - b.h))
+
+    /** Rechte untere Ecke des Rahmens nach ([nx], [ny]) ziehen; linke obere Ecke bleibt, mindestens [MINDEST] gross. */
+    fun vergroessert(b: Bereich, nx: Double, ny: Double): Bereich =
+        b.copy(w = (nx.coerceAtMost(1.0) - b.x).coerceAtLeast(MINDEST), h = (ny.coerceAtMost(1.0) - b.y).coerceAtLeast(MINDEST))
+
     /**
      * Lesereihenfolge wie auf der Rueckseite alter Fotos: Reihe fuer Reihe von oben, darin von links nach rechts. Zur
      * selben Reihe gehoert, wessen Mitte hoeher liegt als die halbe Rahmenhoehe unter der Mitte des ersten der Reihe.

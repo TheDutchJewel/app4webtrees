@@ -52,4 +52,13 @@ class GesichterTest {
         assertEquals(104.0 / 715, b.h, 1e-9)
         assertEquals("", b.name)
     }
+
+    @Test
+    fun verschiebenBleibtImBildUndGroesseHatUntergrenze() {
+        val b = Bereich(0.8, 0.8, 0.1, 0.1)
+        val v = Gesichter.verschoben(b, 0.5, -0.9)
+        assertEquals(0.9, v.x, 1e-9); assertEquals(0.0, v.y, 1e-9); assertEquals(0.1, v.w, 1e-9)
+        val g = Gesichter.vergroessert(b, 0.7, 1.4)
+        assertEquals(Gesichter.MINDEST, g.w, 1e-9); assertEquals(0.2, g.h, 1e-9)
+    }
 }

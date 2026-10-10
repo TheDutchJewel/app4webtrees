@@ -76,34 +76,37 @@ import org.jetbrains.compose.resources.stringResource
 /*
  * Gesichter auf einem Archivbild (Modul Sammlungen ab Stufe 5): das Bild gross, darueber die markierten Rahmen. Beim
  * Darueberfahren steht der Name am Rahmen, rechts die Liste in Lesereihenfolge (Reihe fuer Reihe, von links). Wer darf
- * ([bearbeiten]), zieht neue Rahmen auf und ordnet sie einer Person des Stammbaums zu, einem Namen ohne Datensatz (der
- * Trauzeuge, den niemand angelegt hat) oder "unbekannt". Gespeichert wird in der Datei (XMP) ueber die Route des Moduls;
- * an die Person haengt sich das Bild dabei nicht.
+ * ([bearbeiten]), zieht neue Rahmen auf, verschiebt den gewaehlten oder zieht ihn an der Ecke groesser und ordnet ihn
+ * einer Person des Stammbaums zu, einem Namen ohne Datensatz (der Trauzeuge, den niemand angelegt hat) oder "unbekannt".
+ * Gespeichert wird in der Datei (XMP) ueber die Route des Moduls; an die Person haengt sich das Bild dabei nicht.
  */
-@OptIn(ExperimentalComposeUiApi::class)
+
+/** Was im Gesichter-Fenster gerade ist - eigene Klasse, damit Fenster und Inhalt (auch ohne Fenster zeichenbar) sie teilen. */
+class GesichterZustand(val eintrag: ArchiveEntry, bearbeiten: Boolean) {
+    val bereiche = mutableStateListOf<Bereich>().apply { addAll(eintrag.bereiche) }
+    var geaendert by mutableStateOf(false)
+    var ueber by mutableStateOf<Int?>(null)
+    var gewaehlt by mutableStateOf<Int?>(null)
+    var markieren by mutableStateOf(eintrag.bereiche.isEmpty() && bearbeiten)
+    var zug by mutableStateOf<Pair<Offset, Offset>?>(null)
+    var zuordnen by mutableStateOf<Int?>(null)
+    var verwerfen by mutableStateOf(false)
+    var speichert by mutableStateOf(false)
+    var fehler by mutableStateOf<String?>(null)
+    // Bildmasse: aus dem Eintrag, sonst vom geladenen Bild
+    var bildB by mutableStateOf(eintrag.breite)
+    var bildH by mutableStateOf(eintrag.hoehe)
+
+    fun entfernen(i: Int) { bereiche.removeAt(i); gewaehlt = null; ueber = null; geaendert = true }
+}
+
 @Composable
 fun GesichterFenster(
     eintrag: ArchiveEntry, tree: String, viewModel: AppViewModel, bearbeiten: Boolean,
     onGespeichert: (ArchiveEntry) -> Unit, onClose: () -> Unit,
 ) {
-    val bereiche = remember(eintrag.pfad) { mutableStateListOf<Bereich>().apply { addAll(eintrag.bereiche) } }
-    var geaendert by remember { mutableStateOf(false) }
-    var ueber by remember { mutableStateOf<Int?>(null) }
-    var gewaehlt by remember { mutableStateOf<Int?>(null) }
-    var markieren by remember { mutableStateOf(eintrag.bereiche.isEmpty() && bearbeiten) }
-    var zug by remember { mutableStateOf<Pair<Offset, Offset>?>(null) }
-    var zuordnen by remember { mutableStateOf<Int?>(null) }
-    var verwerfen by remember { mutableStateOf(false) }
-    var speichert by remember { mutableStateOf(false) }
-    var fehler by remember { mutableStateOf<String?>(null) }
-    // Bildmasse: aus dem Eintrag, sonst vom geladenen Bild
-    var bildB by remember { mutableStateOf(eintrag.breite) }
-    var bildH by remember { mutableStateOf(eintrag.hoehe) }
-    val scope = rememberCoroutineScope()
-    val schliessen = { if (geaendert) verwerfen = true else onClose() }
-    val unbekannt = stringResource(Res.string.desk_faces_unknown)
-    fun beschriftung(b: Bereich) = b.name.ifBlank { unbekannt }
-
+    val z = remember(eintrag.pfad) { GesichterZustand(eintrag, bearbeiten) }
+    val schliessen = { if (z.geaendert) z.verwerfen = true else onClose() }
     DialogWindow(
         onCloseRequest = schliessen,
         title = stringResource(Res.string.desk_faces_window) + " – " + eintrag.bildunterschrift.ifEmpty { eintrag.datei },
@@ -111,183 +114,231 @@ fun GesichterFenster(
         onPreviewKeyEvent = { e ->
             when {
                 e.type != KeyEventType.KeyDown -> false
-                e.key == Key.Escape && zuordnen == null -> { schliessen(); true }
+                e.key == Key.Escape && z.zuordnen == null -> { schliessen(); true }
                 e.key == Key.F1 -> { Hilfe.oeffnen("archiv"); true }
-                (e.key == Key.Delete || e.key == Key.Backspace) && bearbeiten && gewaehlt != null && zuordnen == null -> {
-                    bereiche.removeAt(gewaehlt!!); gewaehlt = null; ueber = null; geaendert = true; true
-                }
+                (e.key == Key.Delete || e.key == Key.Backspace) && bearbeiten && z.gewaehlt != null && z.zuordnen == null -> { z.entfernen(z.gewaehlt!!); true }
                 else -> false
             }
         },
     ) {
         DeskTheme {
-            val farben = MaterialTheme.colorScheme
-            Row(Modifier.fillMaxSize().background(farben.background)) {
-                // ── Bild mit Rahmen ──
-                BoxWithConstraints(Modifier.weight(1f).fillMaxHeight().background(Color(0xFF202020))) {
-                    val dichte = LocalDensity.current.density
-                    val feldB = constraints.maxWidth.toFloat()
-                    val feldH = constraints.maxHeight.toFloat()
-                    val lage = Gesichter.eingepasst(feldB, feldH, bildB, bildH)
-                    AsyncImage(
-                        model = eintrag.vollbild ?: eintrag.original, contentDescription = eintrag.bildunterschrift,
-                        contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize(),
-                        onState = { s ->
-                            if (s is AsyncImagePainter.State.Success && (bildB <= 0 || bildH <= 0)) {
-                                val g = s.painter.intrinsicSize
-                                bildB = g.width.toInt(); bildH = g.height.toInt()
-                            }
-                        },
-                    )
-                    // Die Rahmen; Positionen in Pixeln des Feldes, fuer offset/size in dp umgerechnet
-                    bereiche.forEachIndexed { i, b ->
-                        val hervor = i == ueber || i == gewaehlt
-                        val links = (lage.links + b.x * lage.breite).toFloat()
-                        val oben = (lage.oben + b.y * lage.hoehe).toFloat()
-                        val breite = (b.w * lage.breite).toFloat()
-                        val hoehe = (b.h * lage.hoehe).toFloat()
-                        Box(Modifier.offset((links / dichte).dp, (oben / dichte).dp).size((breite / dichte).dp, (hoehe / dichte).dp)
-                            .border(if (hervor) 2.5.dp else 1.dp, when {
-                                hervor -> Color(0xFFFFD54F)
-                                b.xref == null && b.name.isBlank() -> Color.White.copy(alpha = 0.45f)
-                                else -> Color.White.copy(alpha = 0.75f)
-                            }))
-                        if (hervor) Surface(Modifier.offset((links / dichte).dp, ((oben + hoehe) / dichte).dp + 2.dp), color = Color.Black.copy(alpha = 0.78f),
-                            shape = MaterialTheme.shapes.extraSmall) {
-                            Text(beschriftung(b) + if (b.xref == null && b.name.isNotBlank()) " · " + stringResource(Res.string.desk_faces_not_in_tree) else "",
-                                Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = Color.White, style = MaterialTheme.typography.labelMedium)
-                        }
-                    }
-                    zug?.let { (a, z) ->
-                        Box(Modifier.offset((minOf(a.x, z.x) / dichte).dp, (minOf(a.y, z.y) / dichte).dp)
-                            .size((kotlin.math.abs(z.x - a.x) / dichte).dp, (kotlin.math.abs(z.y - a.y) / dichte).dp)
-                            .border(2.dp, Color(0xFFFFD54F)))
-                    }
-                    // Maus: Darueberfahren zeigt den Namen, Klick waehlt, im Markiermodus zieht ein Zug einen Rahmen
-                    Box(Modifier.fillMaxSize()
-                        .onPointerEvent(PointerEventType.Move) { e ->
-                            val p = e.changes.first().position
-                            val (nx, ny) = Gesichter.normiert(lage, p.x, p.y)
-                            ueber = Gesichter.treffer(bereiche, nx, ny)
-                        }
-                        .onPointerEvent(PointerEventType.Exit) { ueber = null }
-                        .onPointerEvent(PointerEventType.Release) { e ->
-                            if (zug != null) return@onPointerEvent
-                            val p = e.changes.first().position
-                            val (nx, ny) = Gesichter.normiert(lage, p.x, p.y)
-                            gewaehlt = Gesichter.treffer(bereiche, nx, ny)
-                        }
-                        .then(if (bearbeiten && markieren) Modifier.pointerInput(lage) {
-                            detectDragGestures(
-                                onDragStart = { zug = it to it },
-                                onDrag = { c, _ -> zug = zug?.let { it.first to c.position } },
-                                onDragCancel = { zug = null },
-                                onDragEnd = {
-                                    val (a, z) = zug ?: return@detectDragGestures
-                                    zug = null
-                                    val (ax, ay) = Gesichter.normiert(lage, a.x, a.y)
-                                    val (bx, by) = Gesichter.normiert(lage, z.x, z.y)
-                                    Gesichter.gezogen(ax, ay, bx, by)?.let { neu ->
-                                        bereiche.add(neu); geaendert = true
-                                        gewaehlt = bereiche.lastIndex; zuordnen = bereiche.lastIndex
-                                    }
-                                },
-                            )
-                        } else Modifier))
-                }
-
-                // ── Liste und Knoepfe ──
-                Column(Modifier.width(320.dp).fillMaxHeight().background(farben.surface).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(if (bereiche.isEmpty()) stringResource(Res.string.desk_faces_none) else stringResource(Res.string.desk_faces_count, bereiche.size),
-                        style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                    if (bearbeiten) Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Haken(markieren) { markieren = it }
-                        Text(stringResource(Res.string.desk_faces_mark), style = MaterialTheme.typography.bodyMedium)
-                    }
-                    Text(stringResource(if (bearbeiten && markieren) Res.string.desk_faces_mark_hint else Res.string.desk_faces_hover_hint),
-                        style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
-                    HorizontalDivider(color = farben.outlineVariant)
-                    LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
-                        items(Gesichter.reihenfolge(bereiche)) { i ->
-                            val b = bereiche[i]
-                            Row(Modifier.fillMaxWidth()
-                                .background(if (i == gewaehlt || i == ueber) farben.secondaryContainer else Color.Transparent)
-                                .onPointerEvent(PointerEventType.Enter) { ueber = i }
-                                .onPointerEvent(PointerEventType.Exit) { if (ueber == i) ueber = null }
-                                .combinedClickable(onClick = { gewaehlt = i; b.xref?.let { viewModel.setRoot(it) } }, onDoubleClick = { if (bearbeiten) zuordnen = i })
-                                .padding(horizontal = 8.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Column(Modifier.weight(1f)) {
-                                    Text(beschriftung(b), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                                        fontStyle = if (b.name.isBlank()) FontStyle.Italic else FontStyle.Normal,
-                                        color = if (b.xref != null) farben.primary else farben.onSurface)
-                                    if (b.xref == null && b.name.isNotBlank()) Text(stringResource(Res.string.desk_faces_not_in_tree), style = MaterialTheme.typography.labelSmall, color = farben.onSurfaceVariant)
-                                }
-                                b.xref?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = farben.onSurfaceVariant) }
-                            }
-                        }
-                    }
-                    if (bearbeiten && gewaehlt != null) Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        OutlinedButton(onClick = { zuordnen = gewaehlt }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_faces_assign)) }
-                        OutlinedButton(onClick = { bereiche.removeAt(gewaehlt!!); gewaehlt = null; ueber = null; geaendert = true }, shape = MaterialTheme.shapes.small) {
-                            Text(stringResource(Res.string.desk_faces_delete))
-                        }
-                    }
-                    if (bearbeiten) Text(stringResource(Res.string.desk_faces_note), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
-                    fehler?.let { Text(it, color = farben.error, style = MaterialTheme.typography.bodySmall) }
-                    HorizontalDivider(color = farben.outlineVariant)
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Spacer(Modifier.weight(1f))
-                        TextButton(onClick = schliessen) { Text(stringResource(Res.string.action_close)) }
-                        if (bearbeiten) OutlinedButton(enabled = geaendert && !speichert, shape = MaterialTheme.shapes.small, onClick = {
-                            val pfad = eintrag.pfad ?: return@OutlinedButton
-                            speichert = true; fehler = null
-                            scope.launch {
-                                runCatching { withContext(Dispatchers.IO) { viewModel.client.writeRegions(tree, pfad, bereiche.toList()) } }
-                                    .onSuccess { r -> geaendert = false; onGespeichert(r.eintrag ?: eintrag.copy(bereiche = bereiche.toList())) }
-                                    .onFailure { fehler = it.message ?: "?" }
-                                speichert = false
-                            }
-                        }) { Text(stringResource(Res.string.action_save)) }
-                    }
-                }
-            }
-
-            zuordnen?.let { i ->
-                bereiche.getOrNull(i)?.let { b ->
-                    ZuordnenDialog(b, tree, viewModel,
-                        onDismiss = {
-                            // Ein frisch gezogener Rahmen ohne Zuordnung bleibt als "unbekannt" stehen - loeschen geht jederzeit
-                            zuordnen = null
-                        },
-                        onWahl = { name, xref -> bereiche[i] = b.copy(name = name, xref = xref); geaendert = true; zuordnen = null })
-                } ?: run { zuordnen = null }
-            }
-            if (verwerfen) ConfirmDialog(
+            GesichterInhalt(z, bearbeiten,
+                suche = { q -> viewModel.client.individuals(tree, q, 1).data.filter { !it.isPrivate } },
+                speichern = { liste -> viewModel.client.writeRegions(tree, eintrag.pfad.orEmpty(), liste).eintrag },
+                onPerson = { viewModel.setRoot(it) }, onGespeichert = onGespeichert, onSchliessen = schliessen)
+            if (z.verwerfen) ConfirmDialog(
                 title = stringResource(Res.string.desk_faces_discard_title), text = stringResource(Res.string.desk_faces_discard_text),
-                confirm = stringResource(Res.string.desk_faces_discard), onDismiss = { verwerfen = false }, onConfirm = { verwerfen = false; onClose() },
+                confirm = stringResource(Res.string.desk_faces_discard), onDismiss = { z.verwerfen = false }, onConfirm = { z.verwerfen = false; onClose() },
             )
         }
     }
 }
 
-/** Kaestchen ohne Material-Checkbox-Abstaende (wie in den Einstellungsspalten). */
+/**
+ * Der Inhalt des Gesichter-Fensters ohne Fensterrahmen. [suche] liefert Personen zum getippten Text, [speichern] schreibt
+ * die Bereiche und gibt den neuen Eintrag zurueck (null: Antwort ohne Eintrag).
+ */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun Haken(an: Boolean, onWechsel: (Boolean) -> Unit) =
-    androidx.compose.material3.Checkbox(checked = an, onCheckedChange = onWechsel)
+fun GesichterInhalt(
+    z: GesichterZustand, bearbeiten: Boolean,
+    suche: suspend (String) -> List<Person>, speichern: suspend (List<Bereich>) -> ArchiveEntry?,
+    onPerson: (String) -> Unit, onGespeichert: (ArchiveEntry) -> Unit, onSchliessen: () -> Unit,
+) {
+    val eintrag = z.eintrag
+    val bereiche = z.bereiche
+    val scope = rememberCoroutineScope()
+    val unbekannt = stringResource(Res.string.desk_faces_unknown)
+    fun beschriftung(b: Bereich) = b.name.ifBlank { unbekannt }
+    val farben = MaterialTheme.colorScheme
+    Row(Modifier.fillMaxSize().background(farben.background)) {
+        // ── Bild mit Rahmen ──
+        BoxWithConstraints(Modifier.weight(1f).fillMaxHeight().background(Color(0xFF202020))) {
+            val dichte = LocalDensity.current.density
+            val lage = Gesichter.eingepasst(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat(), z.bildB, z.bildH)
+            AsyncImage(
+                model = eintrag.vollbild ?: eintrag.original, contentDescription = eintrag.bildunterschrift,
+                contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize(),
+                onState = { s ->
+                    if (s is AsyncImagePainter.State.Success && (z.bildB <= 0 || z.bildH <= 0)) {
+                        val g = s.painter.intrinsicSize
+                        z.bildB = g.width.toInt(); z.bildH = g.height.toInt()
+                    }
+                },
+            )
+            // Die Rahmen; Positionen in Pixeln des Feldes, fuer offset/size in dp umgerechnet
+            bereiche.forEachIndexed { i, b ->
+                val hervor = i == z.ueber || i == z.gewaehlt
+                val links = lage.links + (b.x * lage.breite).toFloat()
+                val oben = lage.oben + (b.y * lage.hoehe).toFloat()
+                val breite = (b.w * lage.breite).toFloat()
+                val hoehe = (b.h * lage.hoehe).toFloat()
+                Box(Modifier.offset((links / dichte).dp, (oben / dichte).dp).size((breite / dichte).dp, (hoehe / dichte).dp)
+                    .border(if (hervor) 2.5.dp else 1.dp, when {
+                        hervor -> Color(0xFFFFD54F)
+                        b.xref == null && b.name.isBlank() -> Color.White.copy(alpha = 0.45f)
+                        else -> Color.White.copy(alpha = 0.75f)
+                    }))
+                // Griff zum Groesserziehen am gewaehlten Rahmen
+                if (bearbeiten && i == z.gewaehlt) Box(Modifier.offset(((links + breite) / dichte).dp - 5.dp, ((oben + hoehe) / dichte).dp - 5.dp)
+                    .size(10.dp).background(Color(0xFFFFD54F)))
+                if (hervor) Surface(Modifier.offset((links / dichte).dp, ((oben + hoehe) / dichte).dp + 4.dp), color = Color.Black.copy(alpha = 0.78f),
+                    shape = MaterialTheme.shapes.extraSmall) {
+                    Text(beschriftung(b) + if (b.xref == null && b.name.isNotBlank()) " · " + stringResource(Res.string.desk_faces_not_in_tree) else "",
+                        Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = Color.White, style = MaterialTheme.typography.labelMedium)
+                }
+            }
+            z.zug?.let { (a, e) ->
+                Box(Modifier.offset((minOf(a.x, e.x) / dichte).dp, (minOf(a.y, e.y) / dichte).dp)
+                    .size((kotlin.math.abs(e.x - a.x) / dichte).dp, (kotlin.math.abs(e.y - a.y) / dichte).dp)
+                    .border(2.dp, Color(0xFFFFD54F)))
+            }
+            // Maus: Darueberfahren zeigt den Namen, Klick waehlt. Beim Bearbeiten verschiebt ein Zug im gewaehlten Rahmen
+            // ihn, ein Zug am Griff aendert die Groesse, sonst zieht ein Zug (im Markiermodus) einen neuen Rahmen.
+            Box(Modifier.fillMaxSize()
+                .onPointerEvent(PointerEventType.Move) { e ->
+                    val p = e.changes.first().position
+                    val (nx, ny) = Gesichter.normiert(lage, p.x, p.y)
+                    z.ueber = Gesichter.treffer(bereiche, nx, ny)
+                }
+                .onPointerEvent(PointerEventType.Exit) { z.ueber = null }
+                .onPointerEvent(PointerEventType.Press) { e ->
+                    val p = e.changes.first().position
+                    val (nx, ny) = Gesichter.normiert(lage, p.x, p.y)
+                    val g = z.gewaehlt?.let { bereiche.getOrNull(it) }
+                    val imGewaehlten = g != null && nx >= g.x && nx <= g.x + g.w && ny >= g.y && ny <= g.y + g.h
+                    if (!imGewaehlten && !nahAmGriff(g, lage, p)) z.gewaehlt = Gesichter.treffer(bereiche, nx, ny)
+                }
+                .then(if (bearbeiten) Modifier.pointerInput(lage) {
+                    var art = 0 // 0 neuer Rahmen, 1 verschieben, 2 Groesse
+                    var letzter = Offset.Zero
+                    detectDragGestures(
+                        onDragStart = { p ->
+                            val (nx, ny) = Gesichter.normiert(lage, p.x, p.y)
+                            val g = z.gewaehlt?.let { bereiche.getOrNull(it) }
+                            art = when {
+                                nahAmGriff(g, lage, p) -> 2
+                                g != null && nx >= g.x && nx <= g.x + g.w && ny >= g.y && ny <= g.y + g.h -> 1
+                                z.markieren -> 0
+                                else -> -1
+                            }
+                            letzter = p
+                            if (art == 0) z.zug = p to p
+                        },
+                        onDrag = { c, _ ->
+                            val p = c.position
+                            val i = z.gewaehlt
+                            when (art) {
+                                0 -> z.zug = z.zug?.let { it.first to p }
+                                1 -> if (i != null) {
+                                    bereiche[i] = Gesichter.verschoben(bereiche[i], ((p.x - letzter.x) / lage.breite).toDouble(), ((p.y - letzter.y) / lage.hoehe).toDouble())
+                                    z.geaendert = true
+                                }
+                                2 -> if (i != null) {
+                                    val (nx, ny) = Gesichter.normiert(lage, p.x, p.y)
+                                    bereiche[i] = Gesichter.vergroessert(bereiche[i], nx, ny); z.geaendert = true
+                                }
+                            }
+                            letzter = p
+                        },
+                        onDragCancel = { z.zug = null },
+                        onDragEnd = {
+                            val (a, e) = z.zug ?: return@detectDragGestures
+                            z.zug = null
+                            val (ax, ay) = Gesichter.normiert(lage, a.x, a.y)
+                            val (bx, by) = Gesichter.normiert(lage, e.x, e.y)
+                            Gesichter.gezogen(ax, ay, bx, by)?.let { neu ->
+                                bereiche.add(neu); z.geaendert = true
+                                z.gewaehlt = bereiche.lastIndex; z.zuordnen = bereiche.lastIndex
+                            }
+                        },
+                    )
+                } else Modifier))
+        }
+
+        // ── Liste und Knoepfe ──
+        Column(Modifier.width(320.dp).fillMaxHeight().background(farben.surface).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(if (bereiche.isEmpty()) stringResource(Res.string.desk_faces_none) else stringResource(Res.string.desk_faces_count, bereiche.size),
+                style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            if (bearbeiten) Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                androidx.compose.material3.Checkbox(checked = z.markieren, onCheckedChange = { z.markieren = it })
+                Text(stringResource(Res.string.desk_faces_mark), style = MaterialTheme.typography.bodyMedium)
+            }
+            Text(stringResource(if (bearbeiten && z.markieren) Res.string.desk_faces_mark_hint else Res.string.desk_faces_hover_hint),
+                style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+            HorizontalDivider(color = farben.outlineVariant)
+            LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
+                items(Gesichter.reihenfolge(bereiche)) { i ->
+                    val b = bereiche[i]
+                    Row(Modifier.fillMaxWidth()
+                        .background(if (i == z.gewaehlt || i == z.ueber) farben.secondaryContainer else Color.Transparent)
+                        .onPointerEvent(PointerEventType.Enter) { z.ueber = i }
+                        .onPointerEvent(PointerEventType.Exit) { if (z.ueber == i) z.ueber = null }
+                        .combinedClickable(onClick = { z.gewaehlt = i; b.xref?.let(onPerson) }, onDoubleClick = { if (bearbeiten) z.zuordnen = i })
+                        .padding(horizontal = 8.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(beschriftung(b), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                fontStyle = if (b.name.isBlank()) FontStyle.Italic else FontStyle.Normal,
+                                color = if (b.xref != null) farben.primary else farben.onSurface)
+                            if (b.xref == null && b.name.isNotBlank()) Text(stringResource(Res.string.desk_faces_not_in_tree), style = MaterialTheme.typography.labelSmall, color = farben.onSurfaceVariant)
+                        }
+                        b.xref?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = farben.onSurfaceVariant) }
+                    }
+                }
+            }
+            if (bearbeiten && z.gewaehlt != null) Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedButton(onClick = { z.zuordnen = z.gewaehlt }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_faces_assign)) }
+                OutlinedButton(onClick = { z.gewaehlt?.let(z::entfernen) }, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_faces_delete)) }
+            }
+            if (bearbeiten) Text(stringResource(Res.string.desk_faces_note), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+            z.fehler?.let { Text(it, color = farben.error, style = MaterialTheme.typography.bodySmall) }
+            HorizontalDivider(color = farben.outlineVariant)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick = onSchliessen) { Text(stringResource(Res.string.action_close)) }
+                if (bearbeiten) OutlinedButton(enabled = z.geaendert && !z.speichert, shape = MaterialTheme.shapes.small, onClick = {
+                    z.speichert = true; z.fehler = null
+                    scope.launch {
+                        runCatching { withContext(Dispatchers.IO) { speichern(bereiche.toList()) } }
+                            .onSuccess { neu -> z.geaendert = false; onGespeichert(neu ?: eintrag.copy(bereiche = bereiche.toList())) }
+                            .onFailure { z.fehler = it.message ?: "?" }
+                        z.speichert = false
+                    }
+                }) { Text(stringResource(Res.string.action_save)) }
+            }
+        }
+    }
+
+    z.zuordnen?.let { i ->
+        bereiche.getOrNull(i)?.let { b ->
+            // Ein frisch gezogener Rahmen ohne Zuordnung bleibt als "unbekannt" stehen - entfernen geht jederzeit
+            ZuordnenDialog(b, suche, onDismiss = { z.zuordnen = null },
+                onWahl = { name, xref -> bereiche[i] = b.copy(name = name, xref = xref); z.geaendert = true; z.zuordnen = null })
+        } ?: run { z.zuordnen = null }
+    }
+}
+
+/** Ob der Punkt [p] (Feld-Pixel) am Griff rechts unten des Rahmens [b] liegt. */
+private fun nahAmGriff(b: Bereich?, lage: Gesichter.Lage, p: Offset): Boolean {
+    if (b == null) return false
+    val gx = lage.links + ((b.x + b.w) * lage.breite).toFloat()
+    val gy = lage.oben + ((b.y + b.h) * lage.hoehe).toFloat()
+    return kotlin.math.abs(p.x - gx) <= 12f && kotlin.math.abs(p.y - gy) <= 12f
+}
 
 /**
  * Einem Rahmen eine Person zuordnen: Personen des Stammbaums zum getippten Text (Name aus webtrees, mit Lebensdaten), den
  * getippten Namen ohne Datensatz uebernehmen oder "unbekannt".
  */
 @Composable
-private fun ZuordnenDialog(b: Bereich, tree: String, viewModel: AppViewModel, onDismiss: () -> Unit, onWahl: (String, String?) -> Unit) {
+private fun ZuordnenDialog(b: Bereich, suche: suspend (String) -> List<Person>, onDismiss: () -> Unit, onWahl: (String, String?) -> Unit) {
     var text by remember { mutableStateOf(b.name) }
     var treffer by remember { mutableStateOf<List<Person>>(emptyList()) }
     LaunchedEffect(text) {
         val q = text.trim()
         if (q.length < 2) { treffer = emptyList(); return@LaunchedEffect }
         delay(250)
-        treffer = withContext(Dispatchers.IO) { runCatching { viewModel.client.individuals(tree, q, 1).data.filter { !it.isPrivate } }.getOrDefault(emptyList()) }
+        treffer = withContext(Dispatchers.IO) { runCatching { suche(q) }.getOrDefault(emptyList()) }
     }
     WtAlertDialog(
         onDismissRequest = onDismiss,
