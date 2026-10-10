@@ -1481,4 +1481,6 @@
     <string name="desk_faces_discard_text">De gemarkeerde gezichten zijn nog niet opgeslagen.</string>
     <string name="desk_faces_discard">Verwerpen</string>
     <string name="desk_faces_note">De kaders worden in het afbeeldingsbestand zelf opgeslagen (XMP). Een gezicht toewijzen koppelt de afbeelding niet aan de persoon.</string>
+    <string name="desk_faces_attach">Afbeelding ook aan de gekozen persoon koppelen</string>
+    <string name="tipp_faces_attach">Bij het opslaan wordt de afbeelding een mediaobject in de stamboom en verschijnt ze bij deze persoon. Zonder vinkje blijft ze alleen in het archief; het kader weet toch wie het is.</string>
 </resources>

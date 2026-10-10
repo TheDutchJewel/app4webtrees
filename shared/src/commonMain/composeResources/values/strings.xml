@@ -1505,4 +1505,6 @@
     <string name="desk_faces_discard_text">The marked faces have not been saved yet.</string>
     <string name="desk_faces_discard">Discard</string>
     <string name="desk_faces_note">The frames are saved in the image file itself (XMP). Assigning a face does not attach the picture to the person.</string>
+    <string name="desk_faces_attach">Also attach the picture to the chosen person</string>
+    <string name="tipp_faces_attach">When saving, the picture becomes a media object in the family tree and appears with this person. Without the tick it stays only in the archive; the frame still knows who it is.</string>
 </resources>

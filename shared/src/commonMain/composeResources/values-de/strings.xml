@@ -1500,4 +1500,6 @@
     <string name="desk_faces_discard_text">Die markierten Gesichter sind noch nicht gespeichert.</string>
     <string name="desk_faces_discard">Verwerfen</string>
     <string name="desk_faces_note">Die Rahmen werden in der Bilddatei selbst gespeichert (XMP). Ein Gesicht zuordnen hängt das Bild nicht an die Person.</string>
+    <string name="desk_faces_attach">Bild auch an die gewählte Person hängen</string>
+    <string name="tipp_faces_attach">Beim Speichern wird das Bild ein Medienobjekt im Stammbaum und erscheint bei dieser Person. Ohne Haken bleibt es nur im Archiv; der Rahmen weiß trotzdem, wer es ist.</string>
 </resources>

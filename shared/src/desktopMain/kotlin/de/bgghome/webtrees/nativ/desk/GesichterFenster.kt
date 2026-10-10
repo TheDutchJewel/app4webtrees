@@ -100,6 +100,9 @@ class GesichterZustand(val eintrag: ArchiveEntry, bearbeiten: Boolean) {
     var bildB by mutableStateOf(eintrag.breite)
     var bildH by mutableStateOf(eintrag.hoehe)
 
+    /** Personen, an die das Bild beim Speichern zusaetzlich gehaengt wird (Haken im Zuordnen-Dialog, Vorgabe aus) */
+    val anhaengen = mutableStateListOf<String>()
+
     fun entfernen(i: Int) { bereiche.removeAt(i); gewaehlt = null; ueber = null; geaendert = true }
 }
 
@@ -129,7 +132,15 @@ fun GesichterFenster(
             GesichterInhalt(z, bearbeiten,
                 suche = { q -> viewModel.client.individuals(tree, q, 1).data.filter { !it.isPrivate } },
                 speichern = { liste -> viewModel.client.writeRegions(tree, eintrag.pfad.orEmpty(), liste).eintrag },
-                onPerson = { viewModel.setRoot(it) }, onGespeichert = onGespeichert, onSchliessen = schliessen)
+                onPerson = { viewModel.setRoot(it) }, onGespeichert = onGespeichert, onSchliessen = schliessen,
+                // Bild an Personen haengen: nur mit Bearbeitungsrecht und api4webtrees ab Stufe 23 (Media verknuepfen)
+                anhaengen = if (viewModel.state.value.tree?.canEdit == true && (viewModel.state.value.info?.api ?: 0) >= 23) ({ xrefs ->
+                    val pfad = eintrag.pfad.orEmpty()
+                    val medium = eintrag.xref ?: viewModel.client.mediaFromFile(tree, xrefs.first(), pfad,
+                        eintrag.titel.ifBlank { eintrag.bildunterschrift.ifBlank { eintrag.datei.substringBeforeLast('.') } }, type = "photo").media
+                        ?: error("MediaFromFile ohne Kennung")
+                    xrefs.forEach { viewModel.client.linkMedia(tree, it, medium) }
+                }) else null)
             if (z.verwerfen) ConfirmDialog(
                 title = stringResource(Res.string.desk_faces_discard_title), text = stringResource(Res.string.desk_faces_discard_text),
                 confirm = stringResource(Res.string.desk_faces_discard), onDismiss = { z.verwerfen = false }, onConfirm = { z.verwerfen = false; onClose() },
@@ -148,6 +159,7 @@ fun GesichterInhalt(
     z: GesichterZustand, bearbeiten: Boolean,
     suche: suspend (String) -> List<Person>, speichern: suspend (List<Bereich>) -> ArchiveEntry?,
     onPerson: (String) -> Unit, onGespeichert: (ArchiveEntry) -> Unit, onSchliessen: () -> Unit,
+    anhaengen: (suspend (List<String>) -> Unit)? = null,
 ) {
     val eintrag = z.eintrag
     val bereiche = z.bereiche
@@ -303,7 +315,16 @@ fun GesichterInhalt(
                 if (bearbeiten) OutlinedButton(enabled = z.geaendert && !z.speichert, shape = MaterialTheme.shapes.small, onClick = {
                     z.speichert = true; z.fehler = null
                     scope.launch {
-                        runCatching { withContext(Dispatchers.IO) { speichern(bereiche.toList()) } }
+                        runCatching {
+                            withContext(Dispatchers.IO) {
+                                val neu = speichern(bereiche.toList())
+                                // nur Personen, deren Rahmen noch da ist
+                                val an = z.anhaengen.filter { x -> bereiche.any { it.xref == x } }.distinct()
+                                if (an.isNotEmpty()) anhaengen?.invoke(an)
+                                z.anhaengen.clear()
+                                neu
+                            }
+                        }
                             .onSuccess { neu -> z.geaendert = false; onGespeichert(neu ?: eintrag.copy(bereiche = bereiche.toList())) }
                             .onFailure { z.fehler = it.message ?: "?" }
                         z.speichert = false
@@ -316,8 +337,13 @@ fun GesichterInhalt(
     z.zuordnen?.let { i ->
         bereiche.getOrNull(i)?.let { b ->
             // Ein frisch gezogener Rahmen ohne Zuordnung bleibt als "unbekannt" stehen - entfernen geht jederzeit
-            ZuordnenDialog(b, suche, onDismiss = { z.zuordnen = null },
-                onWahl = { name, xref -> bereiche[i] = b.copy(name = name, xref = xref); z.geaendert = true; z.zuordnen = null })
+            ZuordnenDialog(b, suche, anhaengenMoeglich = anhaengen != null && eintrag.pfad != null, anhaengenAn = b.xref in z.anhaengen,
+                onDismiss = { z.zuordnen = null },
+                onWahl = { name, xref, haengen ->
+                    bereiche[i] = b.copy(name = name, xref = xref); z.geaendert = true; z.zuordnen = null
+                    b.xref?.let { z.anhaengen.remove(it) }
+                    if (haengen && xref != null) z.anhaengen.add(xref)
+                })
         } ?: run { z.zuordnen = null }
     }
 }
@@ -335,7 +361,11 @@ private fun nahAmGriff(b: Bereich?, lage: Gesichter.Lage, p: Offset): Boolean {
  * getippten Namen ohne Datensatz uebernehmen oder "unbekannt".
  */
 @Composable
-private fun ZuordnenDialog(b: Bereich, suche: suspend (String) -> List<Person>, onDismiss: () -> Unit, onWahl: (String, String?) -> Unit) {
+private fun ZuordnenDialog(
+    b: Bereich, suche: suspend (String) -> List<Person>, anhaengenMoeglich: Boolean, anhaengenAn: Boolean,
+    onDismiss: () -> Unit, onWahl: (String, String?, Boolean) -> Unit,
+) {
+    var haengen by remember { mutableStateOf(anhaengenAn) }
     var text by remember { mutableStateOf(b.name) }
     var treffer by remember { mutableStateOf<List<Person>>(emptyList()) }
     LaunchedEffect(text) {
@@ -350,10 +380,16 @@ private fun ZuordnenDialog(b: Bereich, suche: suspend (String) -> List<Person>, 
         text = {
             Column(Modifier.width(460.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 OutlinedTextField(text, { text = it }, label = { Text(stringResource(Res.string.desk_faces_search)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                if (anhaengenMoeglich) Tipp(stringResource(Res.string.tipp_faces_attach)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        androidx.compose.material3.Checkbox(checked = haengen, onCheckedChange = { haengen = it })
+                        Text(stringResource(Res.string.desk_faces_attach), style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
                 Box(Modifier.fillMaxWidth().height(260.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.small)) {
                     LazyColumn(Modifier.fillMaxSize()) {
                         items(treffer, key = { it.xref }) { p ->
-                            Row(Modifier.fillMaxWidth().clickable { onWahl(p.name.replace("/", "").trim(), p.xref) }.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                            Row(Modifier.fillMaxWidth().clickable { onWahl(p.name.replace("/", "").trim(), p.xref, haengen) }.padding(horizontal = 10.dp, vertical = 6.dp)) {
                                 Text(p.name, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Text(listOf(p.lifespan, p.xref).filter { it.isNotBlank() }.joinToString(" · "), style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -361,8 +397,8 @@ private fun ZuordnenDialog(b: Bereich, suche: suspend (String) -> List<Person>, 
                         }
                     }
                 }
-                if (text.isNotBlank()) TextButton(onClick = { onWahl(text.trim(), null) }) { Text(stringResource(Res.string.desk_faces_use_name, text.trim())) }
-                TextButton(onClick = { onWahl("", null) }) { Text(stringResource(Res.string.desk_faces_set_unknown)) }
+                if (text.isNotBlank()) TextButton(onClick = { onWahl(text.trim(), null, false) }) { Text(stringResource(Res.string.desk_faces_use_name, text.trim())) }
+                TextButton(onClick = { onWahl("", null, false) }) { Text(stringResource(Res.string.desk_faces_set_unknown)) }
             }
         },
         confirmButton = {},

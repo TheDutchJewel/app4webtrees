@@ -1500,4 +1500,6 @@
     <string name="desk_faces_discard_text">Les visages marqués ne sont pas encore enregistrés.</string>
     <string name="desk_faces_discard">Abandonner</string>
     <string name="desk_faces_note">Les cadres sont enregistrés dans le fichier image lui-même (XMP). Attribuer un visage ne lie pas l’image à la personne.</string>
+    <string name="desk_faces_attach">Lier aussi l’image à la personne choisie</string>
+    <string name="tipp_faces_attach">À l’enregistrement, l’image devient un objet média de l’arbre et apparaît chez cette personne. Sans la coche, elle reste seulement dans les archives ; le cadre sait quand même de qui il s’agit.</string>
 </resources>
