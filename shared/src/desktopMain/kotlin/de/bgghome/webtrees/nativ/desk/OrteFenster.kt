@@ -110,9 +110,9 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
         if (tree != null && n != null) value = withContext(Dispatchers.IO) { runCatching { viewModel.client.place(tree, n) } }
     }
 
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_places_window) + " – " + state.tree?.title.orEmpty(),
-        state = rememberDialogState(width = 1180.dp, height = 800.dp),
+        state = arbeitsfenster("fenster_orte", 1180, 800),
         onPreviewKeyEvent = { e ->
             when {
                 e.type == KeyEventType.KeyDown && e.key == Key.Escape -> { onClose(); true }

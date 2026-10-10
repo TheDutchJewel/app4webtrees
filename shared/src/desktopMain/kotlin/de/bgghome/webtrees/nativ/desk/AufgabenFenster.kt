@@ -79,9 +79,9 @@ fun AufgabenFenster(state: UiState, viewModel: AppViewModel, openSheet: (String)
         value = withContext(Dispatchers.IO) { runCatching { viewModel.client.tasks(tree, nurOffene).tasks } }
     }
 
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_tasks_window) + " – " + state.tree?.title.orEmpty(),
-        state = rememberDialogState(width = 900.dp, height = 600.dp),
+        state = arbeitsfenster("fenster_aufgaben", 900, 600),
         onPreviewKeyEvent = { e ->
             when {
                 e.type == KeyEventType.KeyDown && e.key == Key.Escape -> { onClose(); true }

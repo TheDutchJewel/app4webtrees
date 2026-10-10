@@ -828,9 +828,9 @@ private fun Hinweis(text: String) {
 /** Merkliste: die gemerkten Personen; Klick macht zur Zentralperson, Doppelklick oeffnet den Eingabedialog. */
 @Composable
 private fun MerklisteFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) -> Unit, onClose: () -> Unit) {
-    androidx.compose.ui.window.DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_bookmarks),
-        state = androidx.compose.ui.window.rememberDialogState(width = 420.dp, height = 560.dp),
+        state = arbeitsfenster("fenster_merkliste", 420, 560),
         onPreviewKeyEvent = { e -> if (e.key == Key.Escape) { onClose(); true } else false },
     ) {
         DeskTheme {

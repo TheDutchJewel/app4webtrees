@@ -243,9 +243,9 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
         PruefWahl.grenzwerte(v.grenzwerte); PruefWahl.schwere(v.schwere); PruefWahl.schaetzen = v.schaetzen; PruefWahl.voreinstellung = v.id
     }
 
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_check_window),
-        state = rememberDialogState(width = 1240.dp, height = 860.dp),
+        state = arbeitsfenster("fenster_pruefung", 1240, 860),
         onPreviewKeyEvent = { e -> when { e.key == Key.Escape && bearbeiten == null -> { onClose(); true }; e.key == Key.F1 && e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown -> { Hilfe.oeffnen("pruefung"); true }; else -> false } },
     ) {
         DeskTheme {

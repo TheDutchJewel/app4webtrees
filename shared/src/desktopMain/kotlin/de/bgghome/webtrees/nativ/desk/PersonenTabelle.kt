@@ -179,9 +179,9 @@ fun PersonenTabelle(state: UiState, viewModel: AppViewModel, openSheet: (String)
     onZusammenfuehren: ((String) -> Unit)? = null) {
     // Die Tasten (Pfeile, Enter) gehoeren zum Fenster, ihr Ziel (die Zeilen) zum Inhalt: der Inhalt reicht seinen Handler herauf.
     val tasten = remember { mutableStateOf<(KeyEvent) -> Boolean>({ false }) }
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_table_window) + " – " + state.tree?.title.orEmpty(),
-        state = rememberDialogState(width = 1280.dp, height = 820.dp),
+        state = arbeitsfenster("fenster_tabelle", 1280, 820),
         onPreviewKeyEvent = { e ->
             if (e.type != KeyEventType.KeyDown) false else when (e.key) {
                 Key.Escape -> { onClose(); true }

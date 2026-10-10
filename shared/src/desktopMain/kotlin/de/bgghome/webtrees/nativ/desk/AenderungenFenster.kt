@@ -60,9 +60,9 @@ fun AenderungenFenster(state: UiState, viewModel: AppViewModel, openSheet: (Stri
         value = null
         value = withContext(Dispatchers.IO) { runCatching { viewModel.client.changes(tree, 200).changes } }
     }
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_changes_window) + " – " + state.tree?.title.orEmpty(),
-        state = rememberDialogState(width = 820.dp, height = 600.dp),
+        state = arbeitsfenster("fenster_aenderungen", 820, 600),
         onPreviewKeyEvent = { e ->
             when {
                 e.type == KeyEventType.KeyDown && e.key == Key.Escape -> { onClose(); true }

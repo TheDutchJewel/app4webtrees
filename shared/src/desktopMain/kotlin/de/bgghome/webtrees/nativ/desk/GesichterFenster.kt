@@ -111,22 +111,10 @@ fun GesichterFenster(
 ) {
     val z = remember(eintrag.pfad) { GesichterZustand(eintrag, bearbeiten) }
     val schliessen = { if (z.geaendert) z.verwerfen = true else onClose() }
-    // Normales Fenster (minimieren, maximieren, Groesse aendern); Groesse und Maximiert bleiben gemerkt
-    val fenster = rememberWindowState(
-        placement = if (DeskLayout.prefs.getString("gesichter_max", null) == "1") WindowPlacement.Maximized else WindowPlacement.Floating,
-        width = (DeskLayout.prefs.getString("gesichter_breite", null)?.toFloatOrNull() ?: 1300f).dp,
-        height = (DeskLayout.prefs.getString("gesichter_hoehe", null)?.toFloatOrNull() ?: 860f).dp,
-    )
-    LaunchedEffect(fenster) {
-        snapshotFlow { Triple(fenster.placement, fenster.size.width.value, fenster.size.height.value) }.debounce(500).collect { (art, breite, hoehe) ->
-            DeskLayout.prefs.putString("gesichter_max", if (art == WindowPlacement.Maximized) "1" else "0")
-            if (art == WindowPlacement.Floating) DeskLayout.prefs.putStrings(mapOf("gesichter_breite" to breite.toString(), "gesichter_hoehe" to hoehe.toString()))
-        }
-    }
     Window(
         onCloseRequest = schliessen,
         title = stringResource(Res.string.desk_faces_window) + " – " + eintrag.bildunterschrift.ifEmpty { eintrag.datei },
-        state = fenster,
+        state = arbeitsfenster("fenster_gesichter", 1300, 860),
         onPreviewKeyEvent = { e ->
             when {
                 e.type != KeyEventType.KeyDown -> false

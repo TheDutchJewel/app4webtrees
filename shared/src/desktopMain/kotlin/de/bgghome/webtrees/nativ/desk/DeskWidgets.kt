@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import kotlinx.coroutines.flow.debounce
 import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.VerticalScrollbar
@@ -93,4 +94,30 @@ fun Tipp(text: String?, inhalt: @Composable () -> Unit) {
         delayMillis = 500,
         content = inhalt,
     )
+}
+
+/**
+ * Zustand eines Arbeitsfensters (Quellen, Orte, Tafeln, Archiv …): ein normales Fenster mit Minimieren, Maximieren und
+ * freier Groesse statt eines Dialogfensters. Groesse und Maximiert bleiben je [name] in den Desktop-Einstellungen.
+ * Rueckfragen und Eingabedialoge bleiben Dialoge - sie verlangen eine Antwort, bevor es weitergeht.
+ */
+@OptIn(kotlinx.coroutines.FlowPreview::class)
+@Composable
+fun arbeitsfenster(name: String, breite: Int, hoehe: Int): androidx.compose.ui.window.WindowState {
+    val prefs = DeskLayout.prefs
+    val fenster = androidx.compose.ui.window.rememberWindowState(
+        placement = if (prefs.getString(name + "_max", null) == "1") androidx.compose.ui.window.WindowPlacement.Maximized
+        else androidx.compose.ui.window.WindowPlacement.Floating,
+        width = (prefs.getString(name + "_breite", null)?.toFloatOrNull() ?: breite.toFloat()).dp,
+        height = (prefs.getString(name + "_hoehe", null)?.toFloatOrNull() ?: hoehe.toFloat()).dp,
+    )
+    androidx.compose.runtime.LaunchedEffect(fenster) {
+        androidx.compose.runtime.snapshotFlow { Triple(fenster.placement, fenster.size.width.value, fenster.size.height.value) }
+            .debounce(500)
+            .collect { (art, b, h) ->
+                prefs.putString(name + "_max", if (art == androidx.compose.ui.window.WindowPlacement.Maximized) "1" else "0")
+                if (art == androidx.compose.ui.window.WindowPlacement.Floating) prefs.putStrings(mapOf(name + "_breite" to b.toString(), name + "_hoehe" to h.toString()))
+            }
+    }
+    return fenster
 }

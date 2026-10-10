@@ -400,9 +400,9 @@ fun ListenFenster(start: ListenArt, state: UiState, viewModel: AppViewModel, onC
         }
     }
 
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_list_window),
-        state = rememberDialogState(width = 1180.dp, height = 860.dp),
+        state = arbeitsfenster("fenster_listen", 1180, 860),
         onPreviewKeyEvent = { e -> when { e.key == Key.Escape -> { onClose(); true }; e.key == Key.F1 && e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown -> { Hilfe.oeffnen("listen"); true }; else -> false } },
     ) {
         DeskTheme {

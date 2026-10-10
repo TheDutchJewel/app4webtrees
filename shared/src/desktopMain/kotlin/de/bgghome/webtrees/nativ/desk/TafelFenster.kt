@@ -367,9 +367,9 @@ fun TafelFenster(state: UiState, viewModel: AppViewModel, start: TafelArt?, onCl
         }
     }
 
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_chart_window),
-        state = rememberDialogState(width = 1280.dp, height = 860.dp),
+        state = arbeitsfenster("fenster_tafel", 1280, 860),
         onPreviewKeyEvent = { e -> when { e.key == Key.Escape -> { onClose(); true }; e.key == Key.F1 && e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown -> { Hilfe.oeffnen("tafeln"); true }; else -> false } },
     ) {
         DeskTheme {

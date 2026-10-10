@@ -119,10 +119,10 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
     // Beim Schliessen: Gueltiges wird still gespeichert; nur ein ungueltiges Datum haelt auf
     val schliessen: () -> Unit = { if (Entwuerfe.abschliessen(viewModel)) schliessenFragen = true else onClose() }
 
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = schliessen,
         title = title,
-        state = rememberDialogState(width = 1100.dp, height = 820.dp),
+        state = arbeitsfenster("fenster_personenblatt", 1100, 820),
         onPreviewKeyEvent = { e ->
             if (e.type != KeyEventType.KeyDown) false else when (e.key) {
                 Key.Escape -> { schliessen(); true }

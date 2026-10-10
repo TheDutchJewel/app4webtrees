@@ -97,9 +97,9 @@ fun ZusammenfuehrenFenster(state: UiState, viewModel: AppViewModel, start: Strin
         value = withContext(Dispatchers.IO) { runCatching { viewModel.client.merges(tree).merges } }
     }
 
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_merge_window) + " – " + state.tree?.title.orEmpty(),
-        state = rememberDialogState(width = 980.dp, height = 680.dp),
+        state = arbeitsfenster("fenster_zusammenfuehren", 980, 680),
         onPreviewKeyEvent = { e ->
             when {
                 e.type == KeyEventType.KeyDown && e.key == Key.Escape -> { onClose(); true }

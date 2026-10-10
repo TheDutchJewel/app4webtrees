@@ -145,9 +145,9 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
         }
     }
 
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_book_window),
-        state = rememberDialogState(width = 1220.dp, height = 880.dp),
+        state = arbeitsfenster("fenster_buch", 1220, 880),
         onPreviewKeyEvent = { e -> when { e.key == Key.Escape -> { onClose(); true }; e.key == Key.F1 && e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown -> { Hilfe.oeffnen("buecher"); true }; else -> false } },
     ) {
         DeskTheme {

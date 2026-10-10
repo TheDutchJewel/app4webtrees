@@ -103,9 +103,9 @@ fun QuellenFenster(state: UiState, viewModel: AppViewModel, start: String?, open
         if (tree != null && x != null) value = withContext(Dispatchers.IO) { runCatching { viewModel.client.source(tree, x) } }
     }
 
-    DialogWindow(
+    androidx.compose.ui.window.Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_sources_window) + " – " + state.tree?.title.orEmpty(),
-        state = rememberDialogState(width = 1180.dp, height = 800.dp),
+        state = arbeitsfenster("fenster_quellen", 1180, 800),
         onPreviewKeyEvent = { e -> if (e.type == KeyEventType.KeyDown && e.key == Key.Escape) { onClose(); true } else false },
     ) {
         DeskTheme {

@@ -245,21 +245,9 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
         }
     }
 
-    // Normales Fenster (minimieren, maximieren, Groesse aendern); Groesse und Maximiert bleiben gemerkt
-    val fenster = rememberWindowState(
-        placement = if (DeskLayout.prefs.getString("archiv_max", null) == "1") WindowPlacement.Maximized else WindowPlacement.Floating,
-        width = (DeskLayout.prefs.getString("archiv_breite", null)?.toFloatOrNull() ?: 1280f).dp,
-        height = (DeskLayout.prefs.getString("archiv_hoehe", null)?.toFloatOrNull() ?: 820f).dp,
-    )
-    LaunchedEffect(fenster) {
-        snapshotFlow { Triple(fenster.placement, fenster.size.width.value, fenster.size.height.value) }.debounce(500).collect { (art, breite, hoehe) ->
-            DeskLayout.prefs.putString("archiv_max", if (art == WindowPlacement.Maximized) "1" else "0")
-            if (art == WindowPlacement.Floating) DeskLayout.prefs.putStrings(mapOf("archiv_breite" to breite.toString(), "archiv_hoehe" to hoehe.toString()))
-        }
-    }
     Window(
         onCloseRequest = onClose, title = stringResource(Res.string.desk_archive_window) + " – " + state.tree?.title.orEmpty(),
-        state = fenster,
+        state = arbeitsfenster("fenster_archiv", 1280, 820),
         onPreviewKeyEvent = { e ->
             when {
                 e.type != KeyEventType.KeyDown -> false
