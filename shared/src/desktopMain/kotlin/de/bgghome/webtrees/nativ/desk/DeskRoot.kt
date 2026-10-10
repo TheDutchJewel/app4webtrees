@@ -162,6 +162,11 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     var aufgaben by remember { mutableStateOf(false) }
     var aenderungen by remember { mutableStateOf(false) }
     var aufgabeNeu by remember { mutableStateOf<AufgabeZiel?>(null) }
+    // Archiv des Moduls Sammlungen als eigenes Fenster (nur wenn das Modul laeuft und der Nutzer es sehen darf)
+    var archiv by remember { mutableStateOf(false) }
+    val archivDa = state.archiveStatus == de.bgghome.webtrees.nativ.ui.ArchiveStatus.Ready && state.archive != null
+    // Stammbaum und Archiv sichern (nur Stammbaum auf diesem PC): laufende Sicherung und Meldung
+    var sicherung by remember { mutableStateOf(false) }
     var zusammenPaar by remember { mutableStateOf<de.bgghome.webtrees.nativ.data.Dublette?>(null) }
     val openSheet: (String) -> Unit = { xref -> viewModel.select(xref); sheetOpen = true }
 
@@ -219,6 +224,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onAenderungen = if (stufe30) ({ aenderungen = true }) else null,
         onAufgabeNeu = if (stufe30 && state.tree?.canEdit == true) ({ aufgabeNeu = it }) else null,
         onLokaleBaeume = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ lokaleBaeume = true }) else null,
+        onArchiv = if (archivDa) ({ archiv = true }) else null,
+        onSichern = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ sicherung = true }) else null,
     )
 
     // Beim Sprachwechsel entsteht alles darunter neu und liest die Texte frisch. Die Menueleiste oben bleibt stehen:
@@ -282,7 +289,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                         onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
                         symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
                         onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null,
-                        layout = layout, onAufgaben = if (stufe30) ({ aufgaben = true }) else null, onAenderungen = if (stufe30) ({ aenderungen = true }) else null)
+                        layout = layout, onAufgaben = if (stufe30) ({ aufgaben = true }) else null, onAenderungen = if (stufe30) ({ aenderungen = true }) else null,
+                        onArchiv = if (archivDa) ({ archiv = true }) else null)
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Box(Modifier.fillMaxWidth().height(3.dp)) {
                         if (state.busy || state.loadingDetail || state.loadingPeople) LinearProgressIndicator(Modifier.fillMaxSize())
@@ -388,6 +396,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
             onAufgabe = if (stufe30 && state.tree?.canEdit == true) ({ aufgabeNeu = it }) else null)
         if (aufgaben && state.tree != null) AufgabenFenster(state, viewModel, openSheet, onClose = { aufgaben = false })
         if (aenderungen && state.tree != null) AenderungenFenster(state, viewModel, openSheet, onClose = { aenderungen = false })
+        if (archiv && archivDa) ArchivFenster(state, viewModel, openWeb, onClose = { archiv = false })
+        if (sicherung) SicherungDialog(onClose = { sicherung = false })
         aufgabeNeu?.let { z -> state.tree?.let { t -> AufgabeDialog(z, viewModel, t.name, onClose = { ok -> aufgabeNeu = null; if (ok) viewModel.setRoot(z.xref, remember = false) }) } }
         if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false },
             onZusammenfuehren = if (mergeApi) ({ zusammen = it }) else null)
@@ -419,6 +429,8 @@ private fun FrameWindowScope.DeskMenuBar(
     onAufgabeNeu: ((AufgabeZiel) -> Unit)? = null,
     onStartperson: (() -> Unit)? = null,
     onLokaleBaeume: (() -> Unit)? = null,
+    onArchiv: (() -> Unit)? = null,
+    onSichern: (() -> Unit)? = null,
 ) {
     val main = state.screen == Screen.Main
     val loggedIn = state.info?.user?.loggedIn == true
@@ -428,6 +440,7 @@ private fun FrameWindowScope.DeskMenuBar(
             Menu(stringResource(Res.string.desk_menu_file)) {
                 if (main && (state.info?.trees?.size ?: 0) > 1) Item(stringResource(Res.string.menu_switch_tree), onClick = viewModel::showTreePicker)
                 if (main && onLokaleBaeume != null) Item(stringResource(Res.string.lokal_trees_menu), onClick = onLokaleBaeume)
+                if (main && onSichern != null) Item(stringResource(Res.string.desk_archive_backup), onClick = onSichern)
                 Item(stringResource(Res.string.action_reload), enabled = main, shortcut = KeyShortcut(Key.F5), onClick = viewModel::refresh)
                 Item(stringResource(Res.string.desk_open_browser), enabled = state.baseUrl.isNotEmpty(), onClick = { openWeb(state.detail?.person?.url ?: state.baseUrl) })
                 Separator()
@@ -539,6 +552,7 @@ private fun FrameWindowScope.DeskMenuBar(
                 if (onOrte != null) Item(stringResource(Res.string.desk_places_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Six, ctrl = true), onClick = onOrte)
                 if (onAufgaben != null) Item(stringResource(Res.string.desk_tasks_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Seven, ctrl = true), onClick = onAufgaben)
                 if (onAenderungen != null) Item(stringResource(Res.string.desk_changes_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Eight, ctrl = true), onClick = onAenderungen)
+                if (onArchiv != null) Item(stringResource(Res.string.desk_archive_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Nine, ctrl = true), onClick = onArchiv)
                 Separator()
                 Menu(stringResource(Res.string.tree_generations, state.ancestorGenerations)) {
                     (2..7).forEach { n ->
@@ -676,6 +690,7 @@ private fun ClassicToolbar(
     layout: DeskLayout = DeskLayout.Navigator,
     onAufgaben: (() -> Unit)? = null,
     onAenderungen: (() -> Unit)? = null,
+    onArchiv: (() -> Unit)? = null,
 ) {
     val canEdit = state.tree?.canEdit == true
     val manager = state.tree?.role == "manager"
@@ -714,6 +729,7 @@ private fun ClassicToolbar(
         add(Knopf(TreeIcon, stringResource(when (layout) { DeskLayout.Family -> Res.string.nav_family; DeskLayout.Navigator -> Res.string.desk_layout_navigator; else -> Res.string.nav_tree }),
             active = state.section == Section.Tree || state.section == Section.Search) { viewModel.setSection(Section.Tree) })
         add(Knopf(PhotoIcon, stringResource(Res.string.nav_photos), active = state.section == Section.Photos) { viewModel.setSection(Section.Photos) })
+        if (onArchiv != null) add(Knopf(de.bgghome.webtrees.nativ.ui.ArchiveIcon, stringResource(Res.string.desk_archive_window), onClick = onArchiv))
         add(Trenner)
         // Die Plausibilitaetspruefung des Programms; "Stammbaum pruefen" von webtrees bleibt im Menue webtrees.
         add(Knopf(Icons.Default.Check, stringResource(Res.string.desk_check), enabled = state.tree != null, onClick = onPruefung))

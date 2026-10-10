@@ -128,7 +128,7 @@ class HilfeKapitel(val id: String, val titel: String, val bloecke: List<HilfeBlo
 
 object HilfeTexte {
     const val START = "start"
-    val REIHENFOLGE = listOf("start", "hauptfenster", "person", "suche", "tabelle", "tafeln", "listen", "buecher", "pruefung", "webtrees", "lokal", "tasten", "fragen")
+    val REIHENFOLGE = listOf("start", "hauptfenster", "person", "suche", "tabelle", "tafeln", "listen", "buecher", "pruefung", "webtrees", "archiv", "lokal", "tasten", "fragen")
 
     /** Alle Kapitel in der gewaehlten Sprache; fehlt eines, kommt es englisch, zuletzt deutsch. */
     fun laden(sprache: String = de.bgghome.webtrees.nativ.Sprache.aktiv): List<HilfeKapitel> = REIHENFOLGE.mapNotNull { id ->

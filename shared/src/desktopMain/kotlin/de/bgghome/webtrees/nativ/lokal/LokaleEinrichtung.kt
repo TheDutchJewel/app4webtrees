@@ -232,6 +232,13 @@ class LokaleEinrichtung(
         cli("site-setting", "DEFAULT_GEDCOM", name)
     }
 
+    /** Eine in sich stimmige Kopie der Datenbank nach [ziel], auch bei laufendem Server (SQLite VACUUM INTO). */
+    fun datenbankKopie(ziel: File) {
+        ziel.delete()
+        php("-r", "\$d=new PDO('sqlite:data/webtrees.sqlite');\$d->exec('VACUUM INTO '.\$d->quote(\$argv[1]));", ziel.absolutePath)
+        check(ziel.isFile) { "Datenbankkopie fehlt" }
+    }
+
     /**
      * Leere Reste wegraeumen: Baeume, in denen nur die unveraenderte Beispielperson von webtrees steht und die wtWin
      * nicht selbst leer angelegt hat - vor 1.29 blieb so ein Baum nach jedem gescheiterten GEDCOM-Import stehen, alle

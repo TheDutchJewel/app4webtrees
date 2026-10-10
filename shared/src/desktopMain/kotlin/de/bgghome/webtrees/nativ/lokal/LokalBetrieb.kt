@@ -115,6 +115,38 @@ object LokalBetrieb : WtClient.LokalerDienst {
         return nachAufraeumen(e, zugang, uebrig)
     }
 
+    /**
+     * Stammbaum und Archiv als ZIP sichern: eine stimmige Kopie der Datenbank (Baeume, Nutzer, Sammlungen des Moduls),
+     * data/config.ini.php und der ganze Medienordner data/media - auch die freien Bestaende, die eine GEDZIP-Datei nicht
+     * mitnaehme. Zurueckholen: den Ordner data aus dem ZIP in den webtrees-Ordner legen. Blockiert; [schritt] meldet Dateien.
+     */
+    fun sichern(ziel: File, schritt: (String) -> Unit = {}) {
+        val db = File(LokalOrte.basis, "sicherung.sqlite")
+        val teil = File(ziel.absoluteFile.parentFile, ziel.name + ".teil")
+        try {
+            einrichtung().datenbankKopie(db)
+            val data = File(LokalOrte.webtrees, "data")
+            val medien = File(data, "media")
+            java.util.zip.ZipOutputStream(teil.outputStream().buffered()).use { zip ->
+                fun eintrag(name: String, datei: File) {
+                    zip.putNextEntry(java.util.zip.ZipEntry(name).apply { time = datei.lastModified() })
+                    datei.inputStream().use { it.copyTo(zip) }
+                    zip.closeEntry()
+                }
+                eintrag("data/webtrees.sqlite", db)
+                File(data, "config.ini.php").takeIf { it.isFile }?.let { eintrag("data/config.ini.php", it) }
+                if (medien.isDirectory) medien.walkTopDown().filter { it.isFile }.forEach { f ->
+                    schritt(f.name)
+                    eintrag("data/media/" + f.relativeTo(medien).invariantSeparatorsPath, f)
+                }
+            }
+            ziel.delete()
+            check(teil.renameTo(ziel)) { "Sicherung ließ sich nicht nach $ziel schreiben" }
+        } finally {
+            db.delete(); teil.delete()
+        }
+    }
+
     /** Zugang und webtrees-Standard auf einen vorhandenen Baum richten, falls der gemerkte weg ist. */
     private fun nachAufraeumen(e: LokaleEinrichtung, zugang: LokalerZugang, uebrig: List<LokalerBaum>): String {
         if (uebrig.isEmpty() || uebrig.any { it.name == zugang.baum }) return zugang.baum

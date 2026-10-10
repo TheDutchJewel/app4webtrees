@@ -29,8 +29,9 @@ L'arbre généalogique sur cet ordinateur est livré avec le module **Sammlungen
 
 ## Sauvegarde
 
-Le programme ne fait pas de sauvegarde automatique. Deux possibilités :
+Le programme ne fait pas de sauvegarde automatique. Trois possibilités :
 
+- **Fichier › Sauvegarder l’arbre et les archives …** place la base de données et le dossier des médias, fonds libre compris, dans un fichier ZIP, même pendant que le programme tourne (voir [Archives](hilfe:archiv)).
 - wtWin étant fermé, copiez le dossier `app4webtrees`, p. ex. sur une clé USB. C'est la sauvegarde complète, photos comprises.
 - **Ouvrir webtrees dans le navigateur** et exporter l'arbre en GEDCOM dans le panneau de configuration. Cela sauvegarde les données, pas les images.
 

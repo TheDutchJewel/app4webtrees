@@ -23,6 +23,9 @@
 | Ctrl+4 | Person table |
 | Ctrl+5 | Sources |
 | Ctrl+6 | Places |
+| Ctrl+7 | Tasks |
+| Ctrl+8 | Recent changes |
+| Ctrl+9 | Archive |
 | Ctrl+Q | Quit |
 
 ## Navigator

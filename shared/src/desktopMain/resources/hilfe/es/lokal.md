@@ -29,8 +29,9 @@ El árbol genealógico en este PC incluye el módulo **Sammlungen** (colecciones
 
 ## Copia de seguridad
 
-El programa no hace copias de seguridad automáticas. Hay dos maneras:
+El programa no hace copias de seguridad automáticas. Hay tres maneras:
 
+- **Archivo › Copia de seguridad del árbol y el archivo …** guarda la base de datos y la carpeta de medios, incluido el fondo libre, en un archivo ZIP, incluso con el programa abierto (véase [Archivo](hilfe:archiv)).
 - Con wtWin cerrado, copie la carpeta `app4webtrees`, p. ej. a una memoria USB. Es la copia de seguridad completa, fotos incluidas.
 - **Abrir webtrees en el navegador** y exportar el árbol como GEDCOM en el panel de control. Así se guardan los datos, no las imágenes.
 

@@ -29,8 +29,9 @@ The family tree on this PC comes with the **Sammlungen** (collections) module: p
 
 ## Backup
 
-The program does not back up automatically. Two ways:
+The program does not back up automatically. Three ways:
 
+- **File › Back up family tree and archive …** puts the database and the media folder, free holdings included, into one ZIP file, even while the program is running (see [Archive](hilfe:archiv)).
 - With wtWin closed, copy the folder `app4webtrees`, e.g. to a USB stick. That is the complete backup including photos.
 - **Open webtrees in browser** and export the tree as GEDCOM in the control panel. That saves the data, not the pictures.
 

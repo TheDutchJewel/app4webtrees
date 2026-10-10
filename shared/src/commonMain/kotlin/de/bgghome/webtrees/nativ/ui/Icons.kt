@@ -96,3 +96,8 @@ val HistoryIcon: ImageVector by lazy {
 val SourceIcon: ImageVector by lazy {
     pfadSymbol("Source", "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z")
 }
+
+/** Ein Archivkarton fuer das Archiv des Moduls Sammlungen (Material "inventory_2"). */
+val ArchiveIcon: ImageVector by lazy {
+    pfadSymbol("Archive", "M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z")
+}

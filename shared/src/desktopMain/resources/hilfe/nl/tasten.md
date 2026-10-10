@@ -23,6 +23,9 @@
 | Ctrl+4 | Personentabel |
 | Ctrl+5 | Bronnen |
 | Ctrl+6 | Plaatsen |
+| Ctrl+7 | Taken |
+| Ctrl+8 | Recente wijzigingen |
+| Ctrl+9 | Archief |
 | Ctrl+Q | Afsluiten |
 
 ## Navigator

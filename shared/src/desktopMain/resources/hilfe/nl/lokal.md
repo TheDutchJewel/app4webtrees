@@ -29,8 +29,9 @@ De stamboom op deze pc wordt geleverd met de module **Sammlungen** (collecties):
 
 ## Back-up
 
-Het programma maakt niet automatisch een back-up. Twee manieren:
+Het programma maakt niet automatisch een back-up. Drie manieren:
 
+- **Bestand › Stamboom en archief back-uppen …** zet de database en de mediamap, inclusief het vrije bestand, in één zip-bestand, ook terwijl het programma draait (zie [Archief](hilfe:archiv)).
 - Kopieer, terwijl wtWin gesloten is, de map `app4webtrees`, bijv. naar een USB-stick. Dat is de volledige back-up inclusief foto's.
 - **webtrees in de browser openen** en de stamboom in het configuratiescherm als GEDCOM exporteren. Dat bewaart de gegevens, niet de afbeeldingen.
 

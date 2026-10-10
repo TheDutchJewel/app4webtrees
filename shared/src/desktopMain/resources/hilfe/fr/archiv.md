@@ -1,0 +1,33 @@
+# Archives
+
+Si le module **Sammlungen** fonctionne sur le serveur, **Affichage › Archives** (Ctrl+9) ou l’icône **Archives** ouvre ses archives dans une fenêtre à part. L’[arbre sur ce PC](hilfe:lokal) contient déjà le module. Les archives contiennent plus que l’arbre : photos et documents ne doivent être liés à personne. Qui peut voir et modifier quoi, c’est webtrees qui le décide avec ses droits d’utilisateur.
+
+## Disposition
+
+- **À gauche** les collections : dossiers d’archives, collections thématiques, collections par type de média et les médias liés à aucune personne. En dessous, le nombre de fichiers du fonds libre, vers lesquels rien ne pointe dans l’arbre. C’est voulu, pas un défaut.
+- **Au milieu** les fichiers de la collection choisie en grille, en trois tailles au choix en haut. Le badge sur l’image indique le nombre de personnes liées, **GEDCOM** signifie objet média sans personne, **libre** signifie fichier seul.
+- **À droite** les informations du fichier choisi : description, date, personnes et mots-clés du fichier, collections, taille, chemin et qui y est lié dans l’arbre. Un clic sur un nom met la personne au centre.
+
+Faites glisser les séparateurs pour régler la largeur des colonnes ; wtWin s’en souvient.
+
+## Utilisation
+
+Un clic sélectionne un fichier, **Ctrl+clic** en ajoute d’autres, **Maj+clic** toute une plage, **Ctrl+A** tous. Les flèches, **Début** et **Fin** parcourent la grille ; **Entrée** ou un double-clic ouvre : les images dans la visionneuse, les PDF dans la visionneuse PDF, le reste dans le navigateur.
+
+Le **clic droit** propose : Ouvrir, Modifier les informations, Copier le chemin (aussi Ctrl+C), Enregistrer des copies dans un dossier et Ouvrir dans webtrees. Enregistrer des copies récupère les originaux sur ce PC ; les fichiers existants ne sont pas écrasés.
+
+## Ajouter des fichiers
+
+Qui a le droit de téléverser des médias dans webtrees ajoute des fichiers avec **Ajouter des fichiers …** ou les fait glisser depuis le gestionnaire de fichiers dans la fenêtre. Dossier et collection thématique sont préréglés sur la collection ouverte. Description, date, personnes et mots-clés sont facultatifs et ne sont écrits que dans les images (XMP).
+
+wtWin téléverse l’original et ne réduit rien. Un fichier plus grand que ce que le serveur accepte est ignoré et signalé. La limite est fixée par le serveur (PHP `upload_max_filesize`). Ensuite, les fichiers ne sont liés à personne. Pour en lier un à une personne, une source ou un lieu, utilisez **Média existant › Depuis les archives** dans l’onglet **Médias**.
+
+## Modifier les informations
+
+Les gestionnaires de l’arbre modifient description, date, personnes et mots-clés d’une image par le clic droit, le bouton à droite ou le crayon de la visionneuse. Le module écrit les informations dans le fichier lui-même.
+
+## Sauvegarder
+
+Dans l’arbre sur ce PC, **Fichier › Sauvegarder l’arbre et les archives …** enregistre tout dans un fichier ZIP : la base de données avec les arbres et les collections, et tout le dossier des médias, fonds libre compris. Un fichier GEDCOM ou GEDZIP ne prend que les fichiers vers lesquels l’arbre pointe. Pour restaurer, quittez wtWin et placez le dossier `data` du fichier ZIP dans le dossier webtrees (son emplacement est indiqué sous [arbre sur ce PC](hilfe:lokal)).
+
+Sur un serveur, c’est le serveur qui sauvegarde, par exemple nas4webtrees ou votre hébergeur.

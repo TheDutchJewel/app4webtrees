@@ -29,8 +29,9 @@ Der Stammbaum auf diesem PC bringt das Modul **Sammlungen** mit: Fotos und Dokum
 
 ## Sicherung
 
-Das Programm sichert nicht automatisch. Zwei Wege:
+Das Programm sichert nicht automatisch. Drei Wege:
 
+- **Datei › Stammbaum und Archiv sichern …** legt Datenbank und Medienordner samt freiem Bestand in eine ZIP-Datei, auch bei laufendem Programm (siehe [Archiv](hilfe:archiv)).
 - Bei geschlossenem wtWin den Ordner `app4webtrees` kopieren, etwa auf einen USB-Stick. Das ist die vollständige Sicherung samt Fotos.
 - **webtrees im Browser öffnen**, dort in der Verwaltung den Stammbaum als GEDCOM exportieren. Das sichert die Daten, nicht die Bilder.
 

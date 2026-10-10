@@ -23,6 +23,9 @@
 | Strg+4 | Personentabelle |
 | Strg+5 | Quellen |
 | Strg+6 | Orte |
+| Strg+7 | Aufgaben |
+| Strg+8 | Letzte Änderungen |
+| Strg+9 | Archiv |
 | Strg+Q | Beenden |
 
 ## Navigator

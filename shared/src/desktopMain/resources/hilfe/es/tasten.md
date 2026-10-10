@@ -23,6 +23,9 @@
 | Ctrl+4 | Tabla de personas |
 | Ctrl+5 | Fuentes |
 | Ctrl+6 | Lugares |
+| Ctrl+7 | Tareas |
+| Ctrl+8 | Cambios recientes |
+| Ctrl+9 | Archivo |
 | Ctrl+Q | Salir |
 
 ## Navegador
