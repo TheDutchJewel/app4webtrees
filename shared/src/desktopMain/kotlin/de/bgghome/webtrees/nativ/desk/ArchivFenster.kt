@@ -155,6 +155,10 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
     var pdf by remember { mutableStateOf<PdfTarget?>(null) }
     var bearbeiten by remember { mutableStateOf<ArchiveEntry?>(null) }
     var hochladen by remember { mutableStateOf<List<File>?>(null) }
+    // Gesichter (Stufe 5): ansehen kann jeder, markieren nur, wem das Modul es erlaubt
+    var gesichter by remember { mutableStateOf<ArchiveEntry?>(null) }
+    val gesichterDa = archive.api >= 5
+    val darfBereiche = gesichterDa && archive.darfBereiche
     var ziehtDarueber by remember { mutableStateOf(false) }
     // Strg/Umschalt beim Mausklick: combinedClickable kennt die Tasten nicht, darum beim Druecken merken
     var tasten by remember { mutableStateOf<PointerKeyboardModifiers?>(null) }
@@ -349,6 +353,8 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                                                 val ziel = if (markiert) gewaehlte else listOf(e)
                                                 buildList {
                                                     if (ziel.size == 1) add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_open)) { oeffnen(e) })
+                                                    if (ziel.size == 1 && e.istBild && e.pfad != null && gesichterDa && (darfBereiche || e.bereiche.isNotEmpty()))
+                                                        add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_faces_menu)) { gesichter = e })
                                                     if (ziel.size == 1 && e.istBild && e.pfad != null && viewModel.canEditExif)
                                                         add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.viewer_edit_exif) + " …") { bearbeiten = e })
                                                     add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_copy_path)) { pfadeKopieren(ziel) })
@@ -391,6 +397,7 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                         when {
                             einer != null -> DateiAngaben(einer, viewModel.canEditExif && einer.istBild && einer.pfad != null,
                                 onOeffnen = { oeffnen(einer) }, onBearbeiten = { bearbeiten = einer },
+                                onGesichter = if (gesichterDa && einer.istBild && einer.pfad != null && (darfBereiche || einer.bereiche.isNotEmpty())) ({ gesichter = einer }) else null,
                                 onPerson = { viewModel.setRoot(it) }, onKopien = { kopienSpeichern(listOf(einer)) })
                             gewaehlte.size > 1 -> Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text(stringResource(Res.string.desk_archive_selected, gewaehlte.size), style = MaterialTheme.typography.titleSmall)
@@ -429,6 +436,11 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                             .onFailure { fehler = it.message }
                     }
                 })
+            }
+            gesichter?.let { e ->
+                GesichterFenster(e, tree, viewModel, bearbeiten = darfBereiche,
+                    onGespeichert = { neu -> ersetzen(eintraege, neu); gesichter = neu; meldung = de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_faces_saved) },
+                    onClose = { gesichter = null })
             }
             hochladen?.let { dateien ->
                 val s = seite
@@ -519,7 +531,8 @@ private fun Kachel(e: ArchiveEntry, kante: Int, gewaehlt: Boolean, modifier: Mod
 
 /** Rechte Spalte: Vorschau und alles, was das Modul zur Datei weiss. */
 @Composable
-private fun DateiAngaben(e: ArchiveEntry, darfBearbeiten: Boolean, onOeffnen: () -> Unit, onBearbeiten: () -> Unit, onPerson: (String) -> Unit, onKopien: () -> Unit) {
+private fun DateiAngaben(e: ArchiveEntry, darfBearbeiten: Boolean, onOeffnen: () -> Unit, onBearbeiten: () -> Unit, onPerson: (String) -> Unit, onKopien: () -> Unit,
+    onGesichter: (() -> Unit)? = null) {
     val farben = MaterialTheme.colorScheme
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Box(Modifier.fillMaxWidth().height(220.dp).border(1.dp, farben.outlineVariant).clickable(onClick = onOeffnen), contentAlignment = Alignment.Center) {
@@ -529,6 +542,9 @@ private fun DateiAngaben(e: ArchiveEntry, darfBearbeiten: Boolean, onOeffnen: ()
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlinedButton(onClick = onOeffnen, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_archive_open)) }
             if (darfBearbeiten) OutlinedButton(onClick = onBearbeiten, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.viewer_edit_exif)) }
+        }
+        if (onGesichter != null) OutlinedButton(onClick = onGesichter, shape = MaterialTheme.shapes.small) {
+            Text(stringResource(Res.string.desk_faces_menu) + if (e.bereiche.isNotEmpty()) "  (${e.bereiche.size})" else "")
         }
         TextButton(onClick = onKopien) { Text(stringResource(Res.string.desk_archive_download)) }
         SelectionContainer {

@@ -1481,4 +1481,23 @@
     <string name="desk_archive_backup_running">Sauvegarde en cours …</string>
     <string name="desk_archive_backup_done">Sauvegarde enregistrée : %1$s</string>
     <string name="tipp_archive_free">Fichiers du dossier des médias vers lesquels rien ne pointe dans l’arbre. C’est voulu : les archives contiennent plus que l’arbre.</string>
+    <string name="desk_faces_window">Visages</string>
+    <string name="desk_faces_menu">Visages …</string>
+    <string name="desk_faces_mark">Marquer un visage</string>
+    <string name="desk_faces_mark_hint">Tracez un cadre autour d’un visage, puis attribuez la personne.</string>
+    <string name="desk_faces_hover_hint">Passez la souris sur un visage pour voir le nom. Un clic sur un nom dans la liste met la personne au centre.</string>
+    <string name="desk_faces_assign">Attribuer …</string>
+    <string name="desk_faces_delete">Supprimer le cadre</string>
+    <string name="desk_faces_unknown">inconnu</string>
+    <string name="desk_faces_not_in_tree">pas dans l’arbre</string>
+    <string name="desk_faces_search">Chercher une personne dans l’arbre ou saisir un nom</string>
+    <string name="desk_faces_use_name">Reprendre seulement le nom « %1$s »</string>
+    <string name="desk_faces_set_unknown">Personne inconnue</string>
+    <string name="desk_faces_count">%1$d visages</string>
+    <string name="desk_faces_none">Aucun visage marqué pour l’instant.</string>
+    <string name="desk_faces_saved">Visages enregistrés</string>
+    <string name="desk_faces_discard_title">Abandonner les modifications ?</string>
+    <string name="desk_faces_discard_text">Les visages marqués ne sont pas encore enregistrés.</string>
+    <string name="desk_faces_discard">Abandonner</string>
+    <string name="desk_faces_note">Les cadres sont enregistrés dans le fichier image lui-même (XMP). Attribuer un visage ne lie pas l’image à la personne.</string>
 </resources>

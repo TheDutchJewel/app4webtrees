@@ -1462,4 +1462,23 @@
     <string name="desk_archive_backup_running">Back-up wordt gemaakt …</string>
     <string name="desk_archive_backup_done">Back-up opgeslagen: %1$s</string>
     <string name="tipp_archive_free">Bestanden in de mediamap waar niets in de stamboom naar verwijst. Dat is zo bedoeld: het archief bevat meer dan de stamboom.</string>
+    <string name="desk_faces_window">Gezichten</string>
+    <string name="desk_faces_menu">Gezichten …</string>
+    <string name="desk_faces_mark">Gezicht markeren</string>
+    <string name="desk_faces_mark_hint">Trek een kader om een gezicht en wijs dan de persoon toe.</string>
+    <string name="desk_faces_hover_hint">Beweeg de muis over een gezicht om de naam te zien. Een klik op een naam in de lijst maakt de persoon tot proband.</string>
+    <string name="desk_faces_assign">Toewijzen …</string>
+    <string name="desk_faces_delete">Kader verwijderen</string>
+    <string name="desk_faces_unknown">onbekend</string>
+    <string name="desk_faces_not_in_tree">niet in de stamboom</string>
+    <string name="desk_faces_search">Persoon in de stamboom zoeken of een naam typen</string>
+    <string name="desk_faces_use_name">Alleen de naam ‘%1$s’ overnemen</string>
+    <string name="desk_faces_set_unknown">Onbekende persoon</string>
+    <string name="desk_faces_count">%1$d gezichten</string>
+    <string name="desk_faces_none">Nog geen gezichten gemarkeerd.</string>
+    <string name="desk_faces_saved">Gezichten opgeslagen</string>
+    <string name="desk_faces_discard_title">Wijzigingen verwerpen?</string>
+    <string name="desk_faces_discard_text">De gemarkeerde gezichten zijn nog niet opgeslagen.</string>
+    <string name="desk_faces_discard">Verwerpen</string>
+    <string name="desk_faces_note">De kaders worden in het afbeeldingsbestand zelf opgeslagen (XMP). Een gezicht toewijzen koppelt de afbeelding niet aan de persoon.</string>
 </resources>

@@ -18,6 +18,8 @@ data class ArchiveOverview(
     /** Ab Stufe 2: ob dieser Nutzer ins Archiv hochladen bzw. EXIF schreiben darf, und die Zielordner */
     val darfHochladen: Boolean = false,
     val darfExif: Boolean = false,
+    /** Ab Stufe 5: ob dieser Nutzer Gesichter auf Bildern markieren darf */
+    val darfBereiche: Boolean = false,
     val ordnerListe: List<String> = emptyList(),
     val sammlungen: List<ArchiveCollection> = emptyList(),
     /** Medienobjekte, an denen keine Person und keine Familie haengt - nach Medientyp */
@@ -110,6 +112,23 @@ data class ArchiveEntry(
     val original: String = "",
     /** Die Medienseite in webtrees - nur bei Medienobjekten */
     val seite: String? = null,
+    /** Ab Stufe 5: markierte Gesichter (XMP MWG Regions aus der Datei) */
+    val bereiche: List<Bereich> = emptyList(),
+)
+
+/**
+ * Ein markiertes Gesicht auf einem Bild (Stufe 5): Rahmen links oben, normiert 0-1 aufs Bild. [xref] nur, wenn die Person
+ * im Stammbaum steht; [name] leer heisst unbekannt. Im Modul liegt es als MWG-Region in der Datei.
+ */
+@Serializable
+data class Bereich(
+    val x: Double = 0.0,
+    val y: Double = 0.0,
+    val w: Double = 0.0,
+    val h: Double = 0.0,
+    val name: String = "",
+    val xref: String? = null,
+    val typ: String = "Face",
 )
 
 /** Was die App zu einem Foto mitgibt, das sie ins Archiv legt (Stufe 2 der Schnittstelle). */

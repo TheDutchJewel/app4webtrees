@@ -1481,4 +1481,23 @@
     <string name="desk_archive_backup_running">Creando copia …</string>
     <string name="desk_archive_backup_done">Copia guardada: %1$s</string>
     <string name="tipp_archive_free">Archivos de la carpeta de medios a los que nada del árbol hace referencia. Es intencionado: el archivo guarda más que el árbol.</string>
+    <string name="desk_faces_window">Caras</string>
+    <string name="desk_faces_menu">Caras …</string>
+    <string name="desk_faces_mark">Marcar una cara</string>
+    <string name="desk_faces_mark_hint">Trace un marco alrededor de una cara y luego asigne la persona.</string>
+    <string name="desk_faces_hover_hint">Pase el ratón sobre una cara para ver el nombre. Un clic en un nombre de la lista convierte a la persona en central.</string>
+    <string name="desk_faces_assign">Asignar …</string>
+    <string name="desk_faces_delete">Quitar marco</string>
+    <string name="desk_faces_unknown">desconocido</string>
+    <string name="desk_faces_not_in_tree">no está en el árbol</string>
+    <string name="desk_faces_search">Buscar persona en el árbol o escribir un nombre</string>
+    <string name="desk_faces_use_name">Usar solo el nombre «%1$s»</string>
+    <string name="desk_faces_set_unknown">Persona desconocida</string>
+    <string name="desk_faces_count">%1$d caras</string>
+    <string name="desk_faces_none">Todavía no hay caras marcadas.</string>
+    <string name="desk_faces_saved">Caras guardadas</string>
+    <string name="desk_faces_discard_title">¿Descartar los cambios?</string>
+    <string name="desk_faces_discard_text">Las caras marcadas aún no se han guardado.</string>
+    <string name="desk_faces_discard">Descartar</string>
+    <string name="desk_faces_note">Los marcos se guardan en el propio archivo de imagen (XMP). Asignar una cara no vincula la imagen a la persona.</string>
 </resources>

@@ -1486,4 +1486,23 @@
     <string name="desk_archive_backup_running">Backing up …</string>
     <string name="desk_archive_backup_done">Backup saved: %1$s</string>
     <string name="tipp_archive_free">Files in the media folder that nothing in the family tree points to. That is intended: the archive keeps more than the tree.</string>
+    <string name="desk_faces_window">Faces</string>
+    <string name="desk_faces_menu">Faces …</string>
+    <string name="desk_faces_mark">Mark a face</string>
+    <string name="desk_faces_mark_hint">Drag a frame around a face, then assign the person.</string>
+    <string name="desk_faces_hover_hint">Move the mouse over a face to see the name. A click on a name in the list makes the person the central person.</string>
+    <string name="desk_faces_assign">Assign …</string>
+    <string name="desk_faces_delete">Remove frame</string>
+    <string name="desk_faces_unknown">unknown</string>
+    <string name="desk_faces_not_in_tree">not in the family tree</string>
+    <string name="desk_faces_search">Search person in the family tree or type a name</string>
+    <string name="desk_faces_use_name">Use only the name “%1$s”</string>
+    <string name="desk_faces_set_unknown">Unknown person</string>
+    <string name="desk_faces_count">%1$d faces</string>
+    <string name="desk_faces_none">No faces marked yet.</string>
+    <string name="desk_faces_saved">Faces saved</string>
+    <string name="desk_faces_discard_title">Discard changes?</string>
+    <string name="desk_faces_discard_text">The marked faces have not been saved yet.</string>
+    <string name="desk_faces_discard">Discard</string>
+    <string name="desk_faces_note">The frames are saved in the image file itself (XMP). Assigning a face does not attach the picture to the person.</string>
 </resources>

@@ -1481,4 +1481,23 @@
     <string name="desk_archive_backup_running">Wird gesichert …</string>
     <string name="desk_archive_backup_done">Sicherung gespeichert: %1$s</string>
     <string name="tipp_archive_free">Dateien im Medienordner, auf die im Stammbaum nichts zeigt. Das ist so gewollt: Das Archiv hält mehr als der Baum.</string>
+    <string name="desk_faces_window">Gesichter</string>
+    <string name="desk_faces_menu">Gesichter …</string>
+    <string name="desk_faces_mark">Gesicht markieren</string>
+    <string name="desk_faces_mark_hint">Einen Rahmen um ein Gesicht ziehen, dann die Person zuordnen.</string>
+    <string name="desk_faces_hover_hint">Mit der Maus über ein Gesicht fahren zeigt den Namen. Ein Klick auf einen Namen in der Liste macht die Person zum Probanden.</string>
+    <string name="desk_faces_assign">Zuordnen …</string>
+    <string name="desk_faces_delete">Rahmen entfernen</string>
+    <string name="desk_faces_unknown">unbekannt</string>
+    <string name="desk_faces_not_in_tree">nicht im Stammbaum</string>
+    <string name="desk_faces_search">Person im Stammbaum suchen oder Namen eintippen</string>
+    <string name="desk_faces_use_name">Nur den Namen „%1$s“ übernehmen</string>
+    <string name="desk_faces_set_unknown">Unbekannte Person</string>
+    <string name="desk_faces_count">%1$d Gesichter</string>
+    <string name="desk_faces_none">Noch keine Gesichter markiert.</string>
+    <string name="desk_faces_saved">Gesichter gespeichert</string>
+    <string name="desk_faces_discard_title">Änderungen verwerfen?</string>
+    <string name="desk_faces_discard_text">Die markierten Gesichter sind noch nicht gespeichert.</string>
+    <string name="desk_faces_discard">Verwerfen</string>
+    <string name="desk_faces_note">Die Rahmen werden in der Bilddatei selbst gespeichert (XMP). Ein Gesicht zuordnen hängt das Bild nicht an die Person.</string>
 </resources>
