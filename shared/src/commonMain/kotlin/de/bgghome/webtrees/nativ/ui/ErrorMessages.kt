@@ -40,6 +40,17 @@ fun explain(e: Exception): String = when (e) {
         "exif-failed" -> Texte.t(Res.string.err_exif_failed)
         "folder-not-found" -> Texte.t(Res.string.err_folder_not_found)
         "blocked-extension", "bad-filename" -> Texte.t(Res.string.err_bad_file)
+        // Modul Sammlungen, Stufe 5/6
+        "not-admin" -> Texte.t(Res.string.err_archive_not_admin)
+        "name-exists" -> Texte.t(Res.string.err_archive_name_exists)
+        "bad-name", "missing-name" -> Texte.t(Res.string.err_archive_bad_name)
+        "extension-changed" -> Texte.t(Res.string.err_archive_extension)
+        "postcard-pair" -> Texte.t(Res.string.err_archive_postcard_pair)
+        "not-album" -> Texte.t(Res.string.err_archive_not_album)
+        "file-not-found" -> Texte.t(Res.string.err_archive_file_missing)
+        "unknown-collection" -> Texte.t(Res.string.err_archive_unknown_collection)
+        "bad-color" -> Texte.t(Res.string.err_archive_bad_color)
+        "bad-regions" -> Texte.t(Res.string.err_archive_bad_regions)
         else -> Texte.t(Res.string.err_rejected, e.code)
     }
     // Keine JSON-Antwort: bei 404 fehlt das Modul auf dem Server, sonst hat der Webserver etwas anderes geliefert.

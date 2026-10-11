@@ -345,6 +345,56 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         return postRoute("/tree/$tree/archiv/api/exif", form, ExifWriteResult.serializer())
     }
 
+    // ── Archiv, Stufe 6: Verwaltung aus der App ──
+
+    /** Uebersicht mit Verwaltung (alle Sammlungen samt inaktiven, Auswahllisten) - nur Verwalter. */
+    suspend fun archiveAdmin(tree: String): ArchiveOverview =
+        getRoute("/tree/$tree/archiv/api/sammlungen", mapOf("alle" to "1"), ArchiveOverview.serializer())
+
+    private fun formular(vararg felder: Pair<String, String?>): FormBody =
+        FormBody.Builder().apply { felder.forEach { (k, v) -> if (v != null) add(k, v) } }.build()
+
+    /** Datei umbenennen: gleicher Ordner, gleiche Endung; die FILE-Zeile des Medienobjekts zieht mit. */
+    suspend fun archiveRename(tree: String, pfad: String, neuerName: String): UmbenennenErgebnis =
+        postRoute("/tree/$tree/archiv/api/umbenennen", formular("pfad" to pfad, "neuer_name" to neuerName), UmbenennenErgebnis.serializer())
+
+    /** Bild einem Album hinzufuegen oder daraus entfernen. */
+    suspend fun archiveAssign(tree: String, pfad: String, sammlung: String, hinzu: Boolean): ZuordnenErgebnis =
+        postRoute("/tree/$tree/archiv/api/zuordnen",
+            formular("pfad" to pfad, "sammlung" to sammlung, "aktion" to if (hinzu) "hinzufuegen" else "entfernen"), ZuordnenErgebnis.serializer())
+
+    suspend fun archiveVisible(tree: String, sammlung: String, aktiv: Boolean): SammlungErgebnis =
+        postRoute("/tree/$tree/archiv/api/sichtbar", formular("sammlung" to sammlung, "aktiv" to if (aktiv) "1" else "0"), SammlungErgebnis.serializer())
+
+    /** Sammlung anlegen ([s].slug leer) oder aendern. */
+    suspend fun archiveSaveCollection(tree: String, s: SammlungDaten): SammlungErgebnis =
+        postRoute("/tree/$tree/archiv/api/sammlung-speichern", formular(
+            "slug" to s.slug, "name" to s.name, "beschreibung" to s.beschreibung, "icon" to s.symbol, "farbe" to s.farbe,
+            "ansicht" to s.ansicht, "ordner" to s.ordner, "aktiv" to if (s.aktiv) "1" else "0", "reihenfolge" to s.reihenfolge.toString(),
+        ), SammlungErgebnis.serializer())
+
+    /** Antwort {ok, sammlung} nennt nur den Slug - dafuer reicht das schlichte Ergebnis. */
+    suspend fun archiveDeleteCollection(tree: String, sammlung: String): SchlichtesErgebnis =
+        postRoute("/tree/$tree/archiv/api/sammlung-loeschen", formular("sammlung" to sammlung), SchlichtesErgebnis.serializer())
+
+    suspend fun archiveSettings(tree: String): ArchivEinstellungen =
+        getRoute("/tree/$tree/archiv/api/einstellungen", emptyMap(), ArchivEinstellungen.serializer())
+
+    suspend fun archiveSaveSettings(tree: String, cacheTtl: Int, seitenGroesse: Int): ArchivEinstellungen =
+        postRoute("/tree/$tree/archiv/api/einstellungen", formular("cacheTtl" to cacheTtl.toString(), "seitenGroesse" to seitenGroesse.toString()),
+            ArchivEinstellungen.serializer())
+
+    suspend fun archiveClearCache(tree: String): SchlichtesErgebnis =
+        postRoute("/tree/$tree/archiv/api/cache-leeren", formular(), SchlichtesErgebnis.serializer())
+
+    /** Postkarte beschriften (Stufe 6): nur gesendete Felder aendern sich, beide Seiten werden geschrieben. */
+    suspend fun writePostcard(tree: String, pfad: String, a: PostkartenAnfrage): ExifWriteResult =
+        postRoute("/tree/$tree/archiv/api/exif", formular(
+            "pfad" to pfad, "motiv" to a.motiv, "transkription" to a.transkription, "notiz" to a.notiz, "datum" to a.datum,
+            "datum_unsicher" to a.datumUnsicher?.let { if (it) "1" else "0" },
+            "personen" to a.personen?.joinToString(", "), "keywords" to a.keywords?.joinToString(", "),
+        ), ExifWriteResult.serializer())
+
     /** Aeltere Module kappen generations selbst (bis 1.8: 7, ab 1.9: 12) und nennen die gelieferte Tiefe; siblings ab Stufe 15. */
     suspend fun pedigree(tree: String, xref: String, generations: Int, siblings: Boolean = false): Pedigree =
         get("Pedigree", tree, mapOf("xref" to xref, "generations" to generations.toString()) + (if (siblings) mapOf("siblings" to "1") else emptyMap()), Pedigree.serializer())

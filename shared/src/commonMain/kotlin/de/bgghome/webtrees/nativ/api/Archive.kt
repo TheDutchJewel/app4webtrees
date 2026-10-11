@@ -22,6 +22,12 @@ data class ArchiveOverview(
     val darfBereiche: Boolean = false,
     /** Ab Stufe 5: Sammlung "Bilder einer Person" ueber den Filter person (Gesichter mit dieser Kennung) */
     val personenFilter: Boolean = false,
+    /** Ab Stufe 6: umbenennen, zuordnen, sichtbar schalten (Verwalter); anlegen/aendern/loeschen und Einstellungen (Administrator) */
+    val darfOrdnen: Boolean = false,
+    val darfVerwalten: Boolean = false,
+    val darfEinstellungen: Boolean = false,
+    /** Nur mit ?alle=1 fuer Verwalter: alle Sammlungen samt inaktiven und die Auswahllisten der Maske */
+    val verwaltung: Verwaltung? = null,
     val ordnerListe: List<String> = emptyList(),
     val sammlungen: List<ArchiveCollection> = emptyList(),
     /** Medienobjekte, an denen keine Person und keine Familie haengt - nach Medientyp */
@@ -45,6 +51,10 @@ data class ArchiveCollection(
     val anzahl: Int = 0,
     /** Bis zu drei Vorschaubilder */
     val vorschau: List<String> = emptyList(),
+    /** Ab Stufe 6: Sammlung ohne Ordner, nimmt einzelne Bilder auf */
+    val album: Boolean = false,
+    /** Ab Stufe 6: sichtbare Ordner-Sammlung direkt unter dem Medienordner (Quelle der Bildauswahl im Browser) */
+    val bildquelle: Boolean = false,
 )
 
 @Serializable
@@ -123,6 +133,8 @@ data class ArchiveEntry(
     /** Ab Stufe 4, nur in Postkarten-Sammlungen: die Rueckseite als eigener Eintrag (null = Einzelkarte) */
     val rueckseite: ArchiveEntry? = null,
     val motiv: String = "",
+    /** api/eintrag und api/exif bei Postkarten (Stufe 6): die andere Seite der Karte */
+    val gegenseite: ArchiveEntry? = null,
     /** In Postkarten-Sammlungen steht in [notiz] der Abschnitt "Notiz:" der Karte statt der Notiz des Medienobjekts. */
     val transkription: String = "",
 ) {
@@ -186,3 +198,71 @@ data class ExifWriteResult(val ok: Boolean = false, val eintrag: ArchiveEntry? =
 /** Antwort von /archiv/api/eintrag: ein Eintrag zu einer Datei (Stufe 3). */
 @Serializable
 data class EntryResult(val ok: Boolean = false, val eintrag: ArchiveEntry? = null)
+
+// ── Stufe 6: Verwaltung aus der App ──
+
+/** Die Verwaltung der Sammlungen (api/sammlungen?alle=1): alle Sammlungen mit den Feldern der Maske und die Auswahllisten. */
+@Serializable
+data class Verwaltung(val sammlungen: List<SammlungDaten> = emptyList(), val auswahl: VerwaltungsAuswahl = VerwaltungsAuswahl())
+
+/** Eine Sammlung, wie die Maske sie kennt. [symbol] ist der Formularwert, [icon] die Font-Awesome-Klasse. */
+@Serializable
+data class SammlungDaten(
+    val slug: String = "",
+    val art: String = "",
+    val name: String = "",
+    val beschreibung: String = "",
+    val symbol: String = "",
+    val icon: String = "",
+    val farbe: String? = null,
+    val ansicht: String = "foto",
+    val ordner: String = "",
+    val aktiv: Boolean = true,
+    val reihenfolge: Int = 0,
+    val album: Boolean = false,
+    val bildquelle: Boolean = false,
+    val anzahl: Int = 0,
+)
+
+@Serializable
+data class VerwaltungsAuswahl(
+    val symbole: List<AuswahlWert> = emptyList(),
+    val ansichten: List<AuswahlWert> = emptyList(),
+    val ordner: List<String> = emptyList(),
+)
+
+@Serializable
+data class AuswahlWert(val wert: String = "", val name: String = "", val icon: String = "")
+
+/** Antworten der schreibenden Routen von Stufe 6. */
+@Serializable
+data class UmbenennenErgebnis(val ok: Boolean = false, val alterPfad: String = "", val eintrag: ArchiveEntry? = null)
+
+@Serializable
+data class ZuordnenErgebnis(val ok: Boolean = false, val sammlung: String = "", val istDrin: Boolean = false, val eintrag: ArchiveEntry? = null)
+
+@Serializable
+data class SammlungErgebnis(val ok: Boolean = false, val neu: Boolean = false, val sammlung: SammlungDaten? = null)
+
+@Serializable
+data class Grenze(val min: Int = 0, val max: Int = 0, val vorgabe: Int = 0)
+
+@Serializable
+data class ArchivGrenzen(val cacheTtl: Grenze = Grenze(), val seitenGroesse: Grenze = Grenze())
+
+@Serializable
+data class ArchivEinstellungen(val ok: Boolean = false, val cacheTtl: Int = 0, val seitenGroesse: Int = 0, val grenzen: ArchivGrenzen = ArchivGrenzen(), val apcu: Boolean = false)
+
+@Serializable
+data class SchlichtesErgebnis(val ok: Boolean = false)
+
+/** Postkarten-Abschnitte fuer api/exif (Stufe 6); null heisst: nicht senden, bleibt in der Datei. */
+data class PostkartenAnfrage(
+    val motiv: String? = null,
+    val transkription: String? = null,
+    val notiz: String? = null,
+    val datum: String? = null,
+    val datumUnsicher: Boolean? = null,
+    val personen: List<String>? = null,
+    val keywords: List<String>? = null,
+)

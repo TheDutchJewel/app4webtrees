@@ -26,6 +26,22 @@ wtWin uploadt het origineel en verkleint niets. Een bestand dat groter is dan de
 
 Beheerders van de stamboom wijzigen beschrijving, datum, personen en trefwoorden van een afbeelding via de rechtermuisklik, de knop rechts of het potlood in de viewer. De module schrijft de gegevens in het bestand zelf.
 
+## Gezichten op groepsfoto’s
+
+Rechtsklik op een afbeelding › **Gezichten …** toont haar groot met alle gemarkeerde gezichten. Bij het erover bewegen staat de naam bij het kader; rechts de lijst rij voor rij van links, en een klik op een naam maakt die persoon tot proband. Beheerders vinken **Gezicht markeren** aan, trekken een kader om een gezicht en wijzen het toe: aan een persoon uit de stamboom, alleen aan een naam (iemand bekend zonder record) of aan ‘onbekend’. Een gekozen kader verschuif je door te slepen, aan de gele greep verander je de grootte, **Del** verwijdert het. De kaders staan in het afbeeldingsbestand zelf (XMP); andere programma’s zoals digiKam lezen ze ook. De afbeelding wordt niet aan de persoon gekoppeld – behalve als je **Afbeelding ook aan de gekozen persoon koppelen** aanvinkt. In het persoonsblad toont het tabblad **Media** onder **Op groepsfoto’s** alle afbeeldingen waarop de persoon gemarkeerd is.
+
+## Ansichtkaarten
+
+In een verzameling ansichtkaarten zijn voor- en achterkant één item (teken ↻). Rechts **Omdraaien**, daaronder motief, transcriptie en notitie; een afgeleide datum staat als ‘ca. 1916’. Dubbelklik toont beide kanten in de viewer. **Ansichtkaart bewerken …** wijzigt motief, transcriptie, notitie en datum; de module schrijft beide kanten en laat ongewijzigde velden staan.
+
+## Verzamelingen beheren
+
+Beheerders maken met **+ Nieuwe verzameling** een verzameling aan: naam, beschrijving, mediamap (of geen – dan is het een album dat je met losse afbeeldingen vult), weergavetype, symbool, kleur, volgorde, zichtbaar. Rechtsklik op een verzameling: **Verzameling bewerken …**, **Verbergen**/**Tonen**, **Verzameling verwijderen …** (de bestanden blijven). Verborgen verzamelingen staan vaag onder ‘verborgen’. Rechtsklik op afbeeldingen: **Thematische verzamelingen …** (een vinkje per album, werkt meteen, ook voor meerdere afbeeldingen), **Uit deze verzameling verwijderen** en **Hernoemen …** (zelfde map, zelfde extensie; een mediaobject in de stamboom gaat mee). **Archiefinstellingen …** stelt de cacheduur en paginagrootte in en leegt de cache. Wie wat mag, bepaalt de module.
+
+## Vergelijking met webtrees
+
+Bij afbeeldingen die als mediaobject in de stamboom staan, toont de rechterkolom waar bestand en webtrees verschillen: beschrijving tegen titel, personen in het bestand tegen de gekoppelde. **→ in het bestand overnemen** schrijft de webtrees-waarde in het bestand; de stamboom verandert niet.
+
 ## Back-up
 
 In de stamboom op deze pc slaat **Bestand › Stamboom en archief back-uppen …** alles op in één zip-bestand: de database met stambomen en verzamelingen en de hele mediamap inclusief het vrije bestand. Een GEDCOM- of GEDZIP-bestand neemt alleen de bestanden mee waar de stamboom naar verwijst. Om terug te zetten wtWin afsluiten en de map `data` uit het zip-bestand in de webtrees-map leggen (waar die staat, lees je onder [stamboom op deze pc](hilfe:lokal)).

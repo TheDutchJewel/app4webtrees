@@ -26,6 +26,22 @@ wtWin lädt das Original hoch und verkleinert nichts. Ist eine Datei größer, a
 
 Verwalter des Stammbaums ändern Beschreibung, Datum, Personen und Schlagwörter eines Bildes über den Rechtsklick, den Knopf rechts oder den Stift im Betrachter. Das Modul schreibt die Angaben in die Datei selbst.
 
+## Gesichter auf Gruppenbildern
+
+Rechtsklick auf ein Bild › **Gesichter …** zeigt das Bild groß mit allen markierten Gesichtern. Beim Darüberfahren steht der Name am Rahmen, rechts die Liste Reihe für Reihe von links; ein Klick auf einen Namen macht die Person zum Probanden. Verwalter setzen den Haken **Gesicht markieren**, ziehen einen Rahmen um ein Gesicht und ordnen ihn zu: einer Person aus dem Stammbaum, nur einem Namen (wer bekannt ist, aber keinen Datensatz hat) oder „unbekannt“. Einen gewählten Rahmen verschiebst du, am gelben Griff änderst du die Größe, **Entf** entfernt ihn. Die Rahmen stehen in der Bilddatei selbst (XMP), andere Programme wie digiKam lesen sie mit. Das Bild hängt dadurch nicht an der Person – außer du setzt im Zuordnen-Dialog den Haken **Bild auch an die gewählte Person hängen**. Im Personenblatt zeigt der Reiter **Medien** unter **Auf Gruppenbildern** alle Bilder, auf denen die Person markiert ist.
+
+## Postkarten
+
+In einer Postkarten-Sammlung sind Vorder- und Rückseite ein Eintrag (Zeichen ↻). Rechts **Wenden**, darunter Motiv, Transkription und Notiz; ein erschlossenes Datum steht als „um 1916“. Doppelklick zeigt beide Seiten im Betrachter. **Postkarte bearbeiten …** ändert Motiv, Transkription, Notiz und Datum; das Modul schreibt in beide Seiten und lässt unveränderte Felder stehen.
+
+## Sammlungen verwalten
+
+Administratoren legen mit **+ Neue Sammlung** eine Sammlung an: Name, Beschreibung, Medienordner (oder keiner – dann ist es ein Album, in das du Bilder einzeln legst), Anzeigetyp, Symbol, Farbe, Reihenfolge, sichtbar. Rechtsklick auf eine Sammlung: **Sammlung bearbeiten …**, **Ausblenden**/**Einblenden**, **Sammlung löschen …** (die Dateien bleiben). Ausgeblendete Sammlungen stehen blass unter „ausgeblendet“. Rechtsklick auf Bilder: **Thematische Sammlungen …** (Haken je Album, wirkt sofort, auch für mehrere gewählte Bilder), **Aus dieser Sammlung entfernen** und **Umbenennen …** (gleicher Ordner, gleiche Endung; ein Medienobjekt im Stammbaum zieht mit). **Einstellungen des Archivs …** setzt Zwischenspeicher-Dauer und Seitengröße und leert den Zwischenspeicher. Was wer darf, legt das Modul fest.
+
+## Abgleich mit webtrees
+
+Bei Bildern, die als Medienobjekt im Stammbaum stehen, zeigt die rechte Spalte, wo Datei und webtrees auseinanderliegen: Beschreibung gegen Titel, Personen in der Datei gegen die verknüpften. **→ in die Datei übernehmen** schreibt den webtrees-Wert in die Datei; am Stammbaum ändert sich nichts.
+
 ## Sichern
 
 Im Stammbaum auf diesem PC sichert **Datei › Stammbaum und Archiv sichern …** alles in eine ZIP-Datei: die Datenbank mit Stammbäumen und Sammlungen und den ganzen Medienordner samt freiem Bestand. Eine GEDCOM- oder GEDZIP-Datei nimmt nur die Dateien mit, auf die der Stammbaum zeigt. Zum Zurückholen wtWin beenden und den Ordner `data` aus der ZIP-Datei in den webtrees-Ordner legen (wo der liegt, steht unter [Stammbaum auf diesem PC](hilfe:lokal)).

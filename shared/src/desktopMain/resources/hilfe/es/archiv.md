@@ -26,6 +26,22 @@ wtWin sube el original y no reduce nada. Un archivo más grande de lo que acepta
 
 Los administradores del árbol cambian descripción, fecha, personas y palabras clave de una imagen con el clic derecho, el botón de la derecha o el lápiz del visor. El módulo escribe los datos en el propio archivo.
 
+## Caras en fotos de grupo
+
+Clic derecho en una imagen › **Caras …** la muestra en grande con todas las caras marcadas. Al pasar el ratón aparece el nombre junto al marco; a la derecha, la lista fila por fila desde la izquierda, y un clic en un nombre convierte a la persona en central. Los administradores marcan **Marcar una cara**, trazan un marco alrededor de una cara y la asignan: a una persona del árbol, solo a un nombre (alguien conocido sin registro) o a «desconocido». Un marco elegido se mueve arrastrándolo, se cambia de tamaño en el asa amarilla y **Supr** lo quita. Los marcos se guardan en el propio archivo de imagen (XMP); otros programas como digiKam también los leen. La imagen no se vincula a la persona, salvo que marque **Vincular también la imagen a la persona elegida**. En la ficha, la pestaña **Multimedia** muestra en **En fotos de grupo** todas las imágenes donde la persona está marcada.
+
+## Postales
+
+En una colección de postales, anverso y reverso son una sola entrada (signo ↻). A la derecha **Dar la vuelta**, debajo motivo, transcripción y nota; una fecha deducida aparece como «hacia 1916». Doble clic muestra ambas caras en el visor. **Editar postal …** cambia motivo, transcripción, nota y fecha; el módulo escribe ambas caras y deja igual lo que no cambia.
+
+## Gestionar colecciones
+
+Los administradores crean una colección con **+ Nueva colección**: nombre, descripción, carpeta de medios (o ninguna: entonces es un álbum que se llena imagen a imagen), tipo de vista, símbolo, color, orden, visible. Clic derecho en una colección: **Editar colección …**, **Ocultar**/**Mostrar**, **Eliminar colección …** (los archivos se quedan). Las colecciones ocultas aparecen atenuadas bajo «oculta». Clic derecho en imágenes: **Colecciones temáticas …** (una marca por álbum, efecto inmediato, también para varias imágenes), **Quitar de esta colección** y **Renombrar …** (misma carpeta, misma extensión; un objeto multimedia del árbol se actualiza también). **Ajustes del archivo …** fija la duración de la caché y el tamaño de página y vacía la caché. Quién puede hacer qué lo decide el módulo.
+
+## Comparación con webtrees
+
+En imágenes que son objetos multimedia del árbol, la columna derecha muestra dónde difieren archivo y webtrees: descripción frente a título, personas del archivo frente a las vinculadas. **→ copiar al archivo** escribe el valor de webtrees en el archivo; el árbol no cambia.
+
 ## Copia de seguridad
 
 En el árbol en este PC, **Archivo › Copia de seguridad del árbol y el archivo …** guarda todo en un archivo ZIP: la base de datos con árboles y colecciones y toda la carpeta de medios, incluido el fondo libre. Un archivo GEDCOM o GEDZIP solo incluye los archivos a los que el árbol hace referencia. Para restaurar, cierre wtWin y coloque la carpeta `data` del archivo ZIP en la carpeta de webtrees (dónde está se explica en [árbol en este PC](hilfe:lokal)).

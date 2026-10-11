@@ -54,6 +54,7 @@ import kotlinx.coroutines.flow.debounce
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.DragData
@@ -165,6 +166,23 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
     // Strg/Umschalt beim Mausklick: combinedClickable kennt die Tasten nicht, darum beim Druecken merken
     var tasten by remember { mutableStateOf<PointerKeyboardModifiers?>(null) }
     val darfHochladen = archive.api >= 2 && archive.darfHochladen
+    // Stufe 6: Verwaltung aus der App - ordnen (Verwalter), verwalten und Einstellungen (Administrator)
+    val stufe6 = archive.api >= 6
+    val darfOrdnen = stufe6 && archive.darfOrdnen
+    val darfVerwalten = stufe6 && archive.darfVerwalten
+    var neuVerw by remember { mutableIntStateOf(0) }
+    val verwaltung by androidx.compose.runtime.produceState<de.bgghome.webtrees.nativ.api.Verwaltung?>(null, tree, neuVerw, darfOrdnen) {
+        value = if (!darfOrdnen) null else withContext(Dispatchers.IO) { runCatching { client.archiveAdmin(tree).verwaltung }.getOrNull() }
+    }
+    var sammlungBearbeiten by remember { mutableStateOf<de.bgghome.webtrees.nativ.api.SammlungDaten?>(null) }
+    var sammlungNeu by remember { mutableStateOf(false) }
+    var sammlungLoeschen by remember { mutableStateOf<de.bgghome.webtrees.nativ.api.SammlungDaten?>(null) }
+    var umbenennen by remember { mutableStateOf<ArchiveEntry?>(null) }
+    var albenFuer by remember { mutableStateOf<List<ArchiveEntry>?>(null) }
+    var postkarteBearbeiten by remember { mutableStateOf<ArchiveEntry?>(null) }
+    var einstellungen by remember { mutableStateOf(false) }
+    fun nachVerwaltung() { viewModel.probeArchive(); neuVerw++; neu++ }
+    fun daten(slug: String) = verwaltung?.sammlungen?.firstOrNull { it.slug == slug }
     val rasterFokus = remember { FocusRequester() }
 
     suspend fun seiteLaden(w: ArchivPunkt, nr: Int) {
@@ -270,7 +288,22 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                     // ── Sammlungen ──
                     val links = remember { mutableStateOf(DeskLayout.prefs.getString("archiv_liste", null)?.toFloatOrNull() ?: 270f) }
                     Column(Modifier.width(links.value.dp).fillMaxHeight().background(farben.surface)) {
-                        Box(Modifier.weight(1f)) { SammlungenListe(archive, wahl) { wahl = it } }
+                        Box(Modifier.weight(1f)) {
+                            SammlungenListe(archive, wahl, inaktive = verwaltung?.sammlungen?.filter { !it.aktiv }.orEmpty(),
+                                onBearbeiten = if (darfVerwalten) ({ slug -> sammlungBearbeiten = daten(slug) }) else null,
+                                onSichtbar = if (darfOrdnen) ({ slug, an ->
+                                    scope.launch {
+                                        runCatching { withContext(Dispatchers.IO) { client.archiveVisible(tree, slug, an) } }
+                                            .onSuccess { nachVerwaltung() }.onFailure { fehler = explainOf(it) }
+                                    }
+                                }) else null,
+                                onLoeschen = if (darfVerwalten) ({ slug -> sammlungLoeschen = daten(slug) }) else null,
+                            ) { wahl = it }
+                        }
+                        if (darfVerwalten || (stufe6 && archive.darfEinstellungen)) Row(Modifier.padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            if (darfVerwalten) TextButton(onClick = { sammlungNeu = true }) { Text(stringResource(Res.string.desk_archive_new_collection)) }
+                            if (stufe6 && archive.darfEinstellungen) TextButton(onClick = { einstellungen = true }) { Text(stringResource(Res.string.desk_archive_settings)) }
+                        }
                         HorizontalDivider(color = farben.outlineVariant)
                         TextButton(onClick = onClose, modifier = Modifier.align(Alignment.End).padding(4.dp)) { Text(stringResource(Res.string.action_close)) }
                     }
@@ -363,6 +396,20 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                                                         add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_faces_menu)) { gesichter = e })
                                                     if (ziel.size == 1 && e.istBild && e.pfad != null && viewModel.canEditExif && !postkarte(e))
                                                         add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.viewer_edit_exif) + " …") { bearbeiten = e })
+                                                    if (ziel.size == 1 && e.istBild && e.pfad != null && stufe6 && viewModel.canEditExif && postkarte(e))
+                                                        add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_postcard_edit)) { postkarteBearbeiten = e })
+                                                    if (ziel.size == 1 && e.pfad != null && darfOrdnen && e.rueckseite == null)
+                                                        add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_rename)) { umbenennen = e })
+                                                    if (darfOrdnen && ziel.all { it.pfad != null })
+                                                        add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_albums)) { albenFuer = ziel })
+                                                    if (darfOrdnen && archive.sammlungen.firstOrNull { it.slug == wahl?.slug }?.album == true)
+                                                        add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_remove_from)) {
+                                                            val slug = wahl?.slug ?: return@ContextMenuItem
+                                                            scope.launch {
+                                                                runCatching { withContext(Dispatchers.IO) { ziel.forEach { z -> z.pfad?.let { client.archiveAssign(tree, it, slug, false) } } } }
+                                                                    .onSuccess { nachVerwaltung() }.onFailure { fehler = explainOf(it) }
+                                                            }
+                                                        })
                                                     add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_copy_path)) { pfadeKopieren(ziel) })
                                                     add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_download)) { kopienSpeichern(ziel) })
                                                     if (ziel.size == 1) (e.seite ?: e.original).takeIf { it.isNotBlank() }?.let { url ->
@@ -408,6 +455,7 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                                         .onFailure { fehler = it.message }
                                 } },
                                 onOeffnen = { oeffnen(einer) }, onBearbeiten = { bearbeiten = einer },
+                                onPostkarte = if (stufe6 && viewModel.canEditExif && einer.istBild && einer.pfad != null) ({ postkarteBearbeiten = einer }) else null,
                                 onGesichter = if (gesichterDa && einer.istBild && einer.pfad != null && (darfBereiche || einer.bereiche.isNotEmpty())) ({ gesichter = einer }) else null,
                                 onPerson = { viewModel.setRoot(it) }, onKopien = { kopienSpeichern(listOf(einer)) })
                             gewaehlte.size > 1 -> Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -448,6 +496,46 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                     }
                 })
             }
+            // ── Verwaltung (Stufe 6) ──
+            val auswahlListen = verwaltung?.auswahl ?: de.bgghome.webtrees.nativ.api.VerwaltungsAuswahl()
+            if (sammlungNeu) SammlungDialog(tree, client, null, auswahlListen, onDismiss = { sammlungNeu = false },
+                onGespeichert = { slug -> sammlungNeu = false; nachVerwaltung(); wahl = ArchivPunkt(slug) })
+            sammlungBearbeiten?.let { d ->
+                SammlungDialog(tree, client, d, auswahlListen, onDismiss = { sammlungBearbeiten = null }, onGespeichert = { sammlungBearbeiten = null; nachVerwaltung() })
+            }
+            sammlungLoeschen?.let { d ->
+                de.bgghome.webtrees.nativ.ui.ConfirmDialog(
+                    title = stringResource(Res.string.desk_archive_delete_collection).removeSuffix(" …"),
+                    text = stringResource(Res.string.desk_archive_delete_text, d.name.ifBlank { d.slug }),
+                    confirm = stringResource(Res.string.desk_archive_delete_collection).removeSuffix(" …"), onDismiss = { sammlungLoeschen = null },
+                    onConfirm = {
+                        sammlungLoeschen = null
+                        scope.launch {
+                            runCatching { withContext(Dispatchers.IO) { client.archiveDeleteCollection(tree, d.slug) } }
+                                .onSuccess { if (wahl?.slug == d.slug) wahl = null; nachVerwaltung() }.onFailure { fehler = explainOf(it) }
+                        }
+                    },
+                )
+            }
+            umbenennen?.let { e ->
+                UmbenennenDialog(tree, client, e, onDismiss = { umbenennen = null }, onFertig = { neuE ->
+                    umbenennen = null
+                    if (neuE != null) { val i = eintraege.indexOfFirst { it.pfad == e.pfad }; if (i >= 0) eintraege[i] = neuE; auswahl.clear(); auswahl.add(schluessel(neuE)) } else neu++
+                })
+            }
+            albenFuer?.let { bilder ->
+                AlbenDialog(tree, client, bilder, archive.sammlungen.filter { it.album }, onDismiss = { albenFuer = null }, onGeaendert = { nachVerwaltung() })
+            }
+            postkarteBearbeiten?.let { e ->
+                PostkarteDialog(e, onDismiss = { postkarteBearbeiten = null }, onSave = { a ->
+                    postkarteBearbeiten = null
+                    scope.launch {
+                        runCatching { withContext(Dispatchers.IO) { client.writePostcard(tree, e.pfad.orEmpty(), a) } }
+                            .onSuccess { neu++; meldung = de.bgghome.webtrees.nativ.Texte.t(Res.string.msg_exif_saved) }.onFailure { fehler = explainOf(it) }
+                    }
+                })
+            }
+            if (einstellungen) ArchivEinstellungenDialog(tree, client, onDismiss = { einstellungen = false })
             gesichter?.let { e ->
                 GesichterFenster(e, tree, viewModel, bearbeiten = darfBereiche,
                     onGespeichert = { neu -> ersetzen(eintraege, neu); gesichter = neu; meldung = de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_faces_saved) },
@@ -475,7 +563,24 @@ private fun ersetzen(liste: MutableList<ArchiveEntry>, neu: ArchiveEntry) {
 
 /** Links: Ordner-, thematische und Typ-Sammlungen in der Reihenfolge des Moduls, darunter Medien ohne Person und der freie Bestand. */
 @Composable
-private fun SammlungenListe(archive: ArchiveOverview, wahl: ArchivPunkt?, onWahl: (ArchivPunkt) -> Unit) {
+private fun SammlungenListe(
+    archive: ArchiveOverview, wahl: ArchivPunkt?,
+    inaktive: List<de.bgghome.webtrees.nativ.api.SammlungDaten> = emptyList(),
+    onBearbeiten: ((String) -> Unit)? = null, onSichtbar: ((String, Boolean) -> Unit)? = null, onLoeschen: ((String) -> Unit)? = null,
+    onWahl: (ArchivPunkt) -> Unit,
+) {
+    // Rechtsklick auf eine Sammlung: bearbeiten, aus-/einblenden, loeschen - nur, was die Rechte erlauben
+    @Composable
+    fun mitMenue(slug: String, aktiv: Boolean, inhalt: @Composable () -> Unit) {
+        if (onBearbeiten == null && onSichtbar == null && onLoeschen == null) { inhalt(); return }
+        ContextMenuArea(items = {
+            buildList {
+                onBearbeiten?.let { f -> add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_edit_collection)) { f(slug) }) }
+                onSichtbar?.let { f -> add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(if (aktiv) Res.string.desk_archive_hide else Res.string.desk_archive_show)) { f(slug, !aktiv) }) }
+                onLoeschen?.let { f -> add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_delete_collection)) { f(slug) }) }
+            }
+        }) { inhalt() }
+    }
     val farben = MaterialTheme.colorScheme
     val gruppen = listOf("ordner" to Res.string.archive_folders, "thematisch" to Res.string.archive_thematic, "medientyp" to Res.string.archive_by_type)
     LazyColumn(Modifier.fillMaxSize().padding(vertical = 6.dp)) {
@@ -484,7 +589,18 @@ private fun SammlungenListe(archive: ArchiveOverview, wahl: ArchivPunkt?, onWahl
             val liste = archive.sammlungen.filter { it.art == art }
             if (liste.isNotEmpty()) {
                 item { Ueberschrift(stringResource(titel)) }
-                items(liste, key = { "s:" + it.slug }) { c -> Zeile(c.name.ifBlank { c.slug }, c.anzahl, wahl == ArchivPunkt(c.slug), farbe(c)) { onWahl(ArchivPunkt(c.slug)) } }
+                items(liste, key = { "s:" + it.slug }) { c ->
+                    mitMenue(c.slug, true) { Zeile(c.name.ifBlank { c.slug }, c.anzahl, wahl == ArchivPunkt(c.slug), farbe(c)) { onWahl(ArchivPunkt(c.slug)) } }
+                }
+            }
+        }
+        // Ausgeblendete Sammlungen (nur fuer Verwalter sichtbar): blass, per Rechtsklick wieder einblenden
+        if (inaktive.isNotEmpty()) {
+            item { Ueberschrift(stringResource(Res.string.desk_archive_hidden)) }
+            items(inaktive, key = { "i:" + it.slug }) { d ->
+                mitMenue(d.slug, false) {
+                    Box(Modifier.alpha(0.55f)) { Zeile(d.name.ifBlank { d.slug }, d.anzahl, false, farbeAus(d.farbe)) {} }
+                }
             }
         }
         if (archive.unverknuepft.isNotEmpty()) {
@@ -548,7 +664,7 @@ private fun Kachel(e: ArchiveEntry, kante: Int, gewaehlt: Boolean, modifier: Mod
 /** Rechte Spalte: Vorschau und alles, was das Modul zur Datei weiss. */
 @Composable
 private fun DateiAngaben(e: ArchiveEntry, darfBearbeiten: Boolean, onOeffnen: () -> Unit, onBearbeiten: () -> Unit, onPerson: (String) -> Unit, onKopien: () -> Unit,
-    onGesichter: (() -> Unit)? = null, postkarte: Boolean = false, onAbgleich: ((de.bgghome.webtrees.nativ.data.ArchivAbgleich.Unterschied) -> Unit)? = null) {
+    onGesichter: (() -> Unit)? = null, onPostkarte: (() -> Unit)? = null, postkarte: Boolean = false, onAbgleich: ((de.bgghome.webtrees.nativ.data.ArchivAbgleich.Unterschied) -> Unit)? = null) {
     val farben = MaterialTheme.colorScheme
     // Postkarte: Vorschau wenden
     var hinten by remember(e.pfad) { mutableStateOf(false) }
@@ -563,7 +679,8 @@ private fun DateiAngaben(e: ArchiveEntry, darfBearbeiten: Boolean, onOeffnen: ()
             if (e.rueckseite != null) OutlinedButton(onClick = { hinten = !hinten }, shape = MaterialTheme.shapes.small) { Text("↻ " + stringResource(Res.string.desk_postcard_turn)) }
             if (darfBearbeiten && !postkarte) OutlinedButton(onClick = onBearbeiten, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.viewer_edit_exif)) }
         }
-        if (darfBearbeiten && postkarte) Text(stringResource(Res.string.desk_postcard_edit_later), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
+        if (postkarte && onPostkarte != null) OutlinedButton(onClick = onPostkarte, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_postcard_edit)) }
+        else if (darfBearbeiten && postkarte) Text(stringResource(Res.string.desk_postcard_edit_later), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
         if (onGesichter != null) OutlinedButton(onClick = onGesichter, shape = MaterialTheme.shapes.small) {
             Text(stringResource(Res.string.desk_faces_menu) + if (e.bereiche.isNotEmpty()) "  (${e.bereiche.size})" else "")
         }
@@ -802,3 +919,5 @@ internal fun SicherungDialog(onClose: () -> Unit) {
         confirmButton = { if (ergebnis != null) TextButton(onClick = onClose) { Text(stringResource(Res.string.action_close)) } },
     )
 }
+
+private fun explainOf(e: Throwable): String = (e as? Exception)?.let { de.bgghome.webtrees.nativ.ui.explain(it) } ?: (e.message ?: "?")

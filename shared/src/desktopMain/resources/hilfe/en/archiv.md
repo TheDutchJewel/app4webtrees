@@ -26,6 +26,22 @@ wtWin uploads the original and shrinks nothing. A file larger than the server ac
 
 Managers of the family tree change the description, date, people and keywords of a picture via the right-click, the button on the right or the pencil in the viewer. The module writes the details into the file itself.
 
+## Faces on group photos
+
+Right-click a picture › **Faces …** shows it large with all marked faces. Hovering shows the name at the frame; on the right the list goes row by row from the left, and a click on a name makes that person the central person. Managers tick **Mark a face**, drag a frame around a face and assign it: to a person in the family tree, to a name only (someone known but without a record) or to “unknown”. Move a selected frame by dragging it, resize it at the yellow handle, **Del** removes it. The frames are stored in the image file itself (XMP); other programs such as digiKam read them too. The picture is not attached to the person – unless you tick **Also attach the picture to the chosen person** in the assign dialog. In the person sheet, the **Media** tab lists under **On group photos** every picture on which the person is marked.
+
+## Postcards
+
+In a postcard collection, front and back are one entry (sign ↻). On the right **Turn over**, below that motif, transcription and note; an inferred date shows as “c. 1916”. A double-click shows both sides in the viewer. **Edit postcard …** changes motif, transcription, note and date; the module writes both sides and leaves unchanged fields as they are.
+
+## Managing collections
+
+Administrators create a collection with **+ New collection**: name, description, media folder (or none – then it is an album you fill with single pictures), display type, symbol, colour, order, visible. Right-click a collection: **Edit collection …**, **Hide**/**Show**, **Delete collection …** (the files stay). Hidden collections appear faded under “hidden”. Right-click pictures: **Thematic collections …** (a tick per album, takes effect at once, also for several selected pictures), **Remove from this collection** and **Rename …** (same folder, same extension; a media object in the family tree follows). **Archive settings …** sets the cache duration and page size and clears the cache. Who may do what is decided by the module.
+
+## Comparison with webtrees
+
+For pictures that are media objects in the family tree, the right column shows where file and webtrees differ: description against title, people in the file against the linked ones. **→ copy into the file** writes the webtrees value into the file; the family tree does not change.
+
 ## Backing up
 
 In the family tree on this PC, **File › Back up family tree and archive …** saves everything into one ZIP file: the database with family trees and collections, and the whole media folder including the free holdings. A GEDCOM or GEDZIP file only takes the files the family tree points to. To restore, quit wtWin and put the `data` folder from the ZIP file into the webtrees folder (where that is, see [family tree on this PC](hilfe:lokal)).
