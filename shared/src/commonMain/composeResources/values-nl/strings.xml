@@ -1550,8 +1550,8 @@
     <string name="desk_date_julian">juliaans</string>
     <string name="desk_date_result_diff">%1$d jaar, %2$d maanden, %3$d dagen</string>
     <string name="desk_date_days_total">in totaal %1$d dagen</string>
-    <string name="desk_date_birth">Geboortedatum uit sterfdatum en leeftijd</string>
-    <string name="desk_date_death">Sterfdatum</string>
+    <string name="desk_date_birth">Geboortedatum uit overlijdensdatum en leeftijd</string>
+    <string name="desk_date_death">Overlijdensdatum</string>
     <string name="desk_date_years">Jaren</string>
     <string name="desk_date_months">Maanden</string>
     <string name="desk_date_weeks">Weken</string>
