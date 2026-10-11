@@ -15,6 +15,8 @@
 
 <p align="center"><b>New in 1.49: tools, and more on the phone.</b> A Tools menu on the PC with a date calculator (difference, date of birth from date of death and age, Julian/Gregorian) and the church year (Easter, Sundays and feasts in German and Latin, “Laetare 1734” → date); the plausibility check, merging individuals and cleaning up places are there now as well. On phones and tablets: look up sources and places, view faces on group photos and (as a manager) tag them, postcards with their back. Nicknames in quotation marks – Johannes "Jan" de Vries (api4webtrees 1.18.2).</p>
 
+<p align="center"><i>If you’ve been counting: 1.44 to 1.49 are six versions in three days. That was the storm-and-stress phase 😉 From now on changes are collected and released less often – unless a bug costs data or stops someone in their tracks.</i></p>
+
 <p align="center"><b>New in 1.48: archive and group photos.</b> On the PC the archive of the Sammlungen module has a window of its own (View › Archive, Ctrl+9) and can do everything there that it can in the browser: create and arrange collections, sort pictures in, rename, upload by dragging, postcards with front and back. <b>Faces on group photos:</b> draw a frame around a face and assign a person – from the family tree, by name only or “unknown”; hovering shows the name at the face, and the person sheet lists all group photos of a person. The frames are stored in the image file itself. Needs <a href="https://github.com/thobgg/webtrees-sammlungen/releases">Sammlungen 1.10</a>; the family tree on this PC includes it.</p>
 
 <p align="center">
