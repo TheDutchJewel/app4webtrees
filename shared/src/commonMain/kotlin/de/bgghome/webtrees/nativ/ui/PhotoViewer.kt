@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -95,7 +96,12 @@ fun PhotoViewer(
     onEdit: (ViewerItem) -> Unit = {},
     onCancelEdit: () -> Unit = {},
     onSaveExif: (ArchiveEntry, ExifRequest) -> Unit = { _, _ -> },
+    /** Gesichter bearbeiten (Handy/Tablet): ob es fuer ein Bild geht, und die Bearbeiten-Ansicht (null: kein Knopf, z. B. am PC) */
+    kannGesichterBearbeiten: (ViewerItem) -> Boolean = { false },
+    gesichterBearbeiten: (@Composable (ArchiveEntry, () -> Unit) -> Unit)? = null,
 ) {
+    var bearbeitenGesichter by remember { mutableStateOf<ArchiveEntry?>(null) }
+    bearbeitenGesichter?.let { e -> gesichterBearbeiten?.let { ansicht -> ansicht(e) { bearbeitenGesichter = null }; return } }
     val pagerState = rememberPagerState(initialPage = viewer.index) { viewer.items.size }
     var chrome by remember { mutableStateOf(true) }
     var zoomed by remember { mutableStateOf(false) }
@@ -143,6 +149,9 @@ fun PhotoViewer(
                 if (item?.entry?.bereiche?.isNotEmpty() == true) IconButton(onClick = { gesichter = !gesichter }) {
                     Icon(Icons.Default.Face, contentDescription = stringResource(Res.string.desk_faces_window),
                         tint = if (gesichter) Color(0xFFFFD54F) else Color.White)
+                }
+                if (gesichterBearbeiten != null && item != null && kannGesichterBearbeiten(item)) IconButton(onClick = { bearbeitenGesichter = item.entry }) {
+                    Icon(Icons.Default.Person, contentDescription = stringResource(Res.string.desk_faces_mark), tint = Color.White)
                 }
                 IconButton(onClick = { drehen(1) }) { Text("↻", color = Color.White, style = MaterialTheme.typography.titleLarge) }
                 item?.takeIf(canEdit)?.let { editable ->

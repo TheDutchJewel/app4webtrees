@@ -85,6 +85,8 @@ fun AppRoot(viewModel: AppViewModel) {
                 viewer, onIndex = viewModel::viewerMoved, onClose = viewModel::closeViewer, onOpenWeb = { webUrl = it },
                 canEdit = viewModel::canEditExif, editing = state.exifEditing, suggestPersons = viewModel.personSuggestions(),
                 onEdit = viewModel::editExif, onCancelEdit = viewModel::cancelExif, onSaveExif = viewModel::writeExif,
+                kannGesichterBearbeiten = viewModel::kannGesichterBearbeiten,
+                gesichterBearbeiten = { e, fertig -> GesichterBearbeiten(e, viewModel, fertig) },
             )
         }
         return
