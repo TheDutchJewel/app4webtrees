@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.vornamen
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.ExportFamily
 import de.bgghome.webtrees.nativ.api.FactJson
@@ -195,7 +196,7 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
             if (c.isPrivate) { laeufe += Lauf(Texte.t(Res.string.person_private)); bloecke += Absatz(laeufe, einzug = 2); return@forEachIndexed }
             if (familienDesKindes.isNotEmpty()) {
                 reg.name(c, n)
-                laeufe += Lauf("${c.given.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett)
+                laeufe += Lauf("${c.vornamen.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett)
                 kurzdaten(c, o).takeIf(String::isNotBlank)?.let { laeufe += Lauf(", $it") }
                 laeufe += Lauf(" [")
                 familienDesKindes.forEachIndexed { j, fn -> if (j > 0) laeufe += Lauf(", "); laeufe += Lauf("$fn", ziel = "n$fn") }
@@ -203,10 +204,10 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
                 bloecke += Absatz(laeufe, einzug = 2)
             } else {
                 val det = b.detail(x)
-                if (det == null) { laeufe += Lauf(c.given.ifBlank { c.name }, Stil.Fett); bloecke += Absatz(laeufe, einzug = 2); return@forEachIndexed }
+                if (det == null) { laeufe += Lauf(c.vornamen.ifBlank { c.name }, Stil.Fett); bloecke += Absatz(laeufe, einzug = 2); return@forEachIndexed }
                 val text = personText(c, det, o, n, reg)
                 // Im Kind-Eintrag nur der Vorname (der Nachname ist der der Familie) und das Zeichen fuer das Geschlecht
-                text.laeufe[0] = Lauf("${c.given.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett)
+                text.laeufe[0] = Lauf("${c.vornamen.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett)
                 bloecke += Absatz(laeufe + text.laeufe, einzug = 2)
                 notizBloecke(text, o).forEach { nb -> bloecke += if (nb is Absatz) nb.copy(einzug = 2) else nb }
             }

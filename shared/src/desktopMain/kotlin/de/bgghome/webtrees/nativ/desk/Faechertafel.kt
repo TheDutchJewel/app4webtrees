@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.vornamen
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.Person
 import de.bgghome.webtrees.nativ.res.*
@@ -206,7 +207,7 @@ fun faecherPdf(
             val zeilen = buildList<Pair<String, PDFont>> {
                 if (p.isPrivate) add(privat to s.normal)
                 else if (quer) {
-                    p.given.ifBlank { if (p.surname.isBlank()) p.name else "" }.takeIf(String::isNotBlank)?.let { add(it to s.normal) }
+                    p.vornamen.ifBlank { if (p.surname.isBlank()) p.name else "" }.takeIf(String::isNotBlank)?.let { add(it to s.normal) }
                     add(p.surname.ifBlank { p.name } to s.fett)
                     jahre(p).takeIf(String::isNotBlank)?.let { add(it to s.normal) }
                 } else {
@@ -263,7 +264,7 @@ fun faecherPdf(
             cs.restoreGraphicsState()
             cs.setStrokingColor(f.linie); cs.setLineWidth(linie); cs.kreis(cx, bildY, bildR); cs.stroke()
         }
-        val mitteZeilen = listOf(p.given.ifBlank { p.name } to s.fett, p.surname to s.fett, jahre(p) to s.normal).filter { it.first.isNotBlank() }
+        val mitteZeilen = listOf(p.vornamen.ifBlank { p.name } to s.fett, p.surname to s.fett, jahre(p) to s.normal).filter { it.first.isNotBlank() }
         val mg = schriftFuer(mitteZeilen, r0 * 1.5f, r0 * 0.5f, r * 0.12f)
         var ty = if (o.bilder) bildY - bildR - mg * 1.1f else cy + if (vollkreis) mitteZeilen.size * mg * 0.6f else r0 * 0.6f
         cs.setNonStrokingColor(f.text)

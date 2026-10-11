@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.vornamen
 import org.apache.pdfbox.pdmodel.PDDocument
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.DateJson
@@ -169,7 +170,7 @@ private fun generationTitel(g: Int): String = Texte.t(Res.string.desk_book_gener
 })
 
 /** Nachname, Vorname - wie in Registern. */
-internal fun registerName(p: Person) = listOf(p.surname, p.given).filter(String::isNotBlank).joinToString(", ").ifBlank { p.name.ifBlank { "?" } }
+internal fun registerName(p: Person) = listOf(p.surname, p.vornamen).filter(String::isNotBlank).joinToString(", ").ifBlank { p.name.ifBlank { "?" } }
 
 // ── Gemeinsame Bausteine ──
 
@@ -361,7 +362,7 @@ fun vorfahrenbuch(d: BuchDaten, o: BuchOptionen, baum: String, app: String): Buc
                 fam.children.forEachIndexed { i, c ->
                     if (i > 0) zusatz += Lauf(", ")
                     val zeichen = geschlechtZeichen(c)
-                    zusatz += Lauf("${c.given.ifBlank { c.name }} $zeichen" + (c.birth?.date?.year?.takeIf { it > 0 }?.let { " ($it)" } ?: ""))
+                    zusatz += Lauf("${c.vornamen.ifBlank { c.name }} $zeichen" + (c.birth?.date?.year?.takeIf { it > 0 }?.let { " ($it)" } ?: ""))
                     if (c.xref == linie) { zusatz += Lauf(" → "); zusatz += Lauf("${n / 2}", ziel = "n${n / 2}") }
                 }
             }

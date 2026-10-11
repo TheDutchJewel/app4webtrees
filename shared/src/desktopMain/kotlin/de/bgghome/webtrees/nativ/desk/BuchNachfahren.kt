@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.vornamen
 import org.apache.pdfbox.pdmodel.PDDocument
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.IndividualDetail
@@ -137,7 +138,7 @@ fun nachfahrenbuch(d: NachfahrenDaten, o: BuchOptionen, baum: String, app: Strin
                 zeile += Lauf("; " + Texte.t(Res.string.desk_book_children) + " ")
                 f.children.forEachIndexed { k, c ->
                     if (k > 0) zeile += Lauf(", ")
-                    zeile += Lauf("${c.given.ifBlank { c.name }} ${geschlechtZeichen(c)}" + (c.birth?.date?.year?.takeIf { it > 0 }?.let { " ($it)" } ?: ""))
+                    zeile += Lauf("${c.vornamen.ifBlank { c.name }} ${geschlechtZeichen(c)}" + (c.birth?.date?.year?.takeIf { it > 0 }?.let { " ($it)" } ?: ""))
                     kindEintrag[i to c.xref]?.let { ki -> zeile += Lauf(" → "); zeile += Lauf(etikett(ki), ziel = ziel(ki)) }
                 }
             }

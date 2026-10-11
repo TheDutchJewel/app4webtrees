@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.vornamen
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.EventJson
 import de.bgghome.webtrees.nativ.api.IndividualDetail
@@ -451,7 +452,7 @@ private class TafelZeichner(
     private fun zeilen(k: TafelPerson): List<KastenZeile> = buildList {
         val p = k.person
         if (p.isPrivate) { add(KastenZeile(privat, s.normal, m.schriftKlein)); return@buildList }
-        val vor = p.given.ifBlank { if (p.surname.isBlank()) p.name else "" }
+        val vor = p.vornamen.ifBlank { if (p.surname.isBlank()) p.name else "" }
         // Rufname: unterstrichen; passt die Zeile nicht, werden die anderen Vornamen von hinten gekuerzt ("Wilh.")
         val ruf = p.call.trim().takeIf { o.rufname && it.isNotEmpty() && vor.split(' ').contains(it) }
         val vorText = if (ruf == null) vor else {

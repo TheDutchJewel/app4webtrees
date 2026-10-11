@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.vornamen
 import androidx.compose.ui.ExperimentalComposeUiApi
 import kotlin.math.pow
 import androidx.compose.runtime.rememberUpdatedState
@@ -155,7 +156,7 @@ private fun boxColors(sex: String): BoxColors {
 /** "Nachname, Vorname" wie in einem Register - mit Namenszusatz ("de' Medici, Cosimo I"), wenn der Server ihn liefert. */
 internal fun registerName(person: Person, privateLabel: String, noName: String): String = when {
     person.isPrivate -> privateLabel
-    person.surname.isNotBlank() || person.given.isNotBlank() -> listOf(person.surname, person.given).filter(String::isNotBlank).joinToString(", ")
+    person.surname.isNotBlank() || person.vornamen.isNotBlank() -> listOf(person.surname, person.vornamen).filter(String::isNotBlank).joinToString(", ")
     person.sortName.isNotBlank() -> person.sortName.replace(Regex(",(?=\\S)"), ", ")
     else -> person.name.ifBlank { noName }
 }
@@ -383,7 +384,7 @@ internal fun jahre(p: Person): String = p.lifespan.takeIf { l -> l.any(Char::isD
 
 /** Name in natuerlicher Folge ohne die Platzhalter von webtrees ("Henry II …" wird "Henry II"). */
 internal fun klarName(p: Person): String =
-    listOf(p.given, p.surname).filter(String::isNotBlank).joinToString(" ").ifBlank { p.name.replace("…", "").replace("@N.N.", "").trim() }.ifBlank { p.name }
+    listOf(p.vornamen, p.surname).filter(String::isNotBlank).joinToString(" ").ifBlank { p.name.replace("…", "").replace("@N.N.", "").trim() }.ifBlank { p.name }
 
 /** Die Masse der Tafel in dp vor dem Zeichnen - fuer das Einpassen. [xs] ist der linke Rand je Generation. */
 private class ChartMasse(
