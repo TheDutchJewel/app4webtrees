@@ -13,6 +13,8 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), zum Testen"></a>
 </p>
 
+<p align="center"><b>Neu in 1.49: Werkzeuge und mehr am Handy.</b> Menü Extras am PC mit Datumsrechner (Abstand, Geburtsdatum aus Sterbedatum und Alter, julianisch/gregorianisch) und Kirchenjahr (Ostern, Sonntage und Feste deutsch und lateinisch, „Lätare 1734“ → Datum); Plausibilitätsprüfung, Personen zusammenführen und Orte bereinigen stehen jetzt dort. Am Handy und Tablet: Quellen und Orte nachschlagen, Gesichter auf Gruppenbildern ansehen und (als Verwalter) markieren, Postkarten mit Rückseite. Spitznamen in Anführungszeichen – Johannes "Jan" de Vries (api4webtrees 1.18.2).</p>
+
 <p align="center"><b>Neu in 1.48: Archiv und Gruppenbilder.</b> Das Archiv des Moduls Sammlungen hat am PC ein eigenes Fenster (Ansicht › Archiv, Strg+9) und kann dort alles, was es im Browser kann: Sammlungen anlegen und ordnen, Bilder einsortieren, umbenennen, hochladen per Hineinziehen, Postkarten mit Vorder- und Rückseite. <b>Gesichter auf Gruppenbildern:</b> Rahmen um ein Gesicht ziehen und einer Person zuordnen – aus dem Stammbaum, nur mit Namen oder „unbekannt“; beim Darüberfahren steht der Name am Gesicht, im Personenblatt erscheinen alle Gruppenbilder einer Person. Die Rahmen stehen in der Bilddatei selbst. Braucht <a href="https://github.com/thobgg/webtrees-sammlungen/releases">Sammlungen 1.10</a>; im Stammbaum auf diesem PC ist es dabei.</p>
 
 <p align="center">
