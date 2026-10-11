@@ -230,7 +230,21 @@ fun AppViewModel.closePdf() = uiState.update { it.copy(pdf = null) }
 
 // ── Betrachter ───────────────────────────────────────────────────
 
+/** Archivbilder (z. B. "Auf Gruppenbildern") im Betrachter oeffnen - mit Gesichtern, weil die Eintraege sie mitbringen. */
+fun AppViewModel.openArchiveEntries(entries: List<ArchiveEntry>, index: Int) {
+    val bilder = entries.filter { it.istBild }
+    if (bilder.isEmpty()) return
+    uiState.update { it.copy(viewer = ViewerState(viewerItems(bilder), index.coerceIn(0, bilder.lastIndex), ViewerSource.Profile)) }
+}
+
 fun AppViewModel.openArchiveViewer(entry: ArchiveEntry) {
+    // Postkarte (Stufe 4): Vorder- und Rueckseite, unter dem Bild Motiv bzw. Transkription; blaettern = wenden
+    entry.rueckseite?.let { r ->
+        val vorn = viewerItem(entry).copy(text = entry.motiv)
+        val hinten = viewerItem(r).copy(caption = entry.bildunterschrift.ifEmpty { entry.datei } + " · " + text(Res.string.desk_postcard_back), text = entry.transkription)
+        uiState.update { it.copy(viewer = ViewerState(listOf(vorn, hinten), 0, ViewerSource.Profile)) }
+        return
+    }
     val images = uiState.value.collectionEntries.filter { it.istBild }
     val index = images.indexOf(entry)
     if (index < 0) return

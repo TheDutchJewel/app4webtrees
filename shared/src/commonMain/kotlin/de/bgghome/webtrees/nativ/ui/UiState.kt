@@ -40,6 +40,8 @@ data class ViewerItem(
     val entry: ArchiveEntry? = null,
     /** Pfad der Datei im Medienordner - bei Baum- und Profilfotos ab api4webtrees 1.4; null: nicht beschriftbar */
     val path: String? = null,
+    /** Laengerer Text unter dem Bild - bei Postkarten Motiv (Vorderseite) bzw. Transkription (Rueckseite) */
+    val text: String = "",
 )
 
 /** Woher die Bilder im Betrachter kommen - entscheidet, wo beim Erreichen des Endes nachgeladen wird. */

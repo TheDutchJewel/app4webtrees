@@ -219,7 +219,7 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
     fun oeffnen(e: ArchiveEntry) {
         when {
             // Postkarte: im Betrachter Vorder- und Rueckseite, blaettern = wenden
-            e.istBild && e.rueckseite != null -> betrachter = ViewerState(listOf(viewerItem(e), viewerItem(e.rueckseite!!)), 0, ViewerSource.Collection)
+            e.istBild && e.rueckseite != null -> betrachter = ViewerState(listOf(viewerItem(e).copy(text = e.motiv), viewerItem(e.rueckseite!!).copy(text = e.transkription)), 0, ViewerSource.Collection)
             e.istBild -> {
                 val bilder = eintraege.filter { it.istBild }
                 betrachter = ViewerState(bilder.map(::viewerItem), bilder.indexOf(e).coerceAtLeast(0), ViewerSource.Collection)

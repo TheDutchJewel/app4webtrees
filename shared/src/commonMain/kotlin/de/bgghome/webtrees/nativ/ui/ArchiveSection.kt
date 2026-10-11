@@ -204,12 +204,17 @@ fun CollectionView(state: UiState, viewModel: AppViewModel, openWeb: (String) ->
                         Box {
                             Thumbnail(entry.kachel, entry.bildunterschrift, rounded = !dense)
                             LinkBadge(entry, Modifier.align(Alignment.BottomEnd).padding(if (dense) 3.dp else 6.dp))
+                            // Postkarte mit Rueckseite (Stufe 4)
+                            if (entry.rueckseite != null) Surface(Modifier.align(Alignment.TopEnd).padding(6.dp), shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)) {
+                                Text("↻", Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.labelLarge)
+                            }
                         }
                         if (!dense) Text(
                             entry.bildunterschrift.ifEmpty { entry.datei }, maxLines = 1, overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(start = 2.dp, top = 4.dp),
                         )
-                        val people = entry.personen.joinToString(", ") { it.name }.ifEmpty { entry.datum }
+                        val people = entry.personen.joinToString(", ") { it.name }.ifEmpty { datumText(entry) }
                         if (!dense && people.isNotEmpty()) {
                             Text(
                                 people, maxLines = 1, overflow = TextOverflow.Ellipsis,

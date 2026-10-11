@@ -5,6 +5,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -100,6 +105,8 @@ fun PhotoViewer(
     val item = viewer.items.getOrNull(pagerState.currentPage)
     // Drehen zum Lesen (quer beschriebene Postkarten), je Bild in Vierteldrehungen - reine Ansicht, nichts wird gespeichert
     val drehung = remember(viewer.items) { mutableStateMapOf<Int, Int>() }
+    // Gesichter (Modul Sammlungen ab Stufe 5): Rahmen ueber dem Bild, Antippen zeigt den Namen; per Knopf ein/aus
+    var gesichter by remember { mutableStateOf(true) }
     fun drehen(um: Int) { val p = pagerState.currentPage; drehung[p] = ((drehung[p] ?: 0) + um + 4) % 4 }
     val scope = rememberCoroutineScope()
     val fokus = remember { FocusRequester() }
@@ -120,7 +127,7 @@ fun PhotoViewer(
             }
         }) {
         HorizontalPager(state = pagerState, userScrollEnabled = !zoomed, beyondViewportPageCount = 1, modifier = Modifier.fillMaxSize()) { page ->
-            ZoomableImage(viewer.items[page], drehung = drehung[page] ?: 0, onTap = { chrome = !chrome }, onZoom = { if (page == pagerState.currentPage) zoomed = it })
+            ZoomableImage(viewer.items[page], drehung = drehung[page] ?: 0, gesichter = gesichter, onTap = { chrome = !chrome }, onZoom = { if (page == pagerState.currentPage) zoomed = it })
         }
 
         AnimatedVisibility(chrome, Modifier.align(Alignment.TopCenter), enter = fadeIn(), exit = fadeOut()) {
@@ -133,6 +140,10 @@ fun PhotoViewer(
                     stringResource(Res.string.viewer_position, pagerState.currentPage + 1, viewer.items.size),
                     Modifier.weight(1f), color = Color.White, style = MaterialTheme.typography.titleMedium,
                 )
+                if (item?.entry?.bereiche?.isNotEmpty() == true) IconButton(onClick = { gesichter = !gesichter }) {
+                    Icon(Icons.Default.Face, contentDescription = stringResource(Res.string.desk_faces_window),
+                        tint = if (gesichter) Color(0xFFFFD54F) else Color.White)
+                }
                 IconButton(onClick = { drehen(1) }) { Text("↻", color = Color.White, style = MaterialTheme.typography.titleLarge) }
                 item?.takeIf(canEdit)?.let { editable ->
                     IconButton(onClick = { onEdit(editable) }) {
@@ -175,6 +186,12 @@ fun PhotoViewer(
                 if (subtitle.isNotEmpty()) {
                     Text(subtitle, color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
+                // Postkarten: Motiv bzw. Transkription, rollbar
+                item?.text?.takeIf { it.isNotBlank() }?.let { t ->
+                    Box(Modifier.heightIn(max = 180.dp).verticalScroll(rememberScrollState())) {
+                        Text(t, color = Color.White.copy(alpha = 0.9f), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 6.dp))
+                    }
+                }
             }
         }
     }
@@ -186,7 +203,7 @@ private const val DOUBLE_TAP_ZOOM = 2.5f
 /** Ein Bild mit Kneifzoom, Verschieben und Doppeltipp. Zoom und Lage gehoeren zum Bild - beim Wechsel beginnt das naechste bei 1x. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ZoomableImage(item: ViewerItem, drehung: Int = 0, onTap: () -> Unit, onZoom: (Boolean) -> Unit) {
+private fun ZoomableImage(item: ViewerItem, drehung: Int = 0, gesichter: Boolean = false, onTap: () -> Unit, onZoom: (Boolean) -> Unit) {
     var bild by remember(item) { mutableStateOf(androidx.compose.ui.geometry.Size.Unspecified) }
     var scale by remember(item) { mutableFloatStateOf(1f) }
     var offset by remember(item) { mutableStateOf(Offset.Zero) }
@@ -244,5 +261,35 @@ private fun ZoomableImage(item: ViewerItem, drehung: Int = 0, onTap: () -> Unit,
                 translationX = offset.x; translationY = offset.y
             },
         )
+        // Gesichtsrahmen in derselben Lage wie das Bild (zoomen, schieben, drehen gehen mit)
+        val bereiche = item.entry?.bereiche.orEmpty()
+        if (gesichter && bereiche.isNotEmpty() && bild.isSpecified && size.width > 0) {
+            val dichte = androidx.compose.ui.platform.LocalDensity.current.density
+            val lage = de.bgghome.webtrees.nativ.data.Gesichter.eingepasst(size.width.toFloat(), size.height.toFloat(), bild.width.toInt(), bild.height.toInt())
+            var gewaehlt by remember(item) { mutableStateOf<Int?>(null) }
+            val unbekannt = stringResource(Res.string.desk_faces_unknown)
+            Box(Modifier.fillMaxSize().graphicsLayer {
+                scaleX = scale * passend; scaleY = scale * passend
+                rotationZ = 90f * drehung
+                translationX = offset.x; translationY = offset.y
+            }) {
+                bereiche.forEachIndexed { i, b ->
+                    val l = lage.links + (b.x * lage.breite).toFloat(); val o = lage.oben + (b.y * lage.hoehe).toFloat()
+                    val w = (b.w * lage.breite).toFloat(); val h = (b.h * lage.hoehe).toFloat()
+                    Box(Modifier.offset((l / dichte).dp, (o / dichte).dp).size((w / dichte).dp, (h / dichte).dp)
+                        .border(if (gewaehlt == i) 2.dp else 1.dp, if (gewaehlt == i) Color(0xFFFFD54F) else Color.White.copy(alpha = 0.7f))
+                        .clickable { gewaehlt = if (gewaehlt == i) null else i })
+                }
+                gewaehlt?.let { i ->
+                    val b = bereiche[i]
+                    val l = lage.links + (b.x * lage.breite).toFloat(); val o = lage.oben + ((b.y + b.h) * lage.hoehe).toFloat()
+                    androidx.compose.material3.Surface(Modifier.offset((l / dichte).dp, (o / dichte).dp + 4.dp), color = Color.Black.copy(alpha = 0.8f),
+                        shape = MaterialTheme.shapes.extraSmall) {
+                        Text(b.name.ifBlank { unbekannt } + if (b.xref == null && b.name.isNotBlank()) " · " + stringResource(Res.string.desk_faces_not_in_tree) else "",
+                            Modifier.padding(horizontal = 6.dp, vertical = 2.dp), color = Color.White, style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+            }
+        }
     }
 }

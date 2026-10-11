@@ -175,13 +175,21 @@ fun ProfilePanel(state: UiState, detail: IndividualDetail, viewModel: AppViewMod
                         onDelete = { fact, record -> dialog = ProfileDialog.DeleteFact(fact, record) },
                         onPerson = viewModel::select,
                     )
-                    1 -> MediaGrid(detail.media, onOpen = { item ->
-                        when {
-                            item.isImage -> viewModel.openMediaViewer(ViewerSource.Profile, detail.media, item, owner = detail.person.name)
-                            item.mime == "application/pdf" -> viewModel.openPdf(item.file, item.title, item.url)
-                            else -> openWeb(item.url)
+                    1 -> Column(Modifier.fillMaxSize()) {
+                        // Gruppenbilder aus dem Archiv, auf denen die Person markiert ist (Sammlungen ab Stufe 5)
+                        state.archive?.takeIf { it.api >= 5 && it.personenFilter }?.let {
+                            state.tree?.name?.let { t -> AufGruppenbildernLeiste(detail.person.xref, t, viewModel) }
                         }
-                    })
+                        Box(Modifier.weight(1f)) {
+                            MediaGrid(detail.media, onOpen = { item ->
+                                when {
+                                    item.isImage -> viewModel.openMediaViewer(ViewerSource.Profile, detail.media, item, owner = detail.person.name)
+                                    item.mime == "application/pdf" -> viewModel.openPdf(item.file, item.title, item.url)
+                                    else -> openWeb(item.url)
+                                }
+                            })
+                        }
+                    }
                     2 -> Relatives(
                         detail, canEdit, onSelect = viewModel::select,
                         onUnlink = { family, who -> dialog = ProfileDialog.Unlink(family, who) },

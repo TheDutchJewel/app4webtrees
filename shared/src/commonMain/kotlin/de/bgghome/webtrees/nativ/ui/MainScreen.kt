@@ -61,9 +61,11 @@ private val NAV = listOf(
 fun AppRoot(viewModel: AppViewModel) {
     val state by viewModel.state.collectAsState()
     var webUrl by remember { mutableStateOf<String?>(null) }
+    // Nachschlagen (Quellen, Orte): Seiten als Stapel ueber dem Hauptbildschirm, Zurueck nimmt die oberste weg
+    val nachschlag = remember { androidx.compose.runtime.mutableStateListOf<Nachschlag>() }
 
-    BackHandler(enabled = webUrl != null || viewModel.canGoBack()) {
-        if (webUrl != null) webUrl = null else viewModel.back()
+    BackHandler(enabled = webUrl != null || nachschlag.isNotEmpty() || viewModel.canGoBack()) {
+        if (webUrl != null) webUrl = null else if (nachschlag.isNotEmpty()) nachschlag.removeAt(nachschlag.lastIndex) else viewModel.back()
     }
 
     webUrl?.let { url ->
@@ -104,12 +106,32 @@ fun AppRoot(viewModel: AppViewModel) {
         )
     }
 
+    if (state.screen == Screen.Main && nachschlag.isNotEmpty()) {
+        WithMessages(state, viewModel) {
+            androidx.compose.runtime.CompositionLocalProvider(LocalNachschlagen provides { nachschlag.add(it) }) {
+                NachschlagSeite(nachschlag.last(), state, viewModel, onOeffnen = { nachschlag.add(it) },
+                    onZurueck = { nachschlag.removeAt(nachschlag.lastIndex) },
+                    // Person gewaehlt: zum Profil, die Nachschlage-Seiten schliessen
+                    onPerson = { xref -> nachschlag.clear(); viewModel.select(xref) })
+            }
+        }
+        return
+    }
+
     when (state.screen) {
         Screen.Loading -> LoadingScreen()
         Screen.Setup -> SetupScreen(state) { url, basicAuth -> viewModel.submitUrl(url, basicAuth) }
         Screen.Login -> LoginScreen(state, viewModel::login, viewModel::continueAsGuest, viewModel::changeServer)
         Screen.Trees -> TreesScreen(state, viewModel::chooseTree, viewModel::logout, viewModel::showLogin, onCancel = if (state.tree != null) viewModel::cancelTreePicker else null)
-        Screen.Main -> MainScreen(state, viewModel, openWeb = { webUrl = it })
+        Screen.Main -> {
+            // Im Lebenslauf: Quellenverweise und Ortsnamen oeffnen die Nachschlage-Seiten (am Desktop eigene Fenster)
+            val oeffnen: (Nachschlag) -> Unit = { nachschlag.add(it) }
+            androidx.compose.runtime.CompositionLocalProvider(
+                LocalNachschlagen provides oeffnen,
+                LocalSourceOpener provides (if (viewModel.quellenNachschlagbar) ({ x: String -> oeffnen(Nachschlag.Quelle(x)) }) else null),
+                LocalPlaceOpener provides (if (viewModel.orteNachschlagbar) ({ n: String -> oeffnen(Nachschlag.Ort(n)) }) else null),
+            ) { MainScreen(state, viewModel, openWeb = { webUrl = it }) }
+        }
     }
 }
 
@@ -222,6 +244,11 @@ fun MainMenu(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit)
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             DropdownMenuItem(text = { Text(stringResource(Res.string.action_reload)) }, onClick = { open = false; viewModel.refresh() })
             DropdownMenuItem(text = { Text(stringResource(Res.string.menu_language_ellipsis)) }, onClick = { open = false; spracheWaehlen = true })
+            // Nachschlagen (nur am Handy/Tablet; am Desktop stehen Quellen und Orte im Menue Ansicht)
+            LocalNachschlagen.current?.let { oeffnen ->
+                if (viewModel.quellenNachschlagbar) DropdownMenuItem(text = { Text(stringResource(Res.string.desk_sources_window)) }, onClick = { open = false; oeffnen(Nachschlag.QuellenListe) })
+                if (viewModel.orteNachschlagbar) DropdownMenuItem(text = { Text(stringResource(Res.string.desk_places_window)) }, onClick = { open = false; oeffnen(Nachschlag.OrteListe) })
+            }
             if (viewModel.anniversariesSupported && viewModel.kannErinnern) {
                 DropdownMenuItem(
                     text = { Text(stringResource(if (state.reminders) Res.string.menu_reminders_off else Res.string.menu_reminders_on)) },
