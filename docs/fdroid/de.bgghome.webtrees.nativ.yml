@@ -14,9 +14,9 @@ Repo: https://github.com/thobgg/app4webtrees.git
 Binaries: https://github.com/thobgg/app4webtrees/releases/download/v%v/wtAnd-v%v.apk
 
 Builds:
-  - versionName: '1.48'
-    versionCode: 50
-    commit: 89f33020130bfada7c0a7f962c31fefc5c842db3
+  - versionName: '1.49'
+    versionCode: 51
+    commit: b6bd7cf6bab0a5548d860dac80f47810446fd1b0
     subdir: app
     gradle:
       - yes
@@ -26,5 +26,5 @@ AllowedAPKSigningKeys: 93a5862d9c0f15e28b8ab649fbfa9969a9556e46e2500a66d4b557f35
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+$
 UpdateCheckData: gradle.properties|wtand.versionCode=(\d+)|.|wtand.versionName=(.+)
-CurrentVersion: '1.48'
-CurrentVersionCode: 50
+CurrentVersion: '1.49'
+CurrentVersionCode: 51
