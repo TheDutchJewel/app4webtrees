@@ -17,7 +17,7 @@
 
 <p align="center">
   <img src="docs/screenshots/desktop-gesichter.jpg" alt="Faces window: wedding photo of 1924 from the demo tree with 23 frames, the name Anna Rosskamp shown on hover, the list of names on the right" width="100%">
-  <br><b>Faces on a group photo</b> (new in 1.48) – name on hover, all people on the right row by row, including those not in the family tree.
+  <br><b>Faces on a group photo</b> (new in 1.48) – name on hover, all people on the right row by row, including those not in the family tree. To try it: <a href="https://github.com/thobgg/falkenrath-demo-tree/releases/tag/v1.5">demo tree 1.5</a>.
 </p>
 
 <p align="center"><b>New in 1.38: directory protection.</b> If your web server protects the whole site with its own user name and password (.htaccess, the browser shows a small sign-in box before webtrees – e.g. to keep data-harvesting bots out), enter those credentials on the address screen under “directory protection”. wtAnd, wtWin and wtTux send them with every request to exactly that server; the webtrees sign-in follows separately. Nothing changes in the module.</p>

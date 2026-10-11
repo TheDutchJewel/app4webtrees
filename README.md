@@ -17,7 +17,7 @@
 
 <p align="center">
   <img src="docs/screenshots/desktop-gesichter.jpg" alt="Gesichter-Fenster: Hochzeitsfoto 1924 aus dem Demo-Baum mit 23 Rahmen, beim Darüberfahren der Name Anna Rosskamp, rechts die Namensliste" width="100%">
-  <br><b>Gesichter auf einem Gruppenbild</b> (neu in 1.48) – Name beim Darüberfahren, rechts alle Personen Reihe für Reihe, auch wer nicht im Stammbaum steht.
+  <br><b>Gesichter auf einem Gruppenbild</b> (neu in 1.48) – Name beim Darüberfahren, rechts alle Personen Reihe für Reihe, auch wer nicht im Stammbaum steht. Zum Ausprobieren: <a href="https://github.com/thobgg/falkenrath-demo-tree/releases/tag/v1.5">Demo-Baum 1.5</a>.
 </p>
 
 <p align="center"><b>Neu in 1.38: Verzeichnisschutz.</b> Schützt dein Webserver die ganze Seite mit eigenem Benutzernamen und Passwort (.htaccess, der Browser zeigt vor webtrees ein kleines Anmeldefenster – etwa gegen Daten sammelnde Bots), trägst du diese Zugangsdaten auf dem Adressbildschirm unter „Verzeichnisschutz“ ein. wtAnd, wtWin und wtTux schicken sie mit jeder Anfrage an genau diesen Server mit; die Anmeldung bei webtrees folgt getrennt. Am Modul ändert sich nichts.</p>
