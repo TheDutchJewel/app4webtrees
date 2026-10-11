@@ -1502,4 +1502,17 @@
     <string name="desk_faces_note">Los marcos se guardan en el propio archivo de imagen (XMP). Asignar una cara no vincula la imagen a la persona.</string>
     <string name="desk_faces_attach">Vincular también la imagen a la persona elegida</string>
     <string name="tipp_faces_attach">Al guardar, la imagen se convierte en un objeto multimedia del árbol y aparece con esta persona. Sin la marca se queda solo en el archivo; el marco sigue sabiendo quién es.</string>
+    <string name="desk_sync_title">Comparación con webtrees</string>
+    <string name="desk_sync_description">Descripción ↔ título</string>
+    <string name="desk_sync_file">Archivo</string>
+    <string name="desk_sync_apply">→ copiar al archivo</string>
+    <string name="desk_sync_cut">(%1$d en total, solo un extracto – sin copia)</string>
+    <string name="desk_sync_empty">(vacío)</string>
+    <string name="desk_postcard_turn">Dar la vuelta</string>
+    <string name="desk_postcard_back">Reverso</string>
+    <string name="postcard_motif">Motivo</string>
+    <string name="postcard_transcription">Transcripción</string>
+    <string name="postcard_note">Nota</string>
+    <string name="archive_date_uncertain">hacia %1$s</string>
+    <string name="desk_postcard_edit_later">Las postales se podrán editar en wtWin en cuanto el módulo Sammlungen lo permita (nivel 6); hasta entonces en el navegador.</string>
 </resources>

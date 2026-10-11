@@ -5,6 +5,23 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -78,8 +95,23 @@ fun PhotoViewer(
     LaunchedEffect(pagerState.currentPage) { onIndex(pagerState.currentPage) }
 
     val item = viewer.items.getOrNull(pagerState.currentPage)
+    val scope = rememberCoroutineScope()
+    val fokus = remember { FocusRequester() }
+    fun gehe(i: Int) { if (i in viewer.items.indices) scope.launch { pagerState.animateScrollToPage(i) } }
+    // Tastatur (PC, Handy mit Tastatur): Pfeile blaettern, Pos1/Ende springen - wie in der Lightbox des Moduls
+    LaunchedEffect(Unit) { runCatching { fokus.requestFocus() } }
 
-    Box(Modifier.fillMaxSize().background(Color.Black)) {
+    Box(Modifier.fillMaxSize().background(Color.Black).focusRequester(fokus).focusable()
+        .onPreviewKeyEvent { e ->
+            if (e.type != KeyEventType.KeyDown || zoomed) return@onPreviewKeyEvent false
+            when (e.key) {
+                Key.DirectionRight -> { gehe(pagerState.currentPage + 1); true }
+                Key.DirectionLeft -> { gehe(pagerState.currentPage - 1); true }
+                Key.MoveHome -> { gehe(0); true }
+                Key.MoveEnd -> { gehe(viewer.items.lastIndex); true }
+                else -> false
+            }
+        }) {
         HorizontalPager(state = pagerState, userScrollEnabled = !zoomed, beyondViewportPageCount = 1, modifier = Modifier.fillMaxSize()) { page ->
             ZoomableImage(viewer.items[page], onTap = { chrome = !chrome }, onZoom = { if (page == pagerState.currentPage) zoomed = it })
         }
@@ -113,6 +145,18 @@ fun PhotoViewer(
 
         AnimatedVisibility(chrome && item != null, Modifier.align(Alignment.BottomCenter), enter = fadeIn(), exit = fadeOut()) {
             Column(Modifier.fillMaxWidth().background(Color.Black.copy(alpha = 0.55f)).padding(horizontal = 16.dp, vertical = 12.dp).navigationBarsPadding()) {
+                // Vorschaustreifen wie in der Lightbox - nur am PC, am Handy wird gewischt
+                if (LocalDeskMode.current && viewer.items.size > 1) {
+                    val streifen = rememberLazyListState()
+                    LaunchedEffect(pagerState.currentPage) { streifen.animateScrollToItem((pagerState.currentPage - 3).coerceAtLeast(0)) }
+                    LazyRow(Modifier.fillMaxWidth().padding(bottom = 8.dp), state = streifen, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        itemsIndexed(viewer.items) { i, it ->
+                            AsyncImage(model = it.thumb ?: it.image, contentDescription = it.caption, contentScale = ContentScale.Crop,
+                                modifier = Modifier.size(64.dp).border(if (i == pagerState.currentPage) 2.dp else 0.dp, if (i == pagerState.currentPage) Color.White else Color.Transparent)
+                                    .clickable { gehe(i) })
+                        }
+                    }
+                }
                 Text(item?.caption.orEmpty(), color = Color.White, style = MaterialTheme.typography.bodyLarge, maxLines = 3, overflow = TextOverflow.Ellipsis)
                 val link = when (item?.link) {
                     LinkState.ObjectOnly -> stringResource(Res.string.archive_link_object)

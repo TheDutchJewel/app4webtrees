@@ -158,6 +158,9 @@ val AppViewModel.canEditExif: Boolean
 fun AppViewModel.canEditExif(item: ViewerItem): Boolean {
     val archive = uiState.value.archive ?: return false
     if (!canEditExif || item.path == null || !item.image.isNotEmpty()) return false
+    // Postkarten (Stufe 4): Motiv, Transkription und Notiz stehen in Abschnitten der Beschreibung und auf beiden Seiten -
+    // eine einfache Beschreibung ueber die App-Route wuerde das zerstoeren. Bearbeiten erst, wenn das Modul es kann.
+    if (istPostkarte(item.entry)) return false
     return item.entry != null || archive.api >= 3
 }
 
@@ -210,6 +213,13 @@ fun AppViewModel.writeExif(entry: ArchiveEntry, request: ExifRequest) {
         }
     }
 }
+
+/** Ob ein Eintrag eine Postkarte ist - an sich selbst oder weil die offene Sammlung eine Postkarten-Sammlung ist. */
+internal fun AppViewModel.istPostkarte(entry: ArchiveEntry?): Boolean =
+    entry != null && (entry.istPostkarte || uiState.value.collection?.ansicht == ANSICHT_POSTKARTE)
+
+/** Anzeigetyp einer Postkarten-Sammlung im Modul Sammlungen (ab 1.9.0). */
+const val ANSICHT_POSTKARTE = "postkarte"
 
 // ── PDF ──────────────────────────────────────────────────────────
 
@@ -266,12 +276,16 @@ internal fun viewerItem(entry: ArchiveEntry) = ViewerItem(
     image = entry.vollbild ?: entry.original,
     thumb = entry.kachel,
     caption = entry.bildunterschrift.ifEmpty { entry.datei },
-    subtitle = listOf(entry.datum, entry.personen.joinToString(", ") { it.name }).filter { it.isNotBlank() }.joinToString(" · "),
+    subtitle = listOf(datumText(entry), entry.personen.joinToString(", ") { it.name }).filter { it.isNotBlank() }.joinToString(" · "),
     webUrl = entry.seite ?: entry.original,
     link = linkState(entry),
     entry = entry,
     path = entry.pfad,
 )
+
+/** Datum eines Archiveintrags, bei erschlossenem Datum (Stufe 4) mit "um". */
+fun datumText(entry: ArchiveEntry): String =
+    if (entry.datum.isNotBlank() && entry.datumUnsicher) de.bgghome.webtrees.nativ.Texte.t(Res.string.archive_date_uncertain, entry.datum) else entry.datum
 
 internal fun viewerItem(media: MediaJson, owner: String? = null) = ViewerItem(
     image = media.file.ifEmpty { media.thumb.orEmpty() },

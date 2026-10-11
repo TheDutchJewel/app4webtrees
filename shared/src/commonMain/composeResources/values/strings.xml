@@ -1507,4 +1507,17 @@
     <string name="desk_faces_note">The frames are saved in the image file itself (XMP). Assigning a face does not attach the picture to the person.</string>
     <string name="desk_faces_attach">Also attach the picture to the chosen person</string>
     <string name="tipp_faces_attach">When saving, the picture becomes a media object in the family tree and appears with this person. Without the tick it stays only in the archive; the frame still knows who it is.</string>
+    <string name="desk_sync_title">Comparison with webtrees</string>
+    <string name="desk_sync_description">Description ↔ title</string>
+    <string name="desk_sync_file">File</string>
+    <string name="desk_sync_apply">→ copy into the file</string>
+    <string name="desk_sync_cut">(%1$d in total, only an excerpt – no copy)</string>
+    <string name="desk_sync_empty">(empty)</string>
+    <string name="desk_postcard_turn">Turn over</string>
+    <string name="desk_postcard_back">Back</string>
+    <string name="postcard_motif">Motif</string>
+    <string name="postcard_transcription">Transcription</string>
+    <string name="postcard_note">Note</string>
+    <string name="archive_date_uncertain">c. %1$s</string>
+    <string name="desk_postcard_edit_later">Postcards can be edited in wtWin as soon as the Sammlungen module supports it (interface level 6); until then in the browser.</string>
 </resources>

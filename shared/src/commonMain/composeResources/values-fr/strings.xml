@@ -1502,4 +1502,17 @@
     <string name="desk_faces_note">Les cadres sont enregistrés dans le fichier image lui-même (XMP). Attribuer un visage ne lie pas l’image à la personne.</string>
     <string name="desk_faces_attach">Lier aussi l’image à la personne choisie</string>
     <string name="tipp_faces_attach">À l’enregistrement, l’image devient un objet média de l’arbre et apparaît chez cette personne. Sans la coche, elle reste seulement dans les archives ; le cadre sait quand même de qui il s’agit.</string>
+    <string name="desk_sync_title">Comparaison avec webtrees</string>
+    <string name="desk_sync_description">Description ↔ titre</string>
+    <string name="desk_sync_file">Fichier</string>
+    <string name="desk_sync_apply">→ copier dans le fichier</string>
+    <string name="desk_sync_cut">(%1$d au total, seulement un extrait – pas de copie)</string>
+    <string name="desk_sync_empty">(vide)</string>
+    <string name="desk_postcard_turn">Retourner</string>
+    <string name="desk_postcard_back">Verso</string>
+    <string name="postcard_motif">Motif</string>
+    <string name="postcard_transcription">Transcription</string>
+    <string name="postcard_note">Note</string>
+    <string name="archive_date_uncertain">vers %1$s</string>
+    <string name="desk_postcard_edit_later">Les cartes postales pourront être modifiées dans wtWin dès que le module Sammlungen le permettra (niveau 6) ; d’ici là dans le navigateur.</string>
 </resources>

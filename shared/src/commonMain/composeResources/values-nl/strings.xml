@@ -1483,4 +1483,17 @@
     <string name="desk_faces_note">De kaders worden in het afbeeldingsbestand zelf opgeslagen (XMP). Een gezicht toewijzen koppelt de afbeelding niet aan de persoon.</string>
     <string name="desk_faces_attach">Afbeelding ook aan de gekozen persoon koppelen</string>
     <string name="tipp_faces_attach">Bij het opslaan wordt de afbeelding een mediaobject in de stamboom en verschijnt ze bij deze persoon. Zonder vinkje blijft ze alleen in het archief; het kader weet toch wie het is.</string>
+    <string name="desk_sync_title">Vergelijking met webtrees</string>
+    <string name="desk_sync_description">Beschrijving ↔ titel</string>
+    <string name="desk_sync_file">Bestand</string>
+    <string name="desk_sync_apply">→ in het bestand overnemen</string>
+    <string name="desk_sync_cut">(%1$d in totaal, alleen een uittreksel – niet overnemen)</string>
+    <string name="desk_sync_empty">(leeg)</string>
+    <string name="desk_postcard_turn">Omdraaien</string>
+    <string name="desk_postcard_back">Achterkant</string>
+    <string name="postcard_motif">Motief</string>
+    <string name="postcard_transcription">Transcriptie</string>
+    <string name="postcard_note">Notitie</string>
+    <string name="archive_date_uncertain">ca. %1$s</string>
+    <string name="desk_postcard_edit_later">Ansichtkaarten zijn in wtWin te bewerken zodra de module Sammlungen dat ondersteunt (niveau 6); tot dan in de browser.</string>
 </resources>

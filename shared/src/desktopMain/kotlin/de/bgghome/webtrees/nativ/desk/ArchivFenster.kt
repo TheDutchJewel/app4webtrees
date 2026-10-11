@@ -196,8 +196,12 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
     val gewaehlte = eintraege.filter { schluessel(it) in auswahl }
     val einer = gewaehlte.singleOrNull()
 
+    // Postkarte: an sich selbst erkennbar oder weil die offene Sammlung eine Postkarten-Sammlung ist
+    fun postkarte(e: ArchiveEntry) = e.istPostkarte || seite?.ansicht == de.bgghome.webtrees.nativ.ui.ANSICHT_POSTKARTE
     fun oeffnen(e: ArchiveEntry) {
         when {
+            // Postkarte: im Betrachter Vorder- und Rueckseite, blaettern = wenden
+            e.istBild && e.rueckseite != null -> betrachter = ViewerState(listOf(viewerItem(e), viewerItem(e.rueckseite!!)), 0, ViewerSource.Collection)
             e.istBild -> {
                 val bilder = eintraege.filter { it.istBild }
                 betrachter = ViewerState(bilder.map(::viewerItem), bilder.indexOf(e).coerceAtLeast(0), ViewerSource.Collection)
@@ -357,7 +361,7 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                                                     if (ziel.size == 1) add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_open)) { oeffnen(e) })
                                                     if (ziel.size == 1 && e.istBild && e.pfad != null && gesichterDa && (darfBereiche || e.bereiche.isNotEmpty()))
                                                         add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_faces_menu)) { gesichter = e })
-                                                    if (ziel.size == 1 && e.istBild && e.pfad != null && viewModel.canEditExif)
+                                                    if (ziel.size == 1 && e.istBild && e.pfad != null && viewModel.canEditExif && !postkarte(e))
                                                         add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.viewer_edit_exif) + " …") { bearbeiten = e })
                                                     add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_copy_path)) { pfadeKopieren(ziel) })
                                                     add(ContextMenuItem(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_archive_download)) { kopienSpeichern(ziel) })
@@ -397,7 +401,12 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                     Trenner(rechts, "archiv_detail", 240f, 560f, rechts = true)
                     Box(Modifier.width(rechts.value.dp).fillMaxHeight().background(farben.surface)) {
                         when {
-                            einer != null -> DateiAngaben(einer, viewModel.canEditExif && einer.istBild && einer.pfad != null,
+                            einer != null -> DateiAngaben(einer, viewModel.canEditExif && einer.istBild && einer.pfad != null, postkarte = postkarte(einer),
+                                onAbgleich = { u -> scope.launch {
+                                    runCatching { withContext(Dispatchers.IO) { client.writeExif(tree, einer.pfad.orEmpty(), de.bgghome.webtrees.nativ.data.ArchivAbgleich.anfrage(einer, u)) } }
+                                        .onSuccess { r -> r.eintrag?.let { ersetzen(eintraege, it) }; meldung = de.bgghome.webtrees.nativ.Texte.t(Res.string.msg_exif_saved) }
+                                        .onFailure { fehler = it.message }
+                                } },
                                 onOeffnen = { oeffnen(einer) }, onBearbeiten = { bearbeiten = einer },
                                 onGesichter = if (gesichterDa && einer.istBild && einer.pfad != null && (darfBereiche || einer.bereiche.isNotEmpty())) ({ gesichter = einer }) else null,
                                 onPerson = { viewModel.setRoot(it) }, onKopien = { kopienSpeichern(listOf(einer)) })
@@ -414,7 +423,7 @@ fun ArchivFenster(state: UiState, viewModel: AppViewModel, openWeb: (String) -> 
                 pdf?.let { PdfViewer(it, onClose = { pdf = null }, onOpenWeb = openWeb) }
                 betrachter?.let { v ->
                     PhotoViewer(v, onIndex = { betrachter = betrachter?.copy(index = it) }, onClose = { betrachter = null }, onOpenWeb = openWeb,
-                        canEdit = { viewModel.canEditExif && it.entry != null }, editing = bearbeiten.takeIf { betrachter != null },
+                        canEdit = { viewModel.canEditExif && it.entry?.let { e -> !postkarte(e) } == true }, editing = bearbeiten.takeIf { betrachter != null },
                         suggestPersons = viewModel.personSuggestions(),
                         onEdit = { item -> bearbeiten = item.entry }, onCancelEdit = { bearbeiten = null },
                         onSaveExif = { entry, req ->
@@ -525,6 +534,11 @@ private fun Kachel(e: ArchiveEntry, kante: Int, gewaehlt: Boolean, modifier: Mod
             if (e.kachel != null) AsyncImage(model = e.kachel, contentDescription = e.bildunterschrift, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
             else Text(e.format.uppercase().ifEmpty { "?" }, style = MaterialTheme.typography.titleMedium, color = farben.onSurfaceVariant)
             if (kante >= 120) LinkBadge(e, Modifier.align(Alignment.BottomStart).padding(4.dp))
+            if (e.rueckseite != null) Tipp(stringResource(Res.string.desk_postcard_back)) {
+                androidx.compose.material3.Surface(Modifier.align(Alignment.TopEnd).padding(4.dp), shape = MaterialTheme.shapes.small, color = farben.surface.copy(alpha = 0.9f)) {
+                    Text("↻", Modifier.padding(horizontal = 6.dp), style = MaterialTheme.typography.labelLarge)
+                }
+            }
         }
         if (kante >= 120) Text(e.bildunterschrift.ifEmpty { e.datei }, Modifier.padding(top = 3.dp), style = MaterialTheme.typography.labelSmall,
             maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -534,17 +548,22 @@ private fun Kachel(e: ArchiveEntry, kante: Int, gewaehlt: Boolean, modifier: Mod
 /** Rechte Spalte: Vorschau und alles, was das Modul zur Datei weiss. */
 @Composable
 private fun DateiAngaben(e: ArchiveEntry, darfBearbeiten: Boolean, onOeffnen: () -> Unit, onBearbeiten: () -> Unit, onPerson: (String) -> Unit, onKopien: () -> Unit,
-    onGesichter: (() -> Unit)? = null) {
+    onGesichter: (() -> Unit)? = null, postkarte: Boolean = false, onAbgleich: ((de.bgghome.webtrees.nativ.data.ArchivAbgleich.Unterschied) -> Unit)? = null) {
     val farben = MaterialTheme.colorScheme
+    // Postkarte: Vorschau wenden
+    var hinten by remember(e.pfad) { mutableStateOf(false) }
+    val zeige = if (hinten) e.rueckseite ?: e else e
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Box(Modifier.fillMaxWidth().height(220.dp).border(1.dp, farben.outlineVariant).clickable(onClick = onOeffnen), contentAlignment = Alignment.Center) {
-            if (e.kachel != null) AsyncImage(model = e.kachel, contentDescription = e.bildunterschrift, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+            if (zeige.kachel != null) AsyncImage(model = zeige.kachel, contentDescription = e.bildunterschrift, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
             else Text(e.format.uppercase(), style = MaterialTheme.typography.headlineSmall, color = farben.onSurfaceVariant)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlinedButton(onClick = onOeffnen, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_archive_open)) }
-            if (darfBearbeiten) OutlinedButton(onClick = onBearbeiten, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.viewer_edit_exif)) }
+            if (e.rueckseite != null) OutlinedButton(onClick = { hinten = !hinten }, shape = MaterialTheme.shapes.small) { Text("↻ " + stringResource(Res.string.desk_postcard_turn)) }
+            if (darfBearbeiten && !postkarte) OutlinedButton(onClick = onBearbeiten, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.viewer_edit_exif)) }
         }
+        if (darfBearbeiten && postkarte) Text(stringResource(Res.string.desk_postcard_edit_later), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
         if (onGesichter != null) OutlinedButton(onClick = onGesichter, shape = MaterialTheme.shapes.small) {
             Text(stringResource(Res.string.desk_faces_menu) + if (e.bereiche.isNotEmpty()) "  (${e.bereiche.size})" else "")
         }
@@ -552,7 +571,10 @@ private fun DateiAngaben(e: ArchiveEntry, darfBearbeiten: Boolean, onOeffnen: ()
         SelectionContainer {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(e.bildunterschrift.ifEmpty { e.datei }, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                Angabe(stringResource(Res.string.field_date), e.datum)
+                Angabe(stringResource(Res.string.field_date), de.bgghome.webtrees.nativ.ui.datumText(e))
+                Angabe(stringResource(Res.string.postcard_motif), e.motiv)
+                Angabe(stringResource(Res.string.postcard_transcription), e.transkription)
+                Angabe(stringResource(Res.string.postcard_note), e.notiz)
                 Angabe(stringResource(Res.string.field_persons), e.exifPersonen.joinToString(", "))
                 Angabe(stringResource(Res.string.field_keywords), e.keywords.joinToString(", "))
                 Angabe(stringResource(Res.string.desk_archive_in_collections), e.inSammlungen.joinToString(", "))
@@ -576,7 +598,25 @@ private fun DateiAngaben(e: ArchiveEntry, darfBearbeiten: Boolean, onOeffnen: ()
             e.xref != null -> Text(stringResource(Res.string.archive_link_object), style = MaterialTheme.typography.bodySmall)
             else -> Text(stringResource(Res.string.archive_link_file), style = MaterialTheme.typography.bodySmall)
         }
-        if (e.notiz.isNotBlank()) Angabe(stringResource(Res.string.desk_tab_notes), e.notiz)
+        if (e.notiz.isNotBlank() && !postkarte) Angabe(stringResource(Res.string.desk_tab_notes), e.notiz)
+        // Abgleich mit webtrees: nur Medienobjekte; uebernommen wird aus webtrees in die Datei (wie in der Lightbox)
+        val unterschiede = if (postkarte) emptyList() else de.bgghome.webtrees.nativ.data.ArchivAbgleich.unterschiede(e)
+        if (unterschiede.isNotEmpty()) {
+            HorizontalDivider(color = farben.outlineVariant)
+            Text(stringResource(Res.string.desk_sync_title), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+            val leer = stringResource(Res.string.desk_sync_empty)
+            unterschiede.forEach { u ->
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(stringResource(if (u.feld == de.bgghome.webtrees.nativ.data.ArchivAbgleich.Feld.Beschreibung) Res.string.desk_sync_description else Res.string.field_persons),
+                        style = MaterialTheme.typography.labelMedium, color = farben.onSurfaceVariant)
+                    Text(stringResource(Res.string.desk_sync_file) + ": " + u.datei.ifBlank { leer }, style = MaterialTheme.typography.bodySmall)
+                    Text("webtrees: " + u.webtrees.ifBlank { leer } + if (u.gekuerzt) " " + stringResource(Res.string.desk_sync_cut, e.personenGesamt) else "",
+                        style = MaterialTheme.typography.bodySmall)
+                    if (darfBearbeiten && onAbgleich != null && u.uebernahme != null)
+                        TextButton(onClick = { onAbgleich(u) }) { Text(stringResource(Res.string.desk_sync_apply)) }
+                }
+            }
+        }
     }
 }
 

@@ -114,7 +114,17 @@ data class ArchiveEntry(
     val seite: String? = null,
     /** Ab Stufe 5: markierte Gesichter (XMP MWG Regions aus der Datei) */
     val bereiche: List<Bereich> = emptyList(),
-)
+    /** Ab Stufe 4: das Datum ist erschlossen (Poststempel unleserlich) - "um 12.05.1912" */
+    val datumUnsicher: Boolean = false,
+    /** Ab Stufe 4, nur in Postkarten-Sammlungen: die Rueckseite als eigener Eintrag (null = Einzelkarte) */
+    val rueckseite: ArchiveEntry? = null,
+    val motiv: String = "",
+    /** In Postkarten-Sammlungen steht in [notiz] der Abschnitt "Notiz:" der Karte statt der Notiz des Medienobjekts. */
+    val transkription: String = "",
+) {
+    /** Eine Postkarte (Stufe 4): hat eine Rueckseite oder die Abschnitte des Postkarten-Editors. */
+    val istPostkarte: Boolean get() = rueckseite != null || motiv.isNotBlank() || transkription.isNotBlank()
+}
 
 /**
  * Ein markiertes Gesicht auf einem Bild (Stufe 5): Rahmen links oben, normiert 0-1 aufs Bild. [xref] nur, wenn die Person

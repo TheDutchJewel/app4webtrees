@@ -1502,4 +1502,17 @@
     <string name="desk_faces_note">Die Rahmen werden in der Bilddatei selbst gespeichert (XMP). Ein Gesicht zuordnen hängt das Bild nicht an die Person.</string>
     <string name="desk_faces_attach">Bild auch an die gewählte Person hängen</string>
     <string name="tipp_faces_attach">Beim Speichern wird das Bild ein Medienobjekt im Stammbaum und erscheint bei dieser Person. Ohne Haken bleibt es nur im Archiv; der Rahmen weiß trotzdem, wer es ist.</string>
+    <string name="desk_sync_title">Abgleich mit webtrees</string>
+    <string name="desk_sync_description">Beschreibung ↔ Titel</string>
+    <string name="desk_sync_file">Datei</string>
+    <string name="desk_sync_apply">→ in die Datei übernehmen</string>
+    <string name="desk_sync_cut">(insgesamt %1$d, nur ein Ausschnitt – keine Übernahme)</string>
+    <string name="desk_sync_empty">(leer)</string>
+    <string name="desk_postcard_turn">Wenden</string>
+    <string name="desk_postcard_back">Rückseite</string>
+    <string name="postcard_motif">Motiv</string>
+    <string name="postcard_transcription">Transkription</string>
+    <string name="postcard_note">Notiz</string>
+    <string name="archive_date_uncertain">um %1$s</string>
+    <string name="desk_postcard_edit_later">Postkarten lassen sich in wtWin bearbeiten, sobald das Modul Sammlungen es kann (Schnittstelle Stufe 6); bis dahin im Browser.</string>
 </resources>
