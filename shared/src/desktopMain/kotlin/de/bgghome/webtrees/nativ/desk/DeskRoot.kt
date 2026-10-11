@@ -223,6 +223,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onStartperson = if (viewModel.startPersonSupported) ({ startperson = true }) else null,
         onOrte = if (orteApi) ({ orte = "" }) else null,
         onZusammenfuehren = if (mergeApi) ({ zusammen = "" }) else null,
+        onOrteBereinigen = if (orteApi && state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME) ({ orteBereinigen = true; orte = "" }) else null,
         onAufgaben = if (stufe30) ({ aufgaben = true }) else null,
         onAenderungen = if (stufe30) ({ aenderungen = true }) else null,
         onAufgabeNeu = if (stufe30 && state.tree?.canEdit == true) ({ aufgabeNeu = it }) else null,
@@ -432,6 +433,7 @@ private fun FrameWindowScope.DeskMenuBar(
     onQuellen: (() -> Unit)? = null,
     onOrte: (() -> Unit)? = null,
     onZusammenfuehren: (() -> Unit)? = null,
+    onOrteBereinigen: (() -> Unit)? = null,
     onAufgaben: (() -> Unit)? = null,
     onAenderungen: (() -> Unit)? = null,
     onAufgabeNeu: ((AufgabeZiel) -> Unit)? = null,
@@ -475,7 +477,6 @@ private fun FrameWindowScope.DeskMenuBar(
                     shortcut = KeyShortcut(Key.Enter, ctrl = true), onClick = { selected?.let { viewModel.setRoot(it.person.xref) } })
                 Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,
                     shortcut = KeyShortcut(Key.N, ctrl = true), onClick = { selected?.let { viewModel.requestAddRelative(it.person.xref) } })
-                onZusammenfuehren?.let { Item(stringResource(Res.string.desk_merge_menu), enabled = state.tree != null, onClick = it) }
                 Item(stringResource(Res.string.desk_link_existing), enabled = selected?.canEdit == true, onClick = { selected?.let { Anfuegewahl.person = it.person } })
                 onAufgabeNeu?.let { f -> Item(stringResource(Res.string.desk_task_add_menu), enabled = selected != null, onClick = { selected?.let { f(AufgabeZiel(it.person.xref, it.person.name)) } }) }
                 if (onAufgaben != null && state.tree?.role == "manager") {
@@ -514,8 +515,6 @@ private fun FrameWindowScope.DeskMenuBar(
                 Item(stringResource(Res.string.desk_chart_open), enabled = state.root != null, shortcut = KeyShortcut(Key.T, ctrl = true), onClick = { onTafel(TafelArt.Stamm) })
                 Separator()
                 Item(stringResource(Res.string.desk_book_window) + " …", enabled = state.root != null, onClick = onBuch)
-                Separator()
-                Item(stringResource(Res.string.desk_check_window) + " …", enabled = state.tree != null, shortcut = KeyShortcut(Key.P, ctrl = true, shift = true), onClick = onPruefung)
             }
             Menu(stringResource(Res.string.desk_menu_webtrees), enabled = main && state.tree != null) {
                 val t = state.tree?.name.orEmpty()
@@ -573,8 +572,14 @@ private fun FrameWindowScope.DeskMenuBar(
                 CheckboxItem(stringResource(Res.string.tree_show_siblings), checked = state.showSiblings, onCheckedChange = viewModel::setShowSiblings)
                 CheckboxItem(stringResource(Res.string.tree_show_cousins), checked = state.showCousins && state.showSiblings, enabled = state.showSiblings, onCheckedChange = viewModel::setShowCousins)
             }
-            // Werkzeuge: reine Rechnung auf diesem PC, auch ohne Stammbaum nutzbar
+            // Werkzeuge fuer den ganzen Stammbaum, dazu reine Rechnung auf diesem PC (auch ohne Stammbaum nutzbar)
             Menu(stringResource(Res.string.desk_menu_extras)) {
+                if (main) {
+                    Item(stringResource(Res.string.desk_check_window) + " …", enabled = state.tree != null, shortcut = KeyShortcut(Key.P, ctrl = true, shift = true), onClick = onPruefung)
+                    onZusammenfuehren?.let { Item(stringResource(Res.string.desk_merge_menu), enabled = state.tree != null, onClick = it) }
+                    onOrteBereinigen?.let { Item(stringResource(Res.string.pruef_places_cleanup), enabled = state.tree != null, onClick = it) }
+                    Separator()
+                }
                 Item(stringResource(Res.string.desk_tool_date), onClick = onDatumsrechner)
                 Item(stringResource(Res.string.desk_tool_church), onClick = onKirchenjahr)
             }
