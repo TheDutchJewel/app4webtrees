@@ -14,7 +14,7 @@
 | Alt+Links / Alt+Rechts | Zurück / Vor im Verlauf |
 | Strg+D | Merken / nicht mehr merken |
 | Strg+B | Merkliste |
-| Strg+Umschalt+C | Personentext kopieren |
+| Strg+C, Strg+Umschalt+C | Personentext kopieren, mit Kennung (Strg+C nur außerhalb von Eingabefeldern; auch per Rechtsklick auf eine Person) |
 | Strg+P | Personenblatt drucken |
 | Strg+T | Stammtafel |
 | Strg+Umschalt+T | Ahnentafel |

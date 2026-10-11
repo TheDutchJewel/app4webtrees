@@ -18,6 +18,7 @@ import de.bgghome.webtrees.nativ.data.DesktopAblage
 import de.bgghome.webtrees.nativ.desk.DeskRoot
 import de.bgghome.webtrees.nativ.desk.DeskTheme
 import de.bgghome.webtrees.nativ.desk.Entwuerfe
+import de.bgghome.webtrees.nativ.desk.personKopierTaste
 import de.bgghome.webtrees.nativ.lokal.LokalBetrieb
 import de.bgghome.webtrees.nativ.ui.AppViewModel
 import de.bgghome.webtrees.nativ.ui.LocalAppName
@@ -69,6 +70,7 @@ fun main(args: Array<String>) {
             onCloseRequest = { if (Entwuerfe.abschliessen(viewModel)) Entwuerfe.beendenAnfrage = true else { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() } },
             title = plattform.appName,
             state = state,
+            onKeyEvent = { e -> personKopierTaste(e, viewModel) },
         ) {
             // Link oder zweiter Start: Fenster nach vorn, einen Link wie beim Handy mit Rueckfrage uebernehmen.
             LaunchedEffect(Unit) {

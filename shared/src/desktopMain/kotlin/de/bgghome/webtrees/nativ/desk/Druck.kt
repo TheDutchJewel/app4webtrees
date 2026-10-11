@@ -212,7 +212,7 @@ private fun kurz(p: Person) = p.name.ifBlank { "?" } + jahre(p).let { if (it.isN
 fun personenblattZeilen(d: IndividualDetail): List<Zeile> = buildList {
     val p = d.person
     add(Zeile(p.name, gross = true))
-    listOf(p.lifespan, d.relationship.replaceFirstChar { it.uppercase() }).filter(String::isNotBlank).joinToString(" · ").takeIf(String::isNotBlank)?.let { add(Zeile(it)) }
+    listOf(p.lifespan, d.relationship.replaceFirstChar { it.uppercase() }, p.xref).filter(String::isNotBlank).joinToString(" · ").takeIf(String::isNotBlank)?.let { add(Zeile(it)) }
     add(Zeile(""))
     add(Zeile(Texte.t(Res.string.desk_tab_data), fett = true))
     d.facts.filter { it.known && it.tag != "NOTE" }.ohneDoppelteAsso().forEach { f ->

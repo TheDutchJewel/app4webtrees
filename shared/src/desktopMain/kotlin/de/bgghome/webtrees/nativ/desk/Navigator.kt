@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.data.vornamen
 import androidx.compose.ui.ExperimentalComposeUiApi
 import kotlin.math.pow
@@ -684,6 +685,7 @@ private fun PersonBox(
             ContextMenuItem(edit) { onOpenSheet(person.xref) },
             if (viewModel.bookmarksSupported) ContextMenuItem(if (viewModel.isBookmarked(person.xref)) merkWeg else merken) { viewModel.toggleBookmark(person.xref) } else null,
             ContextMenuItem(web) { openWeb(person.url) },
+            ContextMenuItem(Texte.t(Res.string.desk_copy_text)) { personentextKopieren(viewModel, person.xref) },
             if (darfLoeschen) ContextMenuItem(anfuegen) { Anfuegewahl.person = person } else null,
             if (darfLoeschen) ContextMenuItem(loeschen) { Loeschwahl.person = person.xref to person.name } else null,
         )

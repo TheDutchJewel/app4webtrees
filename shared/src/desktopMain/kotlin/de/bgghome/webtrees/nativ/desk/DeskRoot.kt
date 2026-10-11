@@ -2,6 +2,7 @@
 
 package de.bgghome.webtrees.nativ.desk
 
+import kotlinx.coroutines.launch
 import de.bgghome.webtrees.nativ.ui.StartpersonDialog
 import de.bgghome.webtrees.nativ.ui.startPersonSupported
 import de.bgghome.webtrees.nativ.ui.toggleTreeBookmark
@@ -960,6 +961,16 @@ fun personentextKopieren(d: de.bgghome.webtrees.nativ.api.IndividualDetail) {
     java.awt.Toolkit.getDefaultToolkit().systemClipboard.setContents(java.awt.datatransfer.StringSelection(text), null)
 }
 
+/** Personentext einer beliebigen Person (Rechtsklick, Strg+C): die gewaehlte sofort, eine andere erst abrufen. */
+fun personentextKopieren(viewModel: AppViewModel, xref: String) {
+    val st = viewModel.uiState.value
+    st.detail?.takeIf { it.person.xref == xref }?.let { personentextKopieren(it); return }
+    val tree = st.tree?.name ?: return
+    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+        runCatching { viewModel.client.individual(tree, xref) }.getOrNull()?.let { personentextKopieren(it) }
+    }
+}
+
 // ── Baumwahl in der Symbolleiste ─────────────────────────────────────
 
 /** Name des Baums; mit mehreren Baeumen eine Aufklappliste zum Wechseln. */
@@ -1063,12 +1074,14 @@ private fun IndexRow(person: Person, selected: Boolean, root: Boolean, viewModel
     val web = stringResource(Res.string.chip_open_web)
     val merken = stringResource(Res.string.desk_bookmark_add); val merkWeg = stringResource(Res.string.desk_bookmark_remove)
     val anfuegen = stringResource(Res.string.desk_link_existing)
+    val kopieren = stringResource(Res.string.desk_copy_text)
     ContextMenuArea(items = {
         if (person.isPrivate) emptyList() else listOf(
             ContextMenuItem(makeRoot) { viewModel.setRoot(person.xref) },
             ContextMenuItem(profile) { viewModel.select(person.xref) },
             if (viewModel.bookmarksSupported) ContextMenuItem(if (viewModel.isBookmarked(person.xref)) merkWeg else merken) { viewModel.toggleBookmark(person.xref) } else null,
             ContextMenuItem(web) { openWeb(person.url) },
+            ContextMenuItem(kopieren) { personentextKopieren(viewModel, person.xref) },
             if (viewModel.uiState.value.tree?.canEdit == true) ContextMenuItem(anfuegen) { Anfuegewahl.person = person } else null,
         ).filterNotNull()
     }) {

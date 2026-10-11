@@ -8,6 +8,12 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.isAltPressed
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -60,4 +66,17 @@ fun Modifier.tastenBereich(schluessel: Any?, onTaste: (KeyEvent) -> Boolean): Mo
         .onPreviewKeyEvent(onTaste)
         .focusRequester(fokus)
         .focusable()
+}
+
+/**
+ * Strg+C im Hauptfenster (Issue 14): kopiert den Personentext der gewaehlten Person. Haengt am Fenster als onKeyEvent,
+ * kommt also erst an, wenn kein Textfeld und keine Markierung die Taste schon genommen hat - dort kopiert Strg+C
+ * weiter den markierten Text. Strg+Umschalt+C im Menue Person bleibt.
+ */
+fun personKopierTaste(e: KeyEvent, viewModel: de.bgghome.webtrees.nativ.ui.AppViewModel): Boolean {
+    if (e.type != androidx.compose.ui.input.key.KeyEventType.KeyDown || e.key != androidx.compose.ui.input.key.Key.C) return false
+    if (!(e.isCtrlPressed || e.isMetaPressed) || e.isShiftPressed || e.isAltPressed) return false
+    val d = viewModel.uiState.value.detail ?: return false
+    personentextKopieren(d)
+    return true
 }

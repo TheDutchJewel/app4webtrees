@@ -165,6 +165,10 @@ private fun SheetHeader(detail: IndividualDetail) {
         Portrait(person, Modifier.size(56.dp).clip(MaterialTheme.shapes.small))
         Spacer(Modifier.width(12.dp))
         Text(person.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        // Kennung des Datensatzes (Issue 13): klein, markierbar zum Kopieren
+        androidx.compose.foundation.text.selection.SelectionContainer {
+            Text(person.xref, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 12.dp))
+        }
         age?.let { Text(stringResource(Res.string.desk_age, it), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }
     }
 }

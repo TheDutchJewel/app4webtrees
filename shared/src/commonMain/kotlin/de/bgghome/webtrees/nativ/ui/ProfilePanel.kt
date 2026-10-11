@@ -279,8 +279,10 @@ private fun DeskProfileHeader(
             Column(Modifier.padding(start = 12.dp).weight(1f)) {
                 Text(person.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 if (person.lifespan.isNotBlank()) Text(person.lifespan, style = MaterialTheme.typography.bodyMedium)
-                if (relationship.isNotEmpty()) {
-                    Text(relationship, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                // Verwandtschaft und Kennung des Datensatzes (Issue 13), die Kennung markierbar zum Kopieren
+                androidx.compose.foundation.text.selection.SelectionContainer {
+                    Text(listOf(relationship, person.xref).filter { it.isNotEmpty() }.joinToString(" · "),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
         }

@@ -14,7 +14,7 @@
 | Alt+Left / Alt+Right | Atrás / adelante en el historial |
 | Ctrl+D | Añadir marcador / quitar marcador |
 | Ctrl+B | Marcadores |
-| Ctrl+Shift+C | Copiar texto de la persona |
+| Ctrl+C, Ctrl+Shift+C | Copiar texto de la persona, con identificador (Ctrl+C solo fuera de los campos de entrada; también con clic derecho sobre una persona) |
 | Ctrl+P | Imprimir ficha personal |
 | Ctrl+T | Gráfico de descendientes |
 | Ctrl+Shift+T | Gráfico de antepasados |

@@ -14,7 +14,7 @@
 | Alt+Left / Alt+Right | Reculer / avancer dans l'historique |
 | Ctrl+D | Ajouter aux favoris / retirer des favoris |
 | Ctrl+B | Favoris |
-| Ctrl+Shift+C | Copier le texte de la personne |
+| Ctrl+C, Ctrl+Shift+C | Copier le texte de la personne, avec l’identifiant (Ctrl+C seulement hors des champs de saisie ; aussi par clic droit sur une personne) |
 | Ctrl+P | Imprimer la fiche individuelle |
 | Ctrl+T | Tableau de descendance |
 | Ctrl+Shift+T | Tableau d'ascendance |
