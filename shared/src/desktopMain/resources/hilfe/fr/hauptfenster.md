@@ -108,3 +108,7 @@ Chaque changement de personne centrale entre dans l'historique. **Alt+Left** rev
 ## Barre d'état
 
 En bas : serveur, compte (ou « invité ») et version du programme. **F5** recharge l'arbre, p. ex. après des modifications faites dans le navigateur.
+
+## Outils (menu Outils)
+
+**Outils › Calculateur de dates** calcule l’écart entre deux dates en années, mois et jours, la date de naissance d’après la date de décès et l’âge (« âgé de 63 a. 4 m. 2 j. ») et convertit une date entre calendriers julien et grégorien, avec le jour de la semaine et le jour de l’année liturgique. **Outils › Année liturgique et fêtes** affiche Pâques et tous les dimanches et fêtes d’une année (noms allemands et latins, protestant ou catholique, grégorien ou julien), trouve la date de « Laetare 1734 » ou « Dom. III p. Trin. » et indique quel dimanche ou quelle fête correspond à une date. Les deux calculent sur ce PC sans serveur ; les résultats se copient comme dates GEDCOM.

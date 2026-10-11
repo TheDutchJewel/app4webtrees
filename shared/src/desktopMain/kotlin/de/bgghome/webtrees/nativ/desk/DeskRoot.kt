@@ -167,6 +167,9 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     val archivDa = state.archiveStatus == de.bgghome.webtrees.nativ.ui.ArchiveStatus.Ready && state.archive != null
     // Stammbaum und Archiv sichern (nur Stammbaum auf diesem PC): laufende Sicherung und Meldung
     var sicherung by remember { mutableStateOf(false) }
+    // Werkzeuge (Menue Extras)
+    var datumsrechner by remember { mutableStateOf(false) }
+    var kirchenjahr by remember { mutableStateOf(false) }
     var zusammenPaar by remember { mutableStateOf<de.bgghome.webtrees.nativ.data.Dublette?>(null) }
     val openSheet: (String) -> Unit = { xref -> viewModel.select(xref); sheetOpen = true }
 
@@ -226,6 +229,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onLokaleBaeume = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ lokaleBaeume = true }) else null,
         onArchiv = if (archivDa) ({ archiv = true }) else null,
         onSichern = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ sicherung = true }) else null,
+        onDatumsrechner = { datumsrechner = true }, onKirchenjahr = { kirchenjahr = true },
     )
 
     // Beim Sprachwechsel entsteht alles darunter neu und liest die Texte frisch. Die Menueleiste oben bleibt stehen:
@@ -252,6 +256,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
             if (state.screen == Screen.Setup && LokalBetrieb.verfuegbar) DeskStart(viewModel) else AppRoot(viewModel)
             // Hilfe und "Ueber" stehen im Menue schon vor der Anmeldung
             HilfeFenster()
+            if (datumsrechner) DatumsrechnerFenster(onClose = { datumsrechner = false })
+            if (kirchenjahr) KirchenjahrFenster(onClose = { kirchenjahr = false })
             if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
             if (Entwuerfe.beendenAnfrage) UngespeichertDialog(viewModel, onWeiter = { Entwuerfe.beendenAnfrage = false; onQuit() }, onAbbrechen = { Entwuerfe.beendenAnfrage = false })
             return@Umgebung
@@ -398,6 +404,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         if (aenderungen && state.tree != null) AenderungenFenster(state, viewModel, openSheet, onClose = { aenderungen = false })
         if (archiv && archivDa) ArchivFenster(state, viewModel, openWeb, onClose = { archiv = false })
         if (sicherung) SicherungDialog(onClose = { sicherung = false })
+        if (datumsrechner) DatumsrechnerFenster(onClose = { datumsrechner = false })
+        if (kirchenjahr) KirchenjahrFenster(onClose = { kirchenjahr = false })
         aufgabeNeu?.let { z -> state.tree?.let { t -> AufgabeDialog(z, viewModel, t.name, onClose = { ok -> aufgabeNeu = null; if (ok) viewModel.setRoot(z.xref, remember = false) }) } }
         if (tabelle && state.tree != null) PersonenTabelle(state, viewModel, openSheet, openWeb, onClose = { tabelle = false },
             onZusammenfuehren = if (mergeApi) ({ zusammen = it }) else null)
@@ -431,6 +439,8 @@ private fun FrameWindowScope.DeskMenuBar(
     onLokaleBaeume: (() -> Unit)? = null,
     onArchiv: (() -> Unit)? = null,
     onSichern: (() -> Unit)? = null,
+    onDatumsrechner: () -> Unit = {},
+    onKirchenjahr: () -> Unit = {},
 ) {
     val main = state.screen == Screen.Main
     val loggedIn = state.info?.user?.loggedIn == true
@@ -562,6 +572,11 @@ private fun FrameWindowScope.DeskMenuBar(
                 CheckboxItem(stringResource(Res.string.desk_color_coding), checked = farbkodierung, enabled = state.home != null, onCheckedChange = onFarbkodierung)
                 CheckboxItem(stringResource(Res.string.tree_show_siblings), checked = state.showSiblings, onCheckedChange = viewModel::setShowSiblings)
                 CheckboxItem(stringResource(Res.string.tree_show_cousins), checked = state.showCousins && state.showSiblings, enabled = state.showSiblings, onCheckedChange = viewModel::setShowCousins)
+            }
+            // Werkzeuge: reine Rechnung auf diesem PC, auch ohne Stammbaum nutzbar
+            Menu(stringResource(Res.string.desk_menu_extras)) {
+                Item(stringResource(Res.string.desk_tool_date), onClick = onDatumsrechner)
+                Item(stringResource(Res.string.desk_tool_church), onClick = onKirchenjahr)
             }
             Menu(stringResource(Res.string.desk_menu_help)) {
                 Item(stringResource(Res.string.desk_help), shortcut = KeyShortcut(Key.F1), onClick = onHilfe)

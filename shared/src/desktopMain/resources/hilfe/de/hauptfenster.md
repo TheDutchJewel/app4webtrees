@@ -108,3 +108,7 @@ Jeder Probandenwechsel landet im Verlauf. **Alt+Links** geht zurück, **Alt+Rech
 ## Statuszeile
 
 Unten stehen Server, Konto (oder „Gast“) und die Programmversion. **F5** lädt den Stammbaum neu, etwa nach Änderungen im Browser.
+
+## Werkzeuge (Menü Extras)
+
+**Extras › Datumsrechner** rechnet den Abstand zweier Daten in Jahren, Monaten und Tagen aus, das Geburtsdatum aus Sterbedatum und Alter („alt 63 J. 4 M. 2 T.“) und rechnet ein Datum zwischen julianischem und gregorianischem Kalender um, mit Wochentag und Tag im Kirchenjahr. **Extras › Kirchenjahr und Feiertage** zeigt Ostern und alle Sonntage und Feste eines Jahres (deutsch und lateinisch, evangelisch oder katholisch, gregorianisch oder julianisch), findet zu „Lätare 1734“ oder „Dom. III p. Trin.“ das Datum und sagt zu einem Datum, welcher Sonntag oder Festtag es war. Beides rechnet auf diesem PC, ohne Server; Ergebnisse lassen sich als GEDCOM-Datum kopieren.

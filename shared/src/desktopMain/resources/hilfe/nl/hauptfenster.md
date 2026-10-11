@@ -108,3 +108,7 @@ Elke wisseling van proband komt in de geschiedenis. **Alt+Links** gaat terug, **
 ## Statusbalk
 
 Onderaan: server, account (of „gast“) en programmaversie. **F5** laadt de stamboom opnieuw, bijv. na wijzigingen in de browser.
+
+## Extra (menu Extra)
+
+**Extra › Datumcalculator** berekent het verschil tussen twee datums in jaren, maanden en dagen, de geboortedatum uit sterfdatum en leeftijd (‘oud 63 j. 4 m. 2 d.’) en rekent een datum om tussen de juliaanse en gregoriaanse kalender, met weekdag en dag in het kerkelijk jaar. **Extra › Kerkelijk jaar en feestdagen** toont Pasen en alle zondagen en feesten van een jaar (Duitse en Latijnse namen, protestants of katholiek, gregoriaans of juliaans), vindt de datum bij ‘Laetare 1734’ of ‘Dom. III p. Trin.’ en zegt welke zondag of feestdag een datum was. Beide rekenen op deze pc zonder server; resultaten kunnen als GEDCOM-datum worden gekopieerd.

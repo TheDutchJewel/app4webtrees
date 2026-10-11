@@ -108,3 +108,7 @@ Every change of the central person goes into the history. **Alt+Left** goes back
 ## Status bar
 
 At the bottom: server, account (or "guest") and program version. **F5** reloads the tree, e.g. after changes in the browser.
+
+## Tools (Tools menu)
+
+**Tools › Date calculator** works out the difference between two dates in years, months and days, the date of birth from the date of death and age (“aged 63 y. 4 m. 2 d.”), and converts a date between the Julian and Gregorian calendars, with weekday and day in the church year. **Tools › Church year and feast days** shows Easter and all Sundays and feasts of a year (German and Latin names, Protestant or Catholic, Gregorian or Julian), finds the date for “Laetare 1734” or “Dom. III p. Trin.” and tells which Sunday or feast a given date was. Both calculate on this PC without a server; results can be copied as GEDCOM dates.

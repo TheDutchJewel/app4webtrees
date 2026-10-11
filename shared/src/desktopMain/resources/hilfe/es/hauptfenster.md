@@ -108,3 +108,7 @@ Cada cambio de persona central entra en el historial. **Alt+Left** retrocede, **
 ## Barra de estado
 
 Abajo: servidor, cuenta (o «Invitado») y versión del programa. **F5** recarga el árbol, p. ej. después de hacer cambios en el navegador.
+
+## Herramientas (menú Herramientas)
+
+**Herramientas › Calculadora de fechas** calcula la diferencia entre dos fechas en años, meses y días, la fecha de nacimiento a partir de la fecha de defunción y la edad («de 63 a. 4 m. 2 d.») y convierte una fecha entre el calendario juliano y el gregoriano, con el día de la semana y el día del año litúrgico. **Herramientas › Año litúrgico y fiestas** muestra la Pascua y todos los domingos y fiestas de un año (nombres alemanes y latinos, protestante o católico, gregoriano o juliano), encuentra la fecha de «Laetare 1734» o «Dom. III p. Trin.» e indica qué domingo o fiesta fue una fecha. Ambas calculan en este PC sin servidor; los resultados se pueden copiar como fechas GEDCOM.
