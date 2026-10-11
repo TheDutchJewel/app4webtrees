@@ -291,6 +291,14 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
             CollectionPage.serializer(),
         )
 
+    /** Alle Archivbilder, auf denen die Person [xref] als Gesicht markiert ist (Modul Sammlungen ab Stufe 5, Filter person). */
+    suspend fun archivePerson(tree: String, xref: String, page: Int, perPage: Int): CollectionPage =
+        getRoute(
+            "/tree/$tree/archiv/api/sammlung",
+            mapOf("person" to xref, "seite" to page.toString(), "pro_seite" to perPage.toString()),
+            CollectionPage.serializer(),
+        )
+
     /** Ein Foto ins Archiv legen: Datei plus Beschriftung, Modul Sammlungen ab Stufe 2. Braucht wie jeder POST das CSRF-Token. */
     suspend fun uploadArchive(tree: String, request: ArchiveUploadRequest, bytes: ByteArray, fileName: String, mime: String): ArchiveUploadResult {
         val body = MultipartBody.Builder()

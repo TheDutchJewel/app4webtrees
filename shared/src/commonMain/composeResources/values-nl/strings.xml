@@ -1496,4 +1496,6 @@
     <string name="postcard_note">Notitie</string>
     <string name="archive_date_uncertain">ca. %1$s</string>
     <string name="desk_postcard_edit_later">Ansichtkaarten zijn in wtWin te bewerken zodra de module Sammlungen dat ondersteunt (niveau 6); tot dan in de browser.</string>
+    <string name="desk_group_photos">Op groepsfoto’s (%1$d)</string>
+    <string name="desk_group_photos_incomplete">Het archief wordt nog doorzocht – klik om opnieuw te laden.</string>
 </resources>

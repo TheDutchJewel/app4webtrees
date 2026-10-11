@@ -525,6 +525,10 @@ private fun PersonMedien(detail: IndividualDetail, viewModel: AppViewModel, stat
                 }
                 Text(stringResource(Res.string.desk_media_drop_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            // Gruppenbilder aus dem Archiv, auf denen die Person markiert ist (Sammlungen ab Stufe 5) - haengen nicht an ihr
+            state.archive?.takeIf { it.api >= 5 && it.personenFilter }?.let { a ->
+                state.tree?.name?.let { t -> AufGruppenbildern(detail.person.xref, t, viewModel, darfBereiche = a.darfBereiche) }
+            }
         }
         SenkrechteLeiste(scroll)
     }

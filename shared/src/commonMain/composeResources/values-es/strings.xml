@@ -1515,4 +1515,6 @@
     <string name="postcard_note">Nota</string>
     <string name="archive_date_uncertain">hacia %1$s</string>
     <string name="desk_postcard_edit_later">Las postales se podrán editar en wtWin en cuanto el módulo Sammlungen lo permita (nivel 6); hasta entonces en el navegador.</string>
+    <string name="desk_group_photos">En fotos de grupo (%1$d)</string>
+    <string name="desk_group_photos_incomplete">El archivo aún se está revisando – haga clic para recargar.</string>
 </resources>

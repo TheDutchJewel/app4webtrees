@@ -20,6 +20,8 @@ data class ArchiveOverview(
     val darfExif: Boolean = false,
     /** Ab Stufe 5: ob dieser Nutzer Gesichter auf Bildern markieren darf */
     val darfBereiche: Boolean = false,
+    /** Ab Stufe 5: Sammlung "Bilder einer Person" ueber den Filter person (Gesichter mit dieser Kennung) */
+    val personenFilter: Boolean = false,
     val ordnerListe: List<String> = emptyList(),
     val sammlungen: List<ArchiveCollection> = emptyList(),
     /** Medienobjekte, an denen keine Person und keine Familie haengt - nach Medientyp */
@@ -76,6 +78,8 @@ data class CollectionPage(
     val proSeite: Int = 0,
     val typen: List<MediaTypeCount> = emptyList(),
     val eintraege: List<ArchiveEntry> = emptyList(),
+    /** Nur beim Filter person (Stufe 5): false, solange das Modul seinen Index noch aufbaut - spaeter erneut fragen */
+    val vollstaendig: Boolean = true,
     /** Foto-Ordner: Video, Audio und Dokumente als Liste unter den Bildern (nicht seitenweise) */
     val weitere: List<ArchiveEntry> = emptyList(),
 )

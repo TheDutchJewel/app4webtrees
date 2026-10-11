@@ -1520,4 +1520,6 @@
     <string name="postcard_note">Note</string>
     <string name="archive_date_uncertain">c. %1$s</string>
     <string name="desk_postcard_edit_later">Postcards can be edited in wtWin as soon as the Sammlungen module supports it (interface level 6); until then in the browser.</string>
+    <string name="desk_group_photos">On group photos (%1$d)</string>
+    <string name="desk_group_photos_incomplete">The archive is still being searched – click to reload.</string>
 </resources>
