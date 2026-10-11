@@ -304,7 +304,7 @@ fun HilfeFenster() {
                 }
                 HorizontalDivider(color = farben.outlineVariant)
                 Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = { openBrowser("https://bgg-home.de/me/genealogie/wtwin/") }) { Text(stringResource(Res.string.desk_help_online)) }
+                    TextButton(onClick = { openBrowser(if (de.bgghome.webtrees.nativ.Sprache.aktiv == "de") "https://wtwin.bgg-home.de/de/" else "https://wtwin.bgg-home.de/") }) { Text(stringResource(Res.string.desk_help_online)) }
                     TextButton(onClick = { openBrowser("https://github.com/thobgg/app4webtrees/issues") }) { Text(stringResource(Res.string.desk_help_issues)) }
                     Spacer(Modifier.weight(1f))
                     OutlinedButton(shape = MaterialTheme.shapes.small, onClick = ::schliessen) { Text(stringResource(Res.string.action_close)) }

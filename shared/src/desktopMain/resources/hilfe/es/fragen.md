@@ -31,4 +31,4 @@ wtWin se distribuye bajo la licencia GPL-3, como webtrees. El árbol genealógic
 
 ## Manual completo
 
-Con imágenes y notas actualizadas (en alemán): **bgg-home.de/me/genealogie/wtwin/** (botón al pie de esta ventana).
+Con imágenes y notas actualizadas: **wtwin.bgg-home.de** (botón al pie de esta ventana).

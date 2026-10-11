@@ -31,4 +31,4 @@ wtWin steht unter der GPL-3, wie webtrees. Der Stammbaum auf dem PC enthält web
 
 ## Ausführliche Anleitung
 
-Mit Bildern und aktuellen Hinweisen: **bgg-home.de/me/genealogie/wtwin/** (Knopf unten in diesem Fenster).
+Mit Bildern und aktuellen Hinweisen: **wtwin.bgg-home.de/de/** (Knopf unten in diesem Fenster).

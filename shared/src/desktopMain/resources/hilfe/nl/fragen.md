@@ -31,4 +31,4 @@ wtWin valt onder de GPL-3, net als webtrees. De stamboom op deze pc bevat webtre
 
 ## Volledige handleiding
 
-Met afbeeldingen en actuele aanwijzingen (in het Duits): **bgg-home.de/me/genealogie/wtwin/** (knop onderaan dit venster).
+Met afbeeldingen en actuele aanwijzingen: **wtwin.bgg-home.de** (knop onderaan dit venster).

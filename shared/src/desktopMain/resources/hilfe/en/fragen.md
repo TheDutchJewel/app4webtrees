@@ -31,4 +31,4 @@ wtWin is licensed under the GPL-3, like webtrees. The family tree on this PC con
 
 ## Full manual
 
-With pictures and current notes (in German): **bgg-home.de/me/genealogie/wtwin/** (button at the bottom of this window).
+With pictures and current notes: **wtwin.bgg-home.de** (button at the bottom of this window).
