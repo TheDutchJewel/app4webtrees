@@ -32,7 +32,7 @@ Clic derecho en una imagen › **Caras …** la muestra en grande con todas las 
 
 ## Postales
 
-En una colección de postales, anverso y reverso son una sola entrada (signo ↻). A la derecha **Dar la vuelta**, debajo motivo, transcripción y nota; una fecha deducida aparece como «hacia 1916». Doble clic muestra ambas caras en el visor. **Editar postal …** cambia motivo, transcripción, nota y fecha; el módulo escribe ambas caras y deja igual lo que no cambia.
+En una colección de postales, anverso y reverso son una sola entrada (signo ↻). A la derecha **Dar la vuelta**, debajo motivo, transcripción y nota; una fecha deducida aparece como «hacia 1916». Doble clic muestra ambas caras en el visor; **R** o ↻ gira 90 grados una imagen escrita de través para leerla, **Mayús+R** la devuelve (solo vista, no se guarda nada). **Editar postal …** cambia motivo, transcripción, nota y fecha; el módulo escribe ambas caras y deja igual lo que no cambia.
 
 ## Gestionar colecciones
 

@@ -19,6 +19,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import kotlinx.coroutines.launch
@@ -95,6 +98,9 @@ fun PhotoViewer(
     LaunchedEffect(pagerState.currentPage) { onIndex(pagerState.currentPage) }
 
     val item = viewer.items.getOrNull(pagerState.currentPage)
+    // Drehen zum Lesen (quer beschriebene Postkarten), je Bild in Vierteldrehungen - reine Ansicht, nichts wird gespeichert
+    val drehung = remember(viewer.items) { mutableStateMapOf<Int, Int>() }
+    fun drehen(um: Int) { val p = pagerState.currentPage; drehung[p] = ((drehung[p] ?: 0) + um + 4) % 4 }
     val scope = rememberCoroutineScope()
     val fokus = remember { FocusRequester() }
     fun gehe(i: Int) { if (i in viewer.items.indices) scope.launch { pagerState.animateScrollToPage(i) } }
@@ -109,11 +115,12 @@ fun PhotoViewer(
                 Key.DirectionLeft -> { gehe(pagerState.currentPage - 1); true }
                 Key.MoveHome -> { gehe(0); true }
                 Key.MoveEnd -> { gehe(viewer.items.lastIndex); true }
+                Key.R -> { drehen(if (e.isShiftPressed) -1 else 1); true }
                 else -> false
             }
         }) {
         HorizontalPager(state = pagerState, userScrollEnabled = !zoomed, beyondViewportPageCount = 1, modifier = Modifier.fillMaxSize()) { page ->
-            ZoomableImage(viewer.items[page], onTap = { chrome = !chrome }, onZoom = { if (page == pagerState.currentPage) zoomed = it })
+            ZoomableImage(viewer.items[page], drehung = drehung[page] ?: 0, onTap = { chrome = !chrome }, onZoom = { if (page == pagerState.currentPage) zoomed = it })
         }
 
         AnimatedVisibility(chrome, Modifier.align(Alignment.TopCenter), enter = fadeIn(), exit = fadeOut()) {
@@ -126,6 +133,7 @@ fun PhotoViewer(
                     stringResource(Res.string.viewer_position, pagerState.currentPage + 1, viewer.items.size),
                     Modifier.weight(1f), color = Color.White, style = MaterialTheme.typography.titleMedium,
                 )
+                IconButton(onClick = { drehen(1) }) { Text("↻", color = Color.White, style = MaterialTheme.typography.titleLarge) }
                 item?.takeIf(canEdit)?.let { editable ->
                     IconButton(onClick = { onEdit(editable) }) {
                         Icon(Icons.Default.Edit, contentDescription = stringResource(Res.string.viewer_edit_exif), tint = Color.White)
@@ -178,7 +186,8 @@ private const val DOUBLE_TAP_ZOOM = 2.5f
 /** Ein Bild mit Kneifzoom, Verschieben und Doppeltipp. Zoom und Lage gehoeren zum Bild - beim Wechsel beginnt das naechste bei 1x. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ZoomableImage(item: ViewerItem, onTap: () -> Unit, onZoom: (Boolean) -> Unit) {
+private fun ZoomableImage(item: ViewerItem, drehung: Int = 0, onTap: () -> Unit, onZoom: (Boolean) -> Unit) {
+    var bild by remember(item) { mutableStateOf(androidx.compose.ui.geometry.Size.Unspecified) }
     var scale by remember(item) { mutableFloatStateOf(1f) }
     var offset by remember(item) { mutableStateOf(Offset.Zero) }
     var size by remember { mutableStateOf(IntSize.Zero) }
@@ -221,10 +230,17 @@ private fun ZoomableImage(item: ViewerItem, onTap: () -> Unit, onZoom: (Boolean)
             .transformable(transform, canPan = { scale > 1f }),
         contentAlignment = Alignment.Center,
     ) {
+        // Bei einer Vierteldrehung tauschen Breite und Hoehe - so weit verkleinern/vergroessern, dass das Bild wieder hineinpasst
+        val passend = if (drehung % 2 == 1 && bild.isSpecified && bild.width > 0 && bild.height > 0 && size.width > 0 && size.height > 0) {
+            val s = minOf(size.width / bild.width, size.height / bild.height)
+            minOf(size.width / (bild.height * s), size.height / (bild.width * s))
+        } else 1f
         AsyncImage(
             model = item.image, contentDescription = item.caption, contentScale = ContentScale.Fit,
+            onState = { st -> if (st is coil3.compose.AsyncImagePainter.State.Success) bild = st.painter.intrinsicSize },
             modifier = Modifier.fillMaxSize().graphicsLayer {
-                scaleX = scale; scaleY = scale
+                scaleX = scale * passend; scaleY = scale * passend
+                rotationZ = 90f * drehung
                 translationX = offset.x; translationY = offset.y
             },
         )

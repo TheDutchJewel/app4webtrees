@@ -32,7 +32,7 @@ Clic droit sur une image › **Visages …** l’affiche en grand avec tous les 
 
 ## Cartes postales
 
-Dans une collection de cartes postales, recto et verso forment une seule entrée (signe ↻). À droite **Retourner**, en dessous motif, transcription et note ; une date déduite apparaît comme « vers 1916 ». Un double-clic montre les deux faces dans la visionneuse. **Modifier la carte postale …** change motif, transcription, note et date ; le module écrit les deux faces et laisse les champs inchangés.
+Dans une collection de cartes postales, recto et verso forment une seule entrée (signe ↻). À droite **Retourner**, en dessous motif, transcription et note ; une date déduite apparaît comme « vers 1916 ». Un double-clic montre les deux faces dans la visionneuse ; **R** ou ↻ tourne de 90 degrés une image écrite en travers pour la lire, **Maj+R** revient (affichage seulement, rien n’est enregistré). **Modifier la carte postale …** change motif, transcription, note et date ; le module écrit les deux faces et laisse les champs inchangés.
 
 ## Gérer les collections
 

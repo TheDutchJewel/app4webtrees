@@ -32,7 +32,7 @@ Rechtsklik op een afbeelding › **Gezichten …** toont haar groot met alle gem
 
 ## Ansichtkaarten
 
-In een verzameling ansichtkaarten zijn voor- en achterkant één item (teken ↻). Rechts **Omdraaien**, daaronder motief, transcriptie en notitie; een afgeleide datum staat als ‘ca. 1916’. Dubbelklik toont beide kanten in de viewer. **Ansichtkaart bewerken …** wijzigt motief, transcriptie, notitie en datum; de module schrijft beide kanten en laat ongewijzigde velden staan.
+In een verzameling ansichtkaarten zijn voor- en achterkant één item (teken ↻). Rechts **Omdraaien**, daaronder motief, transcriptie en notitie; een afgeleide datum staat als ‘ca. 1916’. Dubbelklik toont beide kanten in de viewer; **R** of ↻ draait een dwars beschreven afbeelding 90 graden om te lezen, **Shift+R** terug (alleen weergave, er wordt niets opgeslagen). **Ansichtkaart bewerken …** wijzigt motief, transcriptie, notitie en datum; de module schrijft beide kanten en laat ongewijzigde velden staan.
 
 ## Verzamelingen beheren
 

@@ -32,7 +32,7 @@ Rechtsklick auf ein Bild › **Gesichter …** zeigt das Bild groß mit allen ma
 
 ## Postkarten
 
-In einer Postkarten-Sammlung sind Vorder- und Rückseite ein Eintrag (Zeichen ↻). Rechts **Wenden**, darunter Motiv, Transkription und Notiz; ein erschlossenes Datum steht als „um 1916“. Doppelklick zeigt beide Seiten im Betrachter. **Postkarte bearbeiten …** ändert Motiv, Transkription, Notiz und Datum; das Modul schreibt in beide Seiten und lässt unveränderte Felder stehen.
+In einer Postkarten-Sammlung sind Vorder- und Rückseite ein Eintrag (Zeichen ↻). Rechts **Wenden**, darunter Motiv, Transkription und Notiz; ein erschlossenes Datum steht als „um 1916“. Doppelklick zeigt beide Seiten im Betrachter; **R** oder ↻ dreht ein quer beschriebenes Bild zum Lesen um 90 Grad, **Umschalt+R** zurück (nur Ansicht, nichts wird gespeichert). **Postkarte bearbeiten …** ändert Motiv, Transkription, Notiz und Datum; das Modul schreibt in beide Seiten und lässt unveränderte Felder stehen.
 
 ## Sammlungen verwalten
 

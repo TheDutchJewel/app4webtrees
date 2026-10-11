@@ -32,7 +32,7 @@ Right-click a picture › **Faces …** shows it large with all marked faces. Ho
 
 ## Postcards
 
-In a postcard collection, front and back are one entry (sign ↻). On the right **Turn over**, below that motif, transcription and note; an inferred date shows as “c. 1916”. A double-click shows both sides in the viewer. **Edit postcard …** changes motif, transcription, note and date; the module writes both sides and leaves unchanged fields as they are.
+In a postcard collection, front and back are one entry (sign ↻). On the right **Turn over**, below that motif, transcription and note; an inferred date shows as “c. 1916”. A double-click shows both sides in the viewer; **R** or ↻ turns a picture written crosswise by 90 degrees for reading, **Shift+R** back (view only, nothing is saved). **Edit postcard …** changes motif, transcription, note and date; the module writes both sides and leaves unchanged fields as they are.
 
 ## Managing collections
 
