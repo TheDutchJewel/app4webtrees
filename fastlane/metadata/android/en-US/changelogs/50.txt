@@ -1,0 +1,1 @@
+Archive photos can be paged with the arrow keys in the viewer and turned for reading (↻ button or the R key). Postcards from the Sammlungen module show an inferred date as “c. …”, and their caption can no longer be overwritten by accident on the phone. The big news of this version – the archive window and faces on group photos – are PC features (wtWin, wtTux).

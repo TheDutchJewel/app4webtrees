@@ -5,8 +5,9 @@ Recipe: `de.bgghome.webtrees.nativ.yml` in this folder. Store texts and screensh
 
 ## How a release reaches F-Droid
 
-First version in the recipe is 1.36 (versionCode 38): the 1.35 APK was built from a working tree whose version
-numbers were not committed yet, so no commit reproduces it. From 1.36 on, the release APK is built from the tagged
+First version in the recipe is 1.48 (versionCode 50); its published APK was checked byte-identical to a build in the
+F-Droid build-server image. (The 1.35 APK was built from a working tree whose version numbers were not committed yet,
+so no commit reproduces it.) Since 1.36 the release APK is built from the tagged
 commit with a clean tree (`tools/fdroid-reference.sh`, not in the repository), and the release build no longer
 embeds `META-INF/version-control-info.textproto`.
 
