@@ -18,6 +18,12 @@ val keystoreProps = Properties().apply {
 }
 
 android {
+    // Kein verschluesselter Block "Dependency metadata" (fuer Google Play) in der Signatur: F-Droid lehnt
+    // APKs damit ab, weil niemand pruefen kann, was darin steht.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
     namespace = "de.bgghome.webtrees.nativ"
     compileSdk = 36
 

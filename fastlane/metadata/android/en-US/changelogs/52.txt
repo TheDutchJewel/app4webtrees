@@ -1,0 +1,1 @@
+Technical update for F-Droid: the APK no longer contains the encrypted dependency block of the build tools. No changes to the app.
