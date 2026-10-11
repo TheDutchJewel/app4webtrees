@@ -13,6 +13,13 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), zum Testen"></a>
 </p>
 
+<p align="center"><b>Neu in 1.48: Archiv und Gruppenbilder.</b> Das Archiv des Moduls Sammlungen hat am PC ein eigenes Fenster (Ansicht › Archiv, Strg+9) und kann dort alles, was es im Browser kann: Sammlungen anlegen und ordnen, Bilder einsortieren, umbenennen, hochladen per Hineinziehen, Postkarten mit Vorder- und Rückseite. <b>Gesichter auf Gruppenbildern:</b> Rahmen um ein Gesicht ziehen und einer Person zuordnen – aus dem Stammbaum, nur mit Namen oder „unbekannt“; beim Darüberfahren steht der Name am Gesicht, im Personenblatt erscheinen alle Gruppenbilder einer Person. Die Rahmen stehen in der Bilddatei selbst. Braucht <a href="https://github.com/thobgg/webtrees-sammlungen/releases">Sammlungen 1.10</a>; im Stammbaum auf diesem PC ist es dabei.</p>
+
+<p align="center">
+  <img src="docs/screenshots/desktop-gesichter.jpg" alt="Gesichter-Fenster: Hochzeitsfoto 1924 aus dem Demo-Baum mit 23 Rahmen, beim Darüberfahren der Name Anna Rosskamp, rechts die Namensliste" width="100%">
+  <br><b>Gesichter auf einem Gruppenbild</b> (neu in 1.48) – Name beim Darüberfahren, rechts alle Personen Reihe für Reihe, auch wer nicht im Stammbaum steht.
+</p>
+
 <p align="center"><b>Neu in 1.38: Verzeichnisschutz.</b> Schützt dein Webserver die ganze Seite mit eigenem Benutzernamen und Passwort (.htaccess, der Browser zeigt vor webtrees ein kleines Anmeldefenster – etwa gegen Daten sammelnde Bots), trägst du diese Zugangsdaten auf dem Adressbildschirm unter „Verzeichnisschutz“ ein. wtAnd, wtWin und wtTux schicken sie mit jeder Anfrage an genau diesen Server mit; die Anmeldung bei webtrees folgt getrennt. Am Modul ändert sich nichts.</p>
 
 <p align="center"><b>Neu in 1.37: Aufgaben, Merkliste, Änderungen.</b> Forschungsaufgaben wie in webtrees (Ansicht › Aufgaben, auch aus der Plausibilitätsprüfung), die Merkliste in den webtrees-Favoriten mit Favoriten für den ganzen Stammbaum, die letzten Änderungen des Baums, Pfeile für die Reihenfolge von Partnern und Kindern, und ein kompakter Dialog zum Zusammenführen. Braucht api4webtrees 1.18.0 – damit ist die Schnittstelle vollständig.</p>

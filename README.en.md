@@ -13,6 +13,13 @@
   <a href="https://github.com/thobgg/app4webtrees/releases/latest"><img src="https://img.shields.io/badge/macOS-wtMac%20.dmg%20(Test)-A2AAAD?style=for-the-badge&logo=apple&logoColor=white" alt="macOS: wtMac (.dmg), for testing"></a>
 </p>
 
+<p align="center"><b>New in 1.48: archive and group photos.</b> On the PC the archive of the Sammlungen module has a window of its own (View › Archive, Ctrl+9) and can do everything there that it can in the browser: create and arrange collections, sort pictures in, rename, upload by dragging, postcards with front and back. <b>Faces on group photos:</b> draw a frame around a face and assign a person – from the family tree, by name only or “unknown”; hovering shows the name at the face, and the person sheet lists all group photos of a person. The frames are stored in the image file itself. Needs <a href="https://github.com/thobgg/webtrees-sammlungen/releases">Sammlungen 1.10</a>; the family tree on this PC includes it.</p>
+
+<p align="center">
+  <img src="docs/screenshots/desktop-gesichter.jpg" alt="Faces window: wedding photo of 1924 from the demo tree with 23 frames, the name Anna Rosskamp shown on hover, the list of names on the right" width="100%">
+  <br><b>Faces on a group photo</b> (new in 1.48) – name on hover, all people on the right row by row, including those not in the family tree.
+</p>
+
 <p align="center"><b>New in 1.38: directory protection.</b> If your web server protects the whole site with its own user name and password (.htaccess, the browser shows a small sign-in box before webtrees – e.g. to keep data-harvesting bots out), enter those credentials on the address screen under “directory protection”. wtAnd, wtWin and wtTux send them with every request to exactly that server; the webtrees sign-in follows separately. Nothing changes in the module.</p>
 
 <p align="center"><b>New in 1.37: tasks, bookmarks, changes.</b> Research tasks as in webtrees (View › Research tasks, also from the plausibility check), bookmarks in webtrees’ favourites with favourites for the whole tree, the tree’s recent changes, arrows to reorder partners and children, and a compact merge dialog. Needs api4webtrees 1.18.0 – with it the interface is complete.</p>
