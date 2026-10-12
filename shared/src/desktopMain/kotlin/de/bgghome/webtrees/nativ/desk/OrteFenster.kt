@@ -138,6 +138,8 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
             }
         }
         val verweise = meldung
+        // Meldungen (Gespeichert, Verweise, Fehler) verschwinden nach einigen Sekunden von selbst
+        LaunchedEffect(meldung) { if (meldung != null) { kotlinx.coroutines.delay(8000); meldung = null } }
         DeskTheme {
             OrteInhalt(liste, detail, gewaehlt, { gewaehlt = it }, suche, { suche = it }, viewModel, openWeb,
                 onBearbeiten = if (darf) ({ bearbeiten = it }) else null, meldung = verweise,
@@ -182,6 +184,7 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
             bearbeiten?.let { o ->
                 OrtDialog(tree.orEmpty(), o, viewModel.client, state.info?.user?.isAdmin == true, openWeb, onDismiss = { bearbeiten = null }, apiStufe = state.info?.api ?: 0) { r ->
                     meldung = listOfNotNull(
+                        de.bgghome.webtrees.nativ.Texte.t(Res.string.msg_saved) + ".",
                         r.linked?.takeIf { it > 0 }?.let { de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_linked, it) },
                         if (r.pending) de.bgghome.webtrees.nativ.Texte.t(Res.string.msg_pending, o.name) else null,
                     ).joinToString("  ").ifEmpty { null }
@@ -283,7 +286,12 @@ internal fun OrteInhalt(
             val mitKopf = !karte && gewaehlt != null && detail?.isSuccess == true
             if (onClose != null && !mitKopf) OutlinedButton(onClick = onClose, shape = MaterialTheme.shapes.small,
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 12.dp, end = 16.dp)) { Text(stringResource(Res.string.action_close)) }
-            meldung?.let { Text(it, Modifier.align(Alignment.BottomStart).padding(12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
+            meldung?.let {
+                androidx.compose.material3.Surface(Modifier.align(Alignment.BottomCenter).padding(16.dp), shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.inverseSurface, shadowElevation = 6.dp) {
+                    Text(it, Modifier.padding(horizontal = 16.dp, vertical = 10.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.inverseOnSurface)
+                }
+            }
         }
     }
 }

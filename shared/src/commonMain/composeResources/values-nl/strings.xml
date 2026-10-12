@@ -1219,9 +1219,9 @@
     <string name="desk_place_gov_type_none">Geen GOV-type</string>
     <string name="desk_place_gov_type_filter">Type zoeken</string>
     <string name="tipp_place_gov_type">Het GOV-typenummer (2 _GOVTYPE) geeft het soort plaats eenduidig aan. Andere programma’s lezen het nummer, niet de vrije tekst.</string>
-    <string name="desk_place_link_events">%1$d gebeurtenissen op deze plaats aan het locatierecord koppelen</string>
+    <string name="desk_place_link_events">Gebeurtenissen op deze plaats zonder verwijzing aan het locatierecord koppelen (%1$d)</string>
     <string name="tipp_place_link_events">Andere programma’s, zoals de hoevelijst van de Online-OFB, vinden het locatierecord alleen via deze verwijzing (3 _LOC), niet via de naam. Nieuwe invoer krijgt hem vanzelf.</string>
-    <string name="desk_places_cleanup_links">%1$d plaatsen met een locatierecord hebben %2$d gebeurtenissen zonder verwijzing ernaar.</string>
+    <string name="desk_places_cleanup_links">Plaatsen met een locatierecord waarvan gebeurtenissen geen verwijzing hebben: %1$d (gebeurtenissen: %2$d)</string>
     <string name="desk_places_cleanup_links_button">Verwijzingen instellen</string>
     <string name="desk_places_links_running">Koppelen … %1$d van %2$d</string>
     <string name="desk_place_loc_parents">Bovenliggende plaats (plaatsrecord)</string>
@@ -1256,7 +1256,7 @@
     <string name="desk_place_mapdata">Ook in de geografische gegevens van webtrees (voor de kaarten in de browser)</string>
     <string name="desk_place_gov_search">Zoeken in GOV</string>
     <string name="desk_place_invalid_coords">Breedte −90 tot 90 en lengte −180 tot 180, beide of geen.</string>
-    <string name="desk_place_linked">%1$d gebeurtenissen verwijzen nu naar het locatierecord.</string>
+    <string name="desk_place_linked">Nieuwe verwijzingen naar het locatierecord: %1$d</string>
     <string name="desk_place_gov_hint">bijv. ALLINKO03FS – van gov.genealogy.net</string>
     <string name="desk_place_rename_tip">Nieuwe plaatsnaam bevestigen</string>
     <string name="desk_place_rename_title">Plaats hernoemen</string>

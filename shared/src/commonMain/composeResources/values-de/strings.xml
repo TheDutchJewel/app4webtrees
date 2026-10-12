@@ -1238,9 +1238,9 @@
     <string name="desk_place_gov_type_none">Kein GOV-Typ</string>
     <string name="desk_place_gov_type_filter">Typ suchen</string>
     <string name="tipp_place_gov_type">Die GOV-Typnummer (2 _GOVTYPE) benennt die Art des Orts eindeutig. Andere Programme lesen die Nummer, nicht den freien Text.</string>
-    <string name="desk_place_link_events">%1$d Ereignisse an diesem Ort mit dem Ortsdatensatz verknüpfen</string>
+    <string name="desk_place_link_events">Ereignisse an diesem Ort ohne Verweis mit dem Ortsdatensatz verknüpfen (%1$d)</string>
     <string name="tipp_place_link_events">Andere Programme, etwa die Höfeliste der Online-OFB, finden den Ortsdatensatz nur über diesen Verweis (3 _LOC), nicht über den Namen. Neue Einträge bekommen ihn von selbst.</string>
-    <string name="desk_places_cleanup_links">%1$d Orte mit Ortsdatensatz haben %2$d Ereignisse ohne Verweis darauf.</string>
+    <string name="desk_places_cleanup_links">Orte mit Ortsdatensatz, deren Ereignisse keinen Verweis darauf haben: %1$d (Ereignisse: %2$d)</string>
     <string name="desk_places_cleanup_links_button">Verweise setzen</string>
     <string name="desk_places_links_running">Verknüpfe … %1$d von %2$d</string>
     <string name="desk_place_loc_parents">Übergeordnet (Ortsdatensatz)</string>
@@ -1275,7 +1275,7 @@
     <string name="desk_place_mapdata">Auch in die Geografischen Daten von webtrees (für die Karten im Browser)</string>
     <string name="desk_place_gov_search">In GOV suchen</string>
     <string name="desk_place_invalid_coords">Breite −90 bis 90 und Länge −180 bis 180, beide oder keine.</string>
-    <string name="desk_place_linked">%1$d Ereignisse verweisen jetzt auf den Ortsdatensatz.</string>
+    <string name="desk_place_linked">Neue Verweise auf den Ortsdatensatz: %1$d</string>
     <string name="desk_place_gov_hint">z. B. ALLINKO03FS – aus gov.genealogy.net</string>
     <string name="desk_place_rename_tip">Neuen Ortsnamen bestätigen</string>
     <string name="desk_place_rename_title">Ort umbenennen</string>

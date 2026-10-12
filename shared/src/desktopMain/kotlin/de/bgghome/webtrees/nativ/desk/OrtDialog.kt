@@ -195,29 +195,33 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                         Text(stringResource(Res.string.desk_place_gov_search))
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(Modifier.weight(1f)) { Field(kurz, { kurz = it }, Res.string.desk_place_short, hint = Res.string.desk_place_short_hint) }
-                    // Art des Orts (TYPE am _LOC) - erst ab API-Stufe 27 gespeichert
-                    if (apiStufe >= API_LOC_HIERARCHY) Box(Modifier.weight(1f)) { Field(art, { art = it }, Res.string.desk_place_type, hint = Res.string.desk_place_type_hint) }
-                    // GOV-Typnummer (2 _GOVTYPE) - ab Stufe 32; die Wahl fuellt eine leere oder automatisch gesetzte Art mit
-                    if (apiStufe >= API_LOC_LINKS) GovTypWahl(govTyp) { nr ->
-                        val sprache = Locale.getDefault().language
-                        if (art.isBlank() || art == GovTypen.name(govTyp, sprache)) art = GovTypen.name(nr, sprache).orEmpty()
-                        govTyp = nr
+                // Art des Orts (TYPE am _LOC, ab Stufe 27) und daneben die GOV-Typnummer (2 _GOVTYPE, ab Stufe 32) - die Wahl
+                // fuellt eine leere oder automatisch gesetzte Art mit
+                if (apiStufe >= API_LOC_HIERARCHY) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(Modifier.weight(1f)) { Field(art, { art = it }, Res.string.desk_place_type, hint = Res.string.desk_place_type_hint) }
+                    if (apiStufe >= API_LOC_LINKS) Box(Modifier.weight(1f)) {
+                        GovTypWahl(govTyp) { nr ->
+                            val sprache = Locale.getDefault().language
+                            if (art.isBlank() || art == GovTypen.name(govTyp, sprache)) art = GovTypen.name(nr, sprache).orEmpty()
+                            govTyp = nr
+                        }
                     }
                 }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(Modifier.weight(1f)) { Field(kurz, { kurz = it }, Res.string.desk_place_short, hint = Res.string.desk_place_short_hint) }
+                    Box(Modifier.weight(1f)) { Field(plz, { plz = it }, Res.string.desk_place_postal) }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(Modifier.weight(1f)) { Field(region, { region = it }, Res.string.desk_place_region) }
+                    Box(Modifier.weight(1f)) { Field(land, { land = it }, Res.string.desk_place_country) }
+                }
+                Field(notiz, { notiz = it }, Res.string.fact_note, minLines = 8)
                 if (unverknuepft > 0) Tipp(stringResource(Res.string.tipp_place_link_events)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(verknuepfen, { verknuepfen = it })
                         Text(stringResource(Res.string.desk_place_link_events, unverknuepft), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(Modifier.weight(0.8f)) { Field(plz, { plz = it }, Res.string.desk_place_postal) }
-                    Box(Modifier.weight(1.2f)) { Field(region, { region = it }, Res.string.desk_place_region) }
-                    Box(Modifier.weight(1.2f)) { Field(land, { land = it }, Res.string.desk_place_country) }
-                }
-                Field(notiz, { notiz = it }, Res.string.fact_note, minLines = 8)
                 if (istAdmin) Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(mapData, { mapData = it })
                     Text(stringResource(Res.string.desk_place_mapdata), style = MaterialTheme.typography.bodyMedium)
@@ -327,10 +331,12 @@ private fun GovTypWahl(govTyp: String, onWahl: (String) -> Unit) {
     var offen by remember { mutableStateOf(false) }
     var filter by remember { mutableStateOf("") }
     Box {
+        // Ein Feld in der Hoehe der anderen; nur zum Anzeigen, ein Klick darauf oeffnet die Liste
         Tipp(stringResource(Res.string.tipp_place_gov_type)) {
-            OutlinedButton(onClick = { filter = ""; offen = true }, shape = MaterialTheme.shapes.small) {
-                Text(GovTypen.name(govTyp, sprache)?.let { "$govTyp · $it" } ?: govTyp.ifEmpty { stringResource(Res.string.desk_place_gov_type_pick) },
-                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Box {
+                OutlinedTextField(GovTypen.name(govTyp, sprache)?.let { "$govTyp · $it" } ?: govTyp, {}, Modifier.fillMaxWidth(), readOnly = true, singleLine = true,
+                    label = { Text(stringResource(Res.string.desk_place_gov_type_pick)) }, trailingIcon = { Text("▾") })
+                Box(Modifier.matchParentSize().clickable { filter = ""; offen = true })
             }
         }
         DropdownMenu(offen, { offen = false }) {
