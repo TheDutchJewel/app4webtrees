@@ -290,6 +290,12 @@ const val API_PLACE_RENAME = 23
 /** Ab Stufe 27: _LOC-Hierarchie (Hoefe/Haeuser als Unterorte), TYPE und Ereignisse am Ort. */
 const val API_LOC_HIERARCHY = 27
 
+/**
+ * Ab Stufe 32: Verweise "3 _LOC" an den Ereignissen (beim Schreiben von selbst, linkEvents fuer vorhandene, unlinked
+ * zaehlt die ohne), GOV-Typnummer der Art schreiben (govType), Oberort aendert nur den aktuellen Zeiger.
+ */
+const val API_LOC_LINKS = 32
+
 /** Ab Stufe 29: Personen zusammenfuehren (POST Merge, MergeUndo, Merges) - nur Verwalter des Stammbaums. */
 const val API_MERGE = 29
 
@@ -380,6 +386,11 @@ data class PlaceRequest(
     /** Uebergeordneter _LOC (Hierarchie "1 _LOC @L1@"), ab Stufe 27 - nur mit parentAendern; null loest. */
     val parentAendern: Boolean = false,
     val parent: String? = null,
+    /** GOV-Typnummer der Art (2 _GOVTYPE), ab Stufe 32 - nur mit govTypeAendern; null entfernt. */
+    val govTypeAendern: Boolean = false,
+    val govType: String? = null,
+    /** Ab Stufe 32: alle Ereignisse am Ort ohne Verweis bekommen "3 _LOC" auf diesen Ortsdatensatz. */
+    val linkEvents: Boolean = false,
 )
 
 /** Ein Ort der Ortsliste - der PLAC-Text, wie er an sichtbaren Ereignissen steht. */
@@ -402,6 +413,8 @@ data class PlaceSummary(
     val type: String? = null,
     /** GOV-Typnummer der Art (GEDCOM-L 2 _GOVTYPE: 24 Hof, 55 Dorf ...), api4webtrees ab 1.18.1. */
     val govType: String? = null,
+    /** Ereignisse am Ort ohne Verweis "3 _LOC" (ab Stufe 32; vorher null). */
+    val unlinked: Int? = null,
 )
 
 @Serializable
@@ -496,6 +509,8 @@ data class PlaceDetail(
     val parent: String? = null,
     val children: List<PlaceChild> = emptyList(),
     val events: Int = 0,
+    /** Ereignisse hier ohne Verweis "3 _LOC" (ab Stufe 32; vorher null). */
+    val unlinked: Int? = null,
     val lat: Double? = null,
     val lng: Double? = null,
     val coordSource: String? = null,

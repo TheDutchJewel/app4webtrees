@@ -126,6 +126,7 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
         var bereinigenOffen by remember(bereinigen) { mutableStateOf(bereinigen) }
         val scope = rememberCoroutineScope()
         var meldung by remember { mutableStateOf<String?>(null) }
+        var verweisFortschritt by remember { mutableStateOf<String?>(null) }
         val darf = state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_WRITE
         val darfUmbenennen = state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME
         // Erst die Vorschau holen, dann fragen (wie viele Ereignisse, Zusammenfuehren, Abweichungen)
@@ -145,7 +146,24 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
                 onBereinigen = if (darfUmbenennen) ({ bereinigenOffen = true }) else null)
             if (bereinigenOffen && darfUmbenennen) liste?.getOrNull()?.let { l ->
                 OrteBereinigenDialog(tree.orEmpty(), l.places, onZeigen = { gewaehlt = it }, onZusammenfuehren = { von, nach -> vorschau(von, nach) },
-                    onDismiss = { bereinigenOffen = false })
+                    onDismiss = { bereinigenOffen = false },
+                    onVerweise = if ((state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_LOC_LINKS) ({ orte ->
+                        // Ort fuer Ort "linkEvents" - jeder Aufruf verknuepft die Ereignisse dieses Orts mit seinem _LOC
+                        scope.launch {
+                            var summe = 0
+                            var ausstehend = false
+                            for ((i, o) in orte.withIndex()) {
+                                verweisFortschritt = de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_places_links_running, i + 1, orte.size)
+                                runCatching { withContext(Dispatchers.IO) { viewModel.client.savePlace(tree.orEmpty(), de.bgghome.webtrees.nativ.api.PlaceRequest(o.name, linkEvents = true)) } }
+                                    .onSuccess { summe += it.linked ?: 0; ausstehend = ausstehend || it.pending }
+                                    .onFailure { meldung = it.message ?: "?" }
+                            }
+                            verweisFortschritt = null
+                            meldung = listOfNotNull(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_linked, summe),
+                                if (ausstehend) de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_rename_moderated) else null).joinToString("  ")
+                            neu++
+                        }
+                    }) else null, fortschritt = verweisFortschritt)
             }
             umbenennen?.let { v ->
                 UmbenennenDialog(v, onDismiss = { umbenennen = null }) {

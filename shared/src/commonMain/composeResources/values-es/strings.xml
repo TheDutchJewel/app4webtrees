@@ -1234,6 +1234,15 @@
     <string name="desk_place_type">Tipo</string>
     <string name="desk_place_type_hint">p. ej. granja, casa, municipio</string>
     <string name="desk_place_gov_type">Tipo GOV %1$s</string>
+    <string name="desk_place_gov_type_pick">Tipo GOV</string>
+    <string name="desk_place_gov_type_none">Sin tipo GOV</string>
+    <string name="desk_place_gov_type_filter">Buscar tipo</string>
+    <string name="tipp_place_gov_type">El número de tipo GOV (2 _GOVTYPE) designa sin ambigüedad la clase de lugar. Otros programas leen el número, no el texto libre.</string>
+    <string name="desk_place_link_events">Vincular %1$d eventos de este lugar al registro de lugar</string>
+    <string name="tipp_place_link_events">Otros programas, como la lista de granjas del Online-OFB, solo encuentran el registro de lugar mediante esta referencia (3 _LOC), no por el nombre. Las nuevas entradas la reciben automáticamente.</string>
+    <string name="desk_places_cleanup_links">%1$d lugares con registro de lugar tienen %2$d eventos sin referencia a él.</string>
+    <string name="desk_places_cleanup_links_button">Crear referencias</string>
+    <string name="desk_places_links_running">Vinculando … %1$d de %2$d</string>
     <string name="desk_place_loc_parents">Lugar superior (registro de lugar)</string>
     <string name="desk_place_event_here">Evento del lugar</string>
     <string name="desk_place_history_hint">Eventos del propio lugar y todos los eventos de personas y familias aquí, en orden cronológico.</string>

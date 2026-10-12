@@ -61,6 +61,7 @@ private fun grundText(g: OrtsGrund): String = stringResource(when (g) {
 @Composable
 internal fun OrteBereinigenDialog(
     tree: String, orte: List<PlaceSummary>, onZeigen: (String) -> Unit, onZusammenfuehren: (String, String) -> Unit, onDismiss: () -> Unit,
+    onVerweise: ((List<PlaceSummary>) -> Unit)? = null, fortschritt: String? = null,
 ) {
     var getrennt by remember(tree) { mutableStateOf(GetrenntListe.laden(tree)) }
     var zeigeGetrennte by remember { mutableStateOf(false) }
@@ -75,6 +76,18 @@ internal fun OrteBereinigenDialog(
         title = { Text(stringResource(Res.string.desk_places_cleanup_title) + " (${paare.size})") },
         text = {
             Column(Modifier.width(980.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Ab Stufe 32: Orte mit Ortsdatensatz, deren Ereignisse den Verweis "3 _LOC" noch nicht tragen
+                val ohneVerweis = orte.filter { it.location != null && (it.unlinked ?: 0) > 0 }
+                if (onVerweise != null && (ohneVerweis.isNotEmpty() || fortschritt != null)) Tipp(stringResource(Res.string.tipp_place_link_events)) {
+                    Row(Modifier.fillMaxWidth().background(farben.secondaryContainer.copy(alpha = 0.5f)).padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(fortschritt ?: stringResource(Res.string.desk_places_cleanup_links, ohneVerweis.size, ohneVerweis.sumOf { it.unlinked ?: 0 }),
+                            Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                        OutlinedButton(onClick = { onVerweise(ohneVerweis) }, enabled = fortschritt == null && ohneVerweis.isNotEmpty(), shape = MaterialTheme.shapes.small) {
+                            Text(stringResource(Res.string.desk_places_cleanup_links_button))
+                        }
+                    }
+                }
                 Text(stringResource(Res.string.desk_places_cleanup_hint), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)
                 if (paare.isEmpty()) Text(stringResource(Res.string.desk_places_cleanup_none), Modifier.padding(vertical = 20.dp), color = farben.onSurfaceVariant)
                 else Box(Modifier.fillMaxWidth().height(460.dp).border(1.dp, farben.outlineVariant)) {

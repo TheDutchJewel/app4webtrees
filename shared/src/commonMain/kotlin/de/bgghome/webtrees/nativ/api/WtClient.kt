@@ -480,6 +480,8 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
             r.shortName?.let { put("shortName", kotlinx.serialization.json.JsonPrimitive(it)) }
             r.type?.let { put("type", kotlinx.serialization.json.JsonPrimitive(it)) }
             if (r.parentAendern) put("parent", kotlinx.serialization.json.JsonPrimitive(r.parent))
+            if (r.govTypeAendern) put("govType", kotlinx.serialization.json.JsonPrimitive(r.govType))
+            if (r.linkEvents) put("linkEvents", kotlinx.serialization.json.JsonPrimitive(true))
             // Hier zaehlt null: es entfernt die Koordinaten (der allgemeine Json laesst null weg)
             if (r.koordinatenAendern) {
                 put("lat", kotlinx.serialization.json.JsonPrimitive(r.lat))

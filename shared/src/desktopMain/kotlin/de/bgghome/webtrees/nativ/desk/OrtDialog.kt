@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -33,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.bgghome.webtrees.nativ.api.API_LOC_HIERARCHY
+import de.bgghome.webtrees.nativ.api.API_LOC_LINKS
+import de.bgghome.webtrees.nativ.data.GovTypen
 import de.bgghome.webtrees.nativ.api.PlaceDetail
 import de.bgghome.webtrees.nativ.api.PlaceRequest
 import de.bgghome.webtrees.nativ.api.WriteResult
@@ -140,6 +144,11 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
     var gov by remember { mutableStateOf(altGov) }
     var kurz by remember { mutableStateOf(loc?.shortName.orEmpty()) }
     var art by remember { mutableStateOf(loc?.type.orEmpty()) }
+    val altGovTyp = loc?.govType?.trim().orEmpty()
+    var govTyp by remember { mutableStateOf(altGovTyp) }
+    // Ab Stufe 32: Ereignisse am Ort ohne Verweis "3 _LOC" beim Speichern verknuepfen (vorgeschlagen, abwaehlbar)
+    val unverknuepft = if (apiStufe >= API_LOC_LINKS) ort.unlinked ?: 0 else 0
+    var verknuepfen by remember { mutableStateOf(true) }
     var plz by remember { mutableStateOf(loc?.postalCode.orEmpty()) }
     var region by remember { mutableStateOf(loc?.region.orEmpty()) }
     var land by remember { mutableStateOf(loc?.country.orEmpty()) }
@@ -190,6 +199,18 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                     Box(Modifier.weight(1f)) { Field(kurz, { kurz = it }, Res.string.desk_place_short, hint = Res.string.desk_place_short_hint) }
                     // Art des Orts (TYPE am _LOC) - erst ab API-Stufe 27 gespeichert
                     if (apiStufe >= API_LOC_HIERARCHY) Box(Modifier.weight(1f)) { Field(art, { art = it }, Res.string.desk_place_type, hint = Res.string.desk_place_type_hint) }
+                    // GOV-Typnummer (2 _GOVTYPE) - ab Stufe 32; die Wahl fuellt eine leere oder automatisch gesetzte Art mit
+                    if (apiStufe >= API_LOC_LINKS) GovTypWahl(govTyp) { nr ->
+                        val sprache = Locale.getDefault().language
+                        if (art.isBlank() || art == GovTypen.name(govTyp, sprache)) art = GovTypen.name(nr, sprache).orEmpty()
+                        govTyp = nr
+                    }
+                }
+                if (unverknuepft > 0) Tipp(stringResource(Res.string.tipp_place_link_events)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(verknuepfen, { verknuepfen = it })
+                        Text(stringResource(Res.string.desk_place_link_events, unverknuepft), style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(Modifier.weight(0.8f)) { Field(plz, { plz = it }, Res.string.desk_place_postal) }
@@ -266,7 +287,8 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
         },
         breite = 1120.dp,
         confirmButton = {
-            val geaendert = gov != altGov || notiz.trim() != altNotiz.trim() || koordGeaendert || art.trim() != loc?.type.orEmpty() ||
+            val linkEvents = unverknuepft > 0 && verknuepfen
+            val geaendert = linkEvents || govTyp != altGovTyp || gov != altGov || notiz.trim() != altNotiz.trim() || koordGeaendert || art.trim() != loc?.type.orEmpty() ||
                 kurz.trim() != loc?.shortName.orEmpty() || plz.trim() != loc?.postalCode.orEmpty() || region.trim() != loc?.region.orEmpty() || land.trim() != loc?.country.orEmpty()
             TextButton(enabled = geaendert && koordOk && !speichert, onClick = {
                 speichert = true; fehler = null
@@ -281,6 +303,8 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
                     postalCode = plz.trim().takeIf { it != loc?.postalCode.orEmpty() },
                     region = region.trim().takeIf { it != loc?.region.orEmpty() },
                     country = land.trim().takeIf { it != loc?.country.orEmpty() },
+                    govTypeAendern = govTyp != altGovTyp, govType = govTyp.ifEmpty { null },
+                    linkEvents = linkEvents,
                 )
                 scope.launch {
                     runCatching { withContext(Dispatchers.IO) { client.savePlace(tree, anfrage) } }
@@ -291,6 +315,38 @@ fun OrtDialog(tree: String, ort: PlaceDetail, client: WtClient, istAdmin: Boolea
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !speichert) { Text(stringResource(Res.string.action_cancel)) } },
     )
+}
+
+/**
+ * GOV-Typ waehlen: Knopf mit Nummer und Name, darunter eine Liste zum Filtern (Name deutsch/englisch oder Nummer).
+ * Ohne Filter stehen die Gebaeudetypen (Hof, Muehle, Gut ...) vorn. Leer = kein GOV-Typ.
+ */
+@Composable
+private fun GovTypWahl(govTyp: String, onWahl: (String) -> Unit) {
+    val sprache = Locale.getDefault().language
+    var offen by remember { mutableStateOf(false) }
+    var filter by remember { mutableStateOf("") }
+    Box {
+        Tipp(stringResource(Res.string.tipp_place_gov_type)) {
+            OutlinedButton(onClick = { filter = ""; offen = true }, shape = MaterialTheme.shapes.small) {
+                Text(GovTypen.name(govTyp, sprache)?.let { "$govTyp · $it" } ?: govTyp.ifEmpty { stringResource(Res.string.desk_place_gov_type_pick) },
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+        DropdownMenu(offen, { offen = false }) {
+            OutlinedTextField(filter, { filter = it }, Modifier.padding(horizontal = 8.dp).width(280.dp), singleLine = true,
+                label = { Text(stringResource(Res.string.desk_place_gov_type_filter)) })
+            DropdownMenuItem(text = { Text(stringResource(Res.string.desk_place_gov_type_none)) }, onClick = { onWahl(""); offen = false })
+            val f = filter.trim().lowercase()
+            GovTypen.NAMEN.entries
+                .filter { (nr, n) -> f.isEmpty() || nr.toString() == f || n.first.lowercase().contains(f) || n.second.lowercase().contains(f) }
+                .sortedWith(compareBy({ if (f.isEmpty() && it.key in GovTypen.HAUS) 0 else 1 }, { (if (sprache == "de") it.value.first else it.value.second).lowercase() }))
+                .take(60)
+                .forEach { (nr, n) ->
+                    DropdownMenuItem(text = { Text("$nr  " + if (sprache == "de") n.first else n.second) }, onClick = { onWahl(nr.toString()); offen = false })
+                }
+        }
+    }
 }
 
 /** 53.7784170 -> "53.778417" */

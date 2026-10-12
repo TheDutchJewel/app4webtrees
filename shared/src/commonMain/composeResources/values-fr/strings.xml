@@ -1234,6 +1234,15 @@
     <string name="desk_place_type">Type</string>
     <string name="desk_place_type_hint">p. ex. ferme, maison, commune</string>
     <string name="desk_place_gov_type">Type GOV %1$s</string>
+    <string name="desk_place_gov_type_pick">Type GOV</string>
+    <string name="desk_place_gov_type_none">Aucun type GOV</string>
+    <string name="desk_place_gov_type_filter">Rechercher un type</string>
+    <string name="tipp_place_gov_type">Le numéro de type GOV (2 _GOVTYPE) désigne sans ambiguïté la nature du lieu. Les autres programmes lisent le numéro, pas le texte libre.</string>
+    <string name="desk_place_link_events">Relier %1$d événements de ce lieu à la fiche de lieu</string>
+    <string name="tipp_place_link_events">D’autres programmes, comme la liste des fermes de l’Online-OFB, ne trouvent la fiche de lieu que par ce renvoi (3 _LOC), pas par le nom. Les nouvelles saisies le reçoivent automatiquement.</string>
+    <string name="desk_places_cleanup_links">%1$d lieux avec fiche de lieu ont %2$d événements sans renvoi vers elle.</string>
+    <string name="desk_places_cleanup_links_button">Créer les renvois</string>
+    <string name="desk_places_links_running">Liaison … %1$d sur %2$d</string>
     <string name="desk_place_loc_parents">Lieu supérieur (fiche de lieu)</string>
     <string name="desk_place_event_here">Événement du lieu</string>
     <string name="desk_place_history_hint">Événements du lieu lui-même et tous les événements des personnes et familles ici, par ordre chronologique.</string>
