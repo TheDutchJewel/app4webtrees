@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -217,14 +218,16 @@ fun KachelKarte(
             (WebMercator.xTile(p.lon, z) * 256 - left).toFloat(),
             (WebMercator.yTile(p.lat, z) * 256 - top).toFloat(),
         )
+        // Die Gesten laufen in pointerInput-Schleifen, die nicht bei jedem Verschieben neu starten - darum rechnen
+        // zumOrt und verschiebe mit dem aktuellen Stand des Zustands, nicht mit den Werten dieser Komposition.
         fun zumOrt(o: Offset) = GeoPunkt(
-            WebMercator.lat((top + o.y) / 256, z),
-            WebMercator.lon((left + o.x) / 256, z),
+            WebMercator.lat((WebMercator.yTile(zustand.lat, z) * 256 - hPx / 2.0 + o.y) / 256, z),
+            WebMercator.lon((WebMercator.xTile(zustand.lon, z) * 256 - wPx / 2.0 + o.x) / 256, z),
         )
         fun verschiebe(dx: Float, dy: Float) {
             zustand.setze(
-                WebMercator.lat((cyPx - dy) / 256, z),
-                WebMercator.lon((cxPx - dx) / 256, z),
+                WebMercator.lat((WebMercator.yTile(zustand.lat, z) * 256 - dy) / 256, z),
+                WebMercator.lon((WebMercator.xTile(zustand.lon, z) * 256 - dx) / 256, z),
             )
         }
         fun zoomBei(o: Offset, delta: Int) {
@@ -283,6 +286,9 @@ fun KachelKarte(
                     contentDescription = null,
                     modifier = Modifier
                         .offset { IntOffset((tx * 256 - left).roundToInt(), (ty * 256 - top).roundToInt()) }
+                        // Immer volle 256 px, auch wenn die Karte niedriger ist - sonst gibt die Box der Kachel nur ihre
+                        // eigene Hoehe, das Bild schrumpft quadratisch und zwischen den Kacheln bleiben dunkle Luecken.
+                        .wrapContentSize(Alignment.TopStart, unbounded = true)
                         .size(tileDp),
                 )
             }
