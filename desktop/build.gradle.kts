@@ -125,7 +125,8 @@ compose.desktop {
             // NIE mehr aendern, sobald das erste Paket verteilt ist: Installationsordner und
             // Startmenue haengen daran.
             packageName = appName
-            modules("java.instrument", "java.prefs", "jdk.unsupported")
+            // jdk.localedata: Datumsformate je Sprache (ohne fiel Java auf "2026 Oct 12" zurueck, auch im Titelblatt der Buecher)
+            modules("java.instrument", "java.prefs", "jdk.unsupported", "jdk.localedata")
             // Windows-Zertifikatspeicher (KeyStore "Windows-ROOT", api/Vertrauen.desktop.kt) - das Modul gibt es nur im Windows-JDK
             if (osName.startsWith("Windows")) modules("jdk.crypto.mscapi")
             // Dieselbe Nummer wie die APK (gradle.properties). Windows
