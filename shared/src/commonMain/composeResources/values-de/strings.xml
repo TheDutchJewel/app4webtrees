@@ -1237,6 +1237,8 @@
     <string name="desk_place_gov_type_pick">GOV-Typ</string>
     <string name="desk_place_gov_type_none">Kein GOV-Typ</string>
     <string name="desk_place_gov_type_filter">Typ suchen</string>
+    <string name="desk_place_gov_type_buildings">Gebäude</string>
+    <string name="desk_place_gov_type_areas">Orte und Gebiete</string>
     <string name="tipp_place_gov_type">Die GOV-Typnummer (2 _GOVTYPE) benennt die Art des Orts eindeutig. Andere Programme lesen die Nummer, nicht den freien Text.</string>
     <string name="desk_place_link_events">Ereignisse an diesem Ort ohne Verweis mit dem Ortsdatensatz verknüpfen (%1$d)</string>
     <string name="tipp_place_link_events">Andere Programme, etwa die Höfeliste der Online-OFB, finden den Ortsdatensatz nur über diesen Verweis (3 _LOC), nicht über den Namen. Neue Einträge bekommen ihn von selbst.</string>

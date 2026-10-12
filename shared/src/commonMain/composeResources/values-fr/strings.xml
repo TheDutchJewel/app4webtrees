@@ -1237,6 +1237,8 @@
     <string name="desk_place_gov_type_pick">Type GOV</string>
     <string name="desk_place_gov_type_none">Aucun type GOV</string>
     <string name="desk_place_gov_type_filter">Rechercher un type</string>
+    <string name="desk_place_gov_type_buildings">Bâtiments</string>
+    <string name="desk_place_gov_type_areas">Lieux et territoires</string>
     <string name="tipp_place_gov_type">Le numéro de type GOV (2 _GOVTYPE) désigne sans ambiguïté la nature du lieu. Les autres programmes lisent le numéro, pas le texte libre.</string>
     <string name="desk_place_link_events">Relier à la fiche de lieu les événements de ce lieu sans renvoi (%1$d)</string>
     <string name="tipp_place_link_events">D’autres programmes, comme la liste des fermes de l’Online-OFB, ne trouvent la fiche de lieu que par ce renvoi (3 _LOC), pas par le nom. Les nouvelles saisies le reçoivent automatiquement.</string>

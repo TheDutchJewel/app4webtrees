@@ -344,13 +344,26 @@ private fun GovTypWahl(govTyp: String, onWahl: (String) -> Unit) {
                 label = { Text(stringResource(Res.string.desk_place_gov_type_filter)) })
             DropdownMenuItem(text = { Text(stringResource(Res.string.desk_place_gov_type_none)) }, onClick = { onWahl(""); offen = false })
             val f = filter.trim().lowercase()
-            GovTypen.NAMEN.entries
+            fun name(n: Pair<String, String>) = if (sprache == "de") n.first else n.second
+            // Veraltete Typen nur, wenn der Ort gerade einen traegt; Name vorn, Nummer grau dahinter
+            val treffer = GovTypen.NAMEN.entries
+                .filter { (nr, n) -> nr.toString() == govTyp || listOf(n.first, n.second).none { it.startsWith("veraltet") || it.startsWith("deprecated") } }
                 .filter { (nr, n) -> f.isEmpty() || nr.toString() == f || n.first.lowercase().contains(f) || n.second.lowercase().contains(f) }
-                .sortedWith(compareBy({ if (f.isEmpty() && it.key in GovTypen.HAUS) 0 else 1 }, { (if (sprache == "de") it.value.first else it.value.second).lowercase() }))
-                .take(60)
-                .forEach { (nr, n) ->
-                    DropdownMenuItem(text = { Text("$nr  " + if (sprache == "de") n.first else n.second) }, onClick = { onWahl(nr.toString()); offen = false })
+                .sortedBy { name(it.value).lowercase() }
+            val (gebaeude, uebrige) = treffer.partition { it.key in GovTypen.HAUS }
+            for ((titel, liste) in listOf(Res.string.desk_place_gov_type_buildings to gebaeude, Res.string.desk_place_gov_type_areas to uebrige.take(80))) {
+                if (liste.isEmpty()) continue
+                Text(stringResource(titel), Modifier.padding(start = 12.dp, top = 10.dp, bottom = 2.dp), style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary)
+                liste.forEach { (nr, n) ->
+                    DropdownMenuItem(text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(name(n), Modifier.weight(1f))
+                            Text(nr.toString(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }, onClick = { onWahl(nr.toString()); offen = false })
                 }
+            }
         }
     }
 }

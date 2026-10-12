@@ -1242,6 +1242,8 @@
     <string name="desk_place_gov_type_pick">GOV type</string>
     <string name="desk_place_gov_type_none">No GOV type</string>
     <string name="desk_place_gov_type_filter">Search type</string>
+    <string name="desk_place_gov_type_buildings">Buildings</string>
+    <string name="desk_place_gov_type_areas">Places and areas</string>
     <string name="tipp_place_gov_type">The GOV type number (2 _GOVTYPE) names the kind of place unambiguously. Other programs read the number, not the free text.</string>
     <string name="desk_place_link_events">Link events at this place without a pointer to the location record (%1$d)</string>
     <string name="tipp_place_link_events">Other programs, such as the farm list of the Online-OFB, find the location record only through this pointer (3 _LOC), not by the name. New entries get it automatically.</string>
