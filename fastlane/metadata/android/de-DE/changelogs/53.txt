@@ -1,0 +1,1 @@
+Ereignisse an Höfen bekommen den Verweis auf ihren Ortsdatensatz (für andere Programme wie die Online-OFB). Karte folgt beim Ziehen wieder dem Finger. Jahrestage auf Wunsch nur von Lebenden. Braucht für die Höfe api4webtrees 1.19 auf dem Server.

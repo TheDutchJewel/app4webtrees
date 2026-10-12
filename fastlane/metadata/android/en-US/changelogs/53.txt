@@ -1,0 +1,1 @@
+Events at farms get the pointer to their location record (for other programs such as the Online-OFB). The map follows your finger again when dragged. Anniversaries optionally only for living people. The farm part needs api4webtrees 1.19 on the server.
