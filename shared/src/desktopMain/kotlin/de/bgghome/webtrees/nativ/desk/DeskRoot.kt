@@ -212,7 +212,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
 
     DeskMenuBar(
         state, viewModel, openWeb, layout = layout, onLayout = { layout = it; DeskLayout.save(it) },
-        onSearch = { if (layout == DeskLayout.Navigator) goTo = true else runCatching { search.requestFocus() } },
+        onSearch = { goTo = true },
         onSheet = { (state.detail?.person?.xref ?: state.root)?.let(openSheet) },
         onAbout = { about = true }, onQuit = beenden,
         nav = nav, drucke = drucke, onListe = { liste = it }, onHilfe = { Hilfe.oeffnen(if (state.screen == Screen.Main) "hauptfenster" else HilfeTexte.START) },
@@ -293,7 +293,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
             Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 Column(Modifier.fillMaxSize()) {
                     // Eine Symbolleiste fuer alle drei Aufbauten; "Gehe zu" springt im Navigator in den Dialog, sonst ins Suchfeld
-                    ClassicToolbar(state, viewModel, openWeb, onGoTo = { if (layout == DeskLayout.Navigator) goTo = true else runCatching { search.requestFocus() } },
+                    ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true },
                         onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
                         symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
                         onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null,
@@ -326,7 +326,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                             when (state.section) {
                                 Section.Home -> HomeSection(state, viewModel, openWeb)
                                 Section.Photos -> PhotosSection(state, viewModel, openWeb)
-                                else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb, openSheet, onSuche = { runCatching { search.requestFocus() } }) else DeskTree(state, viewModel, openWeb)
+                                else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb, openSheet, onSuche = { goTo = true }) else DeskTree(state, viewModel, openWeb)
                             }
                         }
                         if (!vollbild) {

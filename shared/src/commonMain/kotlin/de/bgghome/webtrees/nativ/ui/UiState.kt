@@ -117,6 +117,8 @@ data class UiState(
     /** Fuer Moderatoren: Datensaetze, deren Aenderungen auf Freigabe warten */
     val pending: List<PendingRecord> = emptyList(),
     val reminders: Boolean = false,
+    /** Jahrestage nur von Lebenden zeigen (Einstellung, Issue 17). */
+    val anniversaryLivingOnly: Boolean = false,
     /** Merkliste des Benutzers in diesem Baum (ab API-Stufe 11) */
     val bookmarks: List<Person> = emptyList(),
     /** Favoriten des Stammbaums, die Verwalter fuer alle setzen (ab API-Stufe 30) */

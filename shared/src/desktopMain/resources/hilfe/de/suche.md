@@ -2,7 +2,7 @@
 
 ## Gehe zu
 
-**Strg+F** (oder das Symbol **Gehe zu**) öffnet die Suche: Namen tippen, Treffer wählen, und die Person wird Proband. Im Aufbau „Baum im Mittelpunkt“ springt Strg+F in das Suchfeld über der Personenliste.
+**Strg+F** (oder das Symbol **Gehe zu**) öffnet die Suche: Namen tippen, Treffer wählen, und die Person wird Proband. Das gilt in allen Aufbauten; die Personenliste links sucht zusätzlich direkt.
 
 ## Startperson
 

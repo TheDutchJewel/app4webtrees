@@ -16,6 +16,11 @@ class Settings(private val prefs: Ablage) {
         get() = prefs.getBoolean("reminders", false)
         set(value) = prefs.putBoolean("reminders", value)
 
+    /** Jahrestage nur von Lebenden: Geburtstage lebender Personen und Hochzeitstage, an denen beide noch leben (Issue 17) */
+    var anniversaryLivingOnly: Boolean
+        get() = prefs.getBoolean("anniversaryLivingOnly", false)
+        set(value) = prefs.putBoolean("anniversaryLivingOnly", value)
+
     /** Baum: Geschwister der Mittelperson und ihrer Ahnen samt Partnern zeigen (wie in einer Familienansicht ueblich) */
     var showSiblings: Boolean
         get() = prefs.getBoolean("showSiblings", true)

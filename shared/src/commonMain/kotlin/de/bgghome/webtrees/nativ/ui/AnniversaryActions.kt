@@ -19,6 +19,19 @@ internal fun AppViewModel.loadAnniversaries() {
     }
 }
 
+/**
+ * Gehoert der Jahrestag zu Lebenden? Todestage nie, Geburtstage nur lebender Personen, Hochzeitstage nur, wenn beide
+ * Partner leben. Die Route liefert je Tag die Lebenden zuerst, darum fehlen beim Filtern keine Lebenden.
+ */
+fun de.bgghome.webtrees.nativ.api.Anniversary.vonLebenden(): Boolean =
+    tag != "DEAT" && couple.ifEmpty { listOfNotNull(person) }.let { leute -> leute.isNotEmpty() && leute.none { it.isDead } }
+
+/** Jahrestage nur von Lebenden zeigen (Startseite und taegliche Erinnerung). */
+fun AppViewModel.setAnniversaryLivingOnly(on: Boolean) {
+    settings.anniversaryLivingOnly = on
+    uiState.update { it.copy(anniversaryLivingOnly = on) }
+}
+
 /** Taegliche Erinnerung ein-/ausschalten. Die Erlaubnis fuer Benachrichtigungen holt die Oberflaeche vorher ein. */
 fun AppViewModel.setReminders(on: Boolean) {
     settings.reminders = on

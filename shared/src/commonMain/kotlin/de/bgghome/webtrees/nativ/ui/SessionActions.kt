@@ -243,7 +243,7 @@ fun AppViewModel.chooseTree(tree: TreeInfo) {
             screen = Screen.Main, baseUrl = it.baseUrl, userName = it.userName, info = it.info,
             tree = tree, home = home, section = Section.Tree, ancestorGenerations = it.ancestorGenerations,
             reminders = settings.reminders, showSiblings = settings.showSiblings, showCousins = settings.showCousins,
-            denseGrid = settings.denseGrid,
+            denseGrid = settings.denseGrid, anniversaryLivingOnly = settings.anniversaryLivingOnly,
         )
     }
     loadPeople(reset = true)

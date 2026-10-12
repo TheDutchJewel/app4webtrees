@@ -2,7 +2,7 @@
 
 ## Ga naar
 
-**Ctrl+F** (of het symbool **Ga naar**) opent het zoeken: typ een naam, kies de treffer, en de persoon wordt de proband. In de indeling „Boom centraal“ springt Ctrl+F in het zoekveld boven de personenlijst.
+**Ctrl+F** (of het symbool **Ga naar**) opent het zoeken: typ een naam, kies de treffer, en de persoon wordt de proband. Dat geldt in alle indelingen; de personenlijst links zoekt daarnaast direct.
 
 ## Startpersoon
 

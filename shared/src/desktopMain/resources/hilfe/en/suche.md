@@ -2,7 +2,7 @@
 
 ## Go to
 
-**Ctrl+F** (or the **Go to** icon) opens the search: type a name, pick the match, and the person becomes the central person. In the "Tree in the centre" layout, Ctrl+F jumps into the search field above the person list.
+**Ctrl+F** (or the **Go to** icon) opens the search: type a name, pick the match, and the person becomes the central person. This works in every layout; the person list on the left also searches directly.
 
 ## Start person
 

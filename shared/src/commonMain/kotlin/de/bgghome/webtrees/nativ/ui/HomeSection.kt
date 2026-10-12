@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -25,6 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.Checkbox
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -98,13 +100,23 @@ fun HomeSection(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
                 }
             }
             if (viewModel.anniversariesSupported) {
-                item { SectionHeading(stringResource(Res.string.home_anniversaries)) }
                 item {
-                    HomeCard(padding = state.anniversaries.isEmpty()) {
-                        if (state.anniversaries.isEmpty()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.weight(1f)) { SectionHeading(stringResource(Res.string.home_anniversaries)) }
+                        Row(Modifier.padding(top = 8.dp).clickable { viewModel.setAnniversaryLivingOnly(!state.anniversaryLivingOnly) },
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(state.anniversaryLivingOnly, { viewModel.setAnniversaryLivingOnly(it) })
+                            Text(stringResource(Res.string.anniv_living_only), style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                }
+                val jahrestage = if (state.anniversaryLivingOnly) state.anniversaries.filter { it.vonLebenden() } else state.anniversaries
+                item {
+                    HomeCard(padding = jahrestage.isEmpty()) {
+                        if (jahrestage.isEmpty()) {
                             Text(stringResource(Res.string.anniv_none), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        state.anniversaries.take(8).forEachIndexed { index, anniversary ->
+                        jahrestage.take(8).forEachIndexed { index, anniversary ->
                             if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             AnniversaryRow(anniversary, onOpen = viewModel::setRoot)
                         }

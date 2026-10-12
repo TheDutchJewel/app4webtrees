@@ -2,7 +2,7 @@
 
 ## Aller à
 
-**Ctrl+F** (ou l'icône **Aller à**) ouvre la recherche : tapez un nom, choisissez le résultat, et la personne devient la personne centrale. Dans la disposition « Arbre au centre », Ctrl+F place le curseur dans le champ de recherche au-dessus de la liste des personnes.
+**Ctrl+F** (ou l'icône **Aller à**) ouvre la recherche : tapez un nom, choisissez le résultat, et la personne devient la personne centrale. C’est valable dans toutes les dispositions ; la liste des personnes à gauche permet aussi de chercher directement.
 
 ## Personne de départ
 

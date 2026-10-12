@@ -271,6 +271,7 @@
     <string name="anniv_in_days">Over %1$d dagen</string>
     <string name="anniv_line">%1$s · %2$d jaar geleden</string>
     <string name="anniv_none">Geen gedenkdagen in de komende twee weken.</string>
+    <string name="anniv_living_only">Alleen levenden</string>
     <string name="anniv_notification_title">Gedenkdagen vandaag</string>
     <string name="anniv_notification_line">%1$s – %2$s %3$d jaar geleden</string>
     <string name="menu_reminders_on">Dagelijkse herinnering aan gedenkdagen inschakelen</string>

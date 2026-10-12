@@ -2,7 +2,7 @@
 
 ## Ir a
 
-**Ctrl+F** (o el icono **Ir a**) abre la búsqueda: escriba un nombre, elija la coincidencia y la persona pasa a ser la persona central. En la disposición «Árbol en el centro», Ctrl+F salta al campo de búsqueda situado encima de la lista de personas.
+**Ctrl+F** (o el icono **Ir a**) abre la búsqueda: escriba un nombre, elija la coincidencia y la persona pasa a ser la persona central. Vale para todas las disposiciones; la lista de personas de la izquierda también busca directamente.
 
 ## Persona de inicio
 

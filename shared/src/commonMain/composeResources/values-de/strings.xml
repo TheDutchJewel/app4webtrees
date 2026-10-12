@@ -276,6 +276,7 @@
     <string name="anniv_in_days">In %1$d Tagen</string>
     <string name="anniv_line">%1$s · vor %2$d Jahren</string>
     <string name="anniv_none">Keine Jahrestage in den nächsten zwei Wochen.</string>
+    <string name="anniv_living_only">Nur Lebende</string>
     <string name="anniv_notification_title">Jahrestage heute</string>
     <string name="anniv_notification_line">%1$s – %2$s vor %3$d Jahren</string>
     <string name="menu_reminders_on">Tägliche Erinnerung an Jahrestage einschalten</string>
