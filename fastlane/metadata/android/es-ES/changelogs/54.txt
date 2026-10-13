@@ -1,0 +1,1 @@
+Alineado con wtWin 1.51: nombres de lugar y direcciones en eventos se leen como en el PC; textos neerlandeses completados. Sin funciones nuevas en el móvil.

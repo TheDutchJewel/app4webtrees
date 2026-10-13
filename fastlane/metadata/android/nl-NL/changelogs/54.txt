@@ -1,0 +1,1 @@
+Afgestemd op wtWin 1.51: plaatsnamen en adressen bij gebeurtenissen worden gelezen zoals op de pc; Nederlandse teksten aangevuld. Geen nieuwe functies op de telefoon.
