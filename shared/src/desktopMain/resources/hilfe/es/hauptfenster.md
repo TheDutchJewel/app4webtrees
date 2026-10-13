@@ -1,6 +1,6 @@
 # La ventana principal
 
-En **Ver › Disposición** se elige entre tres disposiciones. Todas muestran el mismo árbol, ordenado de otra manera.
+En **Ver › Disposición** se elige entre cuatro disposiciones. Todas muestran el mismo árbol, ordenado de otra manera.
 
 ## Navegador (predeterminado)
 
@@ -34,6 +34,10 @@ En el centro aparece la **familia** de la persona central, dispuesta como en los
 - Los **hermanos** de la persona central se muestran encima de la pareja. **Teclado:** flecha arriba al padre (con Shift a la madre), abajo al hijo, izquierda/derecha por los hermanos, Tab a la pestaña siguiente.
 
 La [tabla de personas](hilfe:tabelle) (Ctrl+4) muestra a todos en forma de tabla.
+
+## Libro de familias del lugar
+
+El libro de familias como vista viva: a la izquierda el **filtro de lugar** (vacío = todas las familias) y las familias numeradas, alfabéticas o cronológicas; en el centro las entradas tal como en el libro impreso: cónyuges con referencia a la familia de los padres, matrimonio, hijos con referencia a su propia familia, fuentes, padrinos, notas. Las referencias <7>, [12] y H3 saltan a la entrada; un clic en un nombre abre la hoja de persona; tras guardar, el libro se reconstruye. A la derecha las **casas y granjas** del lugar con historia, residentes y propietarios (desde api4webtrees 1.15). Así se lee el libro mientras se introducen datos y se ven las lagunas antes de imprimir. Imprimir y sitio web: **Crear › Crear libro › Libro de familias**.
 
 ## Fuentes
 

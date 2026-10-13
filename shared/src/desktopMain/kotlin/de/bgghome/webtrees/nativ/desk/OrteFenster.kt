@@ -855,6 +855,8 @@ private fun OrtKopf(o: PlaceDetail, aussen: OrtAussen?, openWeb: (String) -> Uni
     val links = buildList {
         add("GOV" to (gov?.let { "https://gov.genealogy.net/item/show/$it" } ?: ("https://gov.genealogy.net/search/name?name=" + java.net.URLEncoder.encode(leaf, "UTF-8"))))
         aussen?.genWiki?.let { add("GenWiki" to it) }
+        // Geovis (CompGen-Karte): auf den Ort zentriert, wenn Koordinaten da sind
+        if (o.lat != null && o.lng != null) add("Geovis" to "https://geovis.genealogy.net/?center=15/%.5f/%.5f/!".format(java.util.Locale.ROOT, o.lat, o.lng))
         add("Wikipedia" to (aussen?.wiki?.wikipedia ?: ("https://${java.util.Locale.getDefault().language}.wikipedia.org/w/index.php?search=" + java.net.URLEncoder.encode(leaf, "UTF-8"))))
         addAll(OrtExtern.suchLinks(leaf))
         addAll(aussen?.extern.orEmpty())

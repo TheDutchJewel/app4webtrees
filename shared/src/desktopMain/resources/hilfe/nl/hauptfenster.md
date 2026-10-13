@@ -1,6 +1,6 @@
 # Het hoofdvenster
 
-Onder **Beeld › Indeling** kiest u uit drie indelingen. Alle tonen dezelfde stamboom, alleen anders gerangschikt.
+Onder **Beeld › Indeling** kiest u uit vier indelingen. Alle tonen dezelfde stamboom, alleen anders gerangschikt.
 
 ## Navigator (standaard)
 
@@ -34,6 +34,10 @@ In het midden staat het **gezin** van de proband, opgebouwd zoals in klassieke g
 - De **broers en zussen** van de proband staan boven het paar. **Toetsenbord:** pijl omhoog naar de vader (met Shift naar de moeder), omlaag naar het kind, links/rechts door de broers en zussen, Tab naar het volgende tabblad.
 
 De [personentabel](hilfe:tabelle) (Ctrl+4) toont iedereen als tabel.
+
+## Plaatselijk familieboek
+
+Het familieboek als levende weergave: links het **plaatsfilter** (leeg = alle families) en de genummerde families, alfabetisch of chronologisch, in het midden de vermeldingen precies zoals in het gedrukte familieboek – echtelieden met verwijzing naar het oudergezin, huwelijk, kinderen met verwijzing naar hun eigen gezin, bronnen, doopgetuigen, notities. De verwijzingen <7>, [12] en H3 springen naar de vermelding, een klik op een naam opent het persoonsblad; na het opslaan wordt het boek opnieuw opgebouwd. Rechts de **huizen en boerderijen** van de plaats met geschiedenis, bewoners en eigenaren (vanaf api4webtrees 1.15). Zo leest u het familieboek mee tijdens het invoeren en ziet u hiaten voordat het gedrukt wordt. Afdrukken en website: **Maken › Boek maken › Familieboek**.
 
 ## Bronnen
 

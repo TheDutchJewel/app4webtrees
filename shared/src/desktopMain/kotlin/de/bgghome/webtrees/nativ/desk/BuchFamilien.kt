@@ -145,7 +145,7 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
         val det = b.detail(x) ?: return emptyList()
         if (p.isPrivate) {
             reg.name(p, n)
-            return listOf(Absatz(listOf(Lauf(registerName(p), Stil.Fett), Lauf(", " + Texte.t(Res.string.person_private))), marke = marke, anker = if (erste) "n$n" else null, einzug = if (erste) 0 else 1, abstandVor = erste))
+            return listOf(Absatz(listOf(Lauf(registerName(p), Stil.Fett, xref = x), Lauf(", " + Texte.t(Res.string.person_private))), marke = marke, anker = if (erste) "n$n" else null, einzug = if (erste) 0 else 1, abstandVor = erste))
         }
         val text = personText(p, det, o, n, reg)
         elternNr(x)?.let { en -> text.laeufe.add(1, Lauf(" <")); text.laeufe.add(2, Lauf("$en", ziel = "n$en")); text.laeufe.add(3, Lauf(">")) }
@@ -196,7 +196,7 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
             if (c.isPrivate) { laeufe += Lauf(Texte.t(Res.string.person_private)); bloecke += Absatz(laeufe, einzug = 2); return@forEachIndexed }
             if (familienDesKindes.isNotEmpty()) {
                 reg.name(c, n)
-                laeufe += Lauf("${c.vornamen.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett)
+                laeufe += Lauf("${c.vornamen.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett, xref = x)
                 kurzdaten(c, o).takeIf(String::isNotBlank)?.let { laeufe += Lauf(", $it") }
                 laeufe += Lauf(" [")
                 familienDesKindes.forEachIndexed { j, fn -> if (j > 0) laeufe += Lauf(", "); laeufe += Lauf("$fn", ziel = "n$fn") }
@@ -204,10 +204,10 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
                 bloecke += Absatz(laeufe, einzug = 2)
             } else {
                 val det = b.detail(x)
-                if (det == null) { laeufe += Lauf(c.vornamen.ifBlank { c.name }, Stil.Fett); bloecke += Absatz(laeufe, einzug = 2); return@forEachIndexed }
+                if (det == null) { laeufe += Lauf(c.vornamen.ifBlank { c.name }, Stil.Fett, xref = x); bloecke += Absatz(laeufe, einzug = 2); return@forEachIndexed }
                 val text = personText(c, det, o, n, reg)
                 // Im Kind-Eintrag nur der Vorname (der Nachname ist der der Familie) und das Zeichen fuer das Geschlecht
-                text.laeufe[0] = Lauf("${c.vornamen.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett)
+                text.laeufe[0] = Lauf("${c.vornamen.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett, xref = x)
                 bloecke += Absatz(laeufe + text.laeufe, einzug = 2)
                 notizBloecke(text, o).forEach { nb -> bloecke += if (nb is Absatz) nb.copy(einzug = 2) else nb }
             }
@@ -280,7 +280,7 @@ internal fun haeuserTeil(b: TreeExport, haeuser: List<Haus>, o: BuchOptionen, fa
                 val zeit = hier.firstOrNull { it.tag == "PROP" || it.tag == "RESI" }?.date ?: hier.firstNotNullOfOrNull { it.date }
                 val laeufe = mutableListOf<Lauf>()
                 buchDatum(zeit).takeIf(String::isNotBlank)?.let { laeufe += Lauf("$it  ") }
-                laeufe += Lauf(registerName(ind.person), Stil.Fett)
+                laeufe += Lauf(registerName(ind.person), Stil.Fett, xref = x)
                 laeufe += Lauf(", " + rolleAmHaus(hier))
                 familieVon(x)?.let { fn -> laeufe += Lauf(" <"); laeufe += Lauf("$fn", ziel = "n$fn"); laeufe += Lauf(">") }
                 add(Absatz(laeufe, einzug = 1))

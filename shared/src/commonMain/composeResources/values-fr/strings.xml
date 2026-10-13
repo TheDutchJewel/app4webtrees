@@ -943,6 +943,8 @@
     <string name="desk_table_col_occupation">Profession</string>
     <string name="tipp_table_filter">Saisissez dans les champs sous les en-têtes de colonne : un texte trouve des parties (« hann » trouve Hannover). 1800-1850 sous naissance ou décès : années de–à. ! = champ vide, * = champ rempli. Le baptême est affiché avec ~ quand la naissance manque, l’inhumation avec □ quand le décès manque.</string>
     <string name="desk_layout_family">Vue famille</string>
+    <string name="desk_layout_ofb">Livre de familles du lieu</string>
+    <string name="desk_ofb_empty">Aucune famille pour ce lieu. Le filtre compare le début de la première partie du nom de lieu.</string>
     <string name="desk_family_parents_of">Parents de %1$s</string>
     <string name="desk_family_children">Enfants (%1$d)</string>
     <string name="desk_family_no_children">Aucun enfant enregistré.</string>

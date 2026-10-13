@@ -932,6 +932,8 @@
     <string name="desk_table_col_occupation">Beroep</string>
     <string name="tipp_table_filter">Typ in de velden onder de kolomkoppen: tekst vindt delen („hann“ vindt Hannover). 1800-1850 bij geboorte of overlijden: jaren van–tot. ! = veld leeg, * = veld gevuld. De doop staat met ~ als de geboorte ontbreekt, de begrafenis met □ als het overlijden ontbreekt.</string>
     <string name="desk_layout_family">Gezinsweergave</string>
+    <string name="desk_layout_ofb">Plaatselijk familieboek</string>
+    <string name="desk_ofb_empty">Geen families voor deze plaats. Het plaatsfilter vergelijkt het begin van het eerste plaatsdeel.</string>
     <string name="desk_family_parents_of">Ouders van %1$s</string>
     <string name="desk_family_children">Kinderen (%1$d)</string>
     <string name="desk_family_no_children">Geen kinderen vastgelegd.</string>

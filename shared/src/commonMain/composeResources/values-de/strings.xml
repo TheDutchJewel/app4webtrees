@@ -943,6 +943,8 @@
     <string name="desk_table_col_occupation">Beruf</string>
     <string name="tipp_table_filter">In die Felder unter den Spaltenköpfen tippen: Text findet Teile („hann“ findet Hannover). 1800-1850 bei Geburt oder Tod: Jahre von bis. ! = Feld leer, * = Feld ausgefüllt. Taufe steht mit ~, wenn die Geburt fehlt, Begräbnis mit □, wenn der Tod fehlt.</string>
     <string name="desk_layout_family">Familienansicht</string>
+    <string name="desk_layout_ofb">Ortsfamilienbuch</string>
+    <string name="desk_ofb_empty">Keine Familien für diesen Ort. Der Ortsfilter vergleicht den Wortanfang des ersten Ortsteils.</string>
     <string name="desk_family_parents_of">Eltern von %1$s</string>
     <string name="desk_family_children">Kinder (%1$d)</string>
     <string name="desk_family_no_children">Keine Kinder eingetragen.</string>

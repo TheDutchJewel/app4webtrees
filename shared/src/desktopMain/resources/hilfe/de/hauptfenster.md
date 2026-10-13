@@ -1,6 +1,6 @@
 # Das Hauptfenster
 
-Unter **Ansicht › Aufbau** wählst du zwischen drei Aufbauten. Alle zeigen denselben Stammbaum, nur anders angeordnet.
+Unter **Ansicht › Aufbau** wählst du zwischen vier Aufbauten. Alle zeigen denselben Stammbaum, nur anders angeordnet.
 
 ## Navigator (Standard)
 
@@ -34,6 +34,10 @@ In der Mitte die **Familie** des Probanden, aufgebaut wie in klassischen Genealo
 - Über dem Paar stehen die **Geschwister** des Probanden. **Tastatur:** Pfeil hoch zum Vater (mit Umschalt zur Mutter), runter zum Kind, links/rechts durch die Geschwister, Tab zum nächsten Reiter.
 
 Alle Personen als Tabelle zeigt die [Personentabelle](hilfe:tabelle) (Strg+4).
+
+## Ortsfamilienbuch
+
+Das Familienbuch als lebende Ansicht: links der **Ortsfilter** (leer = alle Familien) und die nummerierten Familien, alphabetisch oder chronologisch, in der Mitte die Einträge genau wie im gedruckten Familienbuch – Eheleute mit Verweis auf die Elternfamilie, Heirat, Kinder mit Verweis auf ihre eigene Familie, Quellen, Paten, Notizen. Die Verweise <7>, [12] und H3 springen zum Eintrag, ein Klick auf einen Namen öffnet das Personenblatt; nach dem Speichern baut sich das Buch neu. Rechts die **Häuser und Höfe** des Orts mit Geschichte, Bewohnern und Besitzern (ab api4webtrees 1.15). So liest du das Ortsfamilienbuch beim Erfassen mit und siehst Lücken, bevor es gedruckt wird. Drucken und Website: **Erstellen › Buch erstellen › Familienbuch**.
 
 ## Quellen
 

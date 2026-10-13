@@ -1,6 +1,6 @@
 # La fenêtre principale
 
-Sous **Affichage › Disposition**, vous choisissez entre trois dispositions. Toutes montrent le même arbre, organisé différemment.
+Sous **Affichage › Disposition**, vous choisissez entre quatre dispositions. Toutes montrent le même arbre, organisé différemment.
 
 ## Navigateur (par défaut)
 
@@ -34,6 +34,10 @@ Le milieu montre la **famille** de la personne centrale, disposée comme dans le
 - La **fratrie** de la personne centrale est affichée au-dessus du couple. **Clavier :** flèche haut vers le père (avec Shift vers la mère), bas vers l'enfant, gauche/droite pour parcourir la fratrie, Tab vers l'onglet suivant.
 
 La [table des personnes](hilfe:tabelle) (Ctrl+4) montre tout le monde sous forme de tableau.
+
+## Livre de familles du lieu
+
+Le livre de familles comme vue vivante : à gauche le **filtre de lieu** (vide = toutes les familles) et les familles numérotées, par ordre alphabétique ou chronologique, au centre les entrées exactement comme dans le livre imprimé – époux avec renvoi à la famille des parents, mariage, enfants avec renvoi à leur propre famille, sources, parrains, notes. Les renvois <7>, [12] et H3 mènent à l’entrée, un clic sur un nom ouvre la fiche de personne ; après l’enregistrement, le livre se reconstruit. À droite les **maisons et fermes** du lieu avec historique, habitants et propriétaires (à partir d’api4webtrees 1.15). Vous lisez ainsi le livre pendant la saisie et voyez les lacunes avant l’impression. Impression et site : **Créer › Créer un livre › Livre de familles**.
 
 ## Sources
 

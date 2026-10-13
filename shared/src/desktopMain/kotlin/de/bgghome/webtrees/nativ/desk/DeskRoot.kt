@@ -337,7 +337,11 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                             when (state.section) {
                                 Section.Home -> HomeSection(state, viewModel, openWeb)
                                 Section.Photos -> PhotosSection(state, viewModel, openWeb)
-                                else -> if (layout == DeskLayout.Family) DeskFamilie(state, viewModel, openWeb, openSheet, onSuche = { goTo = true }) else DeskTree(state, viewModel, openWeb)
+                                else -> when (layout) {
+                                    DeskLayout.Family -> DeskFamilie(state, viewModel, openWeb, openSheet, onSuche = { goTo = true })
+                                    DeskLayout.Ofb -> DeskOfb(state, viewModel, openWeb, openSheet)
+                                    else -> DeskTree(state, viewModel, openWeb)
+                                }
                             }
                         }
                         if (!vollbild) {
@@ -570,6 +574,7 @@ private fun FrameWindowScope.DeskMenuBar(
                     RadioButtonItem(stringResource(Res.string.desk_layout_navigator), selected = layout == DeskLayout.Navigator, onClick = { onLayout(DeskLayout.Navigator) })
                     RadioButtonItem(stringResource(Res.string.desk_layout_tree), selected = layout == DeskLayout.TreeCentre, onClick = { onLayout(DeskLayout.TreeCentre) })
                     RadioButtonItem(stringResource(Res.string.desk_layout_family), selected = layout == DeskLayout.Family, onClick = { onLayout(DeskLayout.Family) })
+                    RadioButtonItem(stringResource(Res.string.desk_layout_ofb), selected = layout == DeskLayout.Ofb, onClick = { onLayout(DeskLayout.Ofb) })
                 }
                 CheckboxItem(stringResource(Res.string.desk_toolbar_labels), checked = symboltexte, enabled = layout == DeskLayout.Navigator, onCheckedChange = onSymboltexte)
                 Separator()
@@ -695,7 +700,7 @@ internal fun Ziehgriff(onZiehen: (Float) -> Unit, onEnde: () -> Unit) {
 
 /** Die waehlbaren Aufbauten des Hauptfensters; die Wahl bleibt in den Desktop-Einstellungen. */
 enum class DeskLayout {
-    Navigator, TreeCentre, Family;
+    Navigator, TreeCentre, Family, Ofb;
 
     companion object {
         val prefs = de.bgghome.webtrees.nativ.data.DesktopAblage("desk")
@@ -770,7 +775,7 @@ private fun ClassicToolbar(
         add(Knopf(DruckerIcon, stringResource(Res.string.desk_print), enabled = state.root != null, onClick = drucke::personenblatt))
         add(Trenner)
         add(Knopf(Icons.Default.Home, stringResource(Res.string.nav_home), active = state.section == Section.Home) { viewModel.setSection(Section.Home) })
-        add(Knopf(TreeIcon, stringResource(when (layout) { DeskLayout.Family -> Res.string.nav_family; DeskLayout.Navigator -> Res.string.desk_layout_navigator; else -> Res.string.nav_tree }),
+        add(Knopf(TreeIcon, stringResource(when (layout) { DeskLayout.Family -> Res.string.nav_family; DeskLayout.Ofb -> Res.string.desk_layout_ofb; DeskLayout.Navigator -> Res.string.desk_layout_navigator; else -> Res.string.nav_tree }),
             active = state.section == Section.Tree || state.section == Section.Search) { viewModel.setSection(Section.Tree) })
         add(Knopf(PhotoIcon, stringResource(Res.string.nav_photos), active = state.section == Section.Photos) { viewModel.setSection(Section.Photos) })
         if (onArchiv != null) add(Knopf(de.bgghome.webtrees.nativ.ui.ArchiveIcon, stringResource(Res.string.desk_archive_window), onClick = onArchiv))

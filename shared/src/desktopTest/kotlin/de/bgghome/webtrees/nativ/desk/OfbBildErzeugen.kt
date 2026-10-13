@@ -1,0 +1,73 @@
+package de.bgghome.webtrees.nativ.desk
+
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.ImageComposeScene
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.use
+import de.bgghome.webtrees.nativ.Desktop
+import de.bgghome.webtrees.nativ.DesktopPlattform
+import de.bgghome.webtrees.nativ.ui.AppViewModel
+import de.bgghome.webtrees.nativ.ui.Screen
+import de.bgghome.webtrees.nativ.ui.chooseTree
+import de.bgghome.webtrees.nativ.ui.login
+import de.bgghome.webtrees.nativ.ui.setRoot
+import org.jetbrains.skia.EncodedImageFormat
+import java.io.File
+import kotlin.test.Test
+
+/**
+ * Kein Test, sondern ein Werkzeug fuer README und Homepage: zeichnet die OFB-Ansicht mit echten Daten des
+ * Testservers als PNG, mit eigenem Einstellungsprofil. Laeuft nur mit gesetztem WT_OFBBILD (Zielordner):
+ *
+ *   WT_OFBBILD=/pfad WT_XREFS="I1 I130" WT_USER=admin WT_PASS=... ./gradlew :shared:desktopTest --rerun --tests '*OfbBildErzeugen*'
+ *
+ * WT_URL (Vorgabe http://192.168.178.73:8095), WT_BILD="Breite:Hoehe:Dichte" (Vorgabe 1900:1000:1.25).
+ */
+class OfbBildErzeugen {
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun erzeugen() {
+        val ziel = System.getenv("WT_OFBBILD")?.let(::File) ?: return
+        ziel.mkdirs()
+        System.setProperty("java.util.prefs.userRoot", File(ziel, "prefs").absolutePath)
+        val url = System.getenv("WT_URL") ?: "http://192.168.178.73:8095"
+        val plat = DesktopPlattform().also { Desktop.plattform = it }
+        plat.client.klartextUeberall = true
+        plat.settings.baseUrl = url
+        plat.client.baseUrl = url
+        val vm = AppViewModel(plat)
+        vm.login(System.getenv("WT_USER") ?: "admin", System.getenv("WT_PASS").orEmpty())
+        val baum = System.getenv("WT_BAUM") ?: "falkenrath"
+        var warten = 0
+        while (vm.state.value.screen != Screen.Main && warten++ < 300) {
+            Thread.sleep(100)
+            if (vm.state.value.screen == Screen.Trees) vm.state.value.info?.trees?.firstOrNull { it.name == baum }?.let { vm.chooseTree(it) }
+        }
+        check(vm.state.value.screen == Screen.Main) { "Anmeldung fehlgeschlagen: ${vm.state.value.error} screen=${vm.state.value.screen} busy=${vm.state.value.busy} tree=${vm.state.value.tree?.name} info=${vm.state.value.info?.api}" }
+        // Erst warten, bis der Start die Startperson gesetzt hat - sonst ueberschreibt sie das gewaehlte xref
+        var start = 0
+        while ((vm.state.value.root == null || vm.state.value.busy) && start++ < 100) Thread.sleep(100)
+        Thread.sleep(2000)
+        val (bw, bh, dichte) = (System.getenv("WT_BILD") ?: "1900:1000:1.25").split(':')
+        System.getenv("WT_ORT")?.let { DeskLayout.prefs.putString("ofb_ort_$baum", it) }
+        Thread.sleep(500)
+        (System.getenv("WT_XREFS") ?: "I1").split(' ').filter(String::isNotBlank).forEach { xref ->
+            var w = 0
+            while (vm.state.value.busy && w++ < 100) Thread.sleep(100)
+            vm.setRoot(xref)
+            w = 0
+            while ((vm.state.value.root != xref || vm.state.value.busy) && w++ < 100) Thread.sleep(100)
+            check(vm.state.value.root == xref) { "Person $xref nicht geladen: ${vm.state.value.error}" }
+            Thread.sleep(2500)
+            ImageComposeScene(width = bw.toInt(), height = bh.toInt(), density = Density(dichte.toFloat())) {
+                val st by vm.state.collectAsState()
+                DeskTheme { DeskOfb(st, vm, {}, {}) }
+            }.use { scene ->
+                scene.render(); (1..150).forEach { scene.render(it * 50_000_000L); Thread.sleep(80) }
+                File(ziel, "ofb-$xref.png").writeBytes(scene.render(2_100_000_000L).encodeToData(EncodedImageFormat.PNG)!!.bytes)
+            }
+        }
+    }
+}

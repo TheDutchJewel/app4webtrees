@@ -30,8 +30,8 @@ import javax.imageio.ImageIO
 
 enum class Stil { Normal, Fett, Kursiv }
 
-/** Ein Stueck Text; [ziel]: Anker eines anderen Eintrags (wird Verweis bzw. Link). */
-data class Lauf(val text: String, val stil: Stil = Stil.Normal, val ziel: String? = null)
+/** Ein Stueck Text; [ziel]: Anker eines anderen Eintrags (wird Verweis bzw. Link); [xref]: die Person hinter einem Namen (OFB-Ansicht). */
+data class Lauf(val text: String, val stil: Stil = Stil.Normal, val ziel: String? = null, val xref: String? = null)
 
 sealed interface Block
 
@@ -144,18 +144,38 @@ fun buchDatum(d: DateJson?): String {
     return if (vor != null) "$vor $kern" else kern
 }
 
-/** Kurznamen der Orte aus der Ortsverwaltung (voller Name in Kleinbuchstaben -> Kurzname), vor dem Buchsatz geladen. */
+/**
+ * Kurznamen der Orte aus der Ortsverwaltung (voller Name in Kleinbuchstaben -> Kurzname) und die Haeuser (Orte mit
+ * Gebaeude-Art oder Hausnummer), vor dem Buchsatz geladen.
+ */
 internal object OrtsKurznamen {
     @Volatile var je: Map<String, String> = emptyMap()
+    @Volatile var haeuser: Set<String> = emptySet()
 
     suspend fun laden(client: de.bgghome.webtrees.nativ.api.WtClient, tree: String) {
-        je = runCatching { client.placeList(tree).places.mapNotNull { p -> p.shortName?.let { p.name.lowercase() to it } }.toMap() }.getOrDefault(emptyMap())
+        val orte = runCatching { client.placeList(tree).places }.getOrDefault(emptyList())
+        je = orte.mapNotNull { p -> p.shortName?.let { p.name.lowercase() to it } }.toMap()
+        val oberorte = orte.map { de.bgghome.webtrees.nativ.data.Ortsnamen.schluessel(de.bgghome.webtrees.nativ.data.Ortsnamen.oberort(it.name)) }.toSet()
+        haeuser = orte.filter { p ->
+            de.bgghome.webtrees.nativ.data.Haustypen.klasse(p.type, p.govType, de.bgghome.webtrees.nativ.data.Ortsnamen.blatt(p.name),
+                de.bgghome.webtrees.nativ.data.Ortsnamen.schluessel(p.name) in oberorte) == de.bgghome.webtrees.nativ.data.OrtsKlasse.HAUS
+        }.map { it.name.lowercase() }.toSet()
     }
 }
 
-/** Ort fuers Buch; gekuerzt: der Kurzname aus der Ortsverwaltung, sonst der erste Teil ("Celle, Niedersachsen" -> "Celle"). */
-internal fun ortText(name: String?, kurz: Boolean): String =
-    name?.let { if (kurz) OrtsKurznamen.je[it.trim().lowercase()] ?: de.bgghome.webtrees.nativ.data.Ortsnamen.blatt(it) else it }.orEmpty()
+/**
+ * Ort fuers Buch; gekuerzt: der Kurzname aus der Ortsverwaltung, sonst der erste Teil ("Celle, Niedersachsen" -> "Celle").
+ * Ein Haus behaelt seinen Ort ("Klosterstrasse 3, Ennetach"), sonst stuende im Buch eine Hausnummer ohne Ortsbezug.
+ */
+internal fun ortText(name: String?, kurz: Boolean): String {
+    val n = name?.trim().orEmpty()
+    if (n.isEmpty() || !kurz) return n
+    OrtsKurznamen.je[n.lowercase()]?.let { return it }
+    val teile = de.bgghome.webtrees.nativ.data.Ortsnamen.teile(n)
+    val haus = n.lowercase() in OrtsKurznamen.haeuser ||
+        de.bgghome.webtrees.nativ.data.Haustypen.klasse(null, teile.firstOrNull().orEmpty(), false) == de.bgghome.webtrees.nativ.data.OrtsKlasse.HAUS
+    return if (haus && teile.size >= 2) teile.take(2).joinToString(", ") else teile.firstOrNull().orEmpty()
+}
 
 private val EREIGNIS_ZEICHEN = mapOf("BIRT" to "*", "CHR" to "~", "BAPM" to "~", "DEAT" to "†", "BURI" to "▭", "CREM" to "▭")
 
@@ -198,7 +218,7 @@ internal class BuchRegister {
 internal class PersonText(val laeufe: MutableList<Lauf>, val fakten: List<FactJson>, val ereignisse: List<FactJson>)
 
 internal fun personText(p: Person, det: IndividualDetail, o: BuchOptionen, n: Long, reg: BuchRegister): PersonText {
-    val laeufe = mutableListOf(Lauf(registerName(p), Stil.Fett))
+    val laeufe = mutableListOf(Lauf(registerName(p), Stil.Fett, xref = p.xref))
     reg.name(p, n)
     val fakten = det.facts.filter { it.known }
     fakten.firstOrNull { it.tag == "RELI" }?.value?.takeIf(String::isNotBlank)?.let { laeufe += Lauf(", $it") }

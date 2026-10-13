@@ -1,6 +1,6 @@
 # The main window
 
-Under **View › Layout** you choose between three layouts. All show the same tree, arranged differently.
+Under **View › Layout** you choose between four layouts. All show the same tree, arranged differently.
 
 ## Navigator (default)
 
@@ -34,6 +34,10 @@ The middle shows the central person's **family**, laid out like classic genealog
 - The central person's **siblings** are shown above the couple. **Keyboard:** up arrow to the father (with Shift to the mother), down to the child, left/right through the siblings, Tab to the next tab.
 
 The [person table](hilfe:tabelle) (Ctrl+4) shows everyone as a table.
+
+## Local heritage book
+
+The family book as a live view: on the left the **place filter** (empty = all families) and the numbered families, alphabetical or chronological, in the middle the entries exactly as in the printed family book – spouses with a pointer to their parents’ family, marriage, children with a pointer to their own family, sources, godparents, notes. The pointers <7>, [12] and H3 jump to the entry, a click on a name opens the person sheet; after saving, the book is rebuilt. On the right the **houses and farms** of the place with history, residents and owners (api4webtrees 1.15 or later). So you read the local heritage book while entering data and see gaps before it is printed. Print and website: **Create › Create book › Family book**.
 
 ## Sources
 

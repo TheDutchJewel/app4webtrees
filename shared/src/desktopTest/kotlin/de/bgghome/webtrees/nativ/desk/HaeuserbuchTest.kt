@@ -106,7 +106,7 @@ class HaeuserbuchTest {
     fun wohnortUndBesitzZusammengezogen() {
         val b = bloecke(BuchOptionen(ortFilter = "Ennetach", bilder = false))
         val loew = b.filterIsInstance<Absatz>().map { a -> a.laeufe.joinToString("") { it.text } }.first { it.startsWith("Löw, Wunibald") }
-        assert("Wohnort und Besitz: von 1767 bis 1790 Klosterstraße 1 (früher Haus Nr. 77) – Haus und Garten" in loew) { loew }
+        assert("Wohnort und Besitz: von 1767 bis 1790 Klosterstraße 1 (früher Haus Nr. 77), Ennetach – Haus und Garten" in loew) { loew }
         assert(loew.count { it == '†' } == 1 && "Wohnort: 1790" !in loew) { loew }
         // Familie ohne Heirat steht nach dem fruehesten Ereignis der Eheleute im Jahrhundert 1700, nicht unter "?"
         val gruppen = b.filterIsInstance<Ueberschrift>().map { it.text }
