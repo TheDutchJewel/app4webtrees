@@ -329,7 +329,8 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
                         var linksBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_links", null)?.toFloatOrNull() ?: 280f) }
                         var rechtsBreite by remember { mutableStateOf(DeskLayout.prefs.getString("panel_rechts", null)?.toFloatOrNull() ?: 400f) }
                         val dichte = LocalDensity.current.density
-                        if (!vollbild) {
+                        // Im OFB-Aufbau ist die Familienliste die Navigation, die Personenliste bleibt weg
+                        if (!vollbild && layout != DeskLayout.Ofb) {
                             PersonIndex(state, viewModel, openWeb, search, Modifier.width(linksBreite.dp).fillMaxHeight())
                             Ziehgriff(onZiehen = { linksBreite = (linksBreite + it / dichte).coerceIn(180f, 600f) }) { DeskLayout.prefs.putString("panel_links", linksBreite.toString()) }
                         }

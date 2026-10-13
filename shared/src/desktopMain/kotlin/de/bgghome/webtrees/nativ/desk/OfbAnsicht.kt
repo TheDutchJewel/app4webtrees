@@ -48,6 +48,7 @@ import de.bgghome.webtrees.nativ.api.API_LOC_HIERARCHY
 import de.bgghome.webtrees.nativ.res.*
 import de.bgghome.webtrees.nativ.ui.AppViewModel
 import de.bgghome.webtrees.nativ.ui.UiState
+import de.bgghome.webtrees.nativ.ui.select
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -106,12 +107,15 @@ fun DeskOfb(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, 
     var ort by remember(tree) { mutableStateOf(prefs.getString("ofb_ort_$tree", null).orEmpty()) }
     var eingabe by remember(tree) { mutableStateOf(ort) }
     var chrono by remember { mutableStateOf(prefs.getBoolean("ofb_chrono", false)) }
+    // Am Bildschirm kurz: Quellen und Paten erst auf Wunsch (das gedruckte Buch hat sie immer)
+    var quellen by remember { mutableStateOf(prefs.getBoolean("ofb_quellen", false)) }
+    var paten by remember { mutableStateOf(prefs.getBoolean("ofb_paten", false)) }
     var neu by remember { mutableIntStateOf(0) }
     var warBeschaeftigt by remember { mutableStateOf(false) }
     LaunchedEffect(state.busy) { if (warBeschaeftigt && !state.busy) neu++; warBeschaeftigt = state.busy }
     var fortschritt by remember { mutableStateOf("") }
     val appName = de.bgghome.webtrees.nativ.ui.LocalAppName.current
-    val inhalt by produceState<Result<OfbInhalt>?>(null, tree, ort, chrono, neu) {
+    val inhalt by produceState<Result<OfbInhalt>?>(null, tree, ort, chrono, quellen, paten, neu) {
         value = null
         if (tree == null) return@produceState
         value = withContext(Dispatchers.IO) {
@@ -119,7 +123,7 @@ fun DeskOfb(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, 
                 val haeuser = (state.info?.api ?: 0) >= API_LOC_HIERARCHY
                 val d = familienbuchLaden(viewModel.client, tree, bilder = false, haeuser = haeuser, fortschritt = { fortschritt = it })
                 OrtsKurznamen.laden(viewModel.client, tree)
-                val o = BuchOptionen(bilder = false, ortFilter = ort, familienChronologisch = chrono, haeuser = haeuser)
+                val o = BuchOptionen(bilder = false, ortFilter = ort, familienChronologisch = chrono, haeuser = haeuser, quellen = quellen, paten = paten)
                 ofbInhalt(familienbuch(d, o, state.tree?.title.orEmpty(), appName))
             }
         }
@@ -138,6 +142,13 @@ fun DeskOfb(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, 
         val h = i?.haeuser?.indexOfFirst { it.anker == ziel } ?: -1
         if (h >= 0) { hausGewaehlt = ziel; scope.launch { rechts.animateScrollToItem(h) } }
     }
+    // Klick auf einen Namen zeigt die Person rechts in der Tafel, ein zweiter Klick kurz danach oeffnet das Personenblatt
+    var letzterKlick by remember { mutableStateOf("" to 0L) }
+    val personWaehlen: (String) -> Unit = { xref ->
+        val jetzt = System.currentTimeMillis()
+        if (letzterKlick.first == xref && jetzt - letzterKlick.second < 450) { openSheet?.invoke(xref); letzterKlick = "" to 0L }
+        else { viewModel.select(xref); letzterKlick = xref to jetzt }
+    }
     val listeBreite = rememberBreite("ofb_liste", 300f)
     val hausBreite = rememberBreite("ofb_haeuser", 340f)
 
@@ -148,6 +159,10 @@ fun DeskOfb(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, 
             LaunchedEffect(eingabe) { kotlinx.coroutines.delay(400); val neuOrt = eingabe.trim(); if (neuOrt != ort) { ort = neuOrt; prefs.putString("ofb_ort_$tree", ort) } }
             OutlinedTextField(eingabe, { eingabe = it }, label = { Text(stringResource(Res.string.desk_book_place_filter)) }, singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp))
+            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Haken(stringResource(Res.string.desk_book_sources), quellen) { quellen = it; prefs.putBoolean("ofb_quellen", it) }
+                Haken(stringResource(Res.string.desk_col_godparents), paten) { paten = it; prefs.putBoolean("ofb_paten", it) }
+            }
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Spacer(Modifier.weight(1f))
                 TextButton(onClick = { chrono = !chrono; prefs.putBoolean("ofb_chrono", chrono) }) {
@@ -191,7 +206,7 @@ fun DeskOfb(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, 
                     itemsIndexed(i.familien, key = { _, e -> e.anker }) { idx, e ->
                         val vorher = i.familien.getOrNull(idx - 1)?.let { i.gruppen[it.anker] }
                         i.gruppen[e.anker]?.takeIf { it != vorher }?.let { g -> Text(g, Modifier.padding(top = 12.dp, bottom = 4.dp), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold) }
-                        OfbEintragAnsicht(e, gewaehlt == e.anker, ::springe, openSheet)
+                        OfbEintragAnsicht(e, gewaehlt == e.anker, ::springe, personWaehlen)
                     }
                 }
                 ListenLeiste(mitte)
@@ -206,7 +221,7 @@ fun DeskOfb(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, 
                 HorizontalDivider(color = farben.outlineVariant)
                 Box(Modifier.weight(1f).fillMaxWidth()) {
                     LazyColumn(state = rechts, contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
-                        itemsIndexed(i.haeuser, key = { _, e -> e.anker }) { _, e -> OfbEintragAnsicht(e, hausGewaehlt == e.anker, ::springe, openSheet) }
+                        itemsIndexed(i.haeuser, key = { _, e -> e.anker }) { _, e -> OfbEintragAnsicht(e, hausGewaehlt == e.anker, ::springe, personWaehlen) }
                     }
                     ListenLeiste(rechts)
                 }
@@ -217,7 +232,7 @@ fun DeskOfb(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, 
 
 /** Ein Eintrag als Text: Nummer am Rand, Absaetze mit Einzug, Verweise und Namen anklickbar. */
 @Composable
-private fun OfbEintragAnsicht(e: OfbEintrag, hervorgehoben: Boolean, springe: (String) -> Unit, openSheet: ((String) -> Unit)?) {
+private fun OfbEintragAnsicht(e: OfbEintrag, hervorgehoben: Boolean, springe: (String) -> Unit, openSheet: (String) -> Unit) {
     val farben = MaterialTheme.colorScheme
     Column(Modifier.fillMaxWidth().background(if (hervorgehoben) farben.secondaryContainer.copy(alpha = 0.35f) else farben.background).padding(vertical = 6.dp)) {
         e.bloecke.forEach { b ->
@@ -231,13 +246,13 @@ private fun OfbEintragAnsicht(e: OfbEintrag, hervorgehoben: Boolean, springe: (S
 }
 
 @Composable
-private fun absatzText(b: Absatz, linkFarbe: androidx.compose.ui.graphics.Color, springe: (String) -> Unit, openSheet: ((String) -> Unit)?) = buildAnnotatedString {
+private fun absatzText(b: Absatz, linkFarbe: androidx.compose.ui.graphics.Color, springe: (String) -> Unit, openSheet: (String) -> Unit) = buildAnnotatedString {
     val link = TextLinkStyles(SpanStyle(color = linkFarbe), hoveredStyle = SpanStyle(color = linkFarbe, textDecoration = TextDecoration.Underline))
     b.laeufe.forEach { l ->
         val stil = SpanStyle(fontWeight = if (l.stil == Stil.Fett) FontWeight.Bold else null, fontStyle = if (l.stil == Stil.Kursiv) FontStyle.Italic else null)
         when {
             l.ziel != null -> withLink(LinkAnnotation.Clickable(l.ziel, link) { springe(l.ziel) }) { withStyle(stil) { append(l.text) } }
-            l.xref != null && openSheet != null -> withLink(LinkAnnotation.Clickable(l.xref, TextLinkStyles(hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline))) { openSheet(l.xref) }) { withStyle(stil) { append(l.text) } }
+            l.xref != null -> withLink(LinkAnnotation.Clickable(l.xref, TextLinkStyles(hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline))) { openSheet(l.xref) }) { withStyle(stil) { append(l.text) } }
             else -> withStyle(stil) { append(l.text) }
         }
     }

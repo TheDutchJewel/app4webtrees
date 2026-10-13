@@ -79,8 +79,6 @@ class OfbFensterBildErzeugen {
                         layout = DeskLayout.Ofb, onAufgaben = {}, onAenderungen = {}, onArchiv = {})
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Row(Modifier.fillMaxWidth().weight(1f)) {
-                        PersonIndex(st, vm, {}, FocusRequester(), Modifier.width(270.dp).fillMaxHeight())
-                        VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         Box(Modifier.weight(1f).fillMaxHeight()) { DeskOfb(st, vm, {}, {}) }
                         VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         Box(Modifier.width(380.dp).fillMaxHeight()) { st.detail?.let { ProfilePanel(st, it, vm, {}, onClose = null) } }

@@ -70,6 +70,8 @@ data class BuchOptionen(
     val farbkodierung: Boolean = true,
     val notizen: Boolean = true,
     val quellen: Boolean = true,
+    /** Paten und Trauzeugen in Klammern hinter Taufe und Heirat. */
+    val paten: Boolean = true,
     val orteKuerzen: Boolean = true,
     /** Doppelte Vorfahren (Ahnenschwund) ganz darstellen statt nur zu verweisen. */
     val doppelteZeigen: Boolean = false,
@@ -251,7 +253,7 @@ internal fun personText(p: Person, det: IndividualDetail, o: BuchOptionen, n: Lo
         val zeichen = EREIGNIS_ZEICHEN[f.tag] ?: "${f.label}:"
         val wert = if (EREIGNIS_ZEICHEN.containsKey(f.tag)) "" else f.value.takeIf(String::isNotBlank)?.let { " $it" }.orEmpty()
         // Paten ab API-Stufe 19 aus den verlinkten und freien Eintraegen, sonst aus der Notiz "Paten: ..."
-        val paten = if (f.tag in setOf("CHR", "BAPM")) (patenZeilenText(f).takeIf { it.isNotEmpty() }?.joinToString("; ") ?: f.notes.firstOrNull { it.startsWith("Paten") })?.let { " ($it)" }.orEmpty() else ""
+        val paten = if (o.paten && f.tag in setOf("CHR", "BAPM")) (patenZeilenText(f).takeIf { it.isNotEmpty() }?.joinToString("; ") ?: f.notes.firstOrNull { it.startsWith("Paten") })?.let { " ($it)" }.orEmpty() else ""
         return listOf("$zeichen$wert", buchDatum(f.date), ort).filter(String::isNotBlank).joinToString(" ") + paten + quelle(f)
     }
     // Lebensdaten in fester Reihenfolge, andere Ereignisse (Wohnort, Auswanderung ...) dazwischen
