@@ -44,6 +44,33 @@ class PruefOptionen(
     val jetzt: Int = java.time.Year.now().value,
     /** Bausteine der Begruendungen in der Sprache der Oberflaeche (PruefTexte.ausRessourcen); null = Deutsch. */
     val texte: ((String) -> String)? = null,
+    /** Was nur die Datei zeigt (gedaudit, GedcomLeser): Regeln 610-612 und 616-618; null im Export von webtrees. */
+    val datei: DateiBefund? = null,
+)
+
+/** Ein Verweis auf einen Datensatz, den es nicht gibt: an welchem Datensatz, mit welchem Tag, auf welche Kennung. */
+class Verweis(val record: String, val tag: String, val ziel: String)
+
+/** FAMC/FAMS/CHIL/HUSB/WIFE nur in einer Richtung: die Person, die Familie und das Tag, das fehlt. */
+class Rueckverweis(val person: String, val familie: String, val tag: String)
+
+/** Ein Tag, das nicht zum Standard gehoert: wie oft, und ein Datensatz, in dem es steht. */
+class TagVorkommen(val anzahl: Int, val beispiel: String?)
+
+/** Befund des Lesers ueber die Datei selbst (Form), fuer die Regeln 610-612 und 616-618. */
+class DateiBefund(
+    /** Zeilen, die kein GEDCOM sind: Zeilennummer und Text. */
+    val uebersprungen: List<Pair<Int, String>> = emptyList(),
+    val verweise: List<Verweis> = emptyList(),
+    /** Kennungen, die mehr als einmal vergeben sind, mit Anzahl. */
+    val doppelt: Map<String, Int> = emptyMap(),
+    val rueckverweise: List<Rueckverweis> = emptyList(),
+    val kopfFehlt: Boolean = false,
+    /** CHAR im Kopf und der Zeichensatz, mit dem die Datei tatsaechlich gelesen wurde; null = keine Angabe. */
+    val zeichensatzAngabe: String? = null,
+    val zeichensatzErkannt: String = "",
+    /** Tags ohne Unterstrich, die weder in 5.5.1 noch in 7 stehen. */
+    val fremdeTags: Map<String, TagVorkommen> = emptyMap(),
 )
 
 class PruefErgebnis(val treffer: Map<String, List<Treffer>>) {
@@ -151,8 +178,8 @@ internal fun modellAus(b: TreeExport, schaetzen: Boolean): PModell {
  */
 fun pruefen(baum: TreeExport, o: PruefOptionen = PruefOptionen()): PruefErgebnis {
     val m = modellAus(baum, o.schaetzen)
-    val de = Regeln(m, o.jetzt, BAUSTEINE_DE::getValue)
-    val en = o.texte?.let { Regeln(m, o.jetzt, it) }
+    val de = Regeln(m, o.jetzt, BAUSTEINE_DE::getValue, o.datei)
+    val en = o.texte?.let { Regeln(m, o.jetzt, it, o.datei) }
     val ergebnis = LinkedHashMap<String, List<Treffer>>()
     for (regel in Regelkatalog.alle) {
         if (regel.id in o.aus) continue
@@ -270,9 +297,20 @@ internal val BAUSTEINE_DE: Map<String, String> = mapOf(
     "weiblich" to "weiblich",
     "taufe" to "Taufe",
     "heirat" to "Heirat",
+    "zeile" to "Zeile",
+    "verweis_auf" to "Verweis auf",
+    "kennung_doppelt" to "Kennung doppelt vergeben",
+    "nicht_lesbar" to "nicht lesbar",
+    "ohne_namen" to "ohne Namen",
+    "geburten" to "Geburten",
+    "sterbefaelle" to "Sterbefälle",
+    "nur_hinweg" to "nur in einer Richtung",
+    "kopf_fehlt" to "Kopfsatz (HEAD) fehlt",
+    "datei" to "Datei",
+    "geschlecht_unbekannt" to "Geschlecht unbekannt",
 )
 
-private class Regeln(val m: PModell, val jetzt: Int, val texte: (String) -> String) {
+private class Regeln(val m: PModell, val jetzt: Int, val texte: (String) -> String, val datei: DateiBefund? = null) {
     fun w(schluessel: String) = texte(schluessel)
     fun d(x: PruefDatum?) = x?.text ?: "?"
     fun n(p: PPerson) = p.name.ifBlank { "?" }
@@ -512,7 +550,40 @@ private class Regeln(val m: PModell, val jetzt: Int, val texte: (String) -> Stri
             }
         }
         "513" -> orte().filter { (name, _) -> name.split(',').let { t -> t.size > 1 && t.any { it.isBlank() } } }.map { (name, o) -> T(o.person, o.familie, "„$name“ (${o.anzahl}×)", o.beispiel) }
+
+        // ── 6xx Form: der Aufbau der Datei (nur gedaudit: 610-612, 616-618) und Pflichtangaben (auch wtWin) ──
+        "610" -> datei?.uebersprungen.orEmpty().map { (nr, z) -> T(null, null, w("zeile") + " $nr: " + z.take(80)) }
+        "611" -> datei?.verweise.orEmpty().map { v -> T(v.record.takeIf { it in m.p }, v.record.takeIf { it in m.f }, "${v.tag} → @${v.ziel}@") }
+        "612" -> datei?.doppelt.orEmpty().map { (x, n) -> T(x.takeIf { it in m.p }, x.takeIf { it in m.f }, w("kennung_doppelt") + ": @$x@ ($n×)") }
+        "613" -> personen.flatMap { p -> p.fakten.mapNotNull { fa -> unlesbar(fa)?.let { T(p.xref, null, "${fa.label.ifBlank { fa.tag }}: „$it“ " + w("nicht_lesbar"), ref(p.xref, fa)) } } } +
+            familien.flatMap { f -> f.fakten.mapNotNull { fa -> unlesbar(fa)?.let { T(f.vater ?: f.mutter, f.xref, "${fa.label.ifBlank { fa.tag }}: „$it“ " + w("nicht_lesbar"), ref(f.xref, fa)) } } }
+        "614" -> personen.filter { it.vn.isBlank() && it.fn.isBlank() }.map { T(it.xref, null, it.xref + " " + w("ohne_namen"), nameF(it)) }
+        "615" -> personen.mapNotNull { p ->
+            val g = p.fakten.count { it.tag == "BIRT" }; val d = p.fakten.count { it.tag == "DEAT" }
+            if (g <= 1 && d <= 1) null else T(p.xref, null, listOfNotNull(g.takeIf { it > 1 }?.let { "$it " + w("geburten") }, d.takeIf { it > 1 }?.let { "$it " + w("sterbefaelle") }).joinToString(", "), geb(p), tod(p))
+        }
+        "616" -> datei?.rueckverweise.orEmpty().map { r -> T(r.person.takeIf { it in m.p }, r.familie, "${r.tag} " + w("nur_hinweg")) }
+        "617" -> datei?.let { d ->
+            listOfNotNull(
+                if (d.kopfFehlt) T(null, null, w("kopf_fehlt")) else null,
+                d.zeichensatzAngabe?.takeIf { it.isNotBlank() && !zeichensatzPasst(it, d.zeichensatzErkannt) }?.let { T(null, null, "CHAR $it, " + w("datei") + " ${d.zeichensatzErkannt}") },
+            )
+        }.orEmpty()
+        "618" -> datei?.fremdeTags.orEmpty().entries.sortedByDescending { it.value.anzahl }.map { (tag, v) -> T(v.beispiel?.takeIf { it in m.p }, v.beispiel?.takeIf { it in m.f }, "$tag (${v.anzahl}×)") }
+        "619" -> personen.filter { it.geschlecht == 'u' }.map { T(it.xref, null, w("geschlecht_unbekannt")) }
         else -> emptyList()
+    }
+
+    /** Die GEDCOM-Form eines Datums, die der Motor nicht lesen kann (kein Datum, Freitext in Klammern ist erlaubt). */
+    private fun unlesbar(fa: FactJson): String? {
+        val g = fa.date?.gedcom?.trim().orEmpty()
+        if (g.isEmpty() || g.startsWith("(") || g.uppercase().startsWith("INT ")) return null
+        return if (PruefDatum.aus(g) == null) g else null
+    }
+
+    private fun zeichensatzPasst(angabe: String, erkannt: String): Boolean {
+        val a = angabe.uppercase().replace("-", ""); val e = erkannt.uppercase().replace("-", "")
+        return a == e || (a == "UNICODE" && e == "UTF16") || (a == "ASCII" && e == "UTF8") || (a in setOf("CP1252", "WINDOWS1252", "WIN1252") && e == "ANSI")
     }
 
     fun kindNachTod(vater: Boolean, grenzeMonate: Double): List<T> = elterKind(vater).mapNotNull { (k, e, f) ->

@@ -77,7 +77,8 @@ class PruefungTest {
     private val falkenrath = File("../testdaten/falkenrath-1.3.ged")
 
     /** Die Regeln aus Stufe 2 (nicht im Python-Programm). */
-    private val stufe2 = setOf("024", "126", "127", "228", "310", "311", "315", "330", "420", "421", "510", "511", "512", "513")
+    private val stufe2 = setOf("024", "126", "127", "228", "310", "311", "315", "330", "420", "421", "510", "511", "512", "513") +
+        Regelkatalog.alle.map { it.id }.filter { it.startsWith("6") }.toSet()   // Form (gedaudit) ebenfalls nicht im Python-Programm
 
     @Test
     fun falkenrathWieDasPythonProgramm() {
@@ -87,7 +88,7 @@ class PruefungTest {
         assertEquals(listOf("I307", "I319", "I321", "I340", "I342", "I370", "I376"), e.treffer.getValue("010").map { it.person }.sortedBy { it!!.drop(1).toInt() })
         assertEquals("I329", e.treffer.getValue("016").single().person)
         assertEquals("F75", e.treffer.getValue("016").single().familie)
-        assertEquals(61, Regelkatalog.alle.size)
+        assertEquals(71, Regelkatalog.alle.size)
     }
 
     @Test

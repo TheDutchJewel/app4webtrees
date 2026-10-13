@@ -141,6 +141,7 @@ internal fun gruppenName(g: RegelGruppe) = when (g) {
     RegelGruppe.Namen -> Res.string.desk_check_group_names
     RegelGruppe.Quellen -> Res.string.desk_check_group_sources
     RegelGruppe.Orte -> Res.string.desk_check_group_places
+    RegelGruppe.Form -> Res.string.desk_check_group_form
 }
 
 internal val WARN_FARBE = Color(0xFFB26A00)

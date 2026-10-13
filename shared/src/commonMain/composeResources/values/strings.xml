@@ -1681,7 +1681,7 @@
     <string name="ga_open">Open GEDCOM file …</string>
     <string name="ga_recent">Recently opened</string>
     <string name="ga_reload">Reload file</string>
-    <string name="ga_welcome">gedaudit checks a GEDCOM file for contradictions and oddities: chronology, age limits, structure, names, sources and places. The file is only read; nothing leaves this computer.</string>
+    <string name="ga_welcome">gedaudit checks a GEDCOM file for contradictions and oddities: chronology, age limits, structure, names, sources, places and the form of the file. The file is only read; nothing leaves this computer.</string>
     <string name="ga_loading">Reading file …</string>
     <string name="ga_read_error">The file could not be read: %1$s</string>
     <string name="ga_file_info">%1$d individuals, %2$d families · %3$s</string>
@@ -1699,4 +1699,37 @@
     <string name="ga_appearance_light">Light</string>
     <string name="ga_appearance_dark">Dark</string>
     <string name="ga_hint">Checks the whole file. Errors are contradictions in the data, warnings are unusual but possible. Click shows the person below, the tick marks a finding as checked – it only returns when the data changes.</string>
+    <!-- Regelgruppe Form und Aufbau der Datei (gedaudit, 13.10.2026) -->
+    <string name="desk_check_group_form">Form</string>
+    <string name="regel_610">Are there lines in the file that are not GEDCOM?</string>
+    <string name="regel_611">Does a link point to a person or family that does not exist?</string>
+    <string name="regel_612">Is an identifier (@I12@, @F3@) used more than once?</string>
+    <string name="regel_613">Is a date written in a form that cannot be read?</string>
+    <string name="regel_614">Is there a person without a name?</string>
+    <string name="regel_615">Does a person have more than one birth or more than one death?</string>
+    <string name="regel_616">Is a family link recorded on one side only (FAMC/FAMS without CHIL/HUSB/WIFE, or the other way round)?</string>
+    <string name="regel_617">Is the header missing, or does its character set differ from the file?</string>
+    <string name="regel_618">Are there tags outside the GEDCOM standard (5.5.1 or 7)?</string>
+    <string name="regel_619">Is the sex of a person unknown?</string>
+    <string name="pruef_zeile">line</string>
+    <string name="pruef_verweis_auf">link to</string>
+    <string name="pruef_kennung_doppelt">identifier used twice</string>
+    <string name="pruef_nicht_lesbar">not readable</string>
+    <string name="pruef_ohne_namen">without a name</string>
+    <string name="pruef_geburten">births</string>
+    <string name="pruef_sterbefaelle">deaths</string>
+    <string name="pruef_nur_hinweg">on one side only</string>
+    <string name="pruef_kopf_fehlt">header (HEAD) missing</string>
+    <string name="pruef_datei">file</string>
+    <string name="pruef_geschlecht_unbekannt">sex unknown</string>
+    <string name="ga_structure">File structure</string>
+    <string name="ga_structure_menu">File structure …</string>
+    <string name="ga_structure_records">%1$d records</string>
+    <string name="ga_structure_std">standard</string>
+    <string name="ga_structure_vendor">vendor tag</string>
+    <string name="ga_structure_foreign">not in the standard</string>
+    <string name="ga_structure_head">Header: %1$s</string>
+    <string name="ga_structure_count">Count</string>
+    <string name="ga_structure_hint">The tag tree of the file by record type, with the number of occurrences. Tags with an underscore are vendor extensions; tags without one that are not in GEDCOM 5.5.1 or 7 are marked.</string>
+    <string name="ga_person_second">Second person</string>
 </resources>

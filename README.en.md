@@ -253,7 +253,7 @@ collections, thematic collections and the free holdings; the viewer with pinch z
 ## gedaudit: the plausibility check for GEDCOM files
 
 Since October 2026 this repository also contains **gedaudit**, a program of its own for Windows, Linux and macOS.
-It reads a GEDCOM file and checks it with the same 61 rules as the plausibility check in wtWin, without webtrees
+It reads a GEDCOM file and checks it with the same 61 rules as the plausibility check in wtWin plus ten rules on the form of the file, without webtrees
 and without a server. The file stays unchanged. Findings can be ticked off, printed and saved as PDF; a click on a
 finding shows the person with events, parents, partners and children. More on
 [gedaudit.bgg-home.de](https://gedaudit.bgg-home.de/). The packages are in the releases tagged `gedaudit-…`; build with

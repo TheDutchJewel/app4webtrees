@@ -1676,7 +1676,7 @@
     <string name="ga_open">Abrir archivo GEDCOM …</string>
     <string name="ga_recent">Abiertos recientemente</string>
     <string name="ga_reload">Volver a cargar el archivo</string>
-    <string name="ga_welcome">gedaudit comprueba un archivo GEDCOM en busca de contradicciones y anomalías: cronología, límites de edad, estructura, nombres, fuentes y lugares. El archivo solo se lee; nada sale de este equipo.</string>
+    <string name="ga_welcome">gedaudit comprueba un archivo GEDCOM en busca de contradicciones y anomalías: cronología, límites de edad, estructura, nombres, fuentes, lugares y la forma del archivo. El archivo solo se lee; nada sale de este equipo.</string>
     <string name="ga_loading">Leyendo el archivo …</string>
     <string name="ga_read_error">No se pudo leer el archivo: %1$s</string>
     <string name="ga_file_info">%1$d personas, %2$d familias · %3$s</string>
@@ -1694,4 +1694,37 @@
     <string name="ga_appearance_light">Claro</string>
     <string name="ga_appearance_dark">Oscuro</string>
     <string name="ga_hint">Comprueba todo el archivo. Los errores son contradicciones en los datos, los avisos son inusuales pero posibles. Un clic muestra la persona abajo, la marca da por comprobado un hallazgo – solo vuelve si cambian los datos.</string>
+    <!-- Regelgruppe Form und Aufbau der Datei (gedaudit, 13.10.2026) -->
+    <string name="desk_check_group_form">Forma</string>
+    <string name="regel_610">¿Hay líneas en el archivo que no son GEDCOM?</string>
+    <string name="regel_611">¿Apunta un enlace a una persona o familia que no existe?</string>
+    <string name="regel_612">¿Se usa un identificador (@I12@, @F3@) más de una vez?</string>
+    <string name="regel_613">¿Hay una fecha escrita de una forma que no se puede leer?</string>
+    <string name="regel_614">¿Hay una persona sin nombre?</string>
+    <string name="regel_615">¿Tiene una persona más de un nacimiento o más de una defunción?</string>
+    <string name="regel_616">¿Está un enlace familiar registrado solo por un lado (FAMC/FAMS sin CHIL/HUSB/WIFE o al revés)?</string>
+    <string name="regel_617">¿Falta la cabecera, o su juego de caracteres difiere del archivo?</string>
+    <string name="regel_618">¿Hay etiquetas fuera del estándar GEDCOM (5.5.1 o 7)?</string>
+    <string name="regel_619">¿Se desconoce el sexo de una persona?</string>
+    <string name="pruef_zeile">línea</string>
+    <string name="pruef_verweis_auf">enlace a</string>
+    <string name="pruef_kennung_doppelt">identificador repetido</string>
+    <string name="pruef_nicht_lesbar">ilegible</string>
+    <string name="pruef_ohne_namen">sin nombre</string>
+    <string name="pruef_geburten">nacimientos</string>
+    <string name="pruef_sterbefaelle">defunciones</string>
+    <string name="pruef_nur_hinweg">solo por un lado</string>
+    <string name="pruef_kopf_fehlt">falta la cabecera (HEAD)</string>
+    <string name="pruef_datei">archivo</string>
+    <string name="pruef_geschlecht_unbekannt">sexo desconocido</string>
+    <string name="ga_structure">Estructura del archivo</string>
+    <string name="ga_structure_menu">Estructura del archivo …</string>
+    <string name="ga_structure_records">%1$d registros</string>
+    <string name="ga_structure_std">estándar</string>
+    <string name="ga_structure_vendor">etiqueta del fabricante</string>
+    <string name="ga_structure_foreign">fuera del estándar</string>
+    <string name="ga_structure_head">Cabecera: %1$s</string>
+    <string name="ga_structure_count">Cantidad</string>
+    <string name="ga_structure_hint">El árbol de etiquetas del archivo por tipo de registro, con el número de apariciones. Las etiquetas con guion bajo son extensiones del fabricante; las que no lo llevan y no figuran en GEDCOM 5.5.1 o 7 están marcadas.</string>
+    <string name="ga_person_second">Segunda persona</string>
 </resources>

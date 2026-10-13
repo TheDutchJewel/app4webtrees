@@ -252,7 +252,7 @@ thematischen Sammlungen und dem freien Bestand; der Betrachter mit Kneifzoom und
 ## gedaudit: die Plausibilitätsprüfung für GEDCOM-Dateien
 
 Seit Oktober 2026 liegt in diesem Repository auch **gedaudit**, ein eigenes Programm für Windows, Linux und macOS.
-Es liest eine GEDCOM-Datei und prüft sie mit denselben 61 Regeln wie die Plausibilitätsprüfung in wtWin, ohne webtrees
+Es liest eine GEDCOM-Datei und prüft sie mit denselben 61 Regeln wie die Plausibilitätsprüfung in wtWin und zehn weiteren zur Form der Datei, ohne webtrees
 und ohne Server. Die Datei bleibt unverändert. Treffer lassen sich abhaken, drucken und als PDF speichern; ein Klick
 auf einen Treffer zeigt die Person mit ihren Ereignissen, Eltern, Partnern und Kindern. Mehr auf
 [gedaudit.bgg-home.de](https://gedaudit.bgg-home.de/de/). Die Pakete liegen in den Releases mit dem Kennzeichen

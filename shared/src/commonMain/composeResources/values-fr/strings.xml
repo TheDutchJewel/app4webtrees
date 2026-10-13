@@ -1676,7 +1676,7 @@
     <string name="ga_open">Ouvrir un fichier GEDCOM …</string>
     <string name="ga_recent">Récemment ouverts</string>
     <string name="ga_reload">Recharger le fichier</string>
-    <string name="ga_welcome">gedaudit vérifie un fichier GEDCOM à la recherche de contradictions et d’anomalies : chronologie, limites d’âge, structure, noms, sources et lieux. Le fichier est seulement lu ; rien ne quitte cet ordinateur.</string>
+    <string name="ga_welcome">gedaudit vérifie un fichier GEDCOM à la recherche de contradictions et d’anomalies : chronologie, limites d’âge, structure, noms, sources, lieux et forme du fichier. Le fichier est seulement lu ; rien ne quitte cet ordinateur.</string>
     <string name="ga_loading">Lecture du fichier …</string>
     <string name="ga_read_error">Le fichier n’a pas pu être lu : %1$s</string>
     <string name="ga_file_info">%1$d personnes, %2$d familles · %3$s</string>
@@ -1694,4 +1694,37 @@
     <string name="ga_appearance_light">Clair</string>
     <string name="ga_appearance_dark">Sombre</string>
     <string name="ga_hint">Vérifie tout le fichier. Les erreurs sont des contradictions dans les données, les avertissements sont inhabituels mais possibles. Un clic affiche la personne en bas, la coche marque un résultat comme vérifié – il ne revient que si les données changent.</string>
+    <!-- Regelgruppe Form und Aufbau der Datei (gedaudit, 13.10.2026) -->
+    <string name="desk_check_group_form">Forme</string>
+    <string name="regel_610">Le fichier contient-il des lignes qui ne sont pas du GEDCOM ?</string>
+    <string name="regel_611">Un lien pointe-t-il vers une personne ou une famille qui n’existe pas ?</string>
+    <string name="regel_612">Un identifiant (@I12@, @F3@) est-il utilisé plus d’une fois ?</string>
+    <string name="regel_613">Une date est-elle écrite sous une forme illisible ?</string>
+    <string name="regel_614">Y a-t-il une personne sans nom ?</string>
+    <string name="regel_615">Une personne a-t-elle plus d’une naissance ou plus d’un décès ?</string>
+    <string name="regel_616">Un lien familial n’est-il enregistré que d’un côté (FAMC/FAMS sans CHIL/HUSB/WIFE ou l’inverse) ?</string>
+    <string name="regel_617">L’en-tête manque-t-il, ou son jeu de caractères diffère-t-il du fichier ?</string>
+    <string name="regel_618">Y a-t-il des balises hors du standard GEDCOM (5.5.1 ou 7) ?</string>
+    <string name="regel_619">Le sexe d’une personne est-il inconnu ?</string>
+    <string name="pruef_zeile">ligne</string>
+    <string name="pruef_verweis_auf">lien vers</string>
+    <string name="pruef_kennung_doppelt">identifiant en double</string>
+    <string name="pruef_nicht_lesbar">illisible</string>
+    <string name="pruef_ohne_namen">sans nom</string>
+    <string name="pruef_geburten">naissances</string>
+    <string name="pruef_sterbefaelle">décès</string>
+    <string name="pruef_nur_hinweg">d’un seul côté</string>
+    <string name="pruef_kopf_fehlt">en-tête (HEAD) manquant</string>
+    <string name="pruef_datei">fichier</string>
+    <string name="pruef_geschlecht_unbekannt">sexe inconnu</string>
+    <string name="ga_structure">Structure du fichier</string>
+    <string name="ga_structure_menu">Structure du fichier …</string>
+    <string name="ga_structure_records">%1$d enregistrements</string>
+    <string name="ga_structure_std">standard</string>
+    <string name="ga_structure_vendor">balise d’éditeur</string>
+    <string name="ga_structure_foreign">hors standard</string>
+    <string name="ga_structure_head">En-tête : %1$s</string>
+    <string name="ga_structure_count">Nombre</string>
+    <string name="ga_structure_hint">L’arbre des balises du fichier par type d’enregistrement, avec le nombre d’occurrences. Les balises avec un tiret bas sont des extensions de l’éditeur ; celles sans tiret bas qui ne figurent pas dans GEDCOM 5.5.1 ou 7 sont marquées.</string>
+    <string name="ga_person_second">Deuxième personne</string>
 </resources>

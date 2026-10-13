@@ -31,6 +31,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,8 +55,11 @@ import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.Person
 import de.bgghome.webtrees.nativ.api.TreeExport
 import de.bgghome.webtrees.nativ.data.DesktopAblage
+import de.bgghome.webtrees.nativ.data.paarAus
 import de.bgghome.webtrees.nativ.gedcom.GedcomBefund
+import de.bgghome.webtrees.nativ.gedcom.GedcomDatei
 import de.bgghome.webtrees.nativ.gedcom.GedcomLeser
+import de.bgghome.webtrees.nativ.pruefung.DateiBefund
 import de.bgghome.webtrees.nativ.pruefung.Abhakliste
 import de.bgghome.webtrees.nativ.pruefung.PruefErgebnis
 import de.bgghome.webtrees.nativ.pruefung.PruefOptionen
@@ -93,7 +97,7 @@ object GedauditAblage {
 /** Hilfe von gedaudit: das eigene Kapitel und das der Pruefung. */
 fun gedauditHilfeEinrichten() { HilfeTexte.REIHENFOLGE = listOf("gedaudit", "pruefung") }
 
-class GeladeneDatei(val datei: File, val baum: TreeExport, val befund: GedcomBefund)
+class GeladeneDatei(val datei: File, val baum: TreeExport, val befund: GedcomBefund, val gedcom: GedcomDatei, val form: DateiBefund)
 
 private fun gedcomWaehlen(titel: String): File? {
     val dialog = FileDialog(null as Frame?, titel, FileDialog.LOAD).apply {
@@ -118,14 +122,15 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
     var schaetzen by remember { mutableStateOf(wahl.schaetzen) }
     var voreinstellung by remember { mutableStateOf(wahl.voreinstellung) }
     var gewaehlt by remember { mutableStateOf<String?>(null) }
-    var person by remember { mutableStateOf<String?>(null) }
+    var treffer by remember { mutableStateOf<Treffer?>(null) }
+    var aufbau by remember { mutableStateOf(false) }
     var abhak by remember { mutableStateOf(ablage.laden()) }
     var zeigeAbgehakt by remember { mutableStateOf(false) }
     var ueber by remember { mutableStateOf(false) }
     var zuletzt by remember { mutableStateOf(GedauditAblage.zuletzt()) }
     fun schwereVon(id: String) = schwere[id] ?: Regelkatalog.nachId.getValue(id).schwere
     fun eigene() { voreinstellung = "eigene"; wahl.voreinstellung = "eigene" }
-    fun oeffnen(f: File) { datei = f; person = null; gewaehlt = null; GedauditAblage.merken(f); zuletzt = GedauditAblage.zuletzt() }
+    fun oeffnen(f: File) { datei = f; treffer = null; gewaehlt = null; GedauditAblage.merken(f); zuletzt = GedauditAblage.zuletzt() }
     fun waehlen() { gedcomWaehlen(Texte.t(Res.string.ga_open))?.let(::oeffnen) }
 
     val geladen by produceState<Result<GeladeneDatei>?>(null, datei, neu) {
@@ -134,7 +139,8 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
         value = withContext(Dispatchers.IO) {
             runCatching {
                 val d = GedcomLeser.lesen(f)
-                GeladeneDatei(f, GedcomLeser.alsExport(d, stand = f.lastModified()), d.befund)
+                val (baum, form) = GedcomLeser.auswerten(d, stand = f.lastModified())
+                GeladeneDatei(f, baum, d.befund, d, form)
             }
         }
     }
@@ -144,7 +150,7 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
     val abgehakt = abhak.fuer(baumSchluessel)
     val ergebnis by produceState<PruefErgebnis?>(null, baum, aus, grenzwerte, schaetzen) {
         val b = baum ?: run { value = null; return@produceState }
-        value = withContext(Dispatchers.Default) { pruefen(b, PruefOptionen(grenzwerte, aus, schaetzen, texte = PruefTexte.ausRessourcen(Sprache.aktiv))) }
+        value = withContext(Dispatchers.Default) { pruefen(b, PruefOptionen(grenzwerte, aus, schaetzen, texte = PruefTexte.ausRessourcen(Sprache.aktiv), datei = geladen?.getOrNull()?.form)) }
     }
     LaunchedEffect(aus) { wahl.aus(aus) }
     LaunchedEffect(geladen) { geladen?.exceptionOrNull()?.let { datei?.let(GedauditAblage::vergessen); zuletzt = GedauditAblage.zuletzt() } }
@@ -173,6 +179,8 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
             Item(stringResource(Res.string.desk_quit), shortcut = KeyShortcut(Key.Q, ctrl = true), onClick = onQuit)
         }
         Menu(stringResource(Res.string.desk_menu_view)) {
+            Item(stringResource(Res.string.ga_structure_menu), enabled = baum != null, shortcut = KeyShortcut(Key.F6), onClick = { aufbau = true })
+            Separator()
             Menu(stringResource(Res.string.ga_menu_language)) {
                 RadioButtonItem(stringResource(Res.string.ga_menu_system), selected = Sprache.wahl.value == null, onClick = { Sprache.setzen(null) })
                 Sprache.ALLE.forEach { (code, name) -> RadioButtonItem(name, selected = Sprache.wahl.value == code, onClick = { Sprache.setzen(code) }) }
@@ -287,9 +295,8 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
                                     val trefferListe = rememberLazyListState()
                                     LazyColumn(Modifier.fillMaxSize(), state = trefferListe) {
                                         items(zeilen) { t ->
-                                            val xref = trefferPerson(t, b)
-                                            TrefferZeileDatei(t, b, r == null, schwereVon(t.regel), t.schluessel in abgehakt, aktiv = xref != null && xref == person,
-                                                onClick = { person = xref }, onAbhaken = { abhaken(t) })
+                                            TrefferZeileDatei(t, b, r == null, schwereVon(t.regel), t.schluessel in abgehakt, aktiv = t === treffer,
+                                                onClick = { treffer = t }, onAbhaken = { abhaken(t) })
                                         }
                                     }
                                     ListenLeiste(trefferListe)
@@ -298,7 +305,17 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
                         }
                     }
                     TrennerWaagrecht(personHoehe, "ga_person", 120f, 600f, unten = true)
-                    Box(Modifier.height(personHoehe.value.dp).fillMaxWidth()) { PersonKarte(b, person) }
+                    Box(Modifier.height(personHoehe.value.dp).fillMaxWidth()) {
+                        // Die Person des Treffers und, bei Paaren (Dubletten, Eltern und Kind, Partner), die zweite daneben
+                        val erste = treffer?.let { trefferPerson(it, b) }
+                        val zweite = treffer?.let { t -> paarAus(t)?.geht ?: t.fakten.map { it.record }.firstOrNull { it != erste && it in b.individuals } }
+                        if (zweite == null || erste == null) PersonKarte(b, erste)
+                        else Row(Modifier.fillMaxSize()) {
+                            Box(Modifier.weight(1f).fillMaxHeight()) { PersonKarte(b, erste) }
+                            VerticalDivider(Modifier.padding(horizontal = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                            Box(Modifier.weight(1f).fillMaxHeight()) { PersonKarte(b, zweite) }
+                        }
+                    }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Box(Modifier.weight(1f)) { Knopf(stringResource(Res.string.ga_open), true, onClick = ::waehlen) }
@@ -312,6 +329,7 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
     }
     HilfeFenster()
     if (ueber) GedauditUeber(appName) { ueber = false }
+    if (aufbau) geladen?.getOrNull()?.let { g -> AufbauFenster(g.gedcom, g.datei.name) { aufbau = false } }
 }
 
 @Composable
@@ -340,7 +358,7 @@ private fun TrefferZeileDatei(t: Treffer, b: TreeExport, mitRegel: Boolean, schw
     val blass = if (abgehakt) 0.45f else 1f
     Row(
         Modifier.fillMaxWidth().background(if (aktiv) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent)
-            .fokusRahmen().clickable(enabled = xref != null, onClick = onClick).padding(start = 8.dp, top = 3.dp, bottom = 3.dp),
+            .fokusRahmen().clickable(onClick = onClick).padding(start = 8.dp, top = 3.dp, bottom = 3.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (mitRegel) Text(t.regel, Modifier.width(40.dp), style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace,

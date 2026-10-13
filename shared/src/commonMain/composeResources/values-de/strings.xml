@@ -1676,7 +1676,7 @@
     <string name="ga_open">GEDCOM-Datei öffnen …</string>
     <string name="ga_recent">Zuletzt geöffnet</string>
     <string name="ga_reload">Datei neu laden</string>
-    <string name="ga_welcome">gedaudit prüft eine GEDCOM-Datei auf Widersprüche und Auffälligkeiten: Chronologie, Altersgrenzen, Struktur, Namen, Quellen und Orte. Die Datei wird nur gelesen, nichts verlässt diesen Rechner.</string>
+    <string name="ga_welcome">gedaudit prüft eine GEDCOM-Datei auf Widersprüche und Auffälligkeiten: Chronologie, Altersgrenzen, Struktur, Namen, Quellen, Orte und die Form der Datei. Die Datei wird nur gelesen, nichts verlässt diesen Rechner.</string>
     <string name="ga_loading">Datei wird gelesen …</string>
     <string name="ga_read_error">Die Datei konnte nicht gelesen werden: %1$s</string>
     <string name="ga_file_info">%1$d Personen, %2$d Familien · %3$s</string>
@@ -1694,4 +1694,37 @@
     <string name="ga_appearance_light">Hell</string>
     <string name="ga_appearance_dark">Dunkel</string>
     <string name="ga_hint">Prüft die ganze Datei. Fehler sind Widersprüche in den Daten, Warnungen sind ungewöhnlich, aber möglich. Klick zeigt die Person unten, der Haken hakt einen Treffer ab – er kommt nur wieder, wenn sich die Daten ändern.</string>
+    <!-- Regelgruppe Form und Aufbau der Datei (gedaudit, 13.10.2026) -->
+    <string name="desk_check_group_form">Form</string>
+    <string name="regel_610">Stehen in der Datei Zeilen, die kein GEDCOM sind?</string>
+    <string name="regel_611">Zeigt ein Verweis auf eine Person oder Familie, die es nicht gibt?</string>
+    <string name="regel_612">Ist eine Kennung (@I12@, @F3@) mehr als einmal vergeben?</string>
+    <string name="regel_613">Ist ein Datum in einer Form geschrieben, die sich nicht lesen lässt?</string>
+    <string name="regel_614">Gibt es eine Person ohne Namen?</string>
+    <string name="regel_615">Hat eine Person mehr als eine Geburt oder mehr als einen Tod?</string>
+    <string name="regel_616">Steht eine Familienverbindung nur auf einer Seite (FAMC/FAMS ohne CHIL/HUSB/WIFE oder umgekehrt)?</string>
+    <string name="regel_617">Fehlt der Kopfsatz, oder weicht sein Zeichensatz von der Datei ab?</string>
+    <string name="regel_618">Gibt es Tags außerhalb des GEDCOM-Standards (5.5.1 oder 7)?</string>
+    <string name="regel_619">Ist das Geschlecht einer Person unbekannt?</string>
+    <string name="pruef_zeile">Zeile</string>
+    <string name="pruef_verweis_auf">Verweis auf</string>
+    <string name="pruef_kennung_doppelt">Kennung doppelt vergeben</string>
+    <string name="pruef_nicht_lesbar">nicht lesbar</string>
+    <string name="pruef_ohne_namen">ohne Namen</string>
+    <string name="pruef_geburten">Geburten</string>
+    <string name="pruef_sterbefaelle">Sterbefälle</string>
+    <string name="pruef_nur_hinweg">nur in einer Richtung</string>
+    <string name="pruef_kopf_fehlt">Kopfsatz (HEAD) fehlt</string>
+    <string name="pruef_datei">Datei</string>
+    <string name="pruef_geschlecht_unbekannt">Geschlecht unbekannt</string>
+    <string name="ga_structure">Aufbau der Datei</string>
+    <string name="ga_structure_menu">Aufbau der Datei …</string>
+    <string name="ga_structure_records">%1$d Datensätze</string>
+    <string name="ga_structure_std">Standard</string>
+    <string name="ga_structure_vendor">Hersteller-Tag</string>
+    <string name="ga_structure_foreign">nicht im Standard</string>
+    <string name="ga_structure_head">Kopfsatz: %1$s</string>
+    <string name="ga_structure_count">Anzahl</string>
+    <string name="ga_structure_hint">Der Tag-Baum der Datei je Datensatzart mit der Zahl der Vorkommen. Tags mit Unterstrich sind Erweiterungen des Herstellers; Tags ohne Unterstrich, die nicht in GEDCOM 5.5.1 oder 7 stehen, sind markiert.</string>
+    <string name="ga_person_second">Zweite Person</string>
 </resources>

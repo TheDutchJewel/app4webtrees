@@ -12,9 +12,15 @@ GEDCOM 5.5, 5.5.1 and 7 are read. The character set is taken from the file (UTF-
 
 The rules are listed in groups on the left, the findings on the right. How rules, presets, limits and ticking off work is explained in the chapter [Plausibility check](hilfe:pruefung). The difference to wtWin: there is no person sheet and no editing, because gedaudit never writes to the file. Corrections are made in the genealogy program the file came from; then export the file again and reload it in gedaudit.
 
+## Form of the file
+
+The **Form** group exists for files only: lines that are not GEDCOM, links to persons or families that do not exist, identifiers used twice, dates in an unreadable form, persons without a name, more than one birth or death, family links recorded on one side only, a missing header or a character set in the header that does not match the file, and tags outside the 5.5.1 or 7 standard. The last two rules are off by default because some programs trigger them a lot.
+
+**View › File structure …** (F6) shows the tag tree per record type with the number of occurrences. Vendor tags (with underscore) and tags outside the standard are highlighted. This shows what one program writes on export and what another will lose on import.
+
 ## Viewing a person
 
-Clicking a finding shows the **person** below: events with date, place and number of sources, the parents, the partners with marriage and the children. The identifiers (I123, F45) are those from the file, so you can find the person again in the program of origin. The divider above the card can be dragged.
+Clicking a finding shows the **person** below: events with date, place and number of sources, the parents, the partners with marriage and the children. If a finding concerns two persons, such as a possible duplicate or child and mother, both are shown side by side. The identifiers (I123, F45) are those from the file, so you can find the person again in the program of origin. The divider above the card can be dragged.
 
 ## Ticking off
 

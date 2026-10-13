@@ -2,7 +2,9 @@ package de.bgghome.webtrees.nativ.pruefung
 
 /*
  * Der Regelkatalog der Plausibilitaetspruefung. Kennnummern wie im Pruefprogramm von db-blank
- * (0xx Chronologie, 1xx Altersgrenzen, 2xx Struktur, 3xx Namen, 4xx Quellen); 5xx Orte ist neu (Stufe 2, 27.09.2026).
+ * (0xx Chronologie, 1xx Altersgrenzen, 2xx Struktur, 3xx Namen, 4xx Quellen); 5xx Orte ist neu (Stufe 2, 27.09.2026),
+ * 6xx Form (13.10.2026, fuer gedaudit): Aufbau der Datei, Verweise, Datumsform, Pflichtangaben - was nur die Datei
+ * selbst zeigt (610-612, 616-618), bekommt der Motor als [DateiBefund]; im Export von webtrees bleiben diese Regeln leer.
  * Die Fragen zu den Regeln und die Namen der Voreinstellungen stehen in den Ressourcen (regel_<id>, preset_<id>,
  * siehe PruefTexte); der Motor selbst braucht sie nicht und laeuft in Tests ohne Compose-Ressourcen.
  */
@@ -12,7 +14,7 @@ enum class Schwere { Fehler, Warnung }
 /** Einheit des Grenzwerts. */
 enum class Einheit { Jahre, Monate, Anzahl, Kilometer }
 
-enum class RegelGruppe { Chronologie, Alter, Struktur, Namen, Quellen, Orte }
+enum class RegelGruppe { Chronologie, Alter, Struktur, Namen, Quellen, Orte, Form }
 
 class Regel(
     val id: String,
@@ -32,6 +34,7 @@ object Regelkatalog {
     private val NA = RegelGruppe.Namen
     private val Q = RegelGruppe.Quellen
     private val O = RegelGruppe.Orte
+    private val FO = RegelGruppe.Form
     private val F = Schwere.Fehler
     private val W = Schwere.Warnung
     private val J = Einheit.Jahre
@@ -106,6 +109,17 @@ object Regelkatalog {
         Regel("511", O, W, null, null, standardAus = true),
         Regel("512", O, W, 100.0, KM),
         Regel("513", O, W, null, null),
+
+        Regel("610", FO, F, null, null),
+        Regel("611", FO, F, null, null),
+        Regel("612", FO, F, null, null),
+        Regel("613", FO, W, null, null),
+        Regel("614", FO, W, null, null),
+        Regel("615", FO, W, null, null),
+        Regel("616", FO, F, null, null),
+        Regel("617", FO, W, null, null),
+        Regel("618", FO, W, null, null, standardAus = true),
+        Regel("619", FO, W, null, null, standardAus = true),
     )
 
     val nachId: Map<String, Regel> = alle.associateBy { it.id }
@@ -129,18 +143,18 @@ class Voreinstellung(
             Voreinstellung("streng",
                 mapOf("110" to 100.0, "111" to 16.0, "112" to 50.0, "113" to 16.0, "114" to 70.0, "115" to 16.0, "116" to 80.0,
                     "117" to 25.0, "118" to 9.0, "119" to 25.0, "120" to 14.0, "124" to 10.0, "126" to 14.0, "127" to 100.0, "228" to 3.0, "512" to 50.0),
-                setOf("511"), mapOf("017" to Schwere.Fehler, "222" to Schwere.Fehler, "330" to Schwere.Fehler)),
+                setOf("511", "618"), mapOf("017" to Schwere.Fehler, "222" to Schwere.Fehler, "330" to Schwere.Fehler)),
             // weit: nur, was wirklich nicht sein kann
             Voreinstellung("grosszuegig",
                 mapOf("110" to 120.0, "111" to 10.0, "112" to 58.0, "113" to 10.0, "114" to 90.0, "115" to 12.0, "116" to 110.0,
                     "117" to 60.0, "119" to 40.0, "120" to 20.0, "121" to 5.0, "124" to 20.0, "126" to 7.0, "127" to 120.0, "512" to 300.0),
-                setOf("017", "022", "023", "211", "223", "224", "228", "310", "311", "420", "421", "511", "513")),
+                setOf("017", "022", "023", "211", "223", "224", "228", "310", "311", "420", "421", "511", "513", "618", "619")),
             // Quellen: wie Ausgewogen, dazu die Quellenregeln (Ereignisse und Personen ohne Beleg), die sonst aus sind
             Voreinstellung("quellen", emptyMap(), Regelkatalog.standardAus - setOf("420", "421")),
             // Kirchenbuch (18./19. Jh.): Taufe steht fuer die Geburt, Paten zaehlen, Reihenfolge der Kinder ist Darstellung
             Voreinstellung("kirchenbuch",
                 mapOf("111" to 14.0, "112" to 52.0, "113" to 16.0, "114" to 80.0, "118" to 9.0, "122" to 1.0, "126" to 12.0),
-                setOf("023", "223", "420", "421", "511"), mapOf("024" to Schwere.Fehler)),
+                setOf("023", "223", "420", "421", "511", "618", "619"), mapOf("024" to Schwere.Fehler)),
         )
     }
 }

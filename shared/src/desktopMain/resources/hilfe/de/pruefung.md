@@ -1,13 +1,13 @@
 # Plausibilitätsprüfung
 
-**Extras › Plausibilitätsprüfung …** (Strg+Umschalt+P) oder das Symbol **Prüfung** prüft den ganzen Stammbaum, soweit du ihn sehen darfst, mit 61 Regeln. **Fehler** sind Widersprüche in den Daten (Tod vor Geburt, eigener Vorfahr), **Warnungen** sind ungewöhnlich, aber möglich (Mutter sehr jung, Pate schon gestorben, mögliche Dublette, Ortsvariante). Die Patenregeln (024, 126) nehmen mit api4webtrees ab 1.11 die verknüpften Paten und Trauzeugen direkt und suchen frei eingetragene über den Namen; mit einem älteren Modul lesen sie die Notiz „Paten: …“.
+**Extras › Plausibilitätsprüfung …** (Strg+Umschalt+P) oder das Symbol **Prüfung** prüft den ganzen Stammbaum, soweit du ihn sehen darfst, mit 71 Regeln. **Fehler** sind Widersprüche in den Daten (Tod vor Geburt, eigener Vorfahr), **Warnungen** sind ungewöhnlich, aber möglich (Mutter sehr jung, Pate schon gestorben, mögliche Dublette, Ortsvariante). Die Patenregeln (024, 126) nehmen mit api4webtrees ab 1.11 die verknüpften Paten und Trauzeugen direkt und suchen frei eingetragene über den Namen; mit einem älteren Modul lesen sie die Notiz „Paten: …“.
 
 ![](desktop-pruefung.jpg)
 
 
 ## Regeln und Grenzen
 
-Die Regeln stehen links in Gruppen: **Chronologie**, **Altersgrenzen**, **Struktur**, **Namen**, **Quellen**, **Orte**. Ein Klick auf eine Regel zeigt nur ihre Treffer, **Alle Treffer** wieder alles.
+Die Regeln stehen links in Gruppen: **Chronologie**, **Altersgrenzen**, **Struktur**, **Namen**, **Quellen**, **Orte**, **Form**. Die Gruppe Form prüft den Aufbau einer GEDCOM-Datei (Verweise, Datumsform, Pflichtangaben); in wtWin greifen davon nur die Regeln, die auch im Baum sichtbar sind. Ein Klick auf eine Regel zeigt nur ihre Treffer, **Alle Treffer** wieder alles.
 
 - **Voreinstellung:** von streng bis großzügig; „Quellen belegen“ schaltet zusätzlich die Regeln 420 und 421 ein (Ereignisse und Personen ohne Quelle). Sobald du etwas änderst, heißt sie „Eigene Einstellung“.
 - Je Regel: **Grenze** (Jahre oder Monate, die Vorgabe steht dabei), **Schwere** (Fehler oder Warnung) oder die Regel ganz ausschalten.

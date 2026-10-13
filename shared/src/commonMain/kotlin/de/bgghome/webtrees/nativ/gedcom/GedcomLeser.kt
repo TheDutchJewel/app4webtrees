@@ -12,6 +12,10 @@ import de.bgghome.webtrees.nativ.api.PlaceJson
 import de.bgghome.webtrees.nativ.api.SourceRef
 import de.bgghome.webtrees.nativ.api.TreeExport
 import de.bgghome.webtrees.nativ.data.hauptHeirat
+import de.bgghome.webtrees.nativ.pruefung.DateiBefund
+import de.bgghome.webtrees.nativ.pruefung.Rueckverweis
+import de.bgghome.webtrees.nativ.pruefung.TagVorkommen
+import de.bgghome.webtrees.nativ.pruefung.Verweis
 import de.bgghome.webtrees.nativ.res.Res
 import de.bgghome.webtrees.nativ.res.date_text_about
 import de.bgghome.webtrees.nativ.res.date_text_after
@@ -60,7 +64,18 @@ class GedcomSatz(val art: String, val xref: String, val knoten: GedcomKnoten)
 /** Was beim Lesen auffiel: Zeichensatz, uebersprungene Zeilen, fehlende Verweise. */
 class GedcomBefund(val zeichensatz: String, val zeilen: Int, val uebersprungen: Int, val fehlendeVerweise: Int)
 
-class GedcomDatei(val saetze: List<GedcomSatz>, val befund: GedcomBefund)
+class GedcomDatei(
+    val saetze: List<GedcomSatz>,
+    val befund: GedcomBefund,
+    /** Zeilen, die kein GEDCOM sind (Nummer, Text), hoechstens die ersten 500. */
+    val uebersprungen: List<Pair<Int, String>> = emptyList(),
+    /** Kennungen, die mehr als einmal vergeben sind. */
+    val doppelt: Map<String, Int> = emptyMap(),
+) {
+    val kopf: GedcomKnoten? get() = saetze.firstOrNull { it.art == "HEAD" }?.knoten
+    /** "1 CHAR" im Kopf, wie geschrieben. */
+    val zeichensatzAngabe: String? get() = kopf?.wert("CHAR")
+}
 
 object GedcomLeser {
 
@@ -76,19 +91,21 @@ object GedcomLeser {
         val saetze = ArrayList<GedcomSatz>()
         val stapel = ArrayList<GedcomKnoten>()   // Knoten je Stufe
         var zeilen = 0; var uebersprungen = 0
+        val schlecht = ArrayList<Pair<Int, String>>()
+        val kennungen = HashMap<String, Int>()
         var zuletzt: GedcomKnoten? = null
         for (roh in text.lineSequence()) {
             val z = roh.trimEnd('\r').let { if (zeilen == 0) it.removePrefix("﻿") else it }.trimStart()
             if (z.isEmpty()) continue
             zeilen++
             val m = ZEILE.matchEntire(z)
-            if (m == null) { uebersprungen++; continue }
+            if (m == null) { uebersprungen++; if (schlecht.size < 500) schlecht += zeilen to z; continue }
             val stufe = m.groupValues[1].toInt()
             val xref = m.groupValues[2].takeIf { it.isNotEmpty() }?.trim('@')
             val tag = m.groupValues[3].uppercase()
             val wert = m.groupValues[4]
             if (tag == "CONT" || tag == "CONC") {
-                val ziel = zuletzt ?: run { uebersprungen++; continue }
+                val ziel = zuletzt ?: run { uebersprungen++; if (schlecht.size < 500) schlecht += zeilen to z; continue }
                 ziel.wert = if (tag == "CONT") ziel.wert + "\n" + wert else ziel.wert + wert
                 continue
             }
@@ -97,15 +114,16 @@ object GedcomLeser {
                 stapel.clear(); stapel += knoten
                 // "0 @I1@ INDI" oder "0 HEAD" / "0 TRLR"
                 saetze += GedcomSatz(tag, xref.orEmpty(), knoten)
+                if (!xref.isNullOrEmpty()) kennungen.merge(xref, 1, Int::plus)
             } else {
-                if (stufe > stapel.size) { uebersprungen++; continue }
+                if (stufe > stapel.size) { uebersprungen++; if (schlecht.size < 500) schlecht += zeilen to z; continue }
                 while (stapel.size > stufe) stapel.removeAt(stapel.lastIndex)
                 stapel.last().kinder += knoten
                 stapel += knoten
             }
             zuletzt = knoten
         }
-        return GedcomDatei(saetze, GedcomBefund(zeichensatz, zeilen, uebersprungen, 0))
+        return GedcomDatei(saetze, GedcomBefund(zeichensatz, zeilen, uebersprungen, 0), schlecht, kennungen.filterValues { it > 1 })
     }
 
     private val ZEILE = Regex("^(\\d{1,2}) (?:(@[^@]+@) )?([A-Za-z0-9_]+)(?: (.*))?$")
@@ -115,6 +133,22 @@ object GedcomLeser {
     /** Der Baum in der Form von api4webtrees; [jetzt] fuer "vermutlich lebend". */
     fun alsExport(d: GedcomDatei, jetzt: Int = java.time.Year.now().value, stand: Long = 0): TreeExport =
         Umsetzer(d, jetzt).export(stand)
+
+    /** Baum und Befund ueber die Form der Datei (Regeln 6xx) in einem Gang. */
+    fun auswerten(d: GedcomDatei, jetzt: Int = java.time.Year.now().value, stand: Long = 0): Pair<TreeExport, DateiBefund> {
+        val u = Umsetzer(d, jetzt)
+        val baum = u.export(stand)
+        return baum to DateiBefund(
+            uebersprungen = d.uebersprungen,
+            verweise = u.verweise,
+            doppelt = d.doppelt,
+            rueckverweise = u.rueckverweise(),
+            kopfFehlt = d.kopf == null,
+            zeichensatzAngabe = d.zeichensatzAngabe,
+            zeichensatzErkannt = d.befund.zeichensatz,
+            fremdeTags = u.fremdeTags(),
+        )
+    }
 
     private class Umsetzer(val d: GedcomDatei, val jetzt: Int) {
         val quellen: Map<String, String> = d.saetze.filter { it.art == "SOUR" }.associate { s ->
@@ -131,12 +165,15 @@ object GedcomLeser {
             s.xref to ("$vn $fn".trim() to (s.knoten.wert("SEX")?.take(1)?.uppercase() ?: "U"))
         }
         var fehlend = 0
+        val verweise = ArrayList<Verweis>()
+        /** Welcher Datensatz gerade umgesetzt wird (fuer die Verweise). */
+        private var aktuell = ""
 
         fun export(stand: Long): TreeExport {
             val personen = LinkedHashMap<String, ExportIndividual>()
             val familien = LinkedHashMap<String, ExportFamily>()
-            indis.forEach { s -> personen[s.xref] = person(s) }
-            fams.forEach { s -> familien[s.xref] = familie(s) }
+            indis.forEach { s -> aktuell = s.xref; personen[s.xref] = person(s) }
+            fams.forEach { s -> aktuell = s.xref; familien[s.xref] = familie(s) }
             return TreeExport(stand, personen, familien)
         }
 
@@ -170,8 +207,8 @@ object GedcomLeser {
             )
             return ExportIndividual(
                 person = person,
-                famc = k.alle("FAMC").map { it.wert.trim('@') }.filter { verweis(it, famIds) },
-                fams = k.alle("FAMS").map { it.wert.trim('@') }.filter { verweis(it, famIds) },
+                famc = k.alle("FAMC").map { it.wert.trim('@') }.filter { verweis(it, famIds, "FAMC") },
+                fams = k.alle("FAMS").map { it.wert.trim('@') }.filter { verweis(it, famIds, "FAMS") },
                 facts = mitPaten,
             )
         }
@@ -182,15 +219,45 @@ object GedcomLeser {
             val heirat = fakten.hauptHeirat()
             return ExportFamily(
                 xref = s.xref,
-                husband = k.wert("HUSB")?.trim('@')?.takeIf { verweis(it, indiIds) },
-                wife = k.wert("WIFE")?.trim('@')?.takeIf { verweis(it, indiIds) },
-                children = k.alle("CHIL").map { it.wert.trim('@') }.filter { verweis(it, indiIds) },
+                husband = k.wert("HUSB")?.trim('@')?.takeIf { verweis(it, indiIds, "HUSB") },
+                wife = k.wert("WIFE")?.trim('@')?.takeIf { verweis(it, indiIds, "WIFE") },
+                children = k.alle("CHIL").map { it.wert.trim('@') }.filter { verweis(it, indiIds, "CHIL") },
                 marriage = heirat?.let { EventJson(it.date, it.place) },
                 facts = fakten,
             )
         }
 
-        fun verweis(id: String, vorhanden: Set<String>): Boolean = (id in vorhanden).also { if (!it) fehlend++ }
+        fun verweis(id: String, vorhanden: Set<String>, tag: String): Boolean =
+            (id in vorhanden).also { if (!it) { fehlend++; verweise += Verweis(aktuell, tag, id) } }
+
+        /** FAMC/FAMS an der Person gegen CHIL/HUSB/WIFE an der Familie: was nur auf einer Seite steht. */
+        fun rueckverweise(): List<Rueckverweis> {
+            val out = ArrayList<Rueckverweis>()
+            val famVon = fams.associateBy { it.xref }
+            val indiVon = indis.associateBy { it.xref }
+            indis.forEach { s ->
+                s.knoten.alle("FAMC").map { it.wert.trim('@') }.forEach { f -> famVon[f]?.let { fam -> if (fam.knoten.alle("CHIL").none { it.wert.trim('@') == s.xref }) out += Rueckverweis(s.xref, f, "FAMC") } }
+                s.knoten.alle("FAMS").map { it.wert.trim('@') }.forEach { f -> famVon[f]?.let { fam -> if (listOfNotNull(fam.knoten.wert("HUSB"), fam.knoten.wert("WIFE")).none { it.trim('@') == s.xref }) out += Rueckverweis(s.xref, f, "FAMS") } }
+            }
+            fams.forEach { fam ->
+                fam.knoten.alle("CHIL").map { it.wert.trim('@') }.forEach { c -> indiVon[c]?.let { i -> if (i.knoten.alle("FAMC").none { it.wert.trim('@') == fam.xref }) out += Rueckverweis(c, fam.xref, "CHIL") } }
+                listOf("HUSB", "WIFE").forEach { tag -> fam.knoten.wert(tag)?.trim('@')?.let { p -> indiVon[p]?.let { i -> if (i.knoten.alle("FAMS").none { it.wert.trim('@') == fam.xref }) out += Rueckverweis(p, fam.xref, tag) } } }
+            }
+            return out
+        }
+
+        /** Tags ohne Unterstrich, die weder in GEDCOM 5.5.1 noch in 7 vorkommen, mit Anzahl und einem Datensatz. */
+        fun fremdeTags(): Map<String, TagVorkommen> {
+            val zahl = LinkedHashMap<String, Int>(); val beispiel = HashMap<String, String>()
+            fun gehe(k: GedcomKnoten, satz: String) {
+                k.kinder.forEach { n ->
+                    if (!n.tag.startsWith("_") && n.tag !in STANDARD_TAGS) { zahl.merge(n.tag, 1, Int::plus); beispiel.putIfAbsent(n.tag, satz) }
+                    gehe(n, satz)
+                }
+            }
+            d.saetze.forEach { s -> if (s.art !in STANDARD_TAGS && !s.art.startsWith("_")) { zahl.merge(s.art, 1, Int::plus); beispiel.putIfAbsent(s.art, s.xref) }; gehe(s.knoten, s.xref) }
+            return zahl.mapValues { (tag, n) -> TagVorkommen(n, beispiel[tag]?.takeIf { it.isNotEmpty() }) }
+        }
 
         /** Die Fakten eines Datensatzes: alle Unterknoten der Stufe 1, die Ereignis, Eigenschaft oder Notiz sind. */
         fun fakten(xref: String, k: GedcomKnoten, person: Boolean): List<FactJson> {
@@ -305,6 +372,17 @@ object GedcomLeser {
         if (res != null) return Texte.t(res)
         return TAG_NAMEN[tag] ?: (if (tag == "EVEN" || tag == "FACT") art.ifBlank { tag } else tag)
     }
+
+    /** Alle Tags aus GEDCOM 5.5.1 und 7.0 (Datensaetze, Ereignisse, Attribute, Strukturen). */
+    val STANDARD_TAGS: Set<String> = """
+        HEAD TRLR INDI FAM SOUR REPO NOTE SNOTE OBJE SUBM SUBN
+        ABBR ADDR ADR1 ADR2 ADR3 ADOP AFN AGE AGNC ALIA ANCE ANCI ANUL ASSO AUTH BAPL BAPM BARM BASM BIRT BLES BLOB BURI CALN CAST CAUS
+        CENS CHAN CHAR CHIL CHR CHRA CITY CONC CONF CONL CONT COPR CORP CREA CREM CTRY DATA DATE DEAT DESC DESI DEST DIV DIVF DSCR EDUC
+        EMAIL EMAI EMIG ENDL ENGA EVEN EXID FACT FAMC FAMS FAX FCOM FILE FONE FORM GEDC GIVN GRAD HUSB IDNO IMMI INIL LANG LATI LEGA
+        LONG MAP MARB MARC MARL MARR MARS MEDI MIME NAME NATI NATU NCHI NICK NMR NO NPFX NSFX OCCU ORDI ORDN PAGE PEDI PHON PLAC POST
+        PROB PROP PUBL QUAY REFN RELA RELI RESI RESN RETI RFN RIN ROLE ROMN SCHMA SEX SLGC SLGS SPFX SSN STAE STAT SURN TAG TEMP TEXT
+        TIME TITL TRAN TYPE UID VERS WIFE WILL WWW
+    """.trim().split(Regex("\\s+")).toSet()
 
     /** Unterknoten der Stufe 1, die keine Fakten sind. */
     private val KEIN_FAKT = setOf("SEX", "FAMC", "FAMS", "HUSB", "WIFE", "CHIL", "CHAN", "CREA", "OBJE", "RIN", "RESN", "REFN", "UID", "SUBM", "ANCI", "DESI", "ASSO", "ALIA", "NCHI", "NMR")

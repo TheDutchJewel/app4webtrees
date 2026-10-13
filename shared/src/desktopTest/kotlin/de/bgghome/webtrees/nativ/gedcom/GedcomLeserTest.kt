@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.gedcom
 
+import de.bgghome.webtrees.nativ.pruefung.PruefOptionen
 import de.bgghome.webtrees.nativ.pruefung.Regelkatalog
 import de.bgghome.webtrees.nativ.pruefung.pruefen
 import java.io.File
@@ -14,7 +15,8 @@ import kotlin.test.assertTrue
 class GedcomLeserTest {
 
     private val falkenrath = File("../testdaten/falkenrath-1.3.ged")
-    private val stufe2 = setOf("024", "126", "127", "228", "310", "311", "315", "330", "420", "421", "510", "511", "512", "513")
+    private val stufe2 = setOf("024", "126", "127", "228", "310", "311", "315", "330", "420", "421", "510", "511", "512", "513") +
+        Regelkatalog.alle.map { it.id }.filter { it.startsWith("6") }.toSet()
 
     @Test
     fun falkenrathWieDerExport() {
@@ -30,7 +32,7 @@ class GedcomLeserTest {
         assertEquals(listOf("I307", "I319", "I321", "I340", "I342", "I370", "I376"), e.treffer.getValue("010").map { it.person }.sortedBy { it!!.drop(1).toInt() })
         // Fakten tragen Kennungen, damit Treffer auf sie zeigen koennen
         assertTrue(b.individuals.values.all { i -> i.facts.all { it.id.isNotEmpty() } })
-        assertEquals(61, Regelkatalog.alle.size)
+        assertEquals(71, Regelkatalog.alle.size)
     }
 
     @Test
@@ -144,5 +146,62 @@ class GedcomLeserTest {
         assertEquals("Straße", p.facts.single { it.tag == "OCCU" }.value)
         val utf16 = "0 HEAD\n1 CHAR UNICODE\n0 @I1@ INDI\n1 NAME Jörg /Müller/\n0 TRLR\n".toByteArray(Charsets.UTF_16LE)
         assertEquals("Jörg Müller", GedcomLeser.alsExport(GedcomLeser.lesen(byteArrayOf(0xFF.toByte(), 0xFE.toByte()) + utf16)).individuals.getValue("I1").person.name)
+    }
+
+    @Test
+    fun formregeln() {
+        val roh = """
+            0 @I1@ INDI
+            1 NAME Anna /Müller/
+            1 SEX F
+            1 BIRT
+            2 DATE 12.3.1850
+            1 BIRT
+            2 DATE 1851
+            1 FAMC @F1@
+            1 FAMS @F9@
+            1 _UID 123
+            1 FOO bar
+            das ist keine GEDCOM-Zeile
+            0 @I2@ INDI
+            1 NAME //
+            1 FAMS @F1@
+            0 @I2@ INDI
+            1 NAME Karl /Doppelt/
+            0 @I3@ INDI
+            1 NAME Ohne /Rueckweg/
+            0 @I4@ INDI
+            1 NAME //
+            0 @F1@ FAM
+            1 HUSB @I2@
+            1 CHIL @I3@
+            1 CHIL @I77@
+            0 TRLR
+        """.trimIndent()
+        // Marke sagt UTF-8, der Kopf behauptet ANSEL: die Marke gewinnt, 617 meldet den Widerspruch
+        val bytes = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte()) + ("0 HEAD\n1 CHAR ANSEL\n" + roh).toByteArray(Charsets.UTF_8)
+        val d = GedcomLeser.lesen(bytes)
+        assertEquals(1, d.uebersprungen.size)
+        assertEquals(mapOf("I2" to 2), d.doppelt)
+        val (b, form) = GedcomLeser.auswerten(d, jetzt = 2026)
+        val e = pruefen(b, PruefOptionen(aus = emptySet(), jetzt = 2026, datei = form))
+        fun n(id: String) = e.treffer[id].orEmpty().size
+        assertEquals(1, n("610"), "610: " + e.treffer["610"])
+        assertEquals(2, n("611"), "611: " + e.treffer["611"])   // FAMS @F9@ an I1 und CHIL @I77@ an F1
+        assertEquals(setOf("FAMS → @F9@", "CHIL → @I77@"), e.treffer.getValue("611").map { it.text }.toSet())
+        assertEquals(1, n("612"))
+        assertEquals(1, n("613"), "613: " + e.treffer["613"])   // 12.3.1850
+        assertEquals(1, n("614"))                                 // I4 ohne Namen (NAME //)
+        assertEquals(1, n("615"))                                 // zwei Geburten
+        // 616: I1 FAMC F1 ohne CHIL, I1 FAMS F9 gibt es nicht (das ist 611), I3 CHIL ohne FAMC; I2 HUSB: die zweite
+        // (doppelte) I2 hat kein FAMS, und bei doppelter Kennung gilt der letzte Datensatz
+        val r = e.treffer.getValue("616").map { it.person + " " + it.text }
+        assertTrue(r.any { it.startsWith("I1 FAMC") }, r.toString())
+        assertTrue(r.any { it.startsWith("I3 CHIL") }, r.toString())
+        assertTrue(r.any { it.startsWith("I2 HUSB") }, r.toString())
+        assertEquals(3, n("616"), r.toString())
+        assertEquals(1, n("617"), "617: " + e.treffer["617"])   // CHAR ANSEL, Datei UTF-8
+        assertEquals(listOf("FOO"), e.treffer.getValue("618").map { it.text.substringBefore(" ") })
+        assertEquals(3, n("619"))                                 // I2 (doppelt, letzter gewinnt), I3 und I4 ohne SEX
     }
 }
