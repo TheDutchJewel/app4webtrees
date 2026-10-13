@@ -249,6 +249,16 @@ thematischen Sammlungen und dem freien Bestand; der Betrachter mit Kneifzoom und
 | - | - | - | - |
 | <img src="docs/screenshots/handy-start.png" alt="Start mit Jahrestagen" width="190"> | <img src="docs/screenshots/handy-suche.png" alt="Suche" width="190"> | <img src="docs/screenshots/handy-pdf.png" alt="PDF-Betrachter" width="190"> | <img src="docs/screenshots/tablet-baum.png" alt="Baum und Profil nebeneinander" width="190"> |
 
+## gedaudit: die Plausibilitätsprüfung für GEDCOM-Dateien
+
+Seit Oktober 2026 liegt in diesem Repository auch **gedaudit**, ein eigenes Programm für Windows, Linux und macOS.
+Es liest eine GEDCOM-Datei und prüft sie mit denselben 61 Regeln wie die Plausibilitätsprüfung in wtWin, ohne webtrees
+und ohne Server. Die Datei bleibt unverändert. Treffer lassen sich abhaken, drucken und als PDF speichern; ein Klick
+auf einen Treffer zeigt die Person mit ihren Ereignissen, Eltern, Partnern und Kindern. Mehr auf
+[gedaudit.bgg-home.de](https://gedaudit.bgg-home.de/de/). Die Pakete liegen in den Releases mit dem Kennzeichen
+`gedaudit-…`; Bauen mit `./gradlew :gedaudit:packageDeb` (Linux), `:gedaudit:packageInno` (Windows, Inno Setup) oder
+`:gedaudit:packageDmg` (macOS).
+
 ## Selbst bauen
 
 ```bash
@@ -262,6 +272,9 @@ mit dem Debug-Schlüssel signiert.
 | Ordner | Inhalt |
 | - | - |
 | `app/` | die App |
+| `shared/` | der geteilte Kern: API-Client, Zustand, Oberfläche, Prüfung |
+| `desktop/` | die Hülle für wtWin, wtTux und wtMac |
+| `gedaudit/` | die Hülle für gedaudit (GEDCOM-Prüfung ohne webtrees) |
 | `testdaten/` | Demo-Stammbaum „Familie Falkenrath" 1.3 für die Tests; der Baum mit Bildern liegt in [falkenrath-demo-tree](https://github.com/thobgg/falkenrath-demo-tree) |
 | `docs/` | Gestaltungs-Leitfaden und Bildschirmfotos |
 | `tools/` | Hilfsskripte: Demo-Baum erzeugen, Server prüfen, UI-Tests per adb |
