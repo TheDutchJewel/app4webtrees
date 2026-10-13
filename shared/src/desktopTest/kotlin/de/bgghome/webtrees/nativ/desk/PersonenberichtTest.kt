@@ -10,6 +10,8 @@ import de.bgghome.webtrees.nativ.api.PlaceJson
 import de.bgghome.webtrees.nativ.api.TreeExport
 import java.io.File
 import java.nio.file.Files
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -17,6 +19,11 @@ import kotlin.test.assertTrue
 
 /** Personenbericht, Lebende-Regel und Website-Export an einem kleinen Baum: Vater, Mutter, Sohn (lebend) in Mengen. */
 class PersonenberichtTest {
+    // Die erwarteten Wörter sind deutsch – unabhängig von der Sprache des Rechners (der Windows-Rechner von GitHub ist englisch)
+    private val ursprung = java.util.Locale.getDefault()
+    @BeforeTest fun deutsch() = java.util.Locale.setDefault(java.util.Locale.GERMANY)
+    @AfterTest fun zurueck() = java.util.Locale.setDefault(ursprung)
+
     private fun datum(j: Int) = DateJson(text = "$j", year = j, jd = 1, gedcom = "$j")
     private fun person(x: String, name: String, given: String, surname: String, geb: Int, tot: Boolean) =
         Person(x, name = name, given = given, surname = surname, sex = "M", isDead = tot, birth = EventJson(datum(geb), PlaceJson("Mengen, Sigmaringen")))
@@ -63,7 +70,7 @@ class PersonenberichtTest {
         val ordner = Files.createTempDirectory("wtweb").toFile()
         try {
             buchWebsite(familienbuch(daten, BuchOptionen(bilder = false, vorwort = "Ein Vorwort."), "Test", "wtTux"), ordner)
-            val dateien = ordner.walkTopDown().filter { it.isFile }.map { it.relativeTo(ordner).path }.toSet()
+            val dateien = ordner.walkTopDown().filter { it.isFile }.map { it.relativeTo(ordner).invariantSeparatorsPath }.toSet()
             assertTrue(setOf("index.html", "familien.html", "style.css", "register-namen.html", "eintraege/n1.html").all { it in dateien }, dateien.toString())
             val index = File(ordner, "index.html").readText()
             assertTrue("Ein Vorwort." in index && "familien.html" in index, index)
