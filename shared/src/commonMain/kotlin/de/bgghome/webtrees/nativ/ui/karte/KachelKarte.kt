@@ -87,6 +87,8 @@ data class KartenPin(
     /** Mini-Foto statt Kreis (Google-Maps-Stil, wie photoPin auf Android):
      *  quadratisch, runde Ecken, weisser Rand. Braucht den ImageLoader der Karte. */
     val bildUrl: String? = null,
+    /** Name neben dem Pin (weisses Schild rechts), etwa der Hof bei starker Vergroesserung. */
+    val beschriftung: String? = null,
 )
 
 data class KartenLinie(val punkte: List<GeoPunkt>, val farbe: Color, val breiteDp: Float)
@@ -313,6 +315,14 @@ fun KachelKarte(
                             t, TextStyle(color = Color.White, fontSize = (p.radiusDp * 0.85f).sp, fontWeight = FontWeight.Bold),
                         )
                         drawText(layout, topLeft = Offset(s.x - layout.size.width / 2f, s.y - layout.size.height / 2f))
+                    }
+                    p.beschriftung?.let { b ->
+                        val layout = textMeasurer.measure(b, TextStyle(color = Color(0xFF1E1E1E), fontSize = 12.sp, fontWeight = FontWeight.SemiBold))
+                        val pad = 3.dp.toPx()
+                        val links = s.x + r + 5.dp.toPx(); val oben = s.y - layout.size.height / 2f
+                        drawRoundRect(Color.White.copy(alpha = 0.92f), Offset(links - pad, oben - pad),
+                            androidx.compose.ui.geometry.Size(layout.size.width + 2 * pad, layout.size.height + 2 * pad), androidx.compose.ui.geometry.CornerRadius(4.dp.toPx()))
+                        drawText(layout, topLeft = Offset(links, oben))
                     }
                 }
                 zeichne?.invoke(this) { p -> zumSchirm(p) }

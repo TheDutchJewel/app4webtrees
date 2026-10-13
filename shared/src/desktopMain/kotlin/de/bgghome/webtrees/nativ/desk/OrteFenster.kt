@@ -706,7 +706,9 @@ private fun OrtsKarte(orte: List<de.bgghome.webtrees.nativ.api.PlaceSummary>, ge
         val pins = gruppen.map { g ->
             val ereignisse = g.sumOf { it.events }
             val drin = g.any { it.name.equals(gewaehlt, ignoreCase = true) }
-            if (g.size == 1) KartenPin(g[0].lat!!, g[0].lng!!, text = "$ereignisse", farbe = if (drin) farbeGewaehlt else ortFarbe(ereignisse), radiusDp = ortRadius(ereignisse), tag = g[0])
+            // Nah heran (ab Zoom 14) steht der Name am Punkt - so sieht man, welcher Hof welcher ist
+            if (g.size == 1) KartenPin(g[0].lat!!, g[0].lng!!, text = "$ereignisse", farbe = if (drin) farbeGewaehlt else ortFarbe(ereignisse), radiusDp = ortRadius(ereignisse), tag = g[0],
+                beschriftung = if (zustand.zoom >= 14) de.bgghome.webtrees.nativ.data.Ortsnamen.blatt(g[0].name) else null)
             else KartenPin(g.map { it.lat!! }.average(), g.map { it.lng!! }.average(), text = "${g.size}",
                 farbe = if (drin) farbeGewaehlt else farbeGruppe, radiusDp = ortRadius(ereignisse), tag = g)
         }
