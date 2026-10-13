@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -145,11 +144,11 @@ fun DeskOfb(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, 
     Row(Modifier.fillMaxSize().background(farben.background)) {
         // ── Links: Ort, Sortierung, Familienliste ──
         Column(Modifier.width(listeBreite.value.dp).fillMaxHeight().background(farben.surface)) {
+            // Der Filter folgt dem Tippen (kurze Pause), kein Enter, kein Knopf
+            LaunchedEffect(eingabe) { kotlinx.coroutines.delay(400); val neuOrt = eingabe.trim(); if (neuOrt != ort) { ort = neuOrt; prefs.putString("ofb_ort_$tree", ort) } }
             OutlinedTextField(eingabe, { eingabe = it }, label = { Text(stringResource(Res.string.desk_book_place_filter)) }, singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp),
-                keyboardActions = KeyboardActions(onAny = { ort = eingabe.trim(); prefs.putString("ofb_ort_$tree", ort) }))
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp))
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { ort = eingabe.trim(); prefs.putString("ofb_ort_$tree", ort) }) { Text(stringResource(Res.string.desk_place_search_button)) }
                 Spacer(Modifier.weight(1f))
                 TextButton(onClick = { chrono = !chrono; prefs.putBoolean("ofb_chrono", chrono) }) {
                     Text(stringResource(if (chrono) Res.string.desk_book_sort_chrono else Res.string.desk_book_sort_alpha), style = MaterialTheme.typography.labelMedium)
