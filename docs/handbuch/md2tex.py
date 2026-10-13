@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Baut aus den Hilfetexten des Programms (hilfe/<sprache>/*.md) ein LaTeX-Handbuch im wtWin-Erscheinungsbild.
 
-Aufruf: md2tex.py <sprache> <zielordner>   (Sprachen: de en fr nl es)
+Aufruf: md2tex.py <sprache> <zielordner> [gedaudit]   (Sprachen: de en fr nl es; "gedaudit": Handbuch von gedaudit statt wtWin)
 Schreibt <zielordner>/handbuch.tex und <zielordner>/kapitel/<id>.tex. Setzen mit bauen.sh.
 """
 import re
@@ -156,21 +156,40 @@ def kapitel_tex(kid: str, md: str, t: dict) -> str:
     return "\n".join(tex) + "\n"
 
 
+PROGRAMM = "wtWin"   # oder "gedaudit" (Argument 3)
+
+GEDAUDIT = {
+    "de": dict(claim="Prüft GEDCOM-Dateien auf Widersprüche", vorwort="Dieses Handbuch entsteht aus der Hilfe des Programms (Taste F1) und hat denselben Stand. Das Kapitel zur Plausibilitätsprüfung stammt aus wtWin; Menüwege und das Bearbeiten aus dem Treffer gelten dort, in gedaudit wird nur gelesen. Verbesserungen und Fragen bitte als Issue unter github.com/thobgg/app4webtrees."),
+    "en": dict(claim="Checks GEDCOM files for contradictions", vorwort="This manual is generated from the program’s built-in help (key F1) and matches it exactly. The chapter on the plausibility check comes from wtWin; its menu paths and editing from a finding apply there, gedaudit only reads. Suggestions and questions: github.com/thobgg/app4webtrees."),
+    "fr": dict(claim="Vérifie les fichiers GEDCOM", vorwort="Ce manuel est généré à partir de l’aide intégrée du programme (touche F1) et en reflète exactement l’état. Le chapitre sur la vérification de cohérence vient de wtWin ; ses chemins de menu et la modification depuis un résultat s’appliquent là-bas, gedaudit ne fait que lire. Suggestions et questions : github.com/thobgg/app4webtrees."),
+    "nl": dict(claim="Controleert GEDCOM-bestanden op tegenstrijdigheden", vorwort="Deze handleiding wordt gemaakt uit de ingebouwde hulp van het programma (toets F1) en heeft dezelfde stand. Het hoofdstuk over de plausibiliteitscontrole komt uit wtWin; de menupaden en het bewerken vanuit een bevinding gelden daar, gedaudit leest alleen. Suggesties en vragen: github.com/thobgg/app4webtrees."),
+    "es": dict(claim="Comprueba archivos GEDCOM", vorwort="Este manual se genera a partir de la ayuda integrada del programa (tecla F1) y coincide con ella. El capítulo sobre la comprobación de plausibilidad procede de wtWin; sus rutas de menú y la edición desde un hallazgo se aplican allí, gedaudit solo lee. Sugerencias y preguntas: github.com/thobgg/app4webtrees."),
+}
+
+
 def reihenfolge() -> list[str]:
+    if PROGRAMM == "gedaudit":
+        return ["gedaudit", "pruefung"]
     m = re.search(r"REIHENFOLGE\s*=\s*listOf\(([^)]*)\)", HILFE_KT.read_text())
     return re.findall(r'"([a-z]+)"', m.group(1))
 
 
 def version() -> str:
-    m = re.search(r"^wtand\.versionName=(.+)$", (WURZEL / "gradle.properties").read_text(), re.M)
+    schluessel = "gedaudit" if PROGRAMM == "gedaudit" else "wtand"
+    m = re.search(r"^%s\.versionName=(.+)$" % schluessel, (WURZEL / "gradle.properties").read_text(), re.M)
     return m.group(1).strip()
 
 
 def hauptdatei(sprache: str, t: dict, ids: list[str]) -> str:
     heute = date.today()
     datum = t["datum"].format(t=heute.day, m=t["monate"].split()[heute.month - 1], j=heute.year)
-    zeile = "%s %s · %s %s · wtwin.bgg-home.de" % (t["version"], version(), t["stand"], datum)
+    g = PROGRAMM == "gedaudit"
+    zeile = "%s %s · %s %s · %s" % (t["version"], version(), t["stand"], datum, "gedaudit.bgg-home.de" if g else "wtwin.bgg-home.de")
     inputs = "\n".join(r"\input{kapitel/%s}" % k for k in ids)
+    name = "gedaudit" if g else "wtWin"
+    logo = "gedaudit.png" if g else "ahnenzeichen.png"
+    untertitel = ("gedaudit\\\\[2pt]" + GEDAUDIT[sprache]["claim"]) if g else ("wtWin · wtTux · wtMac\\\\[2pt]" + t["claim"])
+    vorwort = GEDAUDIT[sprache]["vorwort"] if g else t["vorwort"]
     return r"""%% erzeugt von md2tex.py – nicht von Hand aendern
 \documentclass[a4paper, 11pt, parskip=half, headings=small, numbers=noenddot, chapterprefix=false, open=any]{scrbook}
 \usepackage[%(babel)s]{babel}
@@ -178,11 +197,11 @@ def hauptdatei(sprache: str, t: dict, ids: list[str]) -> str:
 \usepackage{wtwinci}
 \usepackage{csquotes}
 \graphicspath{{%(bilder)s/}{%(ci)s/logo/}}
-\wtFusszeile{wtWin · %(titel)s · %(zeile)s}
-\hypersetup{pdftitle={wtWin %(titel)s}, pdfauthor={wtWin}, pdflang={%(sprache)s}}
+\wtFusszeile{%(name)s · %(titel)s · %(zeile)s}
+\hypersetup{pdftitle={%(name)s %(titel)s}, pdfauthor={%(name)s}, pdflang={%(sprache)s}}
 \setcounter{tocdepth}{1}
 \begin{document}
-\wtTitelseite{ahnenzeichen.png}{wtWin\\%(titel)s}{wtWin · wtTux · wtMac\\[2pt]%(claim)s}{%(zeile)s}
+\wtTitelseite{%(logo)s}{%(name)s\\%(titel)s}{%(untertitel)s}{%(zeile)s}
 \frontmatter
 {\small\sffamily\color{wtGrau}\noindent %(vorwort)s\par}
 \tableofcontents
@@ -190,11 +209,14 @@ def hauptdatei(sprache: str, t: dict, ids: list[str]) -> str:
 %(inputs)s
 \end{document}
 """ % dict(babel=t["babel"], bilder=BILDER, ci=CI, titel=t["titel"], zeile=zeile, sprache=sprache,
-           claim=t["claim"], vorwort=esc(t["vorwort"]), inputs=inputs)
+           name=name, logo=logo, untertitel=untertitel, vorwort=esc(vorwort), inputs=inputs)
 
 
 def main():
+    global PROGRAMM
     sprache, ziel = sys.argv[1], Path(sys.argv[2])
+    if len(sys.argv) > 3 and sys.argv[3] == "gedaudit":
+        PROGRAMM = "gedaudit"
     t = TEXTE[sprache]
     ids = reihenfolge()
     (ziel / "kapitel").mkdir(parents=True, exist_ok=True)
