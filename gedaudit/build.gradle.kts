@@ -61,9 +61,10 @@ compose.desktop {
                 packageName = "gedaudit"
                 appRelease = desktopBuild
                 iconFile.set(project.file("icons/app.png"))
-                // .ged-Dateien im Dateimanager mit gedaudit oeffnen
-                fileAssociation("ged", "GEDCOM file", "application/x-gedcom")
             }
+            // .ged-Dateien im Dateimanager mit gedaudit oeffnen (Linux-Paket; Windows macht es der Inno-Installer,
+            // macOS vorerst nicht - der Mac-Bau ist noch im Versuch)
+            if (!osName.startsWith("Mac")) fileAssociation("ged", "GEDCOM file", "application/x-gedcom")
             windows {
                 packageVersion = windowsVersion
                 iconFile.set(project.file("icons/app.ico"))

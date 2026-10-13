@@ -88,8 +88,22 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
+      # Das icns aus dem PNG mit Apples iconutil bauen: das von Hand erzeugte icns nahm jpackage nicht an (13.10.2026).
+      - name: Icon (icns) erzeugen
+        run: |
+          set -e
+          rm -rf app.iconset && mkdir app.iconset
+          for s in 16 32 128 256 512; do
+            sips -z $s $s gedaudit/icons/app.png --out app.iconset/icon_${s}x${s}.png >/dev/null
+            d=$((s*2)); sips -z $d $d gedaudit/icons/app.png --out app.iconset/icon_${s}x${s}@2x.png >/dev/null
+          done
+          iconutil -c icns app.iconset -o gedaudit/icons/app.icns
+          ls -la gedaudit/icons/app.icns
       - name: dmg bauen
         run: ./gradlew --no-daemon :gedaudit:packageDmg
+      - name: jpackage-Protokoll bei Fehler
+        if: failure()
+        run: for f in gedaudit/build/compose/logs/*/*.txt; do echo "== $f"; cat "$f"; done
       - name: Datei nach Prozessor benennen
         run: |
           mkdir -p out
