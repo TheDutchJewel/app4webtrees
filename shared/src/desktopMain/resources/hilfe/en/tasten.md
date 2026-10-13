@@ -7,7 +7,7 @@
 | F1 | Help |
 | F5 | Reload tree |
 | Ctrl+F | Go to (find person) |
-| Ctrl+E | Edit person (person sheet) |
+| Ctrl+E | Person sheet |
 | Ctrl+N | Add relative |
 | Ctrl+Enter | Selected person as central person |
 | Alt+Home | Start person |

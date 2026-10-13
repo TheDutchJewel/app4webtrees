@@ -24,7 +24,7 @@ If the birth is missing, the baptism is shown (with ~); if the death is missing,
 - **Click:** selects the person; the person panel in the main window shows them.
 - **Double-click** or **Enter:** show the person as focus.
 - **Arrow keys, Page up/down:** move through the table.
-- **Right-click:** Show as focus, Edit person, Open in webtrees.
+- **Right-click:** Show as focus, Person sheet, Open in webtrees.
 - **Save as CSV …** writes the rows currently shown to a file for spreadsheet programs.
 
 The table needs the whole tree at once; the server must run api4webtrees 1.9 or later (see [Lists](hilfe:listen)).

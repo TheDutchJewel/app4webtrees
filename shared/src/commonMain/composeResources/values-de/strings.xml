@@ -330,7 +330,7 @@
     <string name="desk_layout">Aufbau</string>
     <string name="desk_layout_navigator">Navigator</string>
     <string name="desk_layout_tree">Baum im Mittelpunkt</string>
-    <string name="desk_sheet">Person bearbeiten</string>
+    <string name="desk_sheet">Personenblatt</string>
     <string name="desk_as_centre">Als Proband zeigen</string>
     <string name="desk_people_count">%1$d Personen</string>
     <string name="desk_partners">Partner und Kinder</string>
@@ -552,6 +552,8 @@
     <string name="desk_web_datafix">Daten angleichen</string>
     <string name="desk_web_places">Orte</string>
     <string name="desk_web_sources">Quellen</string>
+    <string name="desk_web_places_browser">Orte im Browser</string>
+    <string name="desk_web_sources_browser">Quellen im Browser</string>
     <string name="desk_web_hint">Öffnet sich im Browser – dort ggf. anmelden.</string>
     <string name="desk_tab_parents">Eltern/Geschwister</string>
     <string name="desk_tab_partners">Partner/Kinder</string>

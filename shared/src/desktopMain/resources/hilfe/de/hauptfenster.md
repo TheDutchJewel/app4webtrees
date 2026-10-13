@@ -14,7 +14,7 @@ Oben die Symbolleiste, darunter der **Proband** mit Partnern und Kindern, rechts
 - **Generationen** (2 bis 7) und **Zoom** (−, +, Strg+Mausrad, Einpassen) stehen im Navigator selbst; die Wahl bleibt gespeichert. Nach außen werden die Kästen kleiner, bei 7 Generationen steht die äußerste Reihe im Zickzack.
 - Fehlt ein Elternteil, steht dort „Vater unbekannt“ oder „Mutter unbekannt“. Mit Bearbeitungsrecht legst du über **Verwandte hinzufügen** die fehlende Person an.
 
-**Symbolleiste:** Gehe zu, Bearbeiten, Verwandte hinzufügen, Merkliste, Zurück, Vor, Verlauf, Startperson, Liste, Tafel, Drucken, Start, Fotos, Prüfung, Orte, Quellen, Hilfe, Beenden. Reicht die Breite nicht, zeigt sie nur Symbole (Name beim Überfahren), zuletzt wandert der Rest ins Menü **Mehr**. Die Texte unter den Symbolen schaltest du unter **Ansicht › Symboltexte** ab.
+**Symbolleiste:** Gehe zu, Personenblatt, Verwandte hinzufügen, Merkliste, Zurück, Vor, Verlauf, Startperson, Liste, Tafel, Drucken, Start, Baum (je nach aufbau: Navigator, Familie oder Ortsfamilienbuch), Fotos, Archiv, Prüfung, Orte, Quellen, Aufgaben, Letzte Änderungen, webtrees – Archiv, Aufgaben und Letzte Änderungen nur, wenn der Server sie kennt. Sprache, Hilfe und Beenden stehen im Menü. Reicht die Breite nicht, zeigt sie nur Symbole (Name beim Überfahren), zuletzt wandert der Rest ins Menü **Mehr**. Die Texte unter den Symbolen schaltest du unter **Ansicht › Symboltexte** ab.
 
 ## Baum im Mittelpunkt
 
@@ -28,7 +28,7 @@ In der Mitte die **Familie** des Probanden, aufgebaut wie in klassischen Genealo
 
 - **Einpassen:** Die Familie wird so vergrößert, dass sie das Fenster füllt (bis 180 %); die Prozentzahl steht rechts oben. **Strg+Mausrad** ändert den Zoom, ein Klick auf die Prozentzahl passt wieder ein.
 - **Ein Klick** wählt eine Person, die Personentafel rechts zeigt sie. **Doppelklick** macht sie zum Probanden – so gehst du durch die Familien nach oben (Eltern, Großeltern) und unten (Kinder, Enkel).
-- **Knöpfe in den Paarkarten:** Person bearbeiten (Personenblatt), Fotos, Verwandte hinzufügen. **+ Sohn** und **+ Tochter** in der Statuszeile legen ein Kind dieser Partnerschaft mit vorbelegtem Geschlecht an. Über der Familie: **+ Person hinzufügen ▾** (Vater, Mutter, Partner, Kind oder eine **vorhandene Person anfügen**, also einen bestehenden Datensatz verknüpfen statt neu anzulegen), **Gehe zu** und die Generationen. Beim Anlegen warnt der Dialog, wenn es eine gleichnamige Person schon gibt, und bietet „Anfügen statt neu“.
+- **Knöpfe in den Paarkarten:** Personenblatt, Fotos, Verwandte hinzufügen. **+ Sohn** und **+ Tochter** in der Statuszeile legen ein Kind dieser Partnerschaft mit vorbelegtem Geschlecht an. Über der Familie: **+ Person hinzufügen ▾** (Vater, Mutter, Partner, Kind oder eine **vorhandene Person anfügen**, also einen bestehenden Datensatz verknüpfen statt neu anzulegen), **Gehe zu** und die Generationen. Beim Anlegen warnt der Dialog, wenn es eine gleichnamige Person schon gibt, und bietet „Anfügen statt neu“.
 - **Rechte Maustaste** auf jeder Karte: Als Proband, Personenblatt, Verwandte hinzufügen, in webtrees öffnen, Person löschen (mit Bearbeitungsrecht, nach Rückfrage).
 - Fehlt ein Elternteil, steht dort „Vater unbekannt“ bzw. „Mutter unbekannt“; mit Bearbeitungsrecht legst du ihn über **+ hinzufügen** an.
 - Über dem Paar stehen die **Geschwister** des Probanden. **Tastatur:** Pfeil hoch zum Vater (mit Umschalt zur Mutter), runter zum Kind, links/rechts durch die Geschwister, Tab zum nächsten Reiter.

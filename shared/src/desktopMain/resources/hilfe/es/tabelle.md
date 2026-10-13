@@ -24,7 +24,7 @@ Si falta el nacimiento, se muestra el bautismo (con ~); si falta la defunción, 
 - **Clic:** selecciona a la persona; el panel de persona de la ventana principal la muestra.
 - **Doble clic** o **Enter:** mostrar a la persona como persona central.
 - **Teclas de flecha, Page Up/Page Down:** desplazarse por la tabla.
-- **Clic derecho:** Mostrar como persona central, Editar persona, Abrir en webtrees.
+- **Clic derecho:** Mostrar como persona central, Ficha personal, Abrir en webtrees.
 - **Guardar como CSV …** escribe las filas mostradas en ese momento en un archivo para programas de hojas de cálculo.
 
 La tabla necesita el árbol completo de una vez; el servidor debe tener api4webtrees 1.9 o posterior (véase [Listas](hilfe:listen)).

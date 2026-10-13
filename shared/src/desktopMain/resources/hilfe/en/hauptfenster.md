@@ -14,7 +14,7 @@ The toolbar on top, below it the **central person** with partners and children, 
 - **Generations** (2 to 7) and **zoom** (−, +, Ctrl+mouse wheel, fit) are in the navigator itself; the choice is remembered. Boxes get smaller towards the outside; with 7 generations the outermost row is staggered.
 - A missing parent shows as "father unknown" or "mother unknown". With edit rights, **Add relative** creates the missing person.
 
-**Toolbar:** Go to, Edit, Add relative, Bookmarks, Back, Forward, History, Start person, List, Chart, Print, Home, Photos, Check, Places, Sources, Help, Quit. If the width is not enough, it shows icons only (name on hover), finally the rest moves into the **More** menu. Switch the captions off under **View › Toolbar labels**.
+**Toolbar:** Go to, Person sheet, Add relative, Bookmarks, Back, Forward, History, Start person, List, Chart, Print, Home, Tree (depending on the layout: Navigator, Family or Local heritage book), Photos, Archive, Check, Places, Sources, Research tasks, Recent changes, webtrees – Archive, Research tasks and Recent changes only if the server supports them. Language, Help and Quit are in the menu. If the width is not enough, it shows icons only (name on hover), finally the rest moves into the **More** menu. Switch the captions off under **View › Toolbar labels**.
 
 ## Tree in the centre
 
@@ -28,7 +28,7 @@ The middle shows the central person's **family**, laid out like classic genealog
 
 - **Fit to window:** the family is enlarged until it fills the window (up to 180 %); the percentage is shown at the top right. **Ctrl+mouse wheel** changes the zoom, a click on the percentage fits again.
 - **A click** selects a person; the person panel on the right shows them. **Double-click** makes them the central person – this is how you move through the families up (parents, grandparents) and down (children, grandchildren).
-- **Buttons in the couple cards:** Edit person (person sheet), Photos, Add relative. **+ Son** and **+ Daughter** in the status line add a child of this partnership with the sex preset. Above the family: **+ Add person ▾** (father, mother, spouse, child or **link an existing person**, i.e. connect an existing record instead of creating a new one), **Go to** and the generations. When adding, the dialog warns if a person of the same name already exists and offers “Link instead”.
+- **Buttons in the couple cards:** Person sheet, Photos, Add relative. **+ Son** and **+ Daughter** in the status line add a child of this partnership with the sex preset. Above the family: **+ Add person ▾** (father, mother, spouse, child or **link an existing person**, i.e. connect an existing record instead of creating a new one), **Go to** and the generations. When adding, the dialog warns if a person of the same name already exists and offers “Link instead”.
 - **Right mouse button** on any card: Show as focus, Person sheet, Add relative, Open in webtrees, Delete person (with edit rights, after confirmation).
 - A missing parent shows "Father unknown" or "Mother unknown"; with edit rights, **+ add** creates them.
 - The central person's **siblings** are shown above the couple. **Keyboard:** up arrow to the father (with Shift to the mother), down to the child, left/right through the siblings, Tab to the next tab.

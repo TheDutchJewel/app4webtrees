@@ -74,8 +74,8 @@ class OfbFensterBildErzeugen {
             val st by vm.state.collectAsState()
             DeskTheme {
                 Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                    ClassicToolbar(st, vm, {}, {}, {}, {}, DeskNav(true, false, {}, {}), DeskDruck(st, vm, "wtTux"), symboltexte = true,
-                        onMerkliste = {}, onListe = {}, onTabelle = {}, onTafel = {}, onPruefung = {}, onQuit = {}, onQuellen = {}, onOrte = {},
+                    ClassicToolbar(st, vm, {}, {}, {}, DeskNav(true, false, {}, {}), DeskDruck(st, vm, "wtTux"), symboltexte = true,
+                        onMerkliste = {}, onListe = {}, onTabelle = {}, onTafel = {}, onPruefung = {}, onQuellen = {}, onOrte = {},
                         layout = DeskLayout.Ofb, onAufgaben = {}, onAenderungen = {}, onArchiv = {})
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Row(Modifier.fillMaxWidth().weight(1f)) {

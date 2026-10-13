@@ -335,7 +335,7 @@
     <string name="desk_layout">Layout</string>
     <string name="desk_layout_navigator">Navigator</string>
     <string name="desk_layout_tree">Tree in the centre</string>
-    <string name="desk_sheet">Edit person</string>
+    <string name="desk_sheet">Person sheet</string>
     <string name="desk_as_centre">Show as central person</string>
     <string name="desk_people_count">%1$d people</string>
     <string name="desk_partners">Partners and children</string>
@@ -557,6 +557,8 @@
     <string name="desk_web_datafix">Data fixes</string>
     <string name="desk_web_places">Places</string>
     <string name="desk_web_sources">Sources</string>
+    <string name="desk_web_places_browser">Places in the browser</string>
+    <string name="desk_web_sources_browser">Sources in the browser</string>
     <string name="desk_web_hint">Opens in the browser – you may need to sign in there.</string>
     <string name="desk_tab_parents">Parents/siblings</string>
     <string name="desk_tab_partners">Partners/children</string>

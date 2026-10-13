@@ -330,7 +330,7 @@
     <string name="desk_layout">Disposición</string>
     <string name="desk_layout_navigator">Navegador</string>
     <string name="desk_layout_tree">Árbol en el centro</string>
-    <string name="desk_sheet">Editar persona</string>
+    <string name="desk_sheet">Ficha personal</string>
     <string name="desk_as_centre">Mostrar como persona central</string>
     <string name="desk_people_count">%1$d personas</string>
     <string name="desk_partners">Parejas e hijos</string>
@@ -552,6 +552,8 @@
     <string name="desk_web_datafix">Correcciones de datos</string>
     <string name="desk_web_places">Lugares</string>
     <string name="desk_web_sources">Fuentes</string>
+    <string name="desk_web_places_browser">Lugares en el navegador</string>
+    <string name="desk_web_sources_browser">Fuentes en el navegador</string>
     <string name="desk_web_hint">Se abre en el navegador; puede que tenga que iniciar sesión ahí.</string>
     <string name="desk_tab_parents">Padres/hermanos</string>
     <string name="desk_tab_partners">Parejas/hijos</string>

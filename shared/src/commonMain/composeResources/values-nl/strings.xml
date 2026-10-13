@@ -322,7 +322,7 @@
     <string name="desk_layout">Indeling</string>
     <string name="desk_layout_navigator">Navigator</string>
     <string name="desk_layout_tree">Boom centraal</string>
-    <string name="desk_sheet">Persoon bewerken</string>
+    <string name="desk_sheet">Persoonsblad</string>
     <string name="desk_as_centre">Als proband tonen</string>
     <string name="desk_people_count">%1$d personen</string>
     <string name="desk_partners">Partners en kinderen</string>
@@ -544,6 +544,8 @@
     <string name="desk_web_datafix">Gegevens corrigeren</string>
     <string name="desk_web_places">Plaatsen</string>
     <string name="desk_web_sources">Bronnen</string>
+    <string name="desk_web_places_browser">Plaatsen in de browser</string>
+    <string name="desk_web_sources_browser">Bronnen in de browser</string>
     <string name="desk_web_hint">Opent in de browser – daar moet u zich mogelijk aanmelden.</string>
     <string name="desk_tab_parents">Ouders/broers/zussen</string>
     <string name="desk_tab_partners">Partners/kinderen</string>

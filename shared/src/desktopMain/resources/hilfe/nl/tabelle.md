@@ -24,7 +24,7 @@ Ontbreekt de geboorte, dan wordt de doop getoond (met ~); ontbreekt het overlijd
 - **Klik:** selecteert de persoon; het persoonspaneel in het hoofdvenster toont hem of haar.
 - **Dubbelklik** of **Enter:** persoon als proband tonen.
 - **Pijltoetsen, Page Up/Page Down:** door de tabel bewegen.
-- **Rechtsklik:** Als proband, Persoon bewerken, Openen in webtrees.
+- **Rechtsklik:** Als proband, Persoonsblad, Openen in webtrees.
 - **Opslaan als CSV …** schrijft de op dat moment getoonde rijen naar een bestand voor spreadsheetprogramma's.
 
 De tabel heeft de hele stamboom in één keer nodig; op de server moet api4webtrees 1.9 of nieuwer draaien (zie [Lijsten](hilfe:listen)).

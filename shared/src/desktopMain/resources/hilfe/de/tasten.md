@@ -7,7 +7,7 @@
 | F1 | Hilfe |
 | F5 | Stammbaum neu laden |
 | Strg+F | Gehe zu (Person suchen) |
-| Strg+E | Person bearbeiten (Personenblatt) |
+| Strg+E | Personenblatt |
 | Strg+N | Verwandte hinzufügen |
 | Strg+Eingabe | Gewählte Person als Proband |
 | Alt+Pos1 | Startperson |

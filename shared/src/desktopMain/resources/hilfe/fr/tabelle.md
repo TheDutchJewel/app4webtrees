@@ -24,7 +24,7 @@ Si la naissance manque, le baptême est affiché (avec ~) ; si le décès manque
 - **Clic :** sélectionne la personne ; le panneau de la personne dans la fenêtre principale l'affiche.
 - **Double-clic** ou **Enter :** mettre la personne au centre.
 - **Touches fléchées, Page Up/Down :** se déplacer dans la table.
-- **Clic droit :** Mettre au centre, Modifier la personne, Ouvrir dans webtrees.
+- **Clic droit :** Mettre au centre, Fiche individuelle, Ouvrir dans webtrees.
 - **Enregistrer en CSV …** écrit les lignes actuellement affichées dans un fichier pour les tableurs.
 
 La table a besoin de l'arbre entier d'un coup ; le serveur doit utiliser api4webtrees 1.9 ou plus récent (voir [Listes](hilfe:listen)).

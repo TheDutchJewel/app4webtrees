@@ -24,7 +24,7 @@ Fehlt die Geburt, steht die Taufe da (mit ~); fehlt der Tod, das Begräbnis (mit
 - **Klick:** wählt die Person; die Personentafel im Hauptfenster zeigt sie.
 - **Doppelklick** oder **Eingabetaste:** die Person wird Proband.
 - **Pfeiltasten, Bild auf/ab:** durch die Tabelle gehen.
-- **Rechtsklick:** Als Proband, Person bearbeiten, In webtrees öffnen.
+- **Rechtsklick:** Als Proband, Personenblatt, In webtrees öffnen.
 - **Als CSV speichern …** schreibt die gerade gezeigten Zeilen in eine Datei für Tabellenprogramme.
 
 Die Tabelle braucht den Baum am Stück; dafür muss auf dem Server api4webtrees ab Version 1.9 laufen (siehe [Listen](hilfe:listen)).

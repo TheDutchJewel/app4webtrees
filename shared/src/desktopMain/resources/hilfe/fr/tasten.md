@@ -7,7 +7,7 @@
 | F1 | Aide |
 | F5 | Recharger l'arbre |
 | Ctrl+F | Aller à (chercher une personne) |
-| Ctrl+E | Modifier la personne (fiche individuelle) |
+| Ctrl+E | Fiche individuelle |
 | Ctrl+N | Ajouter un parent |
 | Ctrl+Enter | Personne sélectionnée comme personne centrale |
 | Alt+Home | Personne de départ |

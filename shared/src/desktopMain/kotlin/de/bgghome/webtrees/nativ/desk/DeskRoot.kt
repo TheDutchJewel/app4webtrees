@@ -303,10 +303,11 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         CompositionLocalProvider(de.bgghome.webtrees.nativ.ui.LocalPlaceOpener provides ortOeffnen) {
             Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 Column(Modifier.fillMaxSize()) {
-                    // Eine Symbolleiste fuer alle drei Aufbauten; "Gehe zu" springt im Navigator in den Dialog, sonst ins Suchfeld
+                    // Eine Symbolleiste fuer alle vier Aufbauten; "Gehe zu" springt im Navigator in den Dialog, sonst ins Suchfeld.
+                    // Personenblatt: die in der Personentafel gewaehlte Person, sonst der Proband - wie im Menue.
                     ClassicToolbar(state, viewModel, openWeb, onGoTo = { goTo = true },
-                        onSheet = { (state.root)?.let(openSheet) }, onAbout = { Hilfe.oeffnen("hauptfenster") }, nav = nav, drucke = drucke,
-                        symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true }, onQuit = beenden,
+                        onSheet = { (state.detail?.person?.xref ?: state.root)?.let(openSheet) }, nav = nav, drucke = drucke,
+                        symboltexte = symboltexte, onMerkliste = { merkliste = true }, onListe = { liste = it }, onTabelle = { tabelle = true }, onTafel = { tafel = it }, onPruefung = { pruefung = true },
                         onQuellen = if (quellenApi) ({ quellen = "" }) else null, onOrte = if (orteApi) ({ orte = "" }) else null,
                         layout = layout, onAufgaben = if (stufe30) ({ aufgaben = true }) else null, onAenderungen = if (stufe30) ({ aenderungen = true }) else null,
                         onArchiv = if (archivDa) ({ archiv = true }) else null)
@@ -482,8 +483,6 @@ private fun FrameWindowScope.DeskMenuBar(
                 Separator()
                 Item(stringResource(Res.string.desk_print_sheet), enabled = main && state.root != null, shortcut = KeyShortcut(Key.P, ctrl = true), onClick = drucke::personenblatt)
                 Item(stringResource(Res.string.desk_pdf_sheet), enabled = main && state.root != null, onClick = drucke::personenblattPdf)
-                Item(stringResource(Res.string.desk_chart_ancestors_open), enabled = main && state.root != null, onClick = { onTafel(TafelArt.Ahnen) })
-                Item(stringResource(Res.string.desk_chart_open), enabled = main && state.root != null, onClick = { onTafel(TafelArt.Stamm) })
                 Separator()
                 if (loggedIn) {
                     Item(stringResource(Res.string.menu_sign_out_user, state.info?.user?.userName.orEmpty()), onClick = viewModel::logout)
@@ -493,28 +492,22 @@ private fun FrameWindowScope.DeskMenuBar(
                 Item(stringResource(Res.string.desk_quit), shortcut = KeyShortcut(Key.Q, ctrl = true), onClick = onQuit)
             }
             Menu(stringResource(Res.string.desk_menu_person), enabled = main) {
+                // Finden und Springen
                 Item(stringResource(Res.string.desk_goto), shortcut = KeyShortcut(Key.F, ctrl = true), onClick = onSearch)
-                Item(stringResource(Res.string.desk_sheet), enabled = state.root != null, shortcut = KeyShortcut(Key.E, ctrl = true), onClick = onSheet)
                 state.home?.let { home -> Item(stringResource(Res.string.home_start_person), shortcut = KeyShortcut(Key.MoveHome, alt = true), onClick = { viewModel.setRoot(home) }) }
                 onStartperson?.let { Item(stringResource(Res.string.desk_set_start_person), enabled = state.root != null, onClick = it) }
                 Item(stringResource(Res.string.action_make_root), enabled = selected != null && selected.person.xref != state.root,
                     shortcut = KeyShortcut(Key.Enter, ctrl = true), onClick = { selected?.let { viewModel.setRoot(it.person.xref) } })
-                Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,
-                    shortcut = KeyShortcut(Key.N, ctrl = true), onClick = { selected?.let { viewModel.requestAddRelative(it.person.xref) } })
-                Item(stringResource(Res.string.desk_link_existing), enabled = selected?.canEdit == true, onClick = { selected?.let { Anfuegewahl.person = it.person } })
-                onAufgabeNeu?.let { f -> Item(stringResource(Res.string.desk_task_add_menu), enabled = selected != null, onClick = { selected?.let { f(AufgabeZiel(it.person.xref, it.person.name)) } }) }
-                if (onAufgaben != null && state.tree?.role == "manager") {
-                    val root = state.root
-                    Item(stringResource(if (root != null && viewModel.isTreeBookmarked(root)) Res.string.desk_bookmark_tree_remove else Res.string.desk_bookmark_tree_add),
-                        enabled = root != null, onClick = { root?.let(viewModel::toggleTreeBookmark) })
-                }
-                Item(stringResource(Res.string.action_delete_person), enabled = selected?.canEdit == true,
-                    onClick = { selected?.let { Loeschwahl.person = it.person.xref to it.person.name } })
-                Item(stringResource(Res.string.chip_open_web), enabled = selected != null, onClick = { selected?.let { openWeb(it.person.url) } })
+                Item(stringResource(Res.string.action_back), enabled = nav.kannZurueck, shortcut = KeyShortcut(Key.DirectionLeft, alt = true), onClick = nav.zurueck)
+                Item(stringResource(Res.string.desk_forward), enabled = nav.kannVor, shortcut = KeyShortcut(Key.DirectionRight, alt = true), onClick = nav.vor)
                 if (viewModel.bookmarksSupported) {
                     val root = state.root
                     Item(stringResource(if (root != null && viewModel.isBookmarked(root)) Res.string.desk_bookmark_remove else Res.string.desk_bookmark_add),
                         enabled = root != null, shortcut = KeyShortcut(Key.D, ctrl = true), onClick = { root?.let(viewModel::toggleBookmark) })
+                    if (onAufgaben != null && state.tree?.role == "manager") {
+                        Item(stringResource(if (root != null && viewModel.isTreeBookmarked(root)) Res.string.desk_bookmark_tree_remove else Res.string.desk_bookmark_tree_add),
+                            enabled = root != null, onClick = { root?.let(viewModel::toggleTreeBookmark) })
+                    }
                     Item(stringResource(Res.string.desk_bookmarks), shortcut = KeyShortcut(Key.B, ctrl = true), onClick = onMerkliste)
                     if (state.bookmarks.isNotEmpty()) Menu(stringResource(Res.string.desk_bookmarks_mine)) {
                         state.bookmarks.take(25).forEach { p -> Item(p.name + if (p.lifespan.isNotBlank()) "  (${p.lifespan})" else "", onClick = { viewModel.setRoot(p.xref) }) }
@@ -524,8 +517,17 @@ private fun FrameWindowScope.DeskMenuBar(
                     }
                 }
                 Separator()
-                Item(stringResource(Res.string.action_back), enabled = nav.kannZurueck, shortcut = KeyShortcut(Key.DirectionLeft, alt = true), onClick = nav.zurueck)
-                Item(stringResource(Res.string.desk_forward), enabled = nav.kannVor, shortcut = KeyShortcut(Key.DirectionRight, alt = true), onClick = nav.vor)
+                // Bearbeiten
+                Item(stringResource(Res.string.desk_sheet), enabled = state.root != null, shortcut = KeyShortcut(Key.E, ctrl = true), onClick = onSheet)
+                Item(stringResource(Res.string.action_add_relative), enabled = selected?.canEdit == true,
+                    shortcut = KeyShortcut(Key.N, ctrl = true), onClick = { selected?.let { viewModel.requestAddRelative(it.person.xref) } })
+                Item(stringResource(Res.string.desk_link_existing), enabled = selected?.canEdit == true, onClick = { selected?.let { Anfuegewahl.person = it.person } })
+                onAufgabeNeu?.let { f -> Item(stringResource(Res.string.desk_task_add_menu), enabled = selected != null, onClick = { selected?.let { f(AufgabeZiel(it.person.xref, it.person.name)) } }) }
+                Item(stringResource(Res.string.action_delete_person), enabled = selected?.canEdit == true,
+                    onClick = { selected?.let { Loeschwahl.person = it.person.xref to it.person.name } })
+                Separator()
+                // Sonstiges
+                Item(stringResource(Res.string.chip_open_web), enabled = selected != null, onClick = { selected?.let { openWeb(it.person.url) } })
                 Item(stringResource(Res.string.desk_copy_text), enabled = state.detail != null, shortcut = KeyShortcut(Key.C, ctrl = true, shift = true), onClick = { state.detail?.let(::personentextKopieren) })
             }
             Menu(stringResource(Res.string.desk_menu_create), enabled = main) {
@@ -544,8 +546,8 @@ private fun FrameWindowScope.DeskMenuBar(
                 val t = state.tree?.name.orEmpty()
                 val manager = state.tree?.role == "manager"
                 fun web(route: String) = runCatching { viewModel.client.url(route, emptyMap()).toString() }.getOrNull()?.let(openWeb)
-                Item(stringResource(Res.string.desk_web_places), onClick = { web("/tree/$t/place-list") })
-                Item(stringResource(Res.string.desk_web_sources), onClick = { web("/tree/$t/source-list") })
+                Item(stringResource(Res.string.desk_web_places_browser), onClick = { web("/tree/$t/place-list") })
+                Item(stringResource(Res.string.desk_web_sources_browser), onClick = { web("/tree/$t/source-list") })
                 Separator()
                 Item(stringResource(Res.string.desk_web_merge), enabled = manager, onClick = { web("/tree/$t/merge-step1") })
                 Item(stringResource(Res.string.desk_web_duplicates), enabled = manager, onClick = { web("/tree/$t/duplicates") })
@@ -589,14 +591,15 @@ private fun FrameWindowScope.DeskMenuBar(
                 if (onAenderungen != null) Item(stringResource(Res.string.desk_changes_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Eight, ctrl = true), onClick = onAenderungen)
                 if (onArchiv != null) Item(stringResource(Res.string.desk_archive_window), enabled = state.tree != null, shortcut = KeyShortcut(Key.Nine, ctrl = true), onClick = onArchiv)
                 Separator()
-                Menu(stringResource(Res.string.tree_generations, state.ancestorGenerations)) {
+                // Die vier Einstellungen wirken nur in bestimmten Aufbauten; anderswo sind sie grau (die Familienansicht hat eigene Generationen)
+                Menu(stringResource(Res.string.tree_generations, state.ancestorGenerations), enabled = layout == DeskLayout.Navigator || layout == DeskLayout.TreeCentre) {
                     (2..7).forEach { n ->
                         CheckboxItem(stringResource(Res.string.tree_generations, n), checked = state.ancestorGenerations == n, onCheckedChange = { viewModel.setAncestorGenerations(n) })
                     }
                 }
-                CheckboxItem(stringResource(Res.string.desk_color_coding), checked = farbkodierung, enabled = state.home != null, onCheckedChange = onFarbkodierung)
-                CheckboxItem(stringResource(Res.string.tree_show_siblings), checked = state.showSiblings, onCheckedChange = viewModel::setShowSiblings)
-                CheckboxItem(stringResource(Res.string.tree_show_cousins), checked = state.showCousins && state.showSiblings, enabled = state.showSiblings, onCheckedChange = viewModel::setShowCousins)
+                CheckboxItem(stringResource(Res.string.desk_color_coding), checked = farbkodierung, enabled = state.home != null && layout == DeskLayout.Navigator, onCheckedChange = onFarbkodierung)
+                CheckboxItem(stringResource(Res.string.tree_show_siblings), checked = state.showSiblings, enabled = layout == DeskLayout.TreeCentre, onCheckedChange = viewModel::setShowSiblings)
+                CheckboxItem(stringResource(Res.string.tree_show_cousins), checked = state.showCousins && state.showSiblings, enabled = state.showSiblings && layout == DeskLayout.TreeCentre, onCheckedChange = viewModel::setShowCousins)
             }
             // Werkzeuge fuer den ganzen Stammbaum, dazu reine Rechnung auf diesem PC (auch ohne Stammbaum nutzbar)
             Menu(stringResource(Res.string.desk_menu_extras)) {
@@ -732,9 +735,9 @@ private const val TRENNER = 9f
  */
 @Composable
 internal fun ClassicToolbar(
-    state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, onGoTo: () -> Unit, onSheet: () -> Unit, onAbout: () -> Unit,
+    state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, onGoTo: () -> Unit, onSheet: () -> Unit,
     nav: DeskNav, drucke: DeskDruck, symboltexte: Boolean,
-    onMerkliste: () -> Unit, onListe: (ListenArt) -> Unit, onTabelle: () -> Unit, onTafel: (TafelArt) -> Unit, onPruefung: () -> Unit, onQuit: () -> Unit,
+    onMerkliste: () -> Unit, onListe: (ListenArt) -> Unit, onTabelle: () -> Unit, onTafel: (TafelArt) -> Unit, onPruefung: () -> Unit,
     onQuellen: (() -> Unit)? = null,
     onOrte: (() -> Unit)? = null,
     layout: DeskLayout = DeskLayout.Navigator,
@@ -748,7 +751,7 @@ internal fun ClassicToolbar(
     fun web(route: String) = runCatching { viewModel.client.url(route, emptyMap()).toString() }.getOrNull()?.let(openWeb)
     val eintraege: List<LeistenEintrag> = buildList {
         add(Knopf(Icons.Default.Search, stringResource(Res.string.desk_goto), onClick = onGoTo))
-        add(Knopf(Icons.Default.Edit, stringResource(Res.string.action_edit), enabled = state.root != null, onClick = onSheet))
+        add(Knopf(Icons.Default.Edit, stringResource(Res.string.desk_sheet), enabled = state.root != null, onClick = onSheet))
         add(Knopf(Icons.Default.Add, stringResource(Res.string.action_add_relative), enabled = canEdit && state.root != null) { state.root?.let(viewModel::requestAddRelative) })
         if (viewModel.bookmarksSupported) add(Knopf(Icons.Default.Star, stringResource(Res.string.desk_bookmarks), onClick = onMerkliste))
         add(Trenner)
@@ -788,13 +791,6 @@ internal fun ClassicToolbar(
         if (onAufgaben != null) add(Knopf(de.bgghome.webtrees.nativ.ui.TaskIcon, stringResource(Res.string.desk_tasks_window), enabled = state.tree != null, onClick = onAufgaben))
         if (onAenderungen != null) add(Knopf(de.bgghome.webtrees.nativ.ui.HistoryIcon, stringResource(Res.string.desk_changes_window), enabled = state.tree != null, onClick = onAenderungen))
         add(Knopf(Icons.AutoMirrored.Filled.ExitToApp, "webtrees") { openWeb(state.detail?.person?.url ?: state.baseUrl) })
-        add(Trenner)
-        add(Knopf(de.bgghome.webtrees.nativ.ui.LanguageIcon, stringResource(Res.string.menu_language), menu = { close ->
-            DropdownMenuItem(text = { Text(stringResource(Res.string.language_system)) }, onClick = { close(); Sprache.setzen(null); viewModel.refresh() })
-            Sprache.ALLE.forEach { (code, name) -> DropdownMenuItem(text = { Text(name) }, onClick = { close(); Sprache.setzen(code); viewModel.refresh() }) }
-        }))
-        add(Knopf(HelpIcon, stringResource(Res.string.desk_help), onClick = onAbout))
-        add(Knopf(Icons.Default.Close, stringResource(Res.string.desk_quit), onClick = onQuit))
     }
     Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {

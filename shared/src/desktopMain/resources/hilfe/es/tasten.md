@@ -7,7 +7,7 @@
 | F1 | Ayuda |
 | F5 | Recargar el árbol |
 | Ctrl+F | Ir a (buscar persona) |
-| Ctrl+E | Editar persona (ficha personal) |
+| Ctrl+E | Ficha personal |
 | Ctrl+N | Añadir pariente |
 | Ctrl+Enter | Persona seleccionada como persona central |
 | Alt+Home | Persona de inicio |
