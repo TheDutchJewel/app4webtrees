@@ -1,0 +1,1 @@
+Angleichung an wtWin 1.51: Ortsnamen und Adressen an Ereignissen werden wie am PC gelesen; niederländische Texte ergänzt. Keine neuen Funktionen am Handy.

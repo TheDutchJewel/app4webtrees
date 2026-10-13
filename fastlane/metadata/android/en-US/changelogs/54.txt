@@ -1,0 +1,1 @@
+Aligned with wtWin 1.51: place names and addresses at events are read as on the PC; Dutch texts completed. No new phone features.
