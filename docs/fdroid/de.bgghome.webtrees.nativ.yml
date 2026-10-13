@@ -21,10 +21,17 @@ Builds:
     gradle:
       - yes
 
+  - versionName: '1.51'
+    versionCode: 54
+    commit: 65c8344598388d096cede09cfeb57e00223c4f30
+    subdir: app
+    gradle:
+      - yes
+
 AllowedAPKSigningKeys: 93a5862d9c0f15e28b8ab649fbfa9969a9556e46e2500a66d4b557f350440255
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+(\.[0-9]+)?$
 UpdateCheckData: gradle.properties|wtand.versionCode=(\d+)|.|wtand.versionName=(.+)
-CurrentVersion: '1.50'
-CurrentVersionCode: 53
+CurrentVersion: '1.51'
+CurrentVersionCode: 54
