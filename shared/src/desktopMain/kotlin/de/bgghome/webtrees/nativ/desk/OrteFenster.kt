@@ -129,6 +129,44 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
         var verweisFortschritt by remember { mutableStateOf<String?>(null) }
         val darf = state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_WRITE
         val darfUmbenennen = state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME
+        // Adressen zu Haeusern (ab Stufe 33): dafuer den ganzen Baum holen, sobald "Bereinigen" offen ist
+        val darfAdressen = darfUmbenennen && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_ADDRESS
+        var adressenOffen by remember { mutableStateOf(false) }
+        var adressFortschritt by remember { mutableStateOf<String?>(null) }
+        val vorschlaege by produceState<List<de.bgghome.webtrees.nativ.data.HausVorschlag>?>(null, tree, neu, bereinigenOffen && darfAdressen) {
+            value = null
+            if (tree != null && bereinigenOffen && darfAdressen) value = withContext(Dispatchers.IO) {
+                runCatching { BaumSpeicher.holen(viewModel.client, tree, Int.MAX_VALUE / 64)?.let { de.bgghome.webtrees.nativ.data.adressenZuHaeusern(it) } }.getOrNull()
+            }
+        }
+        fun adressenUmwandeln(gewaehlt: List<de.bgghome.webtrees.nativ.data.HausVorschlag>, typ: String) {
+            scope.launch {
+                var orte = 0; var ereignisse = 0; var ausstehend = false
+                val govTyp = govTypZu(typ)
+                val oberorte = HashMap<String, String?>()
+                for ((i, v) in gewaehlt.withIndex()) {
+                    adressFortschritt = de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_places_addresses_running, i + 1, gewaehlt.size)
+                    // Der Oberort braucht einen Ortsdatensatz, darunter haengt das Haus
+                    val oben = withContext(Dispatchers.IO) { oberorte.getOrPut(v.ort) { ortsdatensatz(viewModel.client, tree.orEmpty(), v.ort) } } ?: continue
+                    val ort = runCatching { withContext(Dispatchers.IO) { viewModel.client.savePlace(tree.orEmpty(), de.bgghome.webtrees.nativ.api.PlaceRequest(
+                        v.name, type = typ, parentAendern = true, parent = oben, govTypeAendern = govTyp != null, govType = govTyp)) } }
+                        .onFailure { meldung = it.message ?: "?" }.getOrNull() ?: continue
+                    orte++; ausstehend = ausstehend || ort.pending
+                    // Dann jedes Ereignis: Ort auf das Haus, Adresse weg - den Verweis "3 _LOC" setzt der Server (Stufe 32)
+                    for (a in v.fakten) {
+                        runCatching { withContext(Dispatchers.IO) { viewModel.client.saveFact(tree.orEmpty(), a.record,
+                            de.bgghome.webtrees.nativ.api.FactRequest(factId = a.fact.id, tag = a.fact.tag, place = v.name, address = "")) } }
+                            .onSuccess { ereignisse++; ausstehend = ausstehend || it.pending }.onFailure { meldung = it.message ?: "?" }
+                    }
+                }
+                adressFortschritt = null
+                adressenOffen = false
+                meldung = listOfNotNull(de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_places_addresses_done, orte, ereignisse),
+                    if (ausstehend) de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_rename_moderated) else null).joinToString("  ")
+                // Der Baum-Zwischenspeicher erneuert sich von selbst: lastChange des Baums ist jetzt ein anderer
+                neu++
+            }
+        }
         // Erst die Vorschau holen, dann fragen (wie viele Ereignisse, Zusammenfuehren, Abweichungen)
         fun vorschau(von: String, nach: String) {
             meldung = null
@@ -165,7 +203,9 @@ fun OrteFenster(state: UiState, viewModel: AppViewModel, start: String?, openWeb
                                 if (ausstehend) de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_rename_moderated) else null).joinToString("  ")
                             neu++
                         }
-                    }) else null, fortschritt = verweisFortschritt)
+                    }) else null, fortschritt = verweisFortschritt,
+                    adressen = if (darfAdressen) vorschlaege else null, onAdressen = if (darfAdressen) ({ adressenOffen = true }) else null)
+                if (adressenOffen) vorschlaege?.let { AdressenDialog(it, adressFortschritt, ::adressenUmwandeln, onDismiss = { adressenOffen = false }) }
             }
             umbenennen?.let { v ->
                 UmbenennenDialog(v, onDismiss = { umbenennen = null }) {

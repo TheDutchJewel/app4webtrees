@@ -62,6 +62,7 @@ private fun grundText(g: OrtsGrund): String = stringResource(when (g) {
 internal fun OrteBereinigenDialog(
     tree: String, orte: List<PlaceSummary>, onZeigen: (String) -> Unit, onZusammenfuehren: (String, String) -> Unit, onDismiss: () -> Unit,
     onVerweise: ((List<PlaceSummary>) -> Unit)? = null, fortschritt: String? = null,
+    adressen: List<de.bgghome.webtrees.nativ.data.HausVorschlag>? = null, onAdressen: (() -> Unit)? = null,
 ) {
     var getrennt by remember(tree) { mutableStateOf(GetrenntListe.laden(tree)) }
     var zeigeGetrennte by remember { mutableStateOf(false) }
@@ -86,6 +87,14 @@ internal fun OrteBereinigenDialog(
                         OutlinedButton(onClick = { onVerweise(ohneVerweis) }, enabled = fortschritt == null && ohneVerweis.isNotEmpty(), shape = MaterialTheme.shapes.small) {
                             Text(stringResource(Res.string.desk_places_cleanup_links_button))
                         }
+                    }
+                }
+                // Ab Stufe 33: Ereignisse mit Ort und Adresse - die Adresse kann ein eigener Ort unter dem Ort werden
+                if (onAdressen != null && !adressen.isNullOrEmpty()) Tipp(stringResource(Res.string.tipp_places_addresses)) {
+                    Row(Modifier.fillMaxWidth().background(farben.secondaryContainer.copy(alpha = 0.5f)).padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(stringResource(Res.string.desk_places_addresses_banner, adressen.size, adressen.sumOf { it.fakten.size }), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                        OutlinedButton(onClick = onAdressen, shape = MaterialTheme.shapes.small) { Text(stringResource(Res.string.desk_places_addresses_button)) }
                     }
                 }
                 Text(stringResource(Res.string.desk_places_cleanup_hint), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant)

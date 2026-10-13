@@ -142,6 +142,8 @@ data class FactJson(
     val typeLabel: String? = null,
     /** Ab API-Stufe 23: Notiz, die auf einen Notiz-Datensatz zeigt (1 NOTE @N1@) - nicht als Text aendern. */
     val noteXref: String? = null,
+    /** Ab API-Stufe 33: Adresse am Ereignis (2 ADDR, Zeilen mit \n), null ohne. */
+    val address: String? = null,
 )
 
 /**
@@ -295,6 +297,8 @@ const val API_LOC_HIERARCHY = 27
  * zaehlt die ohne), GOV-Typnummer der Art schreiben (govType), Oberort aendert nur den aktuellen Zeiger.
  */
 const val API_LOC_LINKS = 32
+/** Ab Stufe 33: Adresse am Ereignis (address an jedem Fakt, POST Fact mit address). */
+const val API_ADDRESS = 33
 
 /** Ab Stufe 29: Personen zusammenfuehren (POST Merge, MergeUndo, Merges) - nur Verwalter des Stammbaums. */
 const val API_MERGE = 29
@@ -701,6 +705,8 @@ data class FactRequest(
     val note: String? = null,
     /** Art (2 TYPE), ab API-Stufe 20; bei der Heirat civil, religious, partners oder "common law" - der Server schreibt webtrees' Form. */
     val type: String? = null,
+    /** Adresse (2 ADDR), ab API-Stufe 33; "" entfernt sie, null laesst sie stehen. */
+    val address: String? = null,
 )
 
 /**
