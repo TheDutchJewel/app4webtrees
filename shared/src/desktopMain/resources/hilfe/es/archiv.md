@@ -28,6 +28,9 @@ Los administradores del árbol cambian descripción, fecha, personas y palabras 
 
 ## Caras en fotos de grupo
 
+![](desktop-gesichter.jpg)
+
+
 Clic derecho en una imagen › **Caras …** la muestra en grande con todas las caras marcadas. Al pasar el ratón aparece el nombre junto al marco; a la derecha, la lista fila por fila desde la izquierda, y un clic en un nombre convierte a la persona en central. Los administradores marcan **Marcar una cara**, trazan un marco alrededor de una cara y la asignan: a una persona del árbol, solo a un nombre (alguien conocido sin registro) o a «desconocido». Un marco elegido se mueve arrastrándolo, se cambia de tamaño en el asa amarilla y **Supr** lo quita. Los marcos se guardan en el propio archivo de imagen (XMP); otros programas como digiKam también los leen. La imagen no se vincula a la persona, salvo que marque **Vincular también la imagen a la persona elegida**. En la ficha, la pestaña **Multimedia** muestra en **En fotos de grupo** todas las imágenes donde la persona está marcada.
 
 ## Postales

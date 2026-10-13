@@ -4,6 +4,9 @@ Das Personenblatt öffnet sich mit **Doppelklick** auf eine Person, mit **Strg+E
 
 ## Aufbau
 
+![](desktop-personenblatt.png)
+
+
 Oben Name, Lebensdaten und Bild. Darunter die Reiter:
 
 - **Daten:** alle Ereignisse als Tabelle (Ereignis, Datum, Ort / Beschreibung), dazu Alter beim Tod.
@@ -24,6 +27,9 @@ Oben Name, Lebensdaten und Bild. Darunter die Reiter:
 
 ## Bearbeiten
 
+![](desktop-paten-dialog.jpg)
+
+
 Bearbeiten geht nur mit Bearbeitungsrecht in webtrees. Änderungen landen sofort in webtrees; je nach Einstellung des Stammbaums gelten sie gleich oder warten auf die Freigabe durch einen Moderator.
 
 - **Ereignis ändern:** Doppelklick auf die Zeile (oder Bearbeiten). Datum und Ort werden ausgewählt: genau, um, vor, nach, zwischen; Tag, Monat, Jahr. Orte schlägt das Programm beim Tippen aus dem Stammbaum vor.
@@ -37,6 +43,9 @@ Bearbeiten geht nur mit Bearbeitungsrecht in webtrees. Änderungen landen sofort
 
 ## Personen zusammenführen
 
+![](desktop-zusammenfuehren.jpg)
+
+
 Doppelte Personen entstehen beim Zusammenführen zweier Dateien oder beim Eingeben – derselbe Vorfahr zweimal, einmal als Kind, einmal als Ehemann. Unter **Extras › Personen zusammenführen …** (nur für Verwalter des Stammbaums, braucht api4webtrees ab 1.16) stehen alle Paare, die die Plausibilitätsprüfung für doppelt hält: gleicher Name und ein gleiches Ereignisdatum (Regel 219) oder ähnlicher Name mit nahem Geburtsjahr (Regel 228). Dieselben Paare haben in der Prüfung ein Symbol mit zwei zusammenlaufenden Linien. **Paar hinzufügen …** nimmt zwei beliebige Personen, etwa gleichnamige Kinder ohne Daten; in der Personentabelle geht das auch über die rechte Maustaste.
 
 **Zusammenführen …** zeigt, wer bleibt und wer aufgeht, und darunter nur, was von der zweiten Person **dazukommt**, meist ein bis drei Zeilen mit Haken. Gleiche Angaben werden nicht doppelt übernommen, auch nicht, wenn eine Fassung weniger Einzelheiten hat (Geburt nur mit Datum neben Geburt mit Datum und Ort) oder ein „verstorben“ ohne Datum neben einem Tod mit Datum steht. **Alle Ereignisse anzeigen** klappt die vollständige Gegenüberstellung beider Personen auf, falls du auch aus der ersten Person etwas weglassen willst. Verknüpfungen zu Familien und Medien bleiben immer, Quellen und Notizen an den Ereignissen auch. Alles, was auf die zweite Person zeigte – Familien, Quellenverweise, Patenschaften – zeigt danach auf die erste. Darunter schlägt das Programm weitere Paare vor (Vater, Mutter, Partner und Kinder gleichen Namens); angehakte kommen nach dem Zusammenführen der Reihe nach dran. Hat eine Person zwei Geburten, weil sich die Angaben widersprechen, zeigt das die Prüfung an und du bereinigst es im Personenblatt.
@@ -44,6 +53,9 @@ Doppelte Personen entstehen beim Zusammenführen zweier Dateien oder beim Eingeb
 **Rückgängig:** Jedes Zusammenführen steht im Reiter **Protokoll** mit Zeit und Benutzer. **Rückgängig** stellt beide Personen und alle Verweise so wieder her, wie sie waren – auch Tage später, solange seitdem niemand an den betroffenen Datensätzen gearbeitet hat; sonst nennt das Programm die geänderten Datensätze und lässt alles stehen. Ohne Sofortfreigabe warten Zusammenführen und Rückgängig wie jede Änderung auf einen Moderator.
 
 ## Fotos
+
+![](desktop-gesichter.jpg)
+
 
 **Foto hinzufügen** wählt eine Datei vom PC und hängt sie an die Person; das Bild wird passend zum Upload-Limit des Servers verkleinert. Ein Klick auf ein Bild öffnet den Betrachter.
 

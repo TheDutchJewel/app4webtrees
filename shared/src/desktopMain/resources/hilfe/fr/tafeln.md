@@ -4,12 +4,25 @@ Ouvrez la fenêtre **Créer un tableau** par **Créer › Tableau d'ascendance �
 
 ## Utiliser l'aperçu
 
+![](desktop-tafel-fenster.jpg)
+
+
 - La **molette de la souris** zoome autour du pointeur, **faire glisser** déplace la vue.
 - **Un clic** bascule entre la feuille entière et la taille de lecture.
 - **Clic droit** sur une case : colorer ou masquer la branche de cette personne.
 - Pour les grands tableaux, la fenêtre indique le nombre de personnes et la taille de la feuille en centimètres.
 
 ## Types de tableaux
+
+![](tafel-ahnentafel.jpg)
+![](tafel-stammtafel.jpg)
+![](tafel-sanduhr.jpg)
+![](tafel-faechertafel.jpg)
+![](tafel-ahnenkreis.jpg)
+![](tafel-cousins.jpg)
+![](tafel-verwandtschaftsweg.jpg)
+![](tafel-zeitleiste.jpg)
+
 
 **Ascendance**
 
@@ -48,6 +61,10 @@ Les réglages sont répartis en groupes, chacun peut être déplié et replié. 
 
 ## Sortie
 
+![](tafel-karteikarte.jpg)
+![](tafel-ahnen-seiten.jpg)
+
+
 - **Imprimer sur une page :** réduit le tableau au format du papier de l'imprimante.
 - **Enregistrer en PDF (affiche) :** en taille d'origine, pour l'imprimeur ou pour le partage.
 - **Imprimer les feuilles** / **Enregistrer les feuilles en PDF :** le tableau réparti sur des feuilles A4, avec un plan de montage (voir Grand format).
@@ -56,6 +73,9 @@ Les réglages sont répartis en groupes, chacun peut être déplié et replié. 
 - Les tableaux par pages ont **Imprimer** et **Enregistrer en PDF** pour toutes les pages.
 
 ## Grand format
+
+![](tafel-montageplan.jpg)
+
 
 Sous **Grand format**, vous choisissez la taille : taille d'origine, une **largeur en cm** ou **Répartir sur des feuilles** (colonnes × rangées). La fenêtre indique la taille finale et le nombre de feuilles, p. ex. « Taille finale 50 × 34 cm · 4 feuilles A4 ».
 

@@ -1664,4 +1664,6 @@
     <string name="desk_church_none">No se encontró nada</string>
     <string name="desk_church_note">Los nombres siguen las listas habituales; las costumbres locales varían. Los territorios protestantes de Alemania solían usar el calendario juliano hasta 1700.</string>
     <string name="desk_church_all">Todos los domingos y fiestas</string>
+    <string name="desk_claim">Tu árbol genealógico de webtrees como programa de escritorio</string>
+    <string name="desk_connect_heading">Conectar con webtrees</string>
 </resources>

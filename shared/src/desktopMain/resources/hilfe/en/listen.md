@@ -4,6 +4,12 @@ Open the **Create list** window via **Create › Ancestor list**, **Descendant l
 
 ## From the central person
 
+![](liste-ahnen.jpg)
+![](liste-stamm.jpg)
+![](liste-taufpaten.jpg)
+![](liste-ahnenwertung.jpg)
+
+
 - **Ancestor list:** all ancestors by generation with Kekulé numbers, up to 12 generations; anyone appearing more than once refers to their first number (pedigree collapse).
 - **End-of-line ancestors:** the ancestors where research ends, by the four grandparent lines.
 - **Paternal line** and **Maternal line:** the father's or mother's line generation by generation, with spouses.
@@ -13,6 +19,12 @@ Open the **Create list** window via **Create › Ancestor list**, **Descendant l
 - **Person sheet:** all details of the central person on one page.
 
 ## Across the whole tree
+
+![](liste-namen.jpg)
+![](liste-orte.jpg)
+![](liste-ereignisse.jpg)
+![](liste-spitzenahnen.jpg)
+
 
 - **Event list:** births and deaths of all visible persons in date order; optionally as an **anniversary calendar** by month and day, with a place filter, e.g. for the family newsletter.
 - **Surname list:** all surnames with count, period and the most frequent places.

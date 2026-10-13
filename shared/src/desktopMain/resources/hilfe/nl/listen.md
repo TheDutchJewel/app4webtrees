@@ -4,6 +4,12 @@ Open het venster **Lijst maken** via **Maken › Voorouderlijst**, **Nakomelinge
 
 ## Vanuit de proband
 
+![](liste-ahnen.jpg)
+![](liste-stamm.jpg)
+![](liste-taufpaten.jpg)
+![](liste-ahnenwertung.jpg)
+
+
 - **Voorouderlijst:** alle voorouders per generatie met Kekulé-nummers, tot 12 generaties; wie meer dan eens voorkomt, verwijst naar zijn eerste nummer (kwartierverlies).
 - **Oudst bekende voorouders:** de voorouders bij wie het onderzoek eindigt, per grootouderlijn.
 - **Stamreeks** en **Moederlijn:** de lijn van de vader of de moeder generatie voor generatie, met echtgenoten.
@@ -13,6 +19,12 @@ Open het venster **Lijst maken** via **Maken › Voorouderlijst**, **Nakomelinge
 - **Persoonsblad:** alle gegevens van de proband op één pagina.
 
 ## Over de hele stamboom
+
+![](liste-namen.jpg)
+![](liste-orte.jpg)
+![](liste-ereignisse.jpg)
+![](liste-spitzenahnen.jpg)
+
 
 - **Gebeurtenissenlijst:** geboorten en overlijdens van alle zichtbare personen in datumvolgorde; desgewenst als **gedenkdagenkalender** op maand en dag, met plaatsfilter, bijv. voor de familienieuwsbrief.
 - **Achternamen:** alle achternamen met aantal, periode en de meest voorkomende plaatsen.

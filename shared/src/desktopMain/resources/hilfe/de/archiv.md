@@ -28,6 +28,9 @@ Verwalter des Stammbaums ändern Beschreibung, Datum, Personen und Schlagwörter
 
 ## Gesichter auf Gruppenbildern
 
+![](desktop-gesichter.jpg)
+
+
 Rechtsklick auf ein Bild › **Gesichter …** zeigt das Bild groß mit allen markierten Gesichtern. Beim Darüberfahren steht der Name am Rahmen, rechts die Liste Reihe für Reihe von links; ein Klick auf einen Namen macht die Person zum Probanden. Verwalter setzen den Haken **Gesicht markieren**, ziehen einen Rahmen um ein Gesicht und ordnen ihn zu: einer Person aus dem Stammbaum, nur einem Namen (wer bekannt ist, aber keinen Datensatz hat) oder „unbekannt“. Einen gewählten Rahmen verschiebst du, am gelben Griff änderst du die Größe, **Entf** entfernt ihn. Die Rahmen stehen in der Bilddatei selbst (XMP), andere Programme wie digiKam lesen sie mit. Das Bild hängt dadurch nicht an der Person – außer du setzt im Zuordnen-Dialog den Haken **Bild auch an die gewählte Person hängen**. Im Personenblatt zeigt der Reiter **Medien** unter **Auf Gruppenbildern** alle Bilder, auf denen die Person markiert ist.
 
 ## Postkarten

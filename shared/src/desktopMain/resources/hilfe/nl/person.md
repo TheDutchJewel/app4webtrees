@@ -4,6 +4,9 @@ Het persoonsblad opent met een **dubbelklik** op een persoon, met **Ctrl+E** of 
 
 ## Opbouw
 
+![](desktop-personenblatt.png)
+
+
 Bovenaan naam, data en foto. Daaronder de tabbladen:
 
 - **Gegevens:** alle gebeurtenissen als tabel (gebeurtenis, datum, plaats / beschrijving), plus de leeftijd bij overlijden.
@@ -24,6 +27,9 @@ Bovenaan naam, data en foto. Daaronder de tabbladen:
 
 ## Bewerken
 
+![](desktop-paten-dialog.jpg)
+
+
 Bewerken vereist bewerkingsrechten in webtrees. Wijzigingen gaan direct naar webtrees; afhankelijk van de instellingen van de stamboom gelden ze meteen of wachten ze op goedkeuring door een moderator.
 
 - **Gebeurtenis wijzigen:** dubbelklik op de rij (of Bewerken). Datum en plaats worden gekozen: exact, omstreeks, voor, na, tussen; dag, maand, jaar. Plaatsen worden tijdens het typen uit de stamboom voorgesteld.
@@ -37,6 +43,9 @@ Bewerken vereist bewerkingsrechten in webtrees. Wijzigingen gaan direct naar web
 
 ## Personen samenvoegen
 
+![](desktop-zusammenfuehren.jpg)
+
+
 Dubbele personen ontstaan bij het samenvoegen van twee bestanden of bij het invoeren – dezelfde voorouder twee keer, eens als kind, eens als echtgenoot. Onder **Extra › Personen samenvoegen …** (alleen voor beheerders van de stamboom, vereist api4webtrees 1.16 of nieuwer) staan alle paren die de plausibiliteitscontrole voor dubbel houdt: dezelfde naam en één gelijke gebeurtenisdatum (regel 219) of een vergelijkbare naam met een geboortejaar dichtbij (regel 228). In de controle dragen dezelfde paren een symbool met twee samenkomende lijnen. **Paar toevoegen …** neemt twee willekeurige personen, bijvoorbeeld gelijknamige kinderen zonder gegevens; in de personentabel kan dat ook met de rechtermuisknop.
 
 **Samenvoegen …** toont wie blijft en wie opgaat, en daaronder alleen wat van de tweede persoon **erbij komt**, meestal een tot drie regels met vinkjes. Gelijke gegevens worden niet dubbel overgenomen, ook niet als een versie minder details heeft (geboorte met alleen datum naast geboorte met datum en plaats) of een „overleden“ zonder datum naast een overlijden met datum staat. **Alle gebeurtenissen tonen** klapt de volledige vergelijking van beide personen open, voor het geval je ook iets van de eerste persoon wilt weglaten. Koppelingen naar gezinnen en media blijven altijd, bronnen en notities bij de gebeurtenissen ook. Alles wat naar de tweede persoon wees – gezinnen, bronverwijzingen, peetschappen – wijst daarna naar de eerste. Daaronder stelt het programma verdere paren voor (vader, moeder, partners en kinderen met dezelfde naam); aangevinkte komen na het samenvoegen aan de beurt. Heeft een persoon daarna twee geboorten omdat de gegevens elkaar tegenspreken, dan toont de controle dat en ruim je het op in het persoonsblad.
@@ -44,6 +53,9 @@ Dubbele personen ontstaan bij het samenvoegen van twee bestanden of bij het invo
 **Ongedaan maken:** elke samenvoeging staat in het tabblad **Logboek** met tijd en gebruiker. **Ongedaan maken** herstelt beide personen en alle verwijzingen zoals ze waren – ook dagen later, zolang niemand de betrokken records sindsdien heeft bewerkt; anders noemt het programma de gewijzigde records en laat alles staan. Zonder automatische goedkeuring wachten samenvoegen en ongedaan maken net als elke wijziging op een moderator.
 
 ## Foto's
+
+![](desktop-gesichter.jpg)
+
 
 **Foto toevoegen** kiest een bestand op de pc en hangt het aan de persoon; de afbeelding wordt verkleind tot de uploadlimiet van de server. Een klik op een afbeelding opent de viewer.
 

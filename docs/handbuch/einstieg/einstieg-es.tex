@@ -1,0 +1,50 @@
+% Einstiegsblatt, erzeugt aus einstieg/erzeugen.py – setzen mit ../bauen.sh
+\documentclass[a4paper, 9.5pt, parskip=half]{scrartcl}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[margin=16mm, top=14mm, bottom=14mm]{geometry}
+\usepackage{wtwinci}
+\usepackage{csquotes}
+\usepackage{multicol}
+\graphicspath{{/home/thobug/AI-Projects/app4webtrees/docs/screenshots/}{/home/thobug/AI-Projects/app4webtrees/docs/}}
+\pagestyle{empty}
+\setlength{\columnsep}{8mm}
+\begin{document}
+\noindent\begin{minipage}[c]{0.13\linewidth}\includegraphics[width=\linewidth]{icon/icon-512.png}\end{minipage}\hfill
+\begin{minipage}[c]{0.84\linewidth}\sffamily{\fontsize{26}{30}\selectfont\bfseries\color{wtPetrol}wtWin en cinco minutos\par}\vspace{3pt}{\small\color{wtGrau}Tu árbol genealógico de webtrees como programa de escritorio · wtWin (Windows) · wtTux (Linux) · wtMac (macOS, en pruebas)\par}\end{minipage}
+\vspace{4mm}\noindent{\color{wtPetrol}\rule{\linewidth}{0.8pt}}\vspace{2mm}
+\begin{multicols}{2}
+\section*{1 · Instalar}
+\textbf{Windows:} descarga \texttt{wtWin-….exe} de \href{https://wtwin.bgg-home.de}{wtwin.bgg-home.de} y ejecútalo. El instalador pregunta primero el idioma, no necesita derechos de administrador y sustituye por sí mismo una versión anterior. En el primer inicio: «Más información» › «Ejecutar de todas formas» (sin firma).
+
+\textbf{Linux:} \texttt{sudo apt install ./wttux\_…\_amd64.deb}
+
+\textbf{macOS:} \texttt{…-arm64.dmg} (chip Apple) o \texttt{…-x64.dmg} (Intel); en el primer inicio, «Abrir de todos modos» en Ajustes del sistema › Privacidad.
+\section*{2 · Conectar o trabajar solo}
+\textbf{Con tu webtrees:} inicia sesión en webtrees en el navegador, menú \menue{App} › \menue{Conectar con wtWin}. El programa toma la dirección y la cuenta, pregunta una vez y abre el árbol. Requisito: webtrees 2.2 con el módulo api4webtrees (incluido en nas4webtrees).
+
+\textbf{A mano:} escribe la dirección de tu sitio webtrees, \menue{Conectar}, inicia sesión con usuario y contraseña. Rigen los mismos permisos que en el sitio web.
+
+\textbf{Sin servidor:} a la derecha de la pantalla inicial \menue{Crear árbol} o \menue{Importar archivo GEDCOM …}. Después trabajas sin servidor, contraseña ni internet; webtrees corre invisible en segundo plano.
+\section*{3 · Tres disposiciones}
+\textbf{Navegador} (\taste{Ctrl+1}): a la izquierda los hijos, en el centro la persona con sus matrimonios, a la derecha cuatro generaciones de antepasados. Un clic pone a otra persona en el centro.
+
+\textbf{Árbol en el centro} (\taste{Ctrl+2}): lista de personas, árbol y panel de persona uno junto a otro; pantalla completa para trabajar en el árbol.
+
+\textbf{Vista familiar} (\taste{Ctrl+3}): antepasados de ambos cónyuges arriba, la pareja en el centro, hijos con parejas y nietos abajo.
+\section*{4 · Crear y comprobar}
+\textbf{Gráficos} (15 tipos, también plóter y gran formato), \textbf{listas} y \textbf{libros} (antepasados, descendientes, libro de familias, también como sitio web) en el menú \menue{Crear}, como PDF o impresión.
+
+\textbf{Herramientas:} comprobación de plausibilidad con 61 reglas, fusionar personas, limpiar lugares, calculadora de fechas, año litúrgico.
+
+\textbf{Fuentes, lugares, archivo, tareas:} ventanas propias en \menue{Ver} (\taste{Ctrl+5} a \taste{Ctrl+9}).
+\section*{5 · Ayuda}
+\taste{F1} abre la ayuda de la ventana actual. \taste{Ctrl+F} busca una persona, \taste{F5} recarga, \taste{Ctrl+C} copia el texto de la persona.
+
+Manual en PDF, preguntas y errores: \href{https://wtwin.bgg-home.de}{wtwin.bgg-home.de} · \href{https://github.com/thobgg/app4webtrees/issues}{github.com/thobgg/app4webtrees/issues}
+\vspace{3mm}
+\noindent\bild{desktop-navigator.png}
+\end{multicols}
+\vspace{2mm}
+\noindent{\color{wtLinie}\rule{\linewidth}{0.5pt}}\\[2pt]
+{\sffamily\footnotesize\color{wtGrau}wtWin 1.52 · GPL-3.0 · wtwin.bgg-home.de}
+\end{document}

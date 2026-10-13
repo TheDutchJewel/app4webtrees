@@ -28,6 +28,9 @@ Beheerders van de stamboom wijzigen beschrijving, datum, personen en trefwoorden
 
 ## Gezichten op groepsfoto’s
 
+![](desktop-gesichter.jpg)
+
+
 Rechtsklik op een afbeelding › **Gezichten …** toont haar groot met alle gemarkeerde gezichten. Bij het erover bewegen staat de naam bij het kader; rechts de lijst rij voor rij van links, en een klik op een naam maakt die persoon tot proband. Beheerders vinken **Gezicht markeren** aan, trekken een kader om een gezicht en wijzen het toe: aan een persoon uit de stamboom, alleen aan een naam (iemand bekend zonder record) of aan ‘onbekend’. Een gekozen kader verschuif je door te slepen, aan de gele greep verander je de grootte, **Del** verwijdert het. De kaders staan in het afbeeldingsbestand zelf (XMP); andere programma’s zoals digiKam lezen ze ook. De afbeelding wordt niet aan de persoon gekoppeld – behalve als je **Afbeelding ook aan de gekozen persoon koppelen** aanvinkt. In het persoonsblad toont het tabblad **Media** onder **Op groepsfoto’s** alle afbeeldingen waarop de persoon gemarkeerd is.
 
 ## Ansichtkaarten

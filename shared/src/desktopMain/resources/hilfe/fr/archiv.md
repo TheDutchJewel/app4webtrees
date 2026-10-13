@@ -28,6 +28,9 @@ Les gestionnaires de l’arbre modifient description, date, personnes et mots-cl
 
 ## Visages sur les photos de groupe
 
+![](desktop-gesichter.jpg)
+
+
 Clic droit sur une image › **Visages …** l’affiche en grand avec tous les visages marqués. Au survol, le nom apparaît au cadre ; à droite, la liste rangée par rangée depuis la gauche, et un clic sur un nom met la personne au centre. Les gestionnaires cochent **Marquer un visage**, tracent un cadre autour d’un visage et l’attribuent : à une personne de l’arbre, à un simple nom (quelqu’un de connu sans fiche) ou à « inconnu ». On déplace un cadre sélectionné en le faisant glisser, on le redimensionne à la poignée jaune, **Suppr** le retire. Les cadres sont enregistrés dans le fichier image lui-même (XMP) ; d’autres programmes comme digiKam les lisent aussi. L’image n’est pas liée à la personne – sauf si vous cochez **Lier aussi l’image à la personne choisie**. Dans la fiche, l’onglet **Médias** liste sous **Sur des photos de groupe** toutes les images où la personne est marquée.
 
 ## Cartes postales

@@ -2,6 +2,9 @@
 
 wtWin (wtTux on Linux) shows and edits a webtrees family tree like a classic desktop genealogy program: menu bar, navigator, person sheet, charts, lists and books. The data lives either on a webtrees server (NAS or web host) or directly on this PC.
 
+![](desktop-start.jpg)
+
+
 On first start, both ways stand side by side.
 
 ## Connect to webtrees

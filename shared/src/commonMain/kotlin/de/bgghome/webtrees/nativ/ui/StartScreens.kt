@@ -26,6 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,9 @@ import de.bgghome.webtrees.nativ.api.BasicAuth
 import de.bgghome.webtrees.nativ.api.WtClient
 import de.bgghome.webtrees.nativ.res.*
 
+/** Am PC ersetzt die Marke (Icon und Wortmarke) die Ueberschrift des Startbildschirms; am Handy bleibt der Programmname. */
+val LocalStartKopf = compositionLocalOf<(@Composable () -> Unit)?> { null }
+
 @Composable
 private fun StartFrame(title: String, subtitle: String, error: String?, content: @Composable () -> Unit) {
     Surface(Modifier.fillMaxSize()) {
@@ -53,7 +57,7 @@ private fun StartFrame(title: String, subtitle: String, error: String?, content:
                 Modifier.widthIn(max = 460.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(title, style = MaterialTheme.typography.headlineMedium)
+                LocalStartKopf.current?.invoke() ?: Text(title, style = MaterialTheme.typography.headlineMedium)
                 Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(4.dp))
                 content()

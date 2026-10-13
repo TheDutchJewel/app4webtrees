@@ -4,6 +4,12 @@ Das Fenster **Liste erstellen** öffnest du über **Erstellen › Ahnenliste**, 
 
 ## Vom Probanden aus
 
+![](liste-ahnen.jpg)
+![](liste-stamm.jpg)
+![](liste-taufpaten.jpg)
+![](liste-ahnenwertung.jpg)
+
+
 - **Ahnenliste:** alle Vorfahren nach Generationen mit Kekulé-Nummern, bis 12 Generationen; wer mehrfach vorkommt, verweist auf seine erste Nummer (Ahnenschwund).
 - **Spitzenahnen:** die Vorfahren, bei denen die Forschung endet, nach den vier Großeltern-Linien.
 - **Stammlinie** und **Mutterstamm:** die Vater- bzw. Mutterlinie Generation für Generation, mit den Ehepartnern.
@@ -13,6 +19,12 @@ Das Fenster **Liste erstellen** öffnest du über **Erstellen › Ahnenliste**, 
 - **Personenblatt:** alle Angaben zum Probanden auf einer Seite.
 
 ## Über den ganzen Stammbaum
+
+![](liste-namen.jpg)
+![](liste-orte.jpg)
+![](liste-ereignisse.jpg)
+![](liste-spitzenahnen.jpg)
+
 
 - **Ereignisliste:** Geburten und Todesfälle aller sichtbaren Personen, zeitlich geordnet; wahlweise als **Jahrestagskalender** nach Monat und Tag, mit Ortsfilter, etwa für die Familienzeitung.
 - **Namensliste:** alle Familiennamen mit Anzahl, Zeitraum und den häufigsten Orten.

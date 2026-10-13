@@ -1664,4 +1664,6 @@
     <string name="desk_church_none">Nichts gefunden</string>
     <string name="desk_church_note">Die Namen folgen den üblichen Verzeichnissen; regionale Bräuche weichen ab. Evangelische Gebiete in Deutschland rechneten oft bis 1700 julianisch.</string>
     <string name="desk_church_all">Alle Sonntage und Feiertage</string>
+    <string name="desk_claim">Dein webtrees-Stammbaum als Desktop-Programm</string>
+    <string name="desk_connect_heading">Mit webtrees verbinden</string>
 </resources>

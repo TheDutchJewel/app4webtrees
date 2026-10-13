@@ -2,6 +2,9 @@
 
 Die **Personentabelle** zeigt alle Personen des Stammbaums in Spalten: ID, Name, Geschlecht, Geburt, Geburtsort, Tod, Sterbeort und Beruf. Du öffnest sie über **Ansicht › Personentabelle** (Strg+4) oder das Symbol **Liste**. Das Fenster kann neben dem Hauptfenster offen bleiben.
 
+![](desktop-personentabelle.jpg)
+
+
 ## Sortieren
 
 Ein Klick auf einen Spaltenkopf sortiert nach dieser Spalte, ein zweiter Klick dreht die Reihenfolge um. Daten werden nach dem Kalender sortiert, nicht nach dem Text; Personen ohne Angabe stehen immer unten.

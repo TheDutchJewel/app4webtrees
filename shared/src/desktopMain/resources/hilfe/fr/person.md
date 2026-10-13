@@ -4,6 +4,9 @@ La fiche individuelle s'ouvre par un **double-clic** sur une personne, avec **Ct
 
 ## Présentation
 
+![](desktop-personenblatt.png)
+
+
 Nom, dates et image en haut. En dessous, les onglets :
 
 - **Données :** tous les événements sous forme de table (événement, date, lieu / description), plus l'âge au décès.
@@ -24,6 +27,9 @@ Nom, dates et image en haut. En dessous, les onglets :
 
 ## Modifier
 
+![](desktop-paten-dialog.jpg)
+
+
 La modification nécessite les droits de modification dans webtrees. Les changements partent immédiatement vers webtrees ; selon les réglages de l'arbre, ils s'appliquent tout de suite ou attendent l'approbation d'un modérateur.
 
 - **Modifier un événement :** double-cliquez sur la ligne (ou Modifier). La date et le lieu se choisissent au lieu de se taper : exacte, vers, avant, après, entre ; jour, mois, année. Les lieux de l'arbre sont proposés pendant la saisie.
@@ -37,6 +43,9 @@ La modification nécessite les droits de modification dans webtrees. Les changem
 
 ## Fusionner des personnes
 
+![](desktop-zusammenfuehren.jpg)
+
+
 Les personnes en double apparaissent quand on réunit deux fichiers ou lors de la saisie : le même ancêtre deux fois, une fois comme enfant, une fois comme époux. **Outils › Fusionner des personnes …** (réservé aux gestionnaires de l’arbre, nécessite api4webtrees 1.16 ou plus) liste toutes les paires que le contrôle de plausibilité tient pour des doublons : même nom et une date d’événement identique (règle 219) ou nom semblable avec une année de naissance proche (règle 228). Dans le contrôle, les mêmes paires portent un symbole à deux lignes qui se rejoignent. **Ajouter une paire …** prend deux personnes quelconques, par exemple des enfants du même nom sans données ; dans le tableau des personnes, le bouton droit fait de même.
 
 **Fusionner …** montre qui reste et qui est absorbé, et en dessous seulement ce qui est **ajouté** depuis la seconde personne, en général une à trois lignes à cocher. Les indications identiques ne sont pas reprises deux fois, même si une version a moins de détails (naissance avec date seule à côté d’une naissance avec date et lieu) ou si un « décédé » sans date côtoie un décès daté. **Afficher tous les événements** ouvre la comparaison complète des deux personnes, au cas où tu voudrais aussi retirer quelque chose de la première. Les liens vers les familles et les médias restent toujours, les sources et notes des événements aussi. Tout ce qui pointait vers la seconde personne – familles, citations de sources, parrainages – pointe ensuite vers la première. En dessous, le programme propose d’autres paires (père, mère, conjoints et enfants du même nom) ; les paires cochées suivent après la fusion. Si une personne se retrouve avec deux naissances parce que les données se contredisent, le contrôle le signale et tu corriges dans la fiche de la personne.
@@ -44,6 +53,9 @@ Les personnes en double apparaissent quand on réunit deux fichiers ou lors de l
 **Annuler :** chaque fusion figure dans l’onglet **Journal** avec l’heure et l’utilisateur. **Annuler la fusion** rétablit les deux personnes et tous les liens tels qu’ils étaient – même des jours plus tard, tant que personne n’a modifié les fiches concernées depuis ; sinon le programme nomme les fiches modifiées et ne touche à rien. Sans validation automatique, fusion et annulation attendent un modérateur comme toute modification.
 
 ## Photos
+
+![](desktop-gesichter.jpg)
+
 
 **Ajouter une photo** choisit un fichier sur l'ordinateur et le joint à la personne ; l'image est réduite à la limite d'envoi du serveur. Un clic sur une image ouvre la visionneuse.
 

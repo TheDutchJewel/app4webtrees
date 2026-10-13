@@ -4,6 +4,12 @@
 
 ## Three books
 
+![](buch-vor-titel.jpg)
+![](buch-vor-gen.jpg)
+![](buch-nach-gen.jpg)
+![](buch-fam.jpg)
+
+
 - **Ancestor book:** all ancestors of the central person by generation and Kekulé number, with dates, baptisms, burials, sources and notes. The four grandparent lines optionally coloured in the margin.
 - **Descendant book:** all descendants generation by generation, with spouses, children and references; numbers after Saragossa, d'Aboville, Henry or serial; branch colours per child of the root couple.
 - **Family book:** one entry per family, alphabetical or chronological. With **layout “per person”** it becomes the person report: one entry per person with parents, marriages and children as pointers, indexes on person numbers. Also, one entry per family, alphabetical or chronological. With a **place filter** it becomes a local family book. Needs the whole tree in one piece (api4webtrees 1.9 or later on the server). **Houses and farms** (api4webtrees 1.15 or later) adds a section on the buildings: every farm and house of the place from the place manager (location records with a type below the place) with its history and its residents and owners in order of time, each pointing to the family; the families point back to their house (H1, H2 …). What counts as a house is decided by the type in the location record (house, farm, mill, church …; without a type, a house number in the name counts); parts of town and villages become chapters, places with residents that are not buildings go into the appendix “Other places”. If the location record carries a GOV type number (GEDCOM-L `2 _GOVTYPE`, api4webtrees 1.18.1 or later), that number decides before the text: farm, building, mill, estate, church … are houses, village, part of town, municipality … are levels above. The options “Only houses and farms” and “Include places without a type” control this. Place names may be separated by commas or semicolons.
@@ -17,6 +23,10 @@
 - **Indexes:** names, places, occupations, sources, each pointing to the entry numbers.
 
 ## Saving
+
+![](buch-vor-reg.jpg)
+![](buch-nach-titel.jpg)
+
 
 **Save book** asks for the format:
 

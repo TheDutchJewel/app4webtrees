@@ -28,6 +28,9 @@ Managers of the family tree change the description, date, people and keywords of
 
 ## Faces on group photos
 
+![](desktop-gesichter.jpg)
+
+
 Right-click a picture › **Faces …** shows it large with all marked faces. Hovering shows the name at the frame; on the right the list goes row by row from the left, and a click on a name makes that person the central person. Managers tick **Mark a face**, drag a frame around a face and assign it: to a person in the family tree, to a name only (someone known but without a record) or to “unknown”. Move a selected frame by dragging it, resize it at the yellow handle, **Del** removes it. The frames are stored in the image file itself (XMP); other programs such as digiKam read them too. The picture is not attached to the person – unless you tick **Also attach the picture to the chosen person** in the assign dialog. In the person sheet, the **Media** tab lists under **On group photos** every picture on which the person is marked.
 
 ## Postcards

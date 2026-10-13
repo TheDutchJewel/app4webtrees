@@ -1256,7 +1256,7 @@ private fun UpdateDialog(e: UpdatePruefung.Ergebnis, eigene: String, onClose: ()
 private fun UeberDialog(state: UiState, viewModel: AppViewModel, appName: String, onClose: () -> Unit) {
     AlertDialog(
         onDismissRequest = { onClose() },
-        title = { Text(stringResource(Res.string.desk_about, appName)) },
+        title = { Markenkopf(appName, groesse = 26) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 // Mit Build-Nummer wie im Namen der exe ("1.26.157"), damit man sieht, welches Paket laeuft

@@ -1645,4 +1645,6 @@
     <string name="desk_church_none">Niets gevonden</string>
     <string name="desk_church_note">De namen volgen de gangbare lijsten; plaatselijke gebruiken wijken af. Protestantse gebieden in Duitsland rekenden vaak tot 1700 juliaans.</string>
     <string name="desk_church_all">Alle zondagen en feestdagen</string>
+    <string name="desk_claim">Uw webtrees-stamboom als desktopprogramma</string>
+    <string name="desk_connect_heading">Verbinden met webtrees</string>
 </resources>

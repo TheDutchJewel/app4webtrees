@@ -2,6 +2,9 @@
 
 La **table des personnes** montre toutes les personnes de l'arbre généalogique en colonnes : ID, nom, sexe, naissance, lieu de naissance, décès, lieu de décès et profession. Ouvrez-la par **Affichage › Table des personnes** (Ctrl+4) ou par l'icône **Liste**. La fenêtre peut rester ouverte à côté de la fenêtre principale.
 
+![](desktop-personentabelle.jpg)
+
+
 ## Trier
 
 Cliquez sur un en-tête de colonne pour trier selon cette colonne, cliquez de nouveau pour inverser l'ordre. Les dates sont triées selon le calendrier et non selon leur texte ; les personnes sans valeur viennent toujours en dernier.

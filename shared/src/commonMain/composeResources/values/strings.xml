@@ -1669,4 +1669,6 @@
     <string name="desk_church_none">Nothing found</string>
     <string name="desk_church_note">The names follow the usual lists; local customs differ. Protestant territories in Germany often kept the Julian calendar until 1700.</string>
     <string name="desk_church_all">All Sundays and feast days</string>
+    <string name="desk_claim">Your webtrees family tree as a desktop program</string>
+    <string name="desk_connect_heading">Connect to webtrees</string>
 </resources>

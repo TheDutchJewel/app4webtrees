@@ -2,6 +2,9 @@
 
 The **person table** shows everyone in the family tree in columns: ID, name, sex, birth, birth place, death, death place and occupation. Open it via **View › Person table** (Ctrl+4) or the **List** icon. The window can stay open next to the main window.
 
+![](desktop-personentabelle.jpg)
+
+
 ## Sorting
 
 Click a column header to sort by that column, click again to reverse the order. Dates are sorted by the calendar, not by their text; people without a value always come last.

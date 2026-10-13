@@ -2,6 +2,9 @@
 
 wtWin (unter Linux wtTux) zeigt und bearbeitet einen webtrees-Stammbaum wie ein klassisches Genealogie-Programm: Menüleiste, Navigator, Personenblatt, Tafeln, Listen und Bücher. Die Daten liegen entweder auf einem webtrees-Server (NAS oder Webhoster) oder direkt auf diesem PC.
 
+![](desktop-start.jpg)
+
+
 Beim ersten Start stehen beide Wege nebeneinander.
 
 ## Mit webtrees verbinden

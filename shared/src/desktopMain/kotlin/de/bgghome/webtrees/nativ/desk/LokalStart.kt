@@ -18,6 +18,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import de.bgghome.webtrees.nativ.ui.LocalStartKopf
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,10 +45,18 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 fun DeskStart(viewModel: AppViewModel) {
-    Row(Modifier.fillMaxSize()) {
-        Box(Modifier.weight(1f).fillMaxHeight()) { AppRoot(viewModel) }
-        VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        Box(Modifier.weight(1f).fillMaxHeight()) { LokalAnlegen(viewModel) }
+    Surface(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
+            // Marke oben ueber beiden Wegen; links ersetzt eine Ueberschrift den Programmnamen (der steht schon in der Marke)
+            Box(Modifier.fillMaxWidth().padding(top = 36.dp, bottom = 8.dp), contentAlignment = Alignment.Center) { Markenkopf() }
+            Row(Modifier.fillMaxWidth().weight(1f)) {
+                CompositionLocalProvider(LocalStartKopf provides { Text(stringResource(Res.string.desk_connect_heading), style = MaterialTheme.typography.headlineMedium) }) {
+                    Box(Modifier.weight(1f).fillMaxHeight()) { AppRoot(viewModel) }
+                }
+                VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Box(Modifier.weight(1f).fillMaxHeight()) { LokalAnlegen(viewModel) }
+            }
+        }
     }
 }
 

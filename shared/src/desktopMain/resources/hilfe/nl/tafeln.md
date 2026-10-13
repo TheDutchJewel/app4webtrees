@@ -4,12 +4,25 @@ Open het venster **Schema maken** via **Maken › Kwartierstaat …** (Ctrl+Shif
 
 ## De voorbeeldweergave gebruiken
 
+![](desktop-tafel-fenster.jpg)
+
+
 - **Muiswiel** zoomt rond de muisaanwijzer, **slepen** verschuift.
 - **Eén klik** wisselt tussen het hele blad en leesgrootte.
 - **Rechtsklik** op een vak: de tak van die persoon kleuren of verbergen.
 - Bij grote schema's toont het venster het aantal personen en de bladgrootte in centimeters.
 
 ## Soorten schema's
+
+![](tafel-ahnentafel.jpg)
+![](tafel-stammtafel.jpg)
+![](tafel-sanduhr.jpg)
+![](tafel-faechertafel.jpg)
+![](tafel-ahnenkreis.jpg)
+![](tafel-cousins.jpg)
+![](tafel-verwandtschaftsweg.jpg)
+![](tafel-zeitleiste.jpg)
+
 
 **Voorouders**
 
@@ -48,6 +61,10 @@ De instellingen staan in groepen, die elk uit- en ingeklapt kunnen worden. Wat u
 
 ## Uitvoer
 
+![](tafel-karteikarte.jpg)
+![](tafel-ahnen-seiten.jpg)
+
+
 - **Afdrukken op één blad:** verkleint het schema tot het papier van de printer.
 - **Opslaan als PDF (poster):** op oorspronkelijke grootte, voor de copyshop of om te delen.
 - **Bladen afdrukken** / **Bladen als PDF:** het schema verdeeld over A4-bladen, met montageplan (zie Groot formaat).
@@ -56,6 +73,9 @@ De instellingen staan in groepen, die elk uit- en ingeklapt kunnen worden. Wat u
 - Schema's per pagina hebben **Afdrukken** en **Opslaan als PDF** voor alle pagina's.
 
 ## Groot formaat
+
+![](tafel-montageplan.jpg)
+
 
 Onder **Groot formaat** kiest u de grootte: oorspronkelijke grootte, een **Breedte in cm** of **Op bladen** (kolommen × rijen). Het venster toont het eindformaat en het aantal bladen, bijv. „Eindformaat 50 × 34 cm · 4 bladen A4“.
 

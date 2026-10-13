@@ -2,6 +2,9 @@
 
 **Outils › Vérification de cohérence …** (Ctrl+Shift+P) ou l'icône **Vérification** contrôle tout l'arbre, dans la mesure où vous pouvez le voir, avec 61 règles. Les **erreurs** sont des contradictions dans les données (décès avant la naissance, propre ancêtre), les **avertissements** signalent l'inhabituel mais possible (mère très jeune, parrain déjà décédé, doublon possible, variante de lieu). Avec api4webtrees 1.11 ou plus récent, les règles sur les parrains et marraines (024, 126) utilisent directement les parrains, marraines et témoins liés et recherchent par leur nom ceux saisis en texte libre ; avec un module plus ancien, elles lisent la note « Paten: … ».
 
+![](desktop-pruefung.jpg)
+
+
 ## Règles et limites
 
 Les règles sont regroupées à gauche : **Chronologie**, **Limites d'âge**, **Structure**, **Noms**, **Sources**, **Lieux**. Un clic sur une règle n'affiche que ses anomalies, **Toutes les anomalies** affiche de nouveau tout.

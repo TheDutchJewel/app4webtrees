@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- wtWin Vorschlag D Faecher: Faechertafel, die Person unten, zwei Eltern, vier Grosseltern. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512">
+  <rect width="64" height="64" rx="14" fill="#1F6F78"/>
+  <g fill="#FFFFFF" stroke="#1F6F78" stroke-width="2" stroke-linejoin="round">
+    <path d="M2.00 54.00 A30 30 0 0 1 32.00 24.00 L32.00 35.00 A19 19 0 0 0 13.00 54.00 Z"/><path d="M32.00 24.00 A30 30 0 0 1 62.00 54.00 L51.00 54.00 A19 19 0 0 0 32.00 35.00 Z"/>
+    <path d="M2.00 54.00 A30 30 0 0 1 10.79 32.79 L18.56 40.56 A19 19 0 0 0 13.00 54.00 Z"/>
+    <path d="M10.79 32.79 A30 30 0 0 1 32.00 24.00 L32.00 35.00 A19 19 0 0 0 18.56 40.56 Z"/>
+    <path d="M32.00 24.00 A30 30 0 0 1 53.21 32.79 L45.44 40.56 A19 19 0 0 0 32.00 35.00 Z"/>
+    <path d="M53.21 32.79 A30 30 0 0 1 62.00 54.00 L51.00 54.00 A19 19 0 0 0 45.44 40.56 Z"/>
+    <path d="M13.00 54.00 A19 19 0 0 1 32.00 35.00 L32.00 45.00 A9 9 0 0 0 23.00 54.00 Z"/><path d="M32.00 35.00 A19 19 0 0 1 51.00 54.00 L41.00 54.00 A9 9 0 0 0 32.00 45.00 Z"/>
+  </g>
+  <path d="M23 54 A9 9 0 0 1 41 54 Z" fill="#B5562F" stroke="#1F6F78" stroke-width="2"/>
+</svg>

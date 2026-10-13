@@ -148,6 +148,8 @@ object HilfeTexte {
 private val UEBERSCHRIFT = Regex("^(#{1,3})\\s+(.*)$")
 private val NUMMER = Regex("^\\d+\\.\\s+(.*)$")
 private val TRENNZEILE = Regex("^:?-+:?$")
+/** Bildzeile `![Text](datei.jpg)`: nur fuer das gedruckte Handbuch (docs/handbuch), das Hilfefenster laesst sie aus. */
+private val BILDZEILE = Regex("^!\\[[^\\]]*]\\([^)]+\\)$")
 
 /** Zerlegt Markdown in Bloecke: HUeberschrift, HAbsatz, HAufzaehlung (- / 1.), HTabelle (|), HHinweis (>). */
 fun markdownBloecke(text: String): List<HilfeBlock> {
@@ -158,7 +160,7 @@ fun markdownBloecke(text: String): List<HilfeBlock> {
     while (i < zeilen.size) {
         val z = zeilen[i].trimEnd()
         when {
-            z.isBlank() -> i++
+            z.isBlank() || BILDZEILE.matches(z) -> i++
             UEBERSCHRIFT.matches(z) -> { val m = UEBERSCHRIFT.find(z)!!; bloecke += HUeberschrift(m.groupValues[1].length, m.groupValues[2].trim()); i++ }
             z.startsWith(">") -> {
                 val teile = mutableListOf<String>()
@@ -193,7 +195,7 @@ fun markdownBloecke(text: String): List<HilfeBlock> {
                 val teile = mutableListOf<String>()
                 while (i < zeilen.size) {
                     val p = zeilen[i].trimEnd()
-                    if (p.isBlank() || UEBERSCHRIFT.matches(p) || p.startsWith(">") || punkt(p) || NUMMER.matches(p) || p.startsWith("|")) break
+                    if (p.isBlank() || BILDZEILE.matches(p) || UEBERSCHRIFT.matches(p) || p.startsWith(">") || punkt(p) || NUMMER.matches(p) || p.startsWith("|")) break
                     teile += p.trim(); i++
                 }
                 bloecke += HAbsatz(teile.joinToString(" "))

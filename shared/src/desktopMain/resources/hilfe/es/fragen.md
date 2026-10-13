@@ -2,6 +2,9 @@
 
 ## Informar de preguntas y errores
 
+![](desktop-hilfe.jpg)
+
+
 wtWin, wtTux, wtMac y wtAnd no son productos oficiales de webtrees. No pregunte en el foro de webtrees; abra una incidencia en **github.com/thobgg/app4webtrees/issues**. Resulta útil indicar: la versión de **Ayuda › Acerca de wtWin** (con número de compilación), Windows o Linux, y qué estaba haciendo cuando ocurrió. Para el árbol genealógico en este PC, también el archivo `php.log` (véase [Árbol genealógico en este PC](hilfe:lokal)).
 
 Las versiones nuevas aparecen en **github.com/thobgg/app4webtrees/releases**. El archivo de Windows no está firmado, por lo que en el primer inicio Windows advierte de un editor desconocido («Más información» y luego «Ejecutar de todas formas»).

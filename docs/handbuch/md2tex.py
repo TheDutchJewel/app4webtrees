@@ -43,17 +43,11 @@ TEXTE = {
                achtung=("atención", "advertencia", "aviso")),
 }
 
-# Bildschirmfoto je Kapitel (docs/screenshots), steht unter der Kapitelueberschrift.
-BILD = {
-    "start": ["desktop-start.jpg"], "hauptfenster": ["desktop-navigator.png", "desktop-familienansicht.jpg"],
-    "person": ["desktop-personenblatt.png"], "tabelle": ["desktop-personentabelle.jpg"], "tafeln": ["desktop-tafel-fenster.jpg"],
-    "listen": ["liste-ahnen.jpg"], "buecher": ["buch-fam.jpg"], "pruefung": ["desktop-pruefung.jpg"],
-    "webtrees": ["desktop-quellen.jpg"], "archiv": ["desktop-gesichter.jpg"], "fragen": ["desktop-hilfe.jpg"],
-}
 
 UEBERSCHRIFT = re.compile(r"^(#{1,3})\s+(.*)$")
 NUMMER = re.compile(r"^\d+\.\s+(.*)$")
 TRENNZEILE = re.compile(r"^:?-+:?$")
+BILDZEILE = re.compile(r"^!\[([^\]]*)]\(([^)]+)\)$")
 INLINE = re.compile(r"\*\*(.+?)\*\*|`([^`]+)`|\[([^\]]+)]\(([^)]+)\)|\*(.+?)\*")
 ESC = {"\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_",
        "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}", "^": r"\textasciicircum{}"}
@@ -101,13 +95,22 @@ def kapitel_tex(kid: str, md: str, t: dict) -> str:
             stufe, text = len(m.group(1)), inline(m.group(2), kw)
             if stufe == 1 and erste:
                 tex.append(r"\chapter{%s}\label{kap:%s}" % (text, kid)); erste = False
-                for b in BILD.get(kid, []):
-                    if (BILDER / b).exists():
-                        tex.append(r"\noindent\bild{%s}" % b)
-                        tex.append("")
             else:
                 tex.append({1: r"\section", 2: r"\section", 3: r"\subsection"}[stufe] + "{" + text + "}")
             i += 1; continue
+        if BILDZEILE.match(z):
+            bilder = []
+            while i < len(zeilen) and BILDZEILE.match(zeilen[i].rstrip()):
+                m = BILDZEILE.match(zeilen[i].rstrip()); bilder.append((m.group(1), m.group(2))); i += 1
+            bilder = [(a, b) for a, b in bilder if (BILDER / b).exists()]
+            if len(bilder) == 1:
+                tex.append(r"\noindent\bild{%s}" % bilder[0][1])
+            else:
+                for j in range(0, len(bilder), 2):
+                    paar = bilder[j:j + 2]
+                    tex.append(r"\noindent" + r"\hfill".join(r"\bild[0.485\linewidth]{%s}" % b for _, b in paar) + (r"\hfill\mbox{}" if len(paar) == 1 else ""))
+                    tex.append(r"\par\vspace{4pt}")
+            tex.append(""); continue
         if z.startswith(">"):
             teile = []
             while i < len(zeilen) and zeilen[i].rstrip().startswith(">"):
@@ -147,7 +150,7 @@ def kapitel_tex(kid: str, md: str, t: dict) -> str:
         teile = []
         while i < len(zeilen):
             p = zeilen[i].rstrip()
-            if not p.strip() or UEBERSCHRIFT.match(p) or p.startswith(">") or punkt(p) or NUMMER.match(p) or p.startswith("|"): break
+            if not p.strip() or BILDZEILE.match(p) or UEBERSCHRIFT.match(p) or p.startswith(">") or punkt(p) or NUMMER.match(p) or p.startswith("|"): break
             teile.append(p.strip()); i += 1
         tex.append(inline(" ".join(teile), kw)); tex.append("")
     return "\n".join(tex) + "\n"

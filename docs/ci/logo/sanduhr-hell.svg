@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- wtWin Vorschlag C Sanduhr: Eltern, die Person, Kinder – Baum im Mittelpunkt. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512">
+  <g fill="none" stroke="#1F6F78" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 26 V21 H19 V16 M32 21 H45 V16"/>
+    <path d="M32 38 V43 H19 V48 M32 43 H45 V48"/>
+  </g>
+  <g fill="#1F6F78"><circle cx="19" cy="13" r="4.2"/><circle cx="45" cy="13" r="4.2"/><circle cx="19" cy="51" r="4.2"/><circle cx="45" cy="51" r="4.2"/></g>
+  <circle cx="32" cy="32" r="6" fill="#B5562F"/>
+</svg>

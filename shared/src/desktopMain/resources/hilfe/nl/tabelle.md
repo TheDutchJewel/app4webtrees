@@ -2,6 +2,9 @@
 
 De **personentabel** toont iedereen in de stamboom in kolommen: ID, naam, geslacht, geboorte, geboorteplaats, overlijden, plaats van overlijden en beroep. Open haar via **Beeld › Personentabel** (Ctrl+4) of het symbool **Lijst**. Het venster kan naast het hoofdvenster open blijven.
 
+![](desktop-personentabelle.jpg)
+
+
 ## Sorteren
 
 Klik op een kolomkop om op die kolom te sorteren, klik nogmaals om de volgorde om te keren. Datums worden op kalender gesorteerd, niet op hun tekst; personen zonder waarde komen altijd achteraan.

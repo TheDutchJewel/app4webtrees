@@ -4,6 +4,9 @@ Sous **Affichage › Disposition**, vous choisissez entre quatre dispositions. T
 
 ## Navigateur (par défaut)
 
+![](desktop-navigator.png)
+
+
 La barre d'outils en haut, en dessous la **personne centrale** avec ses conjoints et ses enfants, à droite ses ancêtres, génération par génération.
 
 - **Un clic** sur une personne en fait la personne centrale.
@@ -18,11 +21,18 @@ La barre d'outils en haut, en dessous la **personne centrale** avec ses conjoint
 
 ## Arbre au centre
 
+![](desktop-baum-mittelpunkt.jpg)
+![](desktop-baum-vollbild.jpg)
+
+
 Trois colonnes : à gauche la **liste des personnes** avec un champ de recherche (Ctrl+F y place le curseur), au milieu l'**arbre** en sablier autour de la personne centrale (faire glisser, zoomer avec la molette, déplier les branches vers le haut), à droite le **panneau de la personne** avec les détails de la personne sélectionnée.
 
 En dézoomant, une case montre moins de choses plutôt que de rapetisser : d'abord sans image ni années, puis seulement le prénom, enfin une case dans la couleur du sexe. Clic droit dans la liste : comme personne centrale, profil, ajouter aux favoris, ouvrir dans webtrees.
 
 ## Vue famille
+
+![](desktop-familienansicht.jpg)
+
 
 Le milieu montre la **famille** de la personne centrale, disposée comme dans les logiciels de généalogie classiques : en haut les ancêtres des deux conjoints sur **2 à 4 générations** (− et + en haut à droite, mémorisé), en dessous les parents, au milieu le couple sous forme de grandes cartes avec portrait, naissance, décès et profession, entre les deux la ligne d'état avec tous les mariages et le nombre d'enfants, en bas les **enfants avec leurs conjoints** et en dessous les **petits-enfants**. Des lignes continues relient les générations. Si la personne centrale a plusieurs mariages, chacun a son propre **onglet**.
 
@@ -37,9 +47,15 @@ La [table des personnes](hilfe:tabelle) (Ctrl+4) montre tout le monde sous forme
 
 ## Livre de familles du lieu
 
+![](desktop-ortsfamilienbuch.jpg)
+
+
 Le livre de familles comme vue vivante : à gauche le **filtre de lieu** (vide = toutes les familles) et les familles numérotées, par ordre alphabétique ou chronologique, au centre les entrées exactement comme dans le livre imprimé – époux avec renvoi à la famille des parents, mariage, enfants avec renvoi à leur propre famille, sources, parrains, notes. Les renvois <7>, [12] et H3 mènent à l’entrée, un clic sur un nom affiche la personne dans le panneau de droite, un double clic ouvre la fiche de personne ; après l’enregistrement, le livre se reconstruit. À l’écran, sources et parrains n’apparaissent que sur demande (cases au-dessus de la liste des familles) ; l’impression les a toujours. La liste des personnes à gauche reste masquée dans cette disposition, la liste des familles la remplace. À droite les **maisons et fermes** du lieu avec historique, habitants et propriétaires (à partir d’api4webtrees 1.15). Vous lisez ainsi le livre pendant la saisie et voyez les lacunes avant l’impression. Impression et site : **Créer › Créer un livre › Livre de familles**.
 
 ## Sources
+
+![](desktop-quellen.jpg)
+
 
 **Affichage › Sources** (Ctrl+5) ou l'icône **Sources** ouvre la gestion des sources : à gauche toutes les sources de l'arbre avec recherche et nombre de citations, à droite la source sélectionnée avec auteur, publication, dépôt d'archives et cote, texte, notes, médias et **Citée par** – chaque individu et chaque famille avec les faits qui portent la citation. Un clic sélectionne la personne, un double-clic en fait la personne centrale.
 
@@ -57,6 +73,10 @@ Nécessite api4webtrees avec le niveau d'API 18 ; avec des serveurs plus anciens
 
 
 ## Lieux
+
+![](desktop-ortskarte.jpg)
+![](desktop-hof-geschichte.jpg)
+
 
 **Affichage › Lieux** (Ctrl+6) ou l’icône **Lieux** ouvre la gestion des lieux (à partir d’api4webtrees 1.13) : à gauche tous les lieux tels qu’ils figurent dans les événements, avec recherche, nombre d’événements et ◉ pour « coordonnées connues ». À droite le lieu sélectionné en onglets : **Personnes** (chaque individu et chaque famille avec leurs événements à cet endroit – un clic sélectionne la personne, un double-clic en fait la personne centrale), **Histoire** (tous les événements du lieu par ordre chronologique – les événements du lieu lui-même comme un incendie ou une reconstruction mis en évidence, plus les naissances, résidences, mariages et décès des personnes et familles ici), **Données** (niveaux, type, lieu supérieur, lieux inclus, fiche de lieu et identifiant GOV), **Notes**, **Sources**, **Médias** et **Coordonnées** avec carte. Dans webtrees, la note, l’identifiant GOV et les coordonnées d’un lieu se trouvent dans sa fiche de lieu (_LOC, GEDCOM-L) ; sans fiche, wtWin prend les coordonnées des données géographiques de webtrees ou d’un événement.
 

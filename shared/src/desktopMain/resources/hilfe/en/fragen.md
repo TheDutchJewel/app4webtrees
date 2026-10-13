@@ -2,6 +2,9 @@
 
 ## Reporting questions and errors
 
+![](desktop-hilfe.jpg)
+
+
 wtWin, wtTux, wtMac and wtAnd are not official webtrees products. Please do not ask in the webtrees forum, but open an issue at **github.com/thobgg/app4webtrees/issues**. Helpful: the version from **Help › About wtWin** (with build number), Windows or Linux, and what you were doing when it happened. For the family tree on this PC also the file `php.log` (see [Family tree on this PC](hilfe:lokal)).
 
 New versions appear at **github.com/thobgg/app4webtrees/releases**. The Windows file is not signed, so Windows warns about an unknown publisher on first start ("More info", then "Run anyway").

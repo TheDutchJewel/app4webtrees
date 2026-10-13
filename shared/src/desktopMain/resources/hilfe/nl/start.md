@@ -2,6 +2,9 @@
 
 wtWin (onder Linux wtTux) toont en bewerkt een webtrees-stamboom zoals een klassiek genealogieprogramma op de pc: menubalk, navigator, persoonsblad, schema's, lijsten en boeken. De gegevens staan op een webtrees-server (NAS of webhoster) of direct op deze pc.
 
+![](desktop-start.jpg)
+
+
 Bij de eerste start staan beide wegen naast elkaar.
 
 ## Verbinden met webtrees

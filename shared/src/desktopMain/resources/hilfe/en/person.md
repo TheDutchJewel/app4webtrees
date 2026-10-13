@@ -4,6 +4,9 @@ The person sheet opens with a **double-click** on a person, with **Ctrl+E** or v
 
 ## Layout
 
+![](desktop-personenblatt.png)
+
+
 Name, dates and picture on top. Below, the tabs:
 
 - **Data:** all events as a table (event, date, place / description), plus age at death.
@@ -24,6 +27,9 @@ Name, dates and picture on top. Below, the tabs:
 
 ## Editing
 
+![](desktop-paten-dialog.jpg)
+
+
 Editing needs edit rights in webtrees. Changes go to webtrees immediately; depending on the tree's settings they apply at once or wait for a moderator's approval.
 
 - **Change an event:** double-click the row (or Edit). Date and place are selected, not typed: exact, about, before, after, between; day, month, year. Places are suggested from the tree as you type.
@@ -37,6 +43,9 @@ Editing needs edit rights in webtrees. Changes go to webtrees immediately; depen
 
 ## Merging individuals
 
+![](desktop-zusammenfuehren.jpg)
+
+
 Duplicate individuals arise when two files are combined or while entering data – the same ancestor twice, once as a child and once as a husband. **Tools › Merge individuals …** (tree managers only, needs api4webtrees 1.16 or newer) lists all pairs the plausibility check takes for duplicates: same name and one identical event date (rule 219) or a similar name with a close year of birth (rule 228). In the check the same pairs show a symbol with two merging lines. **Add pair …** takes any two individuals, such as children with the same name and no data; in the table of individuals the right mouse button does the same.
 
 **Merge …** shows who stays and who is absorbed, and below that only what is **added** from the second individual, usually one to three lines with tick boxes. Identical entries are not taken over twice, not even when one version has fewer details (birth with date only next to birth with date and place) or a “deceased” without a date stands next to a death with a date. **Show all events** opens the full side-by-side comparison in case you want to drop something from the first individual too. Links to families and media always stay, sources and notes at the events too. Everything that pointed to the second individual – families, source citations, godparent roles – points to the first afterwards. Below, the program suggests further pairs (father, mother, spouses and children with the same name); ticked ones follow after the merge. If an individual ends up with two births because the data contradict each other, the check shows it and you clean it up in the individual sheet.
@@ -44,6 +53,9 @@ Duplicate individuals arise when two files are combined or while entering data �
 **Undo:** every merge is listed in the **Log** tab with time and user. **Undo** restores both individuals and all links as they were – even days later, as long as nobody has edited the affected records since; otherwise the program names the changed records and leaves everything as it is. Without automatic acceptance, merging and undoing wait for a moderator like any change.
 
 ## Photos
+
+![](desktop-gesichter.jpg)
+
 
 **Add photo** picks a file from the PC and attaches it to the person; the picture is scaled to the server's upload limit. A click on a picture opens the viewer.
 

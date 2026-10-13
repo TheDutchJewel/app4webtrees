@@ -2,6 +2,9 @@
 
 ## Vragen en fouten melden
 
+![](desktop-hilfe.jpg)
+
+
 wtWin, wtTux, wtMac en wtAnd zijn geen officiële webtrees-producten. Stel uw vragen alstublieft niet op het webtrees-forum, maar open een issue op **github.com/thobgg/app4webtrees/issues**. Handig: de versie uit **Help › Over wtWin** (met buildnummer), Windows of Linux, en wat u aan het doen was toen het gebeurde. Bij de stamboom op deze pc ook het bestand `php.log` (zie [Stamboom op deze pc](hilfe:lokal)).
 
 Nieuwe versies verschijnen op **github.com/thobgg/app4webtrees/releases**. Het Windows-bestand is niet ondertekend, dus Windows waarschuwt bij de eerste start voor een onbekende uitgever („Meer informatie“, daarna „Toch uitvoeren“).

@@ -2,6 +2,9 @@
 
 wtWin (wtTux sous Linux) affiche et modifie un arbre généalogique webtrees comme un logiciel de généalogie classique : barre de menus, navigateur, fiche individuelle, tableaux, listes et livres. Les données se trouvent soit sur un serveur webtrees (NAS ou hébergeur web), soit directement sur cet ordinateur.
 
+![](desktop-start.jpg)
+
+
 Au premier démarrage, les deux possibilités sont proposées côte à côte.
 
 ## Se connecter à webtrees

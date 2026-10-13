@@ -4,12 +4,25 @@ Das Fenster **Tafel erstellen** öffnest du über **Erstellen › Ahnentafel …
 
 ## Vorschau bedienen
 
+![](desktop-tafel-fenster.jpg)
+
+
 - **Mausrad** zoomt um die Stelle unter dem Zeiger, **Ziehen** verschiebt.
 - **Ein Klick** wechselt zwischen ganzem Blatt und Lesegröße.
 - **Rechtsklick** auf einen Kasten: den Zweig dieser Person färben oder ausblenden.
 - Bei großen Tafeln zeigt das Fenster Personenzahl und Blattmaß in Zentimetern.
 
 ## Tafelarten
+
+![](tafel-ahnentafel.jpg)
+![](tafel-stammtafel.jpg)
+![](tafel-sanduhr.jpg)
+![](tafel-faechertafel.jpg)
+![](tafel-ahnenkreis.jpg)
+![](tafel-cousins.jpg)
+![](tafel-verwandtschaftsweg.jpg)
+![](tafel-zeitleiste.jpg)
+
 
 **Vorfahren**
 
@@ -48,6 +61,10 @@ Die Einstellungen stehen in Gruppen, jede lässt sich auf- und zuklappen. Was du
 
 ## Ausgabe
 
+![](tafel-karteikarte.jpg)
+![](tafel-ahnen-seiten.jpg)
+
+
 - **Drucken auf ein Blatt:** verkleinert die Tafel auf das Papier des Druckers.
 - **Als PDF speichern (Poster):** in Originalgröße, für Copyshop oder Weitergabe.
 - **Blätter drucken** / **Blätter als PDF:** die Tafel auf A4-Blätter verteilt, mit Montageplan (siehe Großdruck).
@@ -56,6 +73,9 @@ Die Einstellungen stehen in Gruppen, jede lässt sich auf- und zuklappen. Was du
 - Seitenweise Tafeln haben **Drucken** und **Als PDF speichern** für alle Seiten.
 
 ## Großdruck
+
+![](tafel-montageplan.jpg)
+
 
 Unter **Großdruck** wählst du die Größe: Originalgröße, eine **Breite in cm** oder **Auf Blätter** (Spalten × Zeilen). Das Fenster zeigt das Endmaß und die Blattzahl, etwa „Endmaß 50 × 34 cm · 4 Blätter A4“.
 

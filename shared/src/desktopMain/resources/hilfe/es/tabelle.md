@@ -2,6 +2,9 @@
 
 La **tabla de personas** muestra a todas las personas del árbol genealógico en columnas: ID, nombre, sexo, nacimiento, lugar de nacimiento, defunción, lugar de defunción y profesión. Se abre con **Ver › Tabla de personas** (Ctrl+4) o con el icono **Lista**. La ventana puede quedarse abierta junto a la ventana principal.
 
+![](desktop-personentabelle.jpg)
+
+
 ## Ordenar
 
 Haga clic en el encabezado de una columna para ordenar por ella; un segundo clic invierte el orden. Las fechas se ordenan por el calendario, no por su texto; las personas sin valor siempre quedan al final.

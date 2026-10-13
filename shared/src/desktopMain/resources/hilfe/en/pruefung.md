@@ -2,6 +2,9 @@
 
 **Tools › Plausibility check …** (Ctrl+Shift+P) or the **Check** icon checks the whole tree, as far as you may see it, with 61 rules. **Errors** are contradictions in the data (death before birth, own ancestor), **warnings** are unusual but possible (very young mother, godparent already dead, possible duplicate, place variant). With api4webtrees 1.11 or newer the godparent rules (024, 126) use the linked godparents and witnesses directly and look up free-text ones by name; with an older module they read the note “Paten: …”.
 
+![](desktop-pruefung.jpg)
+
+
 ## Rules and limits
 
 The rules are grouped on the left: **Chronology**, **Age limits**, **Structure**, **Names**, **Sources**, **Places**. A click on a rule shows only its findings, **All findings** shows everything again.

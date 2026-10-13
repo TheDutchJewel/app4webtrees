@@ -4,6 +4,9 @@ Under **View › Layout** you choose between four layouts. All show the same tre
 
 ## Navigator (default)
 
+![](desktop-navigator.png)
+
+
 The toolbar on top, below it the **central person** with partners and children, to the right their ancestors, generation by generation.
 
 - **One click** on a person makes them the central person.
@@ -18,11 +21,18 @@ The toolbar on top, below it the **central person** with partners and children, 
 
 ## Tree in the centre
 
+![](desktop-baum-mittelpunkt.jpg)
+![](desktop-baum-vollbild.jpg)
+
+
 Three columns: the **person list** with a search field on the left (Ctrl+F jumps into it), the **tree** as an hourglass around the central person in the middle (drag, zoom with the mouse wheel, expand branches upwards), the **person panel** with the selected person's details on the right.
 
 When zooming out a card shows less rather than smaller: first without picture and years, then only the given name, finally a box in the sex colour. Right-click in the list: as central person, profile, bookmark, open in webtrees.
 
 ## Family view
+
+![](desktop-familienansicht.jpg)
+
 
 The middle shows the central person's **family**, laid out like classic genealogy programs: at the top the ancestors of both partners over **2 to 4 generations** (− and + at the top right, remembered), below them the parents, in the middle the couple as large cards with portrait, born, died and occupation, between them the status line with all marriages and the number of children, at the bottom the **children with their spouses** and below them the **grandchildren**. Continuous lines connect the generations. If the central person has several marriages, each has its own **tab**.
 
@@ -37,9 +47,15 @@ The [person table](hilfe:tabelle) (Ctrl+4) shows everyone as a table.
 
 ## Local heritage book
 
+![](desktop-ortsfamilienbuch.jpg)
+
+
 The family book as a live view: on the left the **place filter** (empty = all families) and the numbered families, alphabetical or chronological, in the middle the entries exactly as in the printed family book – spouses with a pointer to their parents’ family, marriage, children with a pointer to their own family, sources, godparents, notes. The pointers <7>, [12] and H3 jump to the entry, a click on a name shows the person in the panel on the right, a double click opens the person sheet; after saving, the book is rebuilt. On screen, sources and godparents appear only on request (checkboxes above the family list); print always has them. The person list on the left stays hidden in this layout, the family list takes over. On the right the **houses and farms** of the place with history, residents and owners (api4webtrees 1.15 or later). So you read the local heritage book while entering data and see gaps before it is printed. Print and website: **Create › Create book › Family book**.
 
 ## Sources
+
+![](desktop-quellen.jpg)
+
 
 **View › Sources** (Ctrl+5) or the **Sources** icon opens the source manager: all sources of the tree on the left with search and the number of citations, the selected source on the right with author, publication, repository and call number, text, notes, media and **Cited by** – every individual and family with the facts that carry the citation. A click selects the person, a double-click makes them the central person.
 
@@ -57,6 +73,10 @@ Needs api4webtrees with API level 18; with older servers the icon opens the webt
 
 
 ## Places
+
+![](desktop-ortskarte.jpg)
+![](desktop-hof-geschichte.jpg)
+
 
 **View › Places** (Ctrl+6) or the **Places** icon opens the place manager (api4webtrees 1.13 or later): all places as written at the events on the left, with search, the number of events and ◉ for “coordinates known”. On the right the selected place in tabs: **People** (every individual and family with their events there – a click selects the person, a double-click makes them the central person), **History** (every event at the place in order of time – the place’s own events such as a fire or rebuilding highlighted, plus births, residences, marriages and deaths of the individuals and families here), **Details** (levels, type, the place above, places within, location record and GOV identifier), **Notes**, **Sources**, **Media** and **Coordinates** with a map. In webtrees a place’s note, GOV identifier and coordinates are kept in its location record (_LOC, GEDCOM-L); without one, wtWin takes the coordinates from webtrees’ geographic data or from an event.
 

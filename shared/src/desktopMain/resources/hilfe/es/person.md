@@ -4,6 +4,9 @@ La ficha personal se abre con un **doble clic** en una persona, con **Ctrl+E** o
 
 ## Estructura
 
+![](desktop-personenblatt.png)
+
+
 Arriba el nombre, las fechas y la imagen. Debajo, las pestañas:
 
 - **Datos:** todos los eventos en forma de tabla (evento, fecha, lugar / descripción), además de la edad al fallecer.
@@ -24,6 +27,9 @@ Arriba el nombre, las fechas y la imagen. Debajo, las pestañas:
 
 ## Edición
 
+![](desktop-paten-dialog.jpg)
+
+
 Para editar se necesitan derechos de edición en webtrees. Los cambios llegan a webtrees de inmediato; según la configuración del árbol, se aplican al instante o esperan la aprobación de un moderador.
 
 - **Cambiar un evento:** doble clic en la fila (o Editar). La fecha y el lugar se seleccionan, no se escriben: exacta, hacia, antes de, después de, entre; día, mes, año. Mientras escribe, se proponen lugares del árbol.
@@ -37,6 +43,9 @@ Para editar se necesitan derechos de edición en webtrees. Los cambios llegan a 
 
 ## Fusionar personas
 
+![](desktop-zusammenfuehren.jpg)
+
+
 Las personas duplicadas surgen al unir dos archivos o al introducir datos: el mismo antepasado dos veces, una como hijo y otra como marido. En **Herramientas › Fusionar personas …** (solo para administradores del árbol, requiere api4webtrees 1.16 o posterior) aparecen todas las parejas que la comprobación de plausibilidad considera duplicadas: mismo nombre y una fecha de evento idéntica (regla 219) o nombre parecido con año de nacimiento cercano (regla 228). En la comprobación, esas mismas parejas llevan un símbolo con dos líneas que confluyen. **Añadir pareja …** toma dos personas cualesquiera, por ejemplo hijos con el mismo nombre y sin datos; en la tabla de personas también se hace con el botón derecho.
 
 **Fusionar …** muestra quién se conserva y quién se integra, y debajo solo lo que **se añade** de la segunda persona, normalmente una a tres líneas con casillas. Los datos idénticos no se incorporan dos veces, tampoco cuando una versión tiene menos detalles (nacimiento solo con fecha junto a nacimiento con fecha y lugar) o un «fallecido» sin fecha está junto a una defunción con fecha. **Mostrar todos los eventos** despliega la comparación completa de ambas personas, por si también quieres quitar algo de la primera. Los enlaces a familias y medios se conservan siempre, igual que las fuentes y notas de los eventos. Todo lo que apuntaba a la segunda persona – familias, citas de fuentes, padrinazgos – apunta después a la primera. Debajo, el programa propone más parejas (padre, madre, cónyuges e hijos con el mismo nombre); las marcadas siguen tras la fusión. Si una persona queda con dos nacimientos porque los datos se contradicen, la comprobación lo muestra y lo corriges en la ficha de la persona.
@@ -44,6 +53,9 @@ Las personas duplicadas surgen al unir dos archivos o al introducir datos: el mi
 **Deshacer:** cada fusión figura en la pestaña **Registro** con hora y usuario. **Deshacer** restaura ambas personas y todos los enlaces tal como estaban – incluso días después, mientras nadie haya editado los registros afectados desde entonces; si no, el programa nombra los registros modificados y no toca nada. Sin aceptación automática, fusionar y deshacer esperan a un moderador como cualquier cambio.
 
 ## Fotos
+
+![](desktop-gesichter.jpg)
+
 
 **Añadir foto** elige un archivo del PC y lo adjunta a la persona; la imagen se reduce al límite de subida del servidor. Un clic en una imagen abre el visor.
 

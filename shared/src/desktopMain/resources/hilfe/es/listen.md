@@ -4,6 +4,12 @@ La ventana **Crear lista** se abre con **Crear › Lista de antepasados**, **Lis
 
 ## A partir de la persona central
 
+![](liste-ahnen.jpg)
+![](liste-stamm.jpg)
+![](liste-taufpaten.jpg)
+![](liste-ahnenwertung.jpg)
+
+
 - **Lista de antepasados:** todos los antepasados por generación con números Sosa-Stradonitz, hasta 12 generaciones; quien aparece más de una vez remite a su primer número (implexo).
 - **Antepasados más remotos:** los antepasados en los que termina la investigación, según las cuatro líneas de los abuelos.
 - **Línea paterna** y **Línea materna:** la línea del padre o de la madre generación por generación, con los cónyuges.
@@ -13,6 +19,12 @@ La ventana **Crear lista** se abre con **Crear › Lista de antepasados**, **Lis
 - **Ficha personal:** todos los datos de la persona central en una página.
 
 ## Sobre todo el árbol
+
+![](liste-namen.jpg)
+![](liste-orte.jpg)
+![](liste-ereignisse.jpg)
+![](liste-spitzenahnen.jpg)
+
 
 - **Lista de eventos:** nacimientos y defunciones de todas las personas visibles en orden cronológico; opcionalmente como **calendario de aniversarios** por mes y día, con filtro de lugar, p. ej. para la circular familiar.
 - **Apellidos:** todos los apellidos con su número, período y los lugares más frecuentes.

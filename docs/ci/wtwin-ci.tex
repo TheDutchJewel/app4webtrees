@@ -11,7 +11,7 @@
 \newcommand\farbzeile[5]{\farbfeld{#1} & \texttt{#1} & \texttt{\##2} & #3 & #4 & #5 \\}
 
 \begin{document}
-\wtTitelseite{logo/ahnenzeichen.png}{Erscheinungsbild}{wtWin · wtTux · wtMac · wtAnd\\[2pt]Logo, Farben, Schrift, Sprache – und wo sie gelten}{Fassung 1 · 13.\,Oktober 2026 · Thomas Bugge · gilt ab Version 1.53}
+\wtTitelseite{../icon/icon-512.png}{Erscheinungsbild}{wtWin · wtTux · wtMac · wtAnd\\[2pt]Logo, Farben, Schrift, Sprache – und wo sie gelten}{Fassung 1 · 13.\,Oktober 2026 · Thomas Bugge · gilt ab Version 1.53}
 
 \tableofcontents
 \clearpage
@@ -73,10 +73,30 @@ nicht Pflicht – und sie schützt umgekehrt den eigenen Namen.
 \item Bei 16 und 32\,px (Taskleiste, Browser-Reiter) bleibt ein grüner Fleck; Blätter und Knoten verschwinden.
 \item Das Motiv \enquote{Baum mit Knoten} ist das Standardbild der Branche – austauschbar.
 \end{itemize}
-\textbf{Antwort auf die Frage \enquote{besseres Logo?}:} Ja. Nicht weil das Bild hässlich wäre, sondern weil es nicht skaliert und nicht zum Programm gehört.
+\textbf{Antwort auf die Frage \enquote{besseres Logo?}:} Die Schwächen sind technisch (Pixelbild, Kleinstgrößen), nicht gestalterisch. Entschieden
+am 13.\,Oktober 2026: Das Icon bleibt, die Kleinstgrößen bekommen eine eigene Fassung (nächster Abschnitt). Die Vorschläge A bis E bleiben
+zur Dokumentation stehen.
 \end{minipage}
 
-\subsection{Vorschlag A – Ahnenzeichen (empfohlen)}
+\subsection{Entscheidung: das Icon bleibt}
+
+Das grüne Baum-Icon bleibt das Zeichen von wtWin, wtTux, wtMac und wtAnd. Es ist eingeführt, es gefällt, und ein Zeichen muss nicht
+aus der Programmpalette stammen. Was sich ändert: Für 16, 24 und 32\,px (Taskleiste, Browser-Reiter, Favicon) gibt es eine
+vereinfachte Fassung in denselben Farben (\texttt{logo/baum-klein.svg}: Krone aus drei Kreisen, helle Punkte, Stamm), damit der Baum
+dort nicht zum grünen Fleck wird. Ab 48\,px gilt das Original (\texttt{docs/icon/icon-512.png}). Die Windows-Icon-Datei trägt beides.
+
+\begin{center}
+\includegraphics[width=0.6\linewidth]{build/klein-vergleich.png}\\[2pt]
+{\small\sffamily\color{wtGrau} 16 und 32\,px, je links das verkleinerte Original, rechts die vereinfachte Fassung}
+\end{center}
+
+\textbf{Farben des Zeichens} (nur für das Icon, nicht für Oberfläche oder Druck): Grund \texttt{\#0C3F47}, Blattgrün
+\texttt{\#6EB894}, helles Grün \texttt{\#98CAAA}, dunkles Grün \texttt{\#439E5E}, Stamm \texttt{\#A8764E}. Die Wortmarke bleibt
+Petrol und Tinte; Zeichen und Wortmarke stehen nebeneinander wie unten gezeigt.
+
+\textbf{Offen bleibt} eine Vektorfassung des Originals (Inkscape, Bitmap nachzeichnen) für Druck und sehr große Darstellungen.
+
+\subsection{Alternative A – Ahnenzeichen (zur Dokumentation)}
 
 \begin{minipage}[c]{0.46\linewidth}
 \includegraphics[width=0.3\linewidth]{logo/ahnenzeichen.png}\hfill
@@ -88,13 +108,34 @@ Eine Person, ihre Eltern, ihre Großeltern – die kleinste Ahnentafel. Die Pers
 \end{minipage}
 
 \medskip
-\noindent\includegraphics[width=0.55\linewidth]{logo/logo-quer.png}
+\noindent\includegraphics[width=0.42\linewidth]{logo/logo-quer-wtwin.png}\hfill\includegraphics[width=0.42\linewidth]{logo/logo-quer-wttux.png}\\[4pt]
+\includegraphics[width=0.42\linewidth]{logo/logo-quer-wtmac.png}\hfill\includegraphics[width=0.42\linewidth]{logo/logo-quer-wtand.png}
 
 \textbf{Wortmarke:} Inter SemiBold, \enquote{wt} in Petrol, der Zusatz (Win, Tux, Mac, And) in Tinte, Laufweite leicht verengt. Zeichen und Wortmarke stehen nebeneinander; der Abstand zwischen beiden und der Schutzraum rundherum entsprechen dem Radius des Rost-Kreises.
 
 \textbf{Varianten:} auf Petrol-Fläche (Icon, Installer, Store), ohne Fläche auf Weiß (Druck, Homepage hell), einfarbig Schwarz oder Weiß (Stempel, Wasserzeichen, dunkle Leisten). Keine weiteren Farben, keine Verläufe, keine Schatten.
 
 \textbf{Kleinstgrößen:} 16, 32, 48, 256 und 512\,px werden aus derselben SVG gerendert; ab 32\,px bleibt die Form vollständig, bei 16\,px zählt die Silhouette.
+
+\subsection{Alternativen C, D, E – Sanduhr, Fächer, Ahnenkreis (zur Dokumentation)}
+
+\begin{center}
+\includegraphics[width=0.17\linewidth]{logo/sanduhr.png}\hspace{0.03\linewidth}
+\includegraphics[width=0.17\linewidth]{logo/faecher.png}\hspace{0.03\linewidth}
+\includegraphics[width=0.17\linewidth]{logo/kreis.png}
+\end{center}
+
+\begin{tabularx}{\linewidth}{lYY}
+\toprule
+\wtKopf{} & \wtKopf{Idee} & \wtKopf{Urteil} \\
+\midrule
+C Sanduhr & Eltern oben, die Person in der Mitte, Kinder unten – der Aufbau \enquote{Baum im Mittelpunkt}. & Ruhigste Form, bei 16\,px noch klar; zweite Wahl nach A. Lesbar auch als Schaltplan. \\
+D Fächer & Fächertafel: Person unten, Eltern und Großeltern als Segmente. & Sehr genealogisch und groß am schönsten (Startbildschirm, Druck); bei 16\,px nur ein Halbkreis. \\
+E Ahnenkreis & Vollkreis: Person in der Mitte, Eltern als Hälften, Großeltern als Viertel. & Kompakt, aber wirkt wie Zielscheibe oder Fadenkreuz; nicht empfohlen. \\
+\bottomrule
+\end{tabularx}
+
+Alle drei liegen als \texttt{sanduhr}, \texttt{faecher}, \texttt{kreis} (je \texttt{.svg} und \texttt{-hell.svg}) im Logo-Ordner; die Wahl trifft der Autor, die Vergleichsseite zeigt alle vier nebeneinander.
 
 \subsection{Vorschlag B – Monogramm (verworfen)}
 
@@ -134,10 +175,12 @@ das Markenregister TMview (EUIPO, DPMA, WIPO, USPTO und weitere).
 \toprule
 \wtKopf{Datei (docs/ci/logo)} & \wtKopf{Zweck} \\
 \midrule
-\texttt{ahnenzeichen.svg} & Zeichen auf Petrol, Quelle für alle Icons (Android, Windows ico, macOS icns, Favicon) \\
+\texttt{baum-klein.svg} & Das Icon für 16–32\,px (Taskleiste, Reiter, Favicon); Quelle der kleinen Einträge in \texttt{app.ico} \\
+\texttt{ahnenzeichen.svg} & Alternative A auf Petrol \\
 \texttt{ahnenzeichen-hell.svg} & Zeichen ohne Fläche für helle Hintergründe \\
 \texttt{ahnenzeichen-einfarbig.svg} & Schwarz; für Weiß die Farbe tauschen \\
-\texttt{wortmarke.svg}, \texttt{logo-quer.svg} & Wortmarke und Kombination; die Fassungen \texttt{*-pfade.svg} haben keinen Schriftbezug mehr \\
+\texttt{wortmarke-wtwin|wttux|wtmac|wtand.svg}, \texttt{logo-quer-*.svg} & Wortmarke und Kombination je Programm; die Fassungen \texttt{*-pfade.svg} haben keinen Schriftbezug mehr \\
+\texttt{sanduhr}, \texttt{faecher}, \texttt{kreis} (je \texttt{.svg}/\texttt{-hell.svg}) & Vorschläge C, D, E \\
 \texttt{monogramm.svg} & Vorschlag B, verworfen (nur Dokumentation) \\
 \texttt{rendern.sh} & Erzeugt PNG in 512\,px und Proben in 16/32/48\,px \\
 \bottomrule
@@ -234,11 +277,11 @@ Demo-Baum Falkenrath, Zentralperson Heinrich Falkenrath oder Familie Mohwinkel; 
 Zur Frage, ob das Programm \enquote{auch noch eine CI verpasst bekommen} muss: nein, keine Neugestaltung. Das Programm ist die Quelle der CI. Es fehlen nur die Stellen, an denen die Marke sichtbar wird:
 
 \begin{enumerate}
-\item \textbf{Icon} auf allen Plattformen aus \texttt{ahnenzeichen.svg}: \texttt{desktop/icons/app.png/ico/icns}, Android \texttt{ic\_launcher} (Vordergrund Zeichen, Hintergrund Petrol), fastlane, Favicon der Homepage, Store.
-\item \textbf{Startbildschirm:} Zeichen und Wortmarke über den beiden Wegen (\enquote{Mit webtrees verbinden} / \enquote{Stammbaum auf diesem PC}), darunter der Claim.
-\item \textbf{Über-Dialog:} Zeichen, Wortmarke, Version, Claim, dann der bestehende Text.
-\item \textbf{Installer-Bilder:} Inno Setup \texttt{WizardImageFile} und \texttt{WizardSmallImageFile} mit dem Zeichen auf Petrol; dmg-Hintergrund ebenso.
-\item \textbf{Fenstertitel} bleibt \enquote{wtWin – <Stammbaum>}; Taskleisten-Icon ist das Zeichen.
+\item \textbf{Icon:} bleibt; nur \texttt{desktop/icons/app.ico} (16/24/32 aus \texttt{baum-klein.svg}) und ein Favicon für die Homepage kommen dazu.
+\item \textbf{Startbildschirm:} Icon und Wortmarke über den beiden Wegen (\enquote{Mit webtrees verbinden} / \enquote{Stammbaum auf diesem PC}), darunter der Claim.
+\item \textbf{Über-Dialog:} Icon, Wortmarke, Version, Claim, dann der bestehende Text.
+\item \textbf{Installer-Bilder:} Inno Setup \texttt{WizardImageFile} und \texttt{WizardSmallImageFile} mit Icon und Wortmarke; dmg-Hintergrund ebenso.
+\item \textbf{Fenstertitel} bleibt \enquote{wtWin – <Stammbaum>}; in der Taskleiste erscheint die vereinfachte Fassung.
 \end{enumerate}
 
 Farben, Abstände, Kästen und Schrift im Programm bleiben, wie sie sind. Was sich später im Programm ändert, wird hier nachgezogen – nicht umgekehrt.

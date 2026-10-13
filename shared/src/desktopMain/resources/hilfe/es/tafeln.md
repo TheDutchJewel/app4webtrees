@@ -4,12 +4,25 @@ La ventana **Crear gráfico** se abre con **Crear › Gráfico de antepasados…
 
 ## Uso de la vista previa
 
+![](desktop-tafel-fenster.jpg)
+
+
 - La **rueda del ratón** hace zoom alrededor del puntero; **arrastrando** se desplaza.
 - **Un clic** alterna entre la hoja completa y el tamaño de lectura.
 - **Clic derecho** en una casilla: colorear u ocultar la rama de esa persona.
 - En los gráficos grandes, la ventana muestra el número de personas y el tamaño de la hoja en centímetros.
 
 ## Tipos de gráfico
+
+![](tafel-ahnentafel.jpg)
+![](tafel-stammtafel.jpg)
+![](tafel-sanduhr.jpg)
+![](tafel-faechertafel.jpg)
+![](tafel-ahnenkreis.jpg)
+![](tafel-cousins.jpg)
+![](tafel-verwandtschaftsweg.jpg)
+![](tafel-zeitleiste.jpg)
+
 
 **Antepasados**
 
@@ -48,6 +61,10 @@ Los ajustes están en grupos que se pueden desplegar y plegar. Lo que se ajusta 
 
 ## Salida
 
+![](tafel-karteikarte.jpg)
+![](tafel-ahnen-seiten.jpg)
+
+
 - **Imprimir en una página:** reduce el gráfico al papel de la impresora.
 - **Guardar como PDF (póster):** a tamaño original, para la copistería o para compartir.
 - **Imprimir hojas** / **Guardar hojas como PDF:** el gráfico repartido en hojas A4, con un plan de montaje (véase Gran formato).
@@ -56,6 +73,9 @@ Los ajustes están en grupos que se pueden desplegar y plegar. Lo que se ajusta 
 - Los gráficos por páginas tienen **Imprimir** y **Guardar como PDF** para todas las páginas.
 
 ## Gran formato
+
+![](tafel-montageplan.jpg)
+
 
 En **Impresión en gran formato** se elige el tamaño: tamaño original, un **Ancho en cm** o **Ajustar a hojas** (columnas × filas). La ventana muestra el tamaño final y el número de hojas, p. ej. «tamaño final 50 × 34 cm · 4 hojas A4».
 

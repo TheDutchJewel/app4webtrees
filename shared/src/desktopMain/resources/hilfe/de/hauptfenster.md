@@ -4,6 +4,9 @@ Unter **Ansicht › Aufbau** wählst du zwischen vier Aufbauten. Alle zeigen den
 
 ## Navigator (Standard)
 
+![](desktop-navigator.png)
+
+
 Oben die Symbolleiste, darunter der **Proband** mit Partnern und Kindern, rechts daneben seine Vorfahren, Generation für Generation.
 
 - **Ein Klick** auf eine Person macht sie zum Probanden.
@@ -18,11 +21,18 @@ Oben die Symbolleiste, darunter der **Proband** mit Partnern und Kindern, rechts
 
 ## Baum im Mittelpunkt
 
+![](desktop-baum-mittelpunkt.jpg)
+![](desktop-baum-vollbild.jpg)
+
+
 Drei Spalten: links die **Personenliste** mit Suchfeld (Strg+F springt hinein), in der Mitte der **Baum** als Sanduhr um den Probanden (ziehen, mit dem Mausrad zoomen, Zweige nach oben aufklappen), rechts die **Personentafel** mit den Angaben der gewählten Person.
 
 Beim Herauszoomen zeigt eine Karte weniger statt kleiner: erst ohne Bild und Jahre, dann nur der Rufname, zuletzt ein Kasten in der Geschlechtsfarbe. Rechtsklick in der Liste: Als Proband, Profil, Merken, in webtrees öffnen.
 
 ## Familienansicht
+
+![](desktop-familienansicht.jpg)
+
 
 In der Mitte die **Familie** des Probanden, aufgebaut wie in klassischen Genealogie-Programmen: oben die Vorfahren beider Partner über **2 bis 4 Generationen** (− und + rechts oben, gemerkt), darunter die Eltern, in der Mitte das Paar als große Karten mit Porträt, Geboren, Gestorben und Beruf, dazwischen die Statuszeile mit allen Heiraten und der Zahl der Kinder, unten die **Kinder mit ihren Partnern** und darunter die **Enkel**. Durchgezogene Linien verbinden die Generationen. Hat der Proband mehrere Ehen, steht jede auf einem eigenen **Reiter**.
 
@@ -37,9 +47,15 @@ Alle Personen als Tabelle zeigt die [Personentabelle](hilfe:tabelle) (Strg+4).
 
 ## Ortsfamilienbuch
 
+![](desktop-ortsfamilienbuch.jpg)
+
+
 Das Familienbuch als lebende Ansicht: links der **Ortsfilter** (leer = alle Familien) und die nummerierten Familien, alphabetisch oder chronologisch, in der Mitte die Einträge genau wie im gedruckten Familienbuch – Eheleute mit Verweis auf die Elternfamilie, Heirat, Kinder mit Verweis auf ihre eigene Familie, Quellen, Paten, Notizen. Die Verweise <7>, [12] und H3 springen zum Eintrag, ein Klick auf einen Namen zeigt die Person rechts in der Personentafel, ein Doppelklick öffnet das Personenblatt; nach dem Speichern baut sich das Buch neu. Am Bildschirm sind Quellen und Paten erst auf Wunsch dabei (Haken über der Familienliste), der Druck hat sie immer. Die Personenliste links bleibt in diesem Aufbau weg, die Familienliste übernimmt. Rechts die **Häuser und Höfe** des Orts mit Geschichte, Bewohnern und Besitzern (ab api4webtrees 1.15). So liest du das Ortsfamilienbuch beim Erfassen mit und siehst Lücken, bevor es gedruckt wird. Drucken und Website: **Erstellen › Buch erstellen › Familienbuch**.
 
 ## Quellen
+
+![](desktop-quellen.jpg)
+
 
 **Ansicht › Quellen** (Strg+5) oder das Symbol **Quellen** öffnet die Quellenverwaltung: links alle Quellen des Stammbaums mit Suche und der Zahl der Verweise, rechts die gewählte Quelle mit Autor, Publikation, Archiv und Signatur, Text, Notizen, Medien und **Zitiert von** – allen Personen und Familien mit den Ereignissen, an denen die Quelle steht. Klick wählt die Person, Doppelklick macht sie zum Probanden.
 
@@ -57,6 +73,10 @@ Braucht api4webtrees mit API-Stufe 18; bei älteren Servern öffnet das Symbol w
 
 
 ## Orte
+
+![](desktop-ortskarte.jpg)
+![](desktop-hof-geschichte.jpg)
+
 
 **Ansicht › Orte** (Strg+6) oder das Symbol **Orte** öffnet die Ortsverwaltung (ab api4webtrees 1.13): links alle Orte, wie sie an den Ereignissen stehen, mit Suche, der Zahl der Ereignisse und ◉ für „Koordinaten bekannt“. Rechts der gewählte Ort in Reitern: **Personen** (alle Personen und Familien mit ihren Ereignissen dort – Klick wählt die Person, Doppelklick macht sie zum Probanden), **Geschichte** (alle Ereignisse am Ort der Zeit nach – die Ereignisse des Orts selbst wie Brand oder Umbau hervorgehoben, dazu Geburten, Wohnorte, Heiraten und Todesfälle der Personen und Familien hier), **Daten** (Ebenen, Art, übergeordneter Ort, Orte darunter, Ortsdatensatz und GOV-Kennung), **Notizen**, **Quellen**, **Medien** und **Koordinaten** mit Karte. Notiz, GOV-Kennung und Koordinaten eines Orts stehen in webtrees im Ortsdatensatz (_LOC, GEDCOM-L); fehlt er, nimmt wtWin die Koordinaten aus den Geografischen Daten von webtrees oder von einem Ereignis.
 

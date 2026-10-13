@@ -4,12 +4,25 @@ Open the **Create chart** window via **Create › Ancestor chart …** (Ctrl+Shi
 
 ## Using the preview
 
+![](desktop-tafel-fenster.jpg)
+
+
 - **Mouse wheel** zooms around the pointer, **dragging** pans.
 - **One click** switches between the whole sheet and reading size.
 - **Right-click** on a box: colour or hide that person's branch.
 - For large charts the window shows the number of persons and the sheet size in centimetres.
 
 ## Chart types
+
+![](tafel-ahnentafel.jpg)
+![](tafel-stammtafel.jpg)
+![](tafel-sanduhr.jpg)
+![](tafel-faechertafel.jpg)
+![](tafel-ahnenkreis.jpg)
+![](tafel-cousins.jpg)
+![](tafel-verwandtschaftsweg.jpg)
+![](tafel-zeitleiste.jpg)
+
 
 **Ancestors**
 
@@ -48,6 +61,10 @@ The settings are in groups, each can be expanded and collapsed. What you set is 
 
 ## Output
 
+![](tafel-karteikarte.jpg)
+![](tafel-ahnen-seiten.jpg)
+
+
 - **Print on one sheet:** shrinks the chart to the printer's paper.
 - **Save as PDF (poster):** at original size, for the copy shop or for sharing.
 - **Print sheets** / **Sheets as PDF:** the chart spread over A4 sheets, with an assembly plan (see Large print).
@@ -56,6 +73,9 @@ The settings are in groups, each can be expanded and collapsed. What you set is 
 - Paged charts have **Print** and **Save as PDF** for all pages.
 
 ## Large print
+
+![](tafel-montageplan.jpg)
+
 
 Under **Large print** you choose the size: original size, a **width in cm** or **On sheets** (columns × rows). The window shows the final size and the number of sheets, e.g. "final size 50 × 34 cm · 4 A4 sheets".
 

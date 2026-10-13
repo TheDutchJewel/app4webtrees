@@ -4,6 +4,12 @@ Ouvrez la fenêtre **Créer une liste** par **Créer › Liste d'ascendance**, *
 
 ## À partir de la personne centrale
 
+![](liste-ahnen.jpg)
+![](liste-stamm.jpg)
+![](liste-taufpaten.jpg)
+![](liste-ahnenwertung.jpg)
+
+
 - **Liste d'ascendance :** tous les ancêtres par génération avec numéros Sosa, jusqu'à 12 générations ; quiconque apparaît plusieurs fois renvoie à son premier numéro (implexe).
 - **Ancêtres en bout de branche :** les ancêtres où la recherche s'arrête, selon les quatre lignées des grands-parents.
 - **Lignée paternelle** et **Lignée maternelle :** la lignée du père ou de la mère génération par génération, avec les conjoints.
@@ -13,6 +19,12 @@ Ouvrez la fenêtre **Créer une liste** par **Créer › Liste d'ascendance**, *
 - **Fiche individuelle :** tous les détails de la personne centrale sur une page.
 
 ## Sur l'ensemble de l'arbre
+
+![](liste-namen.jpg)
+![](liste-orte.jpg)
+![](liste-ereignisse.jpg)
+![](liste-spitzenahnen.jpg)
+
 
 - **Liste des événements :** naissances et décès de toutes les personnes visibles par ordre de date ; en option comme **calendrier des anniversaires** par mois et jour, avec un filtre de lieu, p. ex. pour la lettre de famille.
 - **Noms de famille :** tous les noms de famille avec leur nombre, la période et les lieux les plus fréquents.

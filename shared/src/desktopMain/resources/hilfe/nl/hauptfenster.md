@@ -4,6 +4,9 @@ Onder **Beeld › Indeling** kiest u uit vier indelingen. Alle tonen dezelfde st
 
 ## Navigator (standaard)
 
+![](desktop-navigator.png)
+
+
 Bovenaan de werkbalk, daaronder de **proband** met partners en kinderen, rechts daarvan de voorouders, generatie voor generatie.
 
 - **Eén klik** op een persoon maakt hem of haar tot proband.
@@ -18,11 +21,18 @@ Bovenaan de werkbalk, daaronder de **proband** met partners en kinderen, rechts 
 
 ## Boom centraal
 
+![](desktop-baum-mittelpunkt.jpg)
+![](desktop-baum-vollbild.jpg)
+
+
 Drie kolommen: links de **personenlijst** met een zoekveld (Ctrl+F springt erin), in het midden de **boom** als zandloper rond de proband (slepen, zoomen met het muiswiel, takken naar boven uitklappen), rechts het **persoonspaneel** met de gegevens van de geselecteerde persoon.
 
 Bij het uitzoomen toont een kaart minder in plaats van kleiner: eerst zonder foto en jaartallen, dan alleen de roepnaam, ten slotte een vak in de kleur van het geslacht. Rechtsklik in de lijst: als proband, profiel, bladwijzer, openen in webtrees.
 
 ## Gezinsweergave
+
+![](desktop-familienansicht.jpg)
+
 
 In het midden staat het **gezin** van de proband, opgebouwd zoals in klassieke genealogieprogramma's: bovenaan de voorouders van beide partners over **2 tot 4 generaties** (− en + rechtsboven, onthouden), daaronder de ouders, in het midden het paar als grote kaarten met portret, geboren, overleden en beroep, daartussen de statusregel met alle huwelijken en het aantal kinderen, onderaan de **kinderen met hun partners** en daaronder de **kleinkinderen**. Doorlopende lijnen verbinden de generaties. Heeft de proband meerdere huwelijken, dan staat elk op een eigen **tabblad**.
 
@@ -37,9 +47,15 @@ De [personentabel](hilfe:tabelle) (Ctrl+4) toont iedereen als tabel.
 
 ## Plaatselijk familieboek
 
+![](desktop-ortsfamilienbuch.jpg)
+
+
 Het familieboek als levende weergave: links het **plaatsfilter** (leeg = alle families) en de genummerde families, alfabetisch of chronologisch, in het midden de vermeldingen precies zoals in het gedrukte familieboek – echtelieden met verwijzing naar het oudergezin, huwelijk, kinderen met verwijzing naar hun eigen gezin, bronnen, doopgetuigen, notities. De verwijzingen <7>, [12] en H3 springen naar de vermelding, een klik op een naam toont de persoon rechts in het paneel, een dubbelklik opent het persoonsblad; na het opslaan wordt het boek opnieuw opgebouwd. Op het scherm verschijnen bronnen en doopgetuigen alleen op verzoek (vinkjes boven de gezinslijst); de afdruk heeft ze altijd. De personenlijst links blijft in deze indeling weg, de gezinslijst neemt het over. Rechts de **huizen en boerderijen** van de plaats met geschiedenis, bewoners en eigenaren (vanaf api4webtrees 1.15). Zo leest u het familieboek mee tijdens het invoeren en ziet u hiaten voordat het gedrukt wordt. Afdrukken en website: **Maken › Boek maken › Familieboek**.
 
 ## Bronnen
+
+![](desktop-quellen.jpg)
+
 
 **Beeld › Bronnen** (Ctrl+5) of het symbool **Bronnen** opent het bronnenbeheer: links alle bronnen van de stamboom met zoekfunctie en het aantal bronvermeldingen, rechts de geselecteerde bron met auteur, publicatie, bewaarplaats en inventarisnummer, tekst, notities, media en **Geciteerd door** – elke persoon en elk gezin met de gebeurtenissen die de bronvermelding dragen. Een klik selecteert de persoon, een dubbelklik maakt hem of haar tot proband.
 
@@ -57,6 +73,10 @@ Vereist api4webtrees met API-niveau 18; bij oudere servers opent het symbool zoa
 
 
 ## Plaatsen
+
+![](desktop-ortskarte.jpg)
+![](desktop-hof-geschichte.jpg)
+
 
 **Beeld › Plaatsen** (Ctrl+6) of het symbool **Plaatsen** opent het plaatsenbeheer (vanaf api4webtrees 1.13): links alle plaatsen zoals ze bij de gebeurtenissen staan, met zoekfunctie, het aantal gebeurtenissen en ◉ voor „coördinaten bekend”. Rechts de geselecteerde plaats in tabbladen: **Personen** (elke persoon en elk gezin met hun gebeurtenissen daar – een klik selecteert de persoon, een dubbelklik maakt hem of haar tot proband), **Geschiedenis** (alle gebeurtenissen van de plaats op volgorde van tijd – de gebeurtenissen van de plaats zelf zoals brand of verbouwing uitgelicht, plus geboorten, woonplaatsen, huwelijken en overlijdens van de personen en gezinnen hier), **Gegevens** (niveaus, soort, bovenliggende plaats, plaatsen hieronder, locatierecord en GOV-code), **Notities**, **Bronnen**, **Media** en **Coördinaten** met kaart. In webtrees staan notitie, GOV-code en coördinaten van een plaats in het locatierecord (_LOC, GEDCOM-L); zonder record neemt wtWin de coördinaten uit de geografische gegevens van webtrees of uit een gebeurtenis.
 
