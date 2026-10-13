@@ -94,7 +94,23 @@ data class BuchOptionen(
     val haeuserNurTyp: Boolean = true,
     /** Haeuserteil: Orte ohne Art mit aufnehmen (sonst im Anhang "Weitere Orte"). */
     val haeuserOhneTyp: Boolean = true,
+    /** Familienbuch/Personenbericht: Lebende fuers Veroeffentlichen - vollstaendig, nur mit Namen oder weglassen. */
+    val lebende: Lebende = Lebende.NurName,
+    /** Wer vor weniger als so vielen Jahren geboren wurde und kein Sterbedatum hat, gilt als lebend (zusaetzlich zu webtrees). */
+    val grenzjahr: Int = 100,
+    /** Familienbuch: ein Eintrag je Familie (Ortsfamilienbuch) oder je Person (Personenbericht). */
+    val aufbau: FamilienAufbau = FamilienAufbau.Familien,
 )
+
+enum class Lebende { Voll, NurName, Weg }
+enum class FamilienAufbau { Familien, Personen }
+
+/** Lebend im Sinne der Veroeffentlichung: webtrees haelt die Person fuer lebend, oder sie ist juenger als das Grenzjahr. */
+internal fun istLebend(p: Person, o: BuchOptionen): Boolean {
+    if (p.isDead) return false
+    val geboren = p.birth?.date?.year?.takeIf { it > 0 } ?: return true
+    return geboren > java.time.LocalDate.now().year - o.grenzjahr
+}
 
 // ── Formate der Angaben ──
 

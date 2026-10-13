@@ -6,11 +6,13 @@
 
 - **Ancestor book:** all ancestors of the central person by generation and Kekulé number, with dates, baptisms, burials, sources and notes. The four grandparent lines optionally coloured in the margin.
 - **Descendant book:** all descendants generation by generation, with spouses, children and references; numbers after Saragossa, d'Aboville, Henry or serial; branch colours per child of the root couple.
-- **Family book:** one entry per family, alphabetical or chronological. With a **place filter** it becomes a local family book. Needs the whole tree in one piece (api4webtrees 1.9 or later on the server). **Houses and farms** (api4webtrees 1.15 or later) adds a section on the buildings: every farm and house of the place from the place manager (location records with a type below the place) with its history and its residents and owners in order of time, each pointing to the family; the families point back to their house (H1, H2 …). What counts as a house is decided by the type in the location record (house, farm, mill, church …; without a type, a house number in the name counts); parts of town and villages become chapters, places with residents that are not buildings go into the appendix “Other places”. If the location record carries a GOV type number (GEDCOM-L `2 _GOVTYPE`, api4webtrees 1.18.1 or later), that number decides before the text: farm, building, mill, estate, church … are houses, village, part of town, municipality … are levels above. The options “Only houses and farms” and “Include places without a type” control this. Place names may be separated by commas or semicolons.
+- **Family book:** one entry per family, alphabetical or chronological. With **layout “per person”** it becomes the person report: one entry per person with parents, marriages and children as pointers, indexes on person numbers. Also, one entry per family, alphabetical or chronological. With a **place filter** it becomes a local family book. Needs the whole tree in one piece (api4webtrees 1.9 or later on the server). **Houses and farms** (api4webtrees 1.15 or later) adds a section on the buildings: every farm and house of the place from the place manager (location records with a type below the place) with its history and its residents and owners in order of time, each pointing to the family; the families point back to their house (H1, H2 …). What counts as a house is decided by the type in the location record (house, farm, mill, church …; without a type, a house number in the name counts); parts of town and villages become chapters, places with residents that are not buildings go into the appendix “Other places”. If the location record carries a GOV type number (GEDCOM-L `2 _GOVTYPE`, api4webtrees 1.18.1 or later), that number decides before the text: farm, building, mill, estate, church … are houses, village, part of town, municipality … are levels above. The options “Only houses and farms” and “Include places without a type” control this. Place names may be separated by commas or semicolons.
 
 ## Settings
 
 - **Data:** generations (2 to 12), notes, sources, shorten place names, show duplicate ancestors in full (instead of "see no.").
+- **Living people:** for publishing, living people appear in full, with their name only or not at all; living means webtrees treats them as living or they are younger than the age limit (80 to 120 years). Family book and person report only.
+- **Preface from file …** reads a text file into the preface; **Save template …/Load template …** keeps book type and all settings as a `.wtbuch` file, for instance per place.
 - **Appearance:** pictures, colour coding, preface (your own text on the first page), chart as fold-out page (A3, PDF only).
 - **Indexes:** names, places, occupations, sources, each pointing to the entry numbers.
 
@@ -20,6 +22,7 @@
 
 - **PDF** with bookmarks and links (a click on "see no." jumps to the entry).
 - **DOCX** for further editing in Word or LibreOffice. Update the table of contents there once: click it and press F9 (LibreOffice: Tools › Update › Indexes and Tables).
+- **Website:** a folder to upload – start page with preface and tiles, all entries on one page with a letter bar, every entry also as a page of its own with browsing, houses, indexes as pages, stylesheet and pictures as files. Set living people to “name only” first.
 - **HTML** for a website, **TeX** for typesetting with LaTeX, **Text**.
 
 For large trees, loading persons and pictures takes a moment; the window shows the progress.

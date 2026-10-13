@@ -1,5 +1,7 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.Texte
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -66,7 +68,35 @@ import org.jetbrains.compose.resources.stringResource
 enum class BuchArt { Vorfahren, Nachfahren, Familien }
 
 private object BuchWahl {
-    private val prefs get() = DeskLayout.prefs
+    /** Beim Speichern und Laden einer Vorlage schreibt und liest BuchWahl kurz in eine Textablage statt in die Einstellungen. */
+    private var andere: de.bgghome.webtrees.nativ.data.Ablage? = null
+    private val prefs get() = andere ?: DeskLayout.prefs
+
+    private class TextAblage(val m: MutableMap<String, String> = sortedMapOf()) : de.bgghome.webtrees.nativ.data.Ablage {
+        override fun getString(key: String, default: String?) = m[key] ?: default
+        override fun putString(key: String, value: String?) { if (value == null) m.remove(key) else m[key] = value }
+        override fun getBoolean(key: String, default: Boolean) = m[key]?.toBooleanStrictOrNull() ?: default
+        override fun putBoolean(key: String, value: Boolean) { m[key] = value.toString() }
+        override fun alle(): Map<String, String> = m
+        override fun leeren() = m.clear()
+    }
+
+    /** Buchart und alle Einstellungen als Text (Schluessel=Wert); das Vorwort mit Zeilenumbruechen als \\n. */
+    fun vorlageText(art: BuchArt, o: BuchOptionen): String {
+        val t = TextAblage(); andere = t
+        try { sichern(o); t.m["buch_art"] = art.name } finally { andere = null }
+        return "# app4webtrees Buch-Vorlage\n" + t.m.entries.joinToString("\n") { "${it.key}=${it.value.replace("\\", "\\\\").replace("\n", "\\n")}" } + "\n"
+    }
+
+    /** Eine Vorlage lesen - oder null, wenn der Text keine ist. */
+    fun vorlageLesen(text: String): Pair<BuchArt, BuchOptionen>? {
+        val t = TextAblage()
+        text.lines().filter { '=' in it && !it.startsWith("#") }.forEach { t.m[it.substringBefore('=').trim()] = it.substringAfter('=').trim().replace("\\n", "\n").replace("\\\\", "\\") }
+        val art = BuchArt.entries.firstOrNull { it.name == t.m["buch_art"] } ?: return null
+        andere = t
+        try { return art to laden() } finally { andere = null }
+    }
+
     fun laden() = BuchOptionen(
         generationen = (prefs.getString("buch_gen", null)?.toIntOrNull() ?: 7).coerceIn(2, 12),
         bilder = prefs.getBoolean("buch_bilder", true), farbkodierung = prefs.getBoolean("buch_farbe", true),
@@ -81,6 +111,9 @@ private object BuchWahl {
         familienChronologisch = prefs.getBoolean("buch_chrono", false), ortFilter = prefs.getString("buch_ort", null).orEmpty(),
         haeuser = prefs.getBoolean("buch_haeuser", true),
         haeuserNurTyp = prefs.getBoolean("buch_haeuser_typ", true), haeuserOhneTyp = prefs.getBoolean("buch_haeuser_ohne", true),
+        lebende = Lebende.entries.firstOrNull { it.name == prefs.getString("buch_lebende", null) } ?: Lebende.NurName,
+        grenzjahr = (prefs.getString("buch_grenzjahr", null)?.toIntOrNull() ?: 100).coerceIn(50, 130),
+        aufbau = FamilienAufbau.entries.firstOrNull { it.name == prefs.getString("buch_aufbau", null) } ?: FamilienAufbau.Familien,
     )
     fun art(): BuchArt = BuchArt.entries.firstOrNull { it.name == prefs.getString("buch_art", null) } ?: BuchArt.Vorfahren
     fun sichern(o: BuchOptionen) {
@@ -91,6 +124,7 @@ private object BuchWahl {
         prefs.putString("buch_nr", o.nummerierung.name); prefs.putBoolean("buch_partner", o.partner); prefs.putBoolean("buch_namen", o.namenstraeger)
         prefs.putBoolean("buch_chrono", o.familienChronologisch); prefs.putString("buch_ort", o.ortFilter); prefs.putBoolean("buch_haeuser", o.haeuser)
         prefs.putBoolean("buch_haeuser_typ", o.haeuserNurTyp); prefs.putBoolean("buch_haeuser_ohne", o.haeuserOhneTyp)
+        prefs.putString("buch_lebende", o.lebende.name); prefs.putString("buch_grenzjahr", o.grenzjahr.toString()); prefs.putString("buch_aufbau", o.aufbau.name)
     }
 }
 
@@ -124,7 +158,7 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
     val buch = remember(daten, o) {
         when (val d = daten?.getOrNull()) {
             is NachfahrenDaten -> nachfahrenbuch(d, o, baum, appName)
-            is FamilienDaten -> familienbuch(d, o, baum, appName)
+            is FamilienDaten -> if (o.aufbau == FamilienAufbau.Personen) personenbericht(d, o, baum, appName) else familienbuch(d, o, baum, appName)
             is BuchDaten -> vorfahrenbuch(d, o, baum, appName)
             else -> null
         }
@@ -171,6 +205,18 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     val wer = state.detail?.takeIf { it.person.xref == state.root }?.person?.name ?: state.people.firstOrNull { it.xref == state.root }?.name.orEmpty()
                     if (familien) {
+                        Einstellung(stringResource(Res.string.desk_book_layout), stringResource(Res.string.tipp_book_layout)) {
+                            val werte = listOf(stringResource(Res.string.desk_book_layout_families), stringResource(Res.string.desk_book_layout_persons))
+                            Auswahl(werte[if (o.aufbau == FamilienAufbau.Personen) 1 else 0], werte) { w -> o = o.copy(aufbau = if (werte.indexOf(w) == 1) FamilienAufbau.Personen else FamilienAufbau.Familien) }
+                        }
+                        Einstellung(stringResource(Res.string.desk_book_living), stringResource(Res.string.tipp_book_living)) {
+                            val werte = listOf(stringResource(Res.string.desk_book_living_full), stringResource(Res.string.desk_book_living_name), stringResource(Res.string.desk_book_living_omit))
+                            Auswahl(werte[o.lebende.ordinal], werte) { w -> o = o.copy(lebende = Lebende.entries[werte.indexOf(w)]) }
+                        }
+                        if (o.lebende != Lebende.Voll) Einstellung(stringResource(Res.string.desk_book_living_years), stringResource(Res.string.tipp_book_living_years)) {
+                            val werte = listOf(80, 90, 100, 110, 120).map { it.toString() }
+                            Auswahl(o.grenzjahr.toString(), werte) { w -> o = o.copy(grenzjahr = w.toInt()) }
+                        }
                         Einstellung(stringResource(Res.string.desk_book_sort)) {
                             val werte = listOf(stringResource(Res.string.desk_book_sort_alpha), stringResource(Res.string.desk_book_sort_chrono))
                             Auswahl(werte[if (o.familienChronologisch) 1 else 0], werte) { w -> o = o.copy(familienChronologisch = werte.indexOf(w) == 1) }
@@ -214,6 +260,23 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                     Haken(stringResource(Res.string.desk_book_index_occupations), o.berufe) { o = o.copy(berufe = it) }
                     Haken(stringResource(Res.string.desk_book_index_sources), o.quellenVerzeichnis) { o = o.copy(quellenVerzeichnis = it) }
                     OutlinedTextField(o.vorwort, { o = o.copy(vorwort = it) }, label = { Text(stringResource(Res.string.desk_book_preface_field)) }, minLines = 3, maxLines = 8, modifier = Modifier.fillMaxWidth())
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        // Vorwort aus einer Textdatei (.txt, .md); Vorlage = Buchart und alle Einstellungen als Datei
+                        TextButton(onClick = {
+                            val d = java.awt.FileDialog(null as java.awt.Frame?, Texte.t(Res.string.desk_book_preface_file), java.awt.FileDialog.LOAD).apply { isVisible = true }
+                            d.file?.let { f -> runCatching { java.io.File(d.directory, f).readText() }.getOrNull()?.let { o = o.copy(vorwort = it.trim()) } }
+                        }) { Text(stringResource(Res.string.desk_book_preface_file), style = MaterialTheme.typography.labelMedium) }
+                        TextButton(onClick = {
+                            val d = java.awt.FileDialog(null as java.awt.Frame?, Texte.t(Res.string.desk_book_template_save), java.awt.FileDialog.SAVE).apply {
+                                file = (o.titel.ifBlank { baum }).replace(Regex("[\\\\/:*?\"<>|]"), "_") + ".wtbuch"; isVisible = true }
+                            d.file?.let { f -> java.io.File(d.directory, if (f.endsWith(".wtbuch", true)) f else "$f.wtbuch").writeText(BuchWahl.vorlageText(art, o)) }
+                        }) { Text(stringResource(Res.string.desk_book_template_save), style = MaterialTheme.typography.labelMedium) }
+                        TextButton(onClick = {
+                            val d = java.awt.FileDialog(null as java.awt.Frame?, Texte.t(Res.string.desk_book_template_load), java.awt.FileDialog.LOAD).apply {
+                                setFilenameFilter { _, n -> n.endsWith(".wtbuch", true) }; isVisible = true }
+                            d.file?.let { f -> runCatching { java.io.File(d.directory, f).readText() }.getOrNull()?.let(BuchWahl::vorlageLesen)?.let { (a, neu) -> art = a; o = neu } }
+                        }) { Text(stringResource(Res.string.desk_book_template_load), style = MaterialTheme.typography.labelMedium) }
+                    }
                     seiten?.second?.let { Text(stringResource(Res.string.desk_list_pages, it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     val b = buch
@@ -224,7 +287,7 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                             // Fuenf Knoepfe nebeneinander: ohne den ueblichen Innenabstand bricht "DOCX" sonst je Buchstabe um
                             OutlinedButton(onClick = { b?.let { buchSpeichern(it, f, it.titel) } }, enabled = b != null, shape = MaterialTheme.shapes.small,
                                 contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp), modifier = Modifier.weight(1f)) {
-                                Text(f.name, maxLines = 1, softWrap = false)
+                                Text(if (f == BuchFormat.WEBSITE) stringResource(Res.string.desk_book_website) else f.name, maxLines = 1, softWrap = false)
                             }
                         }
                     }

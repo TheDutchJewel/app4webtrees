@@ -18,7 +18,7 @@ import javax.imageio.ImageIO
  * Alle aus demselben Dokument wie das PDF.
  */
 
-enum class BuchFormat(val endung: String) { PDF("pdf"), DOCX("docx"), HTML("html"), TEX("tex"), TXT("txt") }
+enum class BuchFormat(val endung: String) { PDF("pdf"), DOCX("docx"), HTML("html"), TEX("tex"), TXT("txt"), WEBSITE("") }
 
 private fun jpeg(b: BufferedImage): ByteArray = ByteArrayOutputStream().also { ImageIO.write(b, "jpg", it) }.toByteArray()
 
@@ -304,6 +304,7 @@ fun buchSchreiben(buch: Buch, format: BuchFormat, ziel: File) {
         BuchFormat.DOCX -> ziel.writeBytes(buchDocx(buch))
         BuchFormat.HTML -> ziel.writeText(buchHtml(buch))
         BuchFormat.TXT -> ziel.writeText(buchText(buch))
+        BuchFormat.WEBSITE -> buchWebsite(buch, ziel)
         BuchFormat.TEX -> {
             val ordnerName = ziel.nameWithoutExtension + "-bilder"
             val bilder = LinkedHashMap<String, BufferedImage>()
@@ -320,7 +321,177 @@ fun buchSpeichern(buch: Buch, format: BuchFormat, vorschlag: String) {
         isVisible = true
     }
     val name = dialog.file ?: return
+    if (format == BuchFormat.WEBSITE) {
+        // Ein Ordner: alle Seiten, Stylesheet und Bilder hinein, danach die Startseite im Browser
+        val ordner = File(dialog.directory, name.removeSuffix(".html")).apply { mkdirs() }
+        buchSchreiben(buch, format, ordner)
+        runCatching { java.awt.Desktop.getDesktop().browse(File(ordner, "index.html").toURI()) }
+        return
+    }
     val ziel = File(dialog.directory, if (name.endsWith("." + format.endung, true)) name else "$name.${format.endung}")
     buchSchreiben(buch, format, ziel)
     if (format != BuchFormat.TEX) runCatching { java.awt.Desktop.getDesktop().open(ziel) }
+}
+
+
+// ── Website: ein Ordner mit Startseite, Familien gesamt und einzeln, Haeusern, Verzeichnissen, Stylesheet und Bildern ──
+
+private val WEBSITE_CSS = """
+:root{--text:#1e1e1e;--muted:#555;--link:#1f3a8a;--line:#ccc;--bg:#fff;--card:#f6f4ef}
+body{font-family:Georgia,'Times New Roman',serif;margin:0;color:var(--text);background:var(--bg);line-height:1.45}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:.8em 1.2em}header h1{margin:0;font-size:1.5em}
+nav.haupt a{margin-right:1.2em;color:var(--link);text-decoration:none}nav.haupt a:hover{text-decoration:underline}
+main{max-width:52em;margin:0 auto;padding:1em 1.2em 3em}h2{margin-top:1.8em;border-bottom:1px solid var(--line);padding-bottom:.2em}
+h3{margin:1.4em 0 .3em;color:var(--muted)}p.e{margin:.9em 0 .2em 2.6em;text-indent:-2.6em;clear:both}p.e .nr{display:inline-block;width:2.6em;text-indent:0;font-weight:bold}
+p.z{margin:.1em 0 .1em 2.6em}p.e img{float:right;width:5em;margin:0 0 .4em .8em;border:1px solid #999}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+.reg{columns:2;column-gap:2em}.reg1{columns:1}.reg div{break-inside:avoid;display:flex}.reg div span.t{flex:1}.reg b{display:block;margin-top:.6em}
+nav.buchstaben a{margin-right:.5em}nav.blaettern{display:flex;justify-content:space-between;margin:1.5em 0;color:var(--muted)}
+.karten{display:grid;grid-template-columns:repeat(auto-fill,minmax(14em,1fr));gap:1em;margin-top:1.2em}.karten a{display:block;background:var(--card);border:1px solid var(--line);padding:.8em 1em;color:var(--text)}
+.karten a b{display:block;color:var(--link)}footer{margin-top:3em;color:#777;font-size:.85em;text-align:center}
+@media print{nav{display:none}h2{break-before:page}}
+"""
+
+/** Die Teile eines Buchs fuer die Website: Vorwort, Eintraege (Familien oder Personen), Haeuser, Verzeichnisse. */
+private class WebTeile(val vorwort: List<Absatz>, val eintraege: List<Block>, val haeuser: List<Block>, val verzeichnisse: List<Verzeichnis>, val titel: Titelblatt?)
+
+private fun webTeile(buch: Buch): WebTeile {
+    val vorwort = ArrayList<Absatz>(); val eintraege = ArrayList<Block>(); val haeuser = ArrayList<Block>(); val verz = ArrayList<Verzeichnis>()
+    var ziel: MutableList<Block>? = null
+    var titel: Titelblatt? = null
+    buch.bloecke.forEach { b ->
+        when (b) {
+            is Titelblatt -> titel = b
+            is Inhaltsverzeichnis -> {}
+            is Verzeichnis -> { verz += b; ziel = null }
+            is Ueberschrift -> when {
+                b.id == "vorwort" -> ziel = null.also { }   // Vorwort-Absaetze kommen direkt hinter dieser Ueberschrift
+                b.id == "familien" -> ziel = eintraege
+                b.id == "haeuser" || b.id == "weitere" -> { ziel = haeuser; haeuser += b }
+                !b.neueSeite -> ziel?.add(b)
+                else -> ziel = null
+            }
+            is Absatz -> if (ziel != null) ziel!!.add(b) else if (eintraege.isEmpty() && haeuser.isEmpty()) vorwort += b
+        }
+    }
+    return WebTeile(vorwort, eintraege, haeuser, verz, titel)
+}
+
+/** HTML eines Absatzes; [bild]: Pfad fuer das Bild, [link]: href zu einem Anker. */
+private fun absatzHtml(b: Absatz, bild: ((Absatz) -> String?), link: (String) -> String): String = buildString {
+    val klasse = if (b.marke != null) "e" else "z"
+    append("<p class=\"$klasse\"${b.anker?.let { " id=\"$it\"" } ?: ""}>")
+    b.marke?.let { append("<span class=\"nr\">${h(it)}</span>") }
+    bild(b)?.let { append("<img alt=\"\" src=\"$it\">") }
+    b.laeufe.forEach { l ->
+        val s = when (l.stil) { Stil.Fett -> "<b>${h(l.text)}</b>"; Stil.Kursiv -> "<i>${h(l.text)}</i>"; else -> h(l.text) }
+        append(l.ziel?.let { "<a href=\"${link(it)}\">$s</a>" } ?: s)
+    }
+    append("</p>\n")
+}
+
+private fun seite(titel: String, buchTitel: String, nav: String, inhalt: String, fuss: String, css: String): String = """<!doctype html>
+<html lang="${java.util.Locale.getDefault().language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${h(titel)} – ${h(buchTitel)}</title><link rel="stylesheet" href="$css"></head><body>
+<header><h1>${h(buchTitel)}</h1><nav class="haupt">$nav</nav></header>
+<main>
+$inhalt</main>
+<footer>${h(fuss)}</footer>
+</body></html>
+"""
+
+/** Die Website in [ordner] schreiben: index.html, familien.html, eintraege/n7.html, haeuser.html, register-*.html, style.css, bilder/. */
+fun buchWebsite(buch: Buch, ordner: File) {
+    ordner.mkdirs(); File(ordner, "eintraege").mkdirs()
+    val teile = webTeile(buch)
+    val bilder = LinkedHashMap<String, BufferedImage>()
+    fun bildName(b: Absatz): String? = b.bild?.let { img -> ("${b.anker ?: "b${bilder.size}"}.jpg").also { bilder[it] = img } }
+    val t = Texte
+    val registerName = { v: Verzeichnis -> "register-${v.id.removePrefix("reg-")}.html" }
+    // Navigation: Start, Familien/Personen, Haeuser, Verzeichnisse
+    fun nav(tiefe: String): String = buildString {
+        append("<a href=\"${tiefe}index.html\">${h(t.t(Res.string.nav_home))}</a>")
+        append("<a href=\"${tiefe}familien.html\">${h(t.t(Res.string.desk_book_families))}</a>")
+        if (teile.haeuser.isNotEmpty()) append("<a href=\"${tiefe}haeuser.html\">${h(t.t(Res.string.desk_book_houses))}</a>")
+        teile.verzeichnisse.forEach { v -> append("<a href=\"$tiefe${registerName(v)}\">${h(v.titel)}</a>") }
+    }
+    val eintragAnker = teile.eintraege.filterIsInstance<Absatz>().mapNotNull { it.anker }.filter { it.startsWith("n") }
+    fun linkGesamt(ziel: String) = if (ziel.startsWith("h") || ziel.startsWith("w")) "haeuser.html#$ziel" else "familien.html#$ziel"
+    fun linkEinzeln(ziel: String) = if (ziel.startsWith("h") || ziel.startsWith("w")) "../haeuser.html#$ziel" else if (ziel in eintragAnker) "$ziel.html" else "../familien.html#$ziel"
+    // 1. Gesamtseite mit Buchstabenleiste
+    val gruppen = teile.eintraege.filterIsInstance<Ueberschrift>()
+    val gesamt = buildString {
+        append("<h2>${h(t.t(Res.string.desk_book_families))}</h2>\n")
+        if (gruppen.size > 1) append("<nav class=\"buchstaben\">" + gruppen.joinToString(" ") { "<a href=\"#${it.id}\">${h(it.text)}</a>" } + "</nav>\n")
+        teile.eintraege.forEach { b ->
+            when (b) {
+                is Ueberschrift -> append("<h3 id=\"${b.id}\">${h(b.text)}</h3>\n")
+                is Absatz -> {
+                    // Jeder Eintrag bekommt den Link auf seine Einzelseite
+                    val html = absatzHtml(b, { a -> bildName(a)?.let { "bilder/$it" } }, ::linkGesamt)
+                    append(if (b.anker != null && b.anker in eintragAnker) html.replaceFirst("<span class=\"nr\">", "<span class=\"nr\"><a href=\"eintraege/${b.anker}.html\">").replaceFirst("</span>", "</a></span>") else html)
+                }
+                else -> {}
+            }
+        }
+    }
+    File(ordner, "familien.html").writeText(seite(t.t(Res.string.desk_book_families), buch.titel, nav(""), gesamt, buch.fuss, "style.css"))
+    // 2. Einzelseiten je Eintrag mit Blaettern
+    var aktuell = ArrayList<Absatz>(); var anker: String? = null
+    val einzeln = ArrayList<Pair<String, List<Absatz>>>()
+    teile.eintraege.filterIsInstance<Absatz>().forEach { b ->
+        if (b.anker != null && b.anker in eintragAnker) { anker?.let { einzeln += it to aktuell }; aktuell = ArrayList(); anker = b.anker }
+        aktuell += b
+    }
+    anker?.let { einzeln += it to aktuell }
+    einzeln.forEachIndexed { i, (a, bloecke) ->
+        val inhalt = buildString {
+            bloecke.forEach { append(absatzHtml(it, { x -> bildName(x)?.let { n -> "../bilder/$n" } }, ::linkEinzeln)) }
+            append("<nav class=\"blaettern\">")
+            append(einzeln.getOrNull(i - 1)?.let { "<a href=\"${it.first}.html\">← ${h(it.second.first().laeufe.firstOrNull()?.text.orEmpty())}</a>" } ?: "<span></span>")
+            append("<a href=\"../familien.html#$a\">${h(t.t(Res.string.desk_book_families))}</a>")
+            append(einzeln.getOrNull(i + 1)?.let { "<a href=\"${it.first}.html\">${h(it.second.first().laeufe.firstOrNull()?.text.orEmpty())} →</a>" } ?: "<span></span>")
+            append("</nav>\n")
+        }
+        File(ordner, "eintraege/$a.html").writeText(seite(bloecke.first().laeufe.firstOrNull()?.text.orEmpty(), buch.titel, nav("../"), inhalt, buch.fuss, "../style.css"))
+    }
+    // 3. Haeuser
+    if (teile.haeuser.isNotEmpty()) {
+        val inhalt = buildString {
+            teile.haeuser.forEach { b -> when (b) {
+                is Ueberschrift -> append(if (b.neueSeite) "<h2 id=\"${b.id}\">${h(b.text)}</h2>\n" else "<h3 id=\"${b.id}\">${h(b.text)}</h3>\n")
+                is Absatz -> append(absatzHtml(b, { null }, ::linkGesamt))
+                else -> {}
+            } }
+        }
+        File(ordner, "haeuser.html").writeText(seite(t.t(Res.string.desk_book_houses), buch.titel, nav(""), inhalt, buch.fuss, "style.css"))
+    }
+    // 4. Verzeichnisse
+    teile.verzeichnisse.forEach { v ->
+        val inhalt = buildString {
+            append("<h2>${h(v.titel)}</h2>\n<div class=\"${if (v.spalten > 1) "reg" else "reg reg1"}\">\n")
+            v.gruppen.forEach { (kopf, zeilen) ->
+                if (kopf.isNotBlank()) append("<b>${h(kopf)}</b>\n")
+                zeilen.forEach { (text, nr) -> append("<div><span class=\"t\">${h(text)}</span><span>${nr.distinct().joinToString(", ") { "<a href=\"familien.html#n$it\">${h(v.etikett(it))}</a>" }}</span></div>\n") }
+            }
+            append("</div>\n")
+        }
+        File(ordner, registerName(v)).writeText(seite(v.titel, buch.titel, nav(""), inhalt, buch.fuss, "style.css"))
+    }
+    // 5. Startseite: Titel, Vorwort, Kacheln
+    val start = buildString {
+        teile.titel?.let { tb ->
+            if (tb.untertitel.isNotBlank()) append("<p><b>${h(tb.untertitel)}</b></p>\n")
+            append("<p>${h(tb.zeile)}</p>\n")
+        }
+        if (teile.vorwort.isNotEmpty()) { append("<h2>${h(t.t(Res.string.desk_book_preface))}</h2>\n"); teile.vorwort.forEach { append("<p>${h(it.laeufe.joinToString("") { l -> l.text })}</p>\n") } }
+        append("<div class=\"karten\">\n")
+        append("<a href=\"familien.html\"><b>${h(t.t(Res.string.desk_book_families))}</b>${einzeln.size}</a>\n")
+        if (teile.haeuser.isNotEmpty()) append("<a href=\"haeuser.html\"><b>${h(t.t(Res.string.desk_book_houses))}</b>${teile.haeuser.count { it is Absatz && it.marke != null }}</a>\n")
+        teile.verzeichnisse.forEach { v -> append("<a href=\"${registerName(v)}\"><b>${h(v.titel)}</b>${v.gruppen.sumOf { it.second.size }}</a>\n") }
+        append("</div>\n")
+    }
+    File(ordner, "index.html").writeText(seite(t.t(Res.string.nav_home), buch.titel, nav(""), start, buch.fuss, "style.css"))
+    File(ordner, "style.css").writeText(WEBSITE_CSS.trim() + "\n")
+    if (bilder.isNotEmpty()) File(ordner, "bilder").apply { mkdirs() }.let { o -> bilder.forEach { (n, b) -> File(o, n).writeBytes(jpeg(b)) } }
 }

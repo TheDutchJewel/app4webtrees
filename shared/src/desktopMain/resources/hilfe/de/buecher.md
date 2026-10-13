@@ -6,11 +6,13 @@
 
 - **Vorfahrenbuch:** alle Vorfahren des Probanden nach Generationen und Kekulé-Nummern, mit Lebensdaten, Taufen, Begräbnissen, Quellen und Notizen. Die vier Großeltern-Linien auf Wunsch farbig am Rand.
 - **Nachfahrenbuch:** alle Nachfahren Generation für Generation, mit Ehepartnern, Kindern und Verweisen; Nummern nach Saragossa, d’Aboville, Henry oder fortlaufend; Zweigfarben je Kind der Stammeltern.
-- **Familienbuch:** ein Eintrag je Familie, alphabetisch oder chronologisch. Mit **Ortsfilter** wird daraus ein Ortsfamilienbuch. Braucht den ganzen Stammbaum am Stück (api4webtrees ab 1.9 auf dem Server). Mit **Häuser und Höfe** (ab api4webtrees 1.15) kommt ein Häuserteil dazu: alle Höfe und Häuser des Orts aus der Ortsverwaltung (Ortsdatensätze mit Art unter dem Ort) mit ihrer Geschichte und den Bewohnern und Besitzern der Zeit nach, je mit Verweis auf die Familie; die Familien verweisen zurück auf ihr Haus (H1, H2 …). Was ein Haus ist, entscheidet die Art im Ortsdatensatz (Haus, Hof, Mühle, Kirche …; ohne Art zählt eine Hausnummer im Namen); Stadtteile und Dörfer gliedern als Kapitel, Orte mit Bewohnern, die kein Gebäude sind, stehen im Anhang „Weitere Orte“. Trägt der Ortsdatensatz eine GOV-Typnummer (GEDCOM-L `2 _GOVTYPE`, api4webtrees ab 1.18.1), entscheidet sie vor dem Text: Hof, Gebäude, Mühle, Gut, Kirche … sind Häuser, Dorf, Stadtteil, Gemeinde … Ebenen darüber. Die Haken „Nur Häuser und Höfe“ und „Orte ohne Art aufnehmen“ steuern das. Ortsnamen dürfen mit Komma oder Semikolon gegliedert sein.
+- **Familienbuch:** ein Eintrag je Familie, alphabetisch oder chronologisch. Mit **Aufbau „je Person“** wird daraus der Personenbericht: ein Eintrag je Person mit Eltern, Ehen und Kindern als Verweise, Verzeichnisse auf Personennummern. Mit **Ortsfilter** wird daraus ein Ortsfamilienbuch. Braucht den ganzen Stammbaum am Stück (api4webtrees ab 1.9 auf dem Server). Mit **Häuser und Höfe** (ab api4webtrees 1.15) kommt ein Häuserteil dazu: alle Höfe und Häuser des Orts aus der Ortsverwaltung (Ortsdatensätze mit Art unter dem Ort) mit ihrer Geschichte und den Bewohnern und Besitzern der Zeit nach, je mit Verweis auf die Familie; die Familien verweisen zurück auf ihr Haus (H1, H2 …). Was ein Haus ist, entscheidet die Art im Ortsdatensatz (Haus, Hof, Mühle, Kirche …; ohne Art zählt eine Hausnummer im Namen); Stadtteile und Dörfer gliedern als Kapitel, Orte mit Bewohnern, die kein Gebäude sind, stehen im Anhang „Weitere Orte“. Trägt der Ortsdatensatz eine GOV-Typnummer (GEDCOM-L `2 _GOVTYPE`, api4webtrees ab 1.18.1), entscheidet sie vor dem Text: Hof, Gebäude, Mühle, Gut, Kirche … sind Häuser, Dorf, Stadtteil, Gemeinde … Ebenen darüber. Die Haken „Nur Häuser und Höfe“ und „Orte ohne Art aufnehmen“ steuern das. Ortsnamen dürfen mit Komma oder Semikolon gegliedert sein.
 
 ## Einstellungen
 
 - **Daten:** Generationen (2 bis 12), Notizen, Quellen, Ortsnamen kürzen, doppelte Vorfahren ganz darstellen (statt „siehe Nr.“).
+- **Lebende:** fürs Veröffentlichen erscheinen Lebende vollständig, nur mit Namen oder gar nicht; als lebend gilt, wen webtrees für lebend hält oder wer jünger als das Grenzalter ist (80 bis 120 Jahre). Nur im Familienbuch und Personenbericht.
+- **Vorwort aus Datei …** liest eine Textdatei ins Vorwort; **Vorlage speichern …/laden …** sichert Buchart und alle Einstellungen als `.wtbuch`-Datei, etwa je Ort.
 - **Darstellung:** Bilder, Farbkodierung, Vorwort (eigener Text auf der ersten Seite), Tafel als Ausklappseite (A3, nur im PDF).
 - **Verzeichnisse:** Namen, Orte, Berufe, Quellen, jeweils auf die Eintragsnummern.
 
@@ -20,6 +22,7 @@
 
 - **PDF** mit Lesezeichen und Links (Klick auf „siehe Nr.“ springt zum Eintrag).
 - **DOCX** zum Weiterbearbeiten in Word oder LibreOffice. Das Inhaltsverzeichnis dort einmal aktualisieren: anklicken und F9 (LibreOffice: Extras › Verzeichnisse › Aktualisieren).
+- **Website:** ein Ordner zum Hochladen – Startseite mit Vorwort und Kacheln, alle Einträge auf einer Seite mit Buchstabenleiste, jeder Eintrag zusätzlich als eigene Seite mit Blättern, Häuser, Verzeichnisse als Seiten, Stylesheet und Bilder als Dateien. Lebende vorher auf „nur mit Namen“ stellen.
 - **HTML** für die Homepage, **TeX** für den Satz mit LaTeX, **Text**.
 
 Bei großen Stammbäumen dauert das Laden der Personen und Bilder einen Moment; das Fenster zeigt den Fortschritt.

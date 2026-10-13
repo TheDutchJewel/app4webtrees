@@ -147,6 +147,12 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
             reg.name(p, n)
             return listOf(Absatz(listOf(Lauf(registerName(p), Stil.Fett, xref = x), Lauf(", " + Texte.t(Res.string.person_private))), marke = marke, anker = if (erste) "n$n" else null, einzug = if (erste) 0 else 1, abstandVor = erste))
         }
+        // Lebende fuers Veroeffentlichen: nur der Name, oder gar kein Name
+        if (o.lebende != Lebende.Voll && istLebend(p, o)) {
+            if (o.lebende == Lebende.NurName) reg.name(p, n)
+            val name = if (o.lebende == Lebende.NurName) Lauf(registerName(p), Stil.Fett, xref = x) else Lauf(Texte.t(Res.string.desk_book_living_person), Stil.Fett)
+            return listOf(Absatz(listOf(name, Lauf(" " + Texte.t(Res.string.desk_book_living_marker))), marke = marke, anker = if (erste) "n$n" else null, einzug = if (erste) 0 else 1, abstandVor = erste))
+        }
         val text = personText(p, det, o, n, reg)
         elternNr(x)?.let { en -> text.laeufe.add(1, Lauf(" <")); text.laeufe.add(2, Lauf("$en", ziel = "n$en")); text.laeufe.add(3, Lauf(">")) }
         return listOf(Absatz(text.laeufe, marke = marke, anker = if (erste) "n$n" else null, bild = if (o.bilder) p.thumb?.let { d.bilder[it] } else null,
@@ -194,6 +200,14 @@ fun familienbuch(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: Stri
             val laeufe = mutableListOf<Lauf>()
             laeufe += Lauf("${k + 1}. ", Stil.Fett)
             if (c.isPrivate) { laeufe += Lauf(Texte.t(Res.string.person_private)); bloecke += Absatz(laeufe, einzug = 2); return@forEachIndexed }
+            if (o.lebende != Lebende.Voll && istLebend(c, o)) {
+                if (o.lebende == Lebende.Weg) return@forEachIndexed
+                reg.name(c, n)
+                laeufe += Lauf("${c.vornamen.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett, xref = x)
+                laeufe += Lauf(" " + Texte.t(Res.string.desk_book_living_marker))
+                familienDesKindes.takeIf { it.isNotEmpty() }?.let { f -> laeufe += Lauf(" ["); f.forEachIndexed { j, fn -> if (j > 0) laeufe += Lauf(", "); laeufe += Lauf("$fn", ziel = "n$fn") }; laeufe += Lauf("]") }
+                bloecke += Absatz(laeufe, einzug = 2); return@forEachIndexed
+            }
             if (familienDesKindes.isNotEmpty()) {
                 reg.name(c, n)
                 laeufe += Lauf("${c.vornamen.ifBlank { c.name }} ${geschlechtZeichen(c)}", Stil.Fett, xref = x)
@@ -277,6 +291,7 @@ internal fun haeuserTeil(b: TreeExport, haeuser: List<Haus>, o: BuchOptionen, fa
             if (hier.isEmpty()) null else Triple(x, ind, hier)
         }.sortedBy { (_, _, hier) -> hier.mapNotNull { it.date?.jd?.takeIf { j -> j > 0 } }.minOrNull() ?: Int.MAX_VALUE }
             .forEach { (x, ind, hier) ->
+                if (o.lebende == Lebende.Weg && istLebend(ind.person, o)) return@forEach
                 val zeit = hier.firstOrNull { it.tag == "PROP" || it.tag == "RESI" }?.date ?: hier.firstNotNullOfOrNull { it.date }
                 val laeufe = mutableListOf<Lauf>()
                 buchDatum(zeit).takeIf(String::isNotBlank)?.let { laeufe += Lauf("$it  ") }
@@ -290,3 +305,111 @@ internal fun haeuserTeil(b: TreeExport, haeuser: List<Haus>, o: BuchOptionen, fa
 
 /** Jahr aus einem julianischen Tag (fuer die Jahrhundert-Ueberschriften). */
 private fun jdJahr(jd: Int): Int = LocalDate.of(2000, 1, 1).with(java.time.temporal.JulianFields.JULIAN_DAY, jd.toLong()).year
+
+
+/**
+ * Personenbericht (zweiter Aufbau des Familienbuchs): ein Eintrag je Person, alphabetisch, mit Eltern, Ehen und Kindern
+ * als Verweise auf deren Eintraege. Derselbe Ortsfilter, dieselben Lebenden-Regeln und derselbe Haeuserteil wie das
+ * Familienbuch; die Verzeichnisse zeigen auf Personennummern.
+ */
+fun personenbericht(d: FamilienDaten, o: BuchOptionen, baumTitel: String, app: String): Buch {
+    val b = d.baum
+    val filter = o.ortFilter.trim().lowercase()
+    val alleHaeuser = d.haeuser.map { it.name.lowercase() }.toSet()
+    fun ortPasst(ort: String): Boolean {
+        val teile = Ortsnamen.teile(ort).map { it.lowercase() }
+        return teile.firstOrNull()?.startsWith(filter) == true || (ort in alleHaeuser && teile.drop(1).any { it.startsWith(filter) })
+    }
+    fun orteVon(x: String): Set<String> = b.individuals[x]?.facts.orEmpty().mapNotNull { it.place?.name?.lowercase() }.toSet() +
+        b.individuals[x]?.fams.orEmpty().flatMap { b.families[it]?.facts.orEmpty() }.mapNotNull { it.place?.name?.lowercase() }
+    val personen = b.individuals.filter { (x, i) -> !i.person.isPrivate && (filter.isEmpty() || orteVon(x).any(::ortPasst)) }
+        .filter { (_, i) -> !(o.lebende == Lebende.Weg && istLebend(i.person, o)) }
+        .values.map { it.person }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { registerName(it) })
+    val nummer = personen.withIndex().associate { (i, p) -> p.xref to (i + 1).toLong() }
+    val reg = BuchRegister()
+    val imOrt = if (!o.haeuser) emptyList() else d.haeuser.filter { h -> filter.isEmpty() || Ortsnamen.teile(h.ort).any { it.lowercase().startsWith(filter) } }
+    val haeuser = imOrt.filter { h -> !o.haeuserNurTyp || h.klasse == OrtsKlasse.HAUS || (h.klasse == OrtsKlasse.UNBEKANNT && o.haeuserOhneTyp) }
+        .sortedWith(compareBy<Haus, String>(Ortsnamen.NATUERLICH) { it.eltern }.thenBy(Ortsnamen.NATUERLICH) { it.blatt })
+    val hausNr = haeuser.withIndex().associate { (i, h) -> h.name.lowercase() to i + 1 }
+
+    fun verweis(x: String?, mitName: Boolean = true): List<Lauf> {
+        val p = b.person(x) ?: return emptyList()
+        val n = nummer[p.xref]
+        val name = if (o.lebende == Lebende.Weg && istLebend(p, o)) Texte.t(Res.string.desk_book_living_person) else if (p.isPrivate) Texte.t(Res.string.person_private) else p.name
+        return buildList {
+            if (mitName) add(Lauf(name, xref = p.xref.takeIf { n != null }))
+            if (n != null) { add(Lauf(" [")); add(Lauf("$n", ziel = "n$n")); add(Lauf("]")) }
+        }
+    }
+    fun eintrag(p: Person): List<Block> {
+        val n = nummer.getValue(p.xref)
+        val x = p.xref
+        val bloecke = mutableListOf<Block>()
+        val det = b.detail(x)
+        val lebend = o.lebende != Lebende.Voll && istLebend(p, o)
+        if (det == null || lebend) {
+            reg.name(p, n)
+            bloecke += Absatz(listOf(Lauf(registerName(p), Stil.Fett, xref = x), Lauf(if (lebend) " " + Texte.t(Res.string.desk_book_living_marker) else "")), marke = "$n", anker = "n$n", abstandVor = true)
+            return bloecke
+        }
+        val text = personText(p, det, o, n, reg)
+        bloecke += Absatz(text.laeufe, marke = "$n", anker = "n$n", bild = if (o.bilder) p.thumb?.let { d.bilder[it] } else null, abstandVor = true)
+        // Eltern
+        val (vater, mutter) = b.parents(x)
+        if (vater != null || mutter != null) {
+            val l = mutableListOf(Lauf(Texte.t(Res.string.desk_book_parents) + " "))
+            l += verweis(vater?.xref); if (vater != null && mutter != null) l += Lauf(" ∞ "); l += verweis(mutter?.xref)
+            bloecke += Absatz(l, einzug = 1)
+        }
+        // Ehen mit Partner und Kindern
+        b.individuals[x]?.fams.orEmpty().mapNotNull { b.families[it] }.forEach { f ->
+            val partner = listOfNotNull(f.husband, f.wife).firstOrNull { it != x }
+            val ehe = f.facts.filter { it.tag in setOf("MARR", "MARB", "ENGA", "DIV") }.ifEmpty { f.marriage?.let { m -> listOf(FactJson(id = "", tag = "MARR", date = m.date, place = m.place)) }.orEmpty() }
+            val eheText = ehe.joinToString(", ") { e ->
+                val zeichen = when (e.tag) { "DIV" -> "⚮"; "ENGA" -> "⚬"; else -> "∞" }
+                listOf(zeichen, buchDatum(e.date), ortText(e.place?.name, o.orteKuerzen)).filter(String::isNotBlank).joinToString(" ")
+            }
+            val l = mutableListOf(Lauf(eheText.ifBlank { "∞" } + " "))
+            if (partner != null) { l += Lauf(Texte.t(Res.string.desk_book_with) + " "); l += verweis(partner) }
+            bloecke += Absatz(l, einzug = 1)
+            val kinder = f.children.mapNotNull { b.person(it) }.filter { !(o.lebende == Lebende.Weg && istLebend(it, o)) }
+            if (kinder.isNotEmpty()) {
+                val k = mutableListOf(Lauf(Texte.t(Res.string.desk_book_children) + " "))
+                kinder.forEachIndexed { i, c -> if (i > 0) k += Lauf(", "); k += verweis(c.xref) }
+                bloecke += Absatz(k, einzug = 1)
+            }
+        }
+        // Haus
+        val ihreHaeuser = b.individuals[x]?.facts.orEmpty().filter { it.tag == "RESI" || it.tag == "PROP" }.mapNotNull { it.place?.name?.lowercase() }.filter { it in hausNr }.distinct().sortedBy { hausNr.getValue(it) }
+        if (ihreHaeuser.isNotEmpty()) {
+            val l = mutableListOf(Lauf(Texte.t(Res.string.desk_book_house_ref) + ": "))
+            ihreHaeuser.forEachIndexed { j, h -> if (j > 0) l += Lauf(", "); l += Lauf(haeuser[hausNr.getValue(h) - 1].blatt + " (H${hausNr.getValue(h)})", ziel = "h${hausNr.getValue(h)}") }
+            bloecke += Absatz(l, einzug = 1)
+        }
+        bloecke += notizBloecke(text, o)
+        return bloecke
+    }
+
+    val ort = o.ortFilter.trim()
+    val titel = o.titel.ifBlank { Texte.t(Res.string.desk_book_title_persons, if (ort.isEmpty()) baumTitel else ort.replaceFirstChar { it.uppercase() }) }
+    val jahre = personen.mapNotNull { it.birth?.date?.year?.takeIf { y -> y > 0 } }
+    val bloecke = mutableListOf<Block>()
+    bloecke += Titelblatt(titel, if (jahre.isNotEmpty()) "${jahre.min()} – ${jahre.max()}" else "",
+        Texte.t(Res.string.desk_book_date, LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM))), null)
+    bloecke += Inhaltsverzeichnis
+    if (o.vorwort.isNotBlank()) {
+        bloecke += Ueberschrift(Texte.t(Res.string.desk_book_preface), "vorwort")
+        o.vorwort.split(Regex("\\n\\s*\\n")).forEach { bloecke += Absatz(listOf(Lauf(it.trim().replace('\n', ' ')))) }
+    }
+    bloecke += Ueberschrift(Texte.t(Res.string.desk_book_persons), "familien")
+    var gruppe = ""
+    personen.forEach { p ->
+        val g = registerName(p).firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+        if (g != gruppe) { gruppe = g; bloecke += Ueberschrift(g, "grp-${g.replace(Regex("[^A-Za-z0-9]"), "_")}", neueSeite = false) }
+        bloecke += eintrag(p)
+    }
+    val personVon: (String) -> Long? = { x -> nummer[x] }
+    if (haeuser.isNotEmpty()) bloecke += haeuserTeil(b, haeuser, o, personVon)
+    bloecke += reg.bloecke(o)
+    return Buch(titel, titel, bloecke, fusszeile(app, baumTitel))
+}
