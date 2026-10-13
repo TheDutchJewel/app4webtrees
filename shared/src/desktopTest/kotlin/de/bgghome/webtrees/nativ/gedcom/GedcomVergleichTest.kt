@@ -12,7 +12,8 @@ class GedcomVergleichTest {
 
     @Test
     fun staendeVergleichen() {
-        val text = falkenrath.readText()
+        // Unter Windows checkt Git die Datei mit CRLF aus, die Muster unten rechnen mit \n
+        val text = falkenrath.readText().replace("\r\n", "\n")
         val a = GedcomLeser.alsExport(GedcomLeser.zerlegen(text), jetzt = 2026)
         // B: I130 bekommt ein anderes Sterbedatum, I1 verschwindet, I9999 kommt dazu, I2 bekommt die Kennung I7777 und "Katharina" statt "Catharina"
         var t = text
