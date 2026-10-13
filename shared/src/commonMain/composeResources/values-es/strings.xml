@@ -1503,6 +1503,9 @@
     <string name="desk_archive_backup">Copia de seguridad del árbol y el archivo …</string>
     <string name="desk_archive_backup_running">Creando copia …</string>
     <string name="desk_archive_backup_done">Copia guardada: %1$s</string>
+    <string name="desk_file_gedcom">Guardar como GEDCOM …</string>
+    <string name="desk_file_gedcom_running">Exportando …</string>
+    <string name="desk_file_gedcom_done">GEDCOM guardado: %1$s</string>
     <string name="tipp_archive_free">Archivos de la carpeta de medios a los que nada del árbol hace referencia. Es intencionado: el archivo guarda más que el árbol.</string>
     <string name="desk_faces_window">Caras</string>
     <string name="desk_faces_menu">Caras …</string>

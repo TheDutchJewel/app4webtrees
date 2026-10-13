@@ -33,7 +33,7 @@ Le programme ne fait pas de sauvegarde automatique. Trois possibilités :
 
 - **Fichier › Sauvegarder l’arbre et les archives …** place la base de données et le dossier des médias, fonds libre compris, dans un fichier ZIP, même pendant que le programme tourne (voir [Archives](hilfe:archiv)).
 - wtWin étant fermé, copiez le dossier `app4webtrees`, p. ex. sur une clé USB. C'est la sauvegarde complète, photos comprises.
-- **Ouvrir webtrees dans le navigateur** et exporter l'arbre en GEDCOM dans le panneau de configuration. Cela sauvegarde les données, pas les images.
+- **Fichier › Enregistrer en GEDCOM …** écrit l'arbre dans un fichier GEDCOM, avec toutes les données, y compris les personnes vivantes. Un nom de fichier en `.gdz` donne un GEDZIP avec les images. C'est le chemin vers un autre programme, un livre de familles en ligne ou GEDBAS.
 
 ## Tout ce que propose webtrees
 

@@ -33,7 +33,7 @@ The program does not back up automatically. Three ways:
 
 - **File › Back up family tree and archive …** puts the database and the media folder, free holdings included, into one ZIP file, even while the program is running (see [Archive](hilfe:archiv)).
 - With wtWin closed, copy the folder `app4webtrees`, e.g. to a USB stick. That is the complete backup including photos.
-- **Open webtrees in browser** and export the tree as GEDCOM in the control panel. That saves the data, not the pictures.
+- **File › Save as GEDCOM …** writes the tree as a GEDCOM file, with all details including living people. A file name ending in `.gdz` gives a GEDZIP with the pictures. That is the way into another program, an online local heritage book or GEDBAS.
 
 ## Everything from webtrees
 

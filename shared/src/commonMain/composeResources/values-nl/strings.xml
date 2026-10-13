@@ -1484,6 +1484,9 @@
     <string name="desk_archive_backup">Stamboom en archief back-uppen …</string>
     <string name="desk_archive_backup_running">Back-up wordt gemaakt …</string>
     <string name="desk_archive_backup_done">Back-up opgeslagen: %1$s</string>
+    <string name="desk_file_gedcom">Opslaan als GEDCOM …</string>
+    <string name="desk_file_gedcom_running">Wordt geëxporteerd …</string>
+    <string name="desk_file_gedcom_done">GEDCOM opgeslagen: %1$s</string>
     <string name="tipp_archive_free">Bestanden in de mediamap waar niets in de stamboom naar verwijst. Dat is zo bedoeld: het archief bevat meer dan de stamboom.</string>
     <string name="desk_faces_window">Gezichten</string>
     <string name="desk_faces_menu">Gezichten …</string>

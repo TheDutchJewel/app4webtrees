@@ -130,6 +130,12 @@ class LokaleEinrichtungTest {
                     client.login(zugang.benutzer, zugang.passwort)
                     val leute = client.individuals(zugang.baum, "Falkenrath", 1).data
                     assertTrue(leute.size > 5, leute.toString())
+                    // Datei > Als GEDCOM speichern: webtrees' Export ueber die Verwalter-Sitzung, alle Personen, auch Lebende
+                    val ged2 = String(client.exportGedcom(zugang.baum), Charsets.UTF_8)
+                    assertTrue(ged2.startsWith("0 HEAD") && ged2.contains("\n0 @I1@ INDI") && "0 TRLR" in ged2, ged2.take(200))
+                    assertEquals(Regex("\n0 @I\\d+@ INDI").findAll(ged.readText()).count(), Regex("\n0 @I\\d+@ INDI").findAll(ged2).count())
+                    val gdz = client.exportGedcom(zugang.baum, gedzip = true)
+                    assertTrue(gdz.size > 4 && gdz[0] == 'P'.code.toByte() && gdz[1] == 'K'.code.toByte(), "kein ZIP: ${gdz.size} Bytes")
                 }
                 server.beenden()
                 val (s2, z2) = LokaleEinrichtung(php, zip, api).einrichten("zweiter", ged)

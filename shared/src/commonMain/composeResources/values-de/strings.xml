@@ -1503,6 +1503,9 @@
     <string name="desk_archive_backup">Stammbaum und Archiv sichern …</string>
     <string name="desk_archive_backup_running">Wird gesichert …</string>
     <string name="desk_archive_backup_done">Sicherung gespeichert: %1$s</string>
+    <string name="desk_file_gedcom">Als GEDCOM speichern …</string>
+    <string name="desk_file_gedcom_running">Wird exportiert …</string>
+    <string name="desk_file_gedcom_done">GEDCOM gespeichert: %1$s</string>
     <string name="tipp_archive_free">Dateien im Medienordner, auf die im Stammbaum nichts zeigt. Das ist so gewollt: Das Archiv hält mehr als der Baum.</string>
     <string name="desk_faces_window">Gesichter</string>
     <string name="desk_faces_menu">Gesichter …</string>

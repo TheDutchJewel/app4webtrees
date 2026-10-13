@@ -33,7 +33,7 @@ Das Programm sichert nicht automatisch. Drei Wege:
 
 - **Datei › Stammbaum und Archiv sichern …** legt Datenbank und Medienordner samt freiem Bestand in eine ZIP-Datei, auch bei laufendem Programm (siehe [Archiv](hilfe:archiv)).
 - Bei geschlossenem wtWin den Ordner `app4webtrees` kopieren, etwa auf einen USB-Stick. Das ist die vollständige Sicherung samt Fotos.
-- **webtrees im Browser öffnen**, dort in der Verwaltung den Stammbaum als GEDCOM exportieren. Das sichert die Daten, nicht die Bilder.
+- **Datei › Als GEDCOM speichern …** schreibt den Stammbaum als GEDCOM-Datei, mit allen Angaben auch zu Lebenden. Endet der Dateiname auf `.gdz`, entsteht ein GEDZIP mit den Bildern. So geht der Baum in ein anderes Programm, ins Online-OFB oder nach GEDBAS.
 
 ## Alles aus webtrees
 

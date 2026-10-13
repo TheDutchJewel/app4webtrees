@@ -33,7 +33,7 @@ El programa no hace copias de seguridad automáticas. Hay tres maneras:
 
 - **Archivo › Copia de seguridad del árbol y el archivo …** guarda la base de datos y la carpeta de medios, incluido el fondo libre, en un archivo ZIP, incluso con el programa abierto (véase [Archivo](hilfe:archiv)).
 - Con wtWin cerrado, copie la carpeta `app4webtrees`, p. ej. a una memoria USB. Es la copia de seguridad completa, fotos incluidas.
-- **Abrir webtrees en el navegador** y exportar el árbol como GEDCOM en el panel de control. Así se guardan los datos, no las imágenes.
+- **Archivo › Guardar como GEDCOM …** escribe el árbol como archivo GEDCOM, con todos los datos, también de personas vivas. Un nombre de archivo en `.gdz` produce un GEDZIP con las imágenes. Así pasa el árbol a otro programa, a un libro de familias en línea o a GEDBAS.
 
 ## Todo lo de webtrees
 

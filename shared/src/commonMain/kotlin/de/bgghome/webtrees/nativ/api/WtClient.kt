@@ -590,6 +590,31 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
     }
 
     /**
+     * GEDCOM-Export ueber webtrees' eigene Seite (Verwaltung > Stammbaum > Exportieren), nicht ueber das Modul: alles,
+     * was die angemeldete Person sehen darf, als GEDCOM 5.5.1 in UTF-8 - oder als GEDZIP mit den Bildern. Nur fuer
+     * Verwalter des Baums; im Stammbaum auf diesem PC ist das immer der Fall. [privacy]: none (alles), gedadmin, user, visitor.
+     */
+    suspend fun exportGedcom(tree: String, gedzip: Boolean = false, privacy: String = "none"): ByteArray {
+        if (csrf.isEmpty()) info()
+        val form = FormBody.Builder()
+            .add("_csrf", csrf)
+            .add("filename", tree)
+            .add("format", if (gedzip) "gedzip" else "gedcom")
+            .add("privacy", privacy)
+            .add("encoding", "UTF-8")
+            .add("line_endings", "LF")
+            .build()
+        return withContext(Dispatchers.IO) {
+            http.newCall(Request.Builder().url(url("/tree/$tree/export-client", emptyMap())).header("X-CSRF-TOKEN", csrf).post(form).build()).execute().use { r ->
+                val type = r.header("Content-Type").orEmpty()
+                // Eine HTML-Antwort ist die Anmelde- oder Fehlerseite (fehlendes Recht), kein GEDCOM
+                if (!r.isSuccessful || type.contains("html")) throw IOException("export failed: HTTP ${r.code}")
+                r.body?.bytes() ?: ByteArray(0)
+            }
+        }
+    }
+
+    /**
      * Koppeln: den Einmal-Code von der Seite "App" in webtrees einloesen. Danach ist diese Sitzung angemeldet,
      * ohne dass die App je ein Passwort gesehen hat.
      */

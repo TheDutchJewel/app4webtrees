@@ -1503,6 +1503,9 @@
     <string name="desk_archive_backup">Sauvegarder l’arbre et les archives …</string>
     <string name="desk_archive_backup_running">Sauvegarde en cours …</string>
     <string name="desk_archive_backup_done">Sauvegarde enregistrée : %1$s</string>
+    <string name="desk_file_gedcom">Enregistrer en GEDCOM …</string>
+    <string name="desk_file_gedcom_running">Export en cours …</string>
+    <string name="desk_file_gedcom_done">GEDCOM enregistré : %1$s</string>
     <string name="tipp_archive_free">Fichiers du dossier des médias vers lesquels rien ne pointe dans l’arbre. C’est voulu : les archives contiennent plus que l’arbre.</string>
     <string name="desk_faces_window">Visages</string>
     <string name="desk_faces_menu">Visages …</string>

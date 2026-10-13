@@ -1508,6 +1508,9 @@
     <string name="desk_archive_backup">Back up family tree and archive …</string>
     <string name="desk_archive_backup_running">Backing up …</string>
     <string name="desk_archive_backup_done">Backup saved: %1$s</string>
+    <string name="desk_file_gedcom">Save as GEDCOM …</string>
+    <string name="desk_file_gedcom_running">Exporting …</string>
+    <string name="desk_file_gedcom_done">GEDCOM saved: %1$s</string>
     <string name="tipp_archive_free">Files in the media folder that nothing in the family tree points to. That is intended: the archive keeps more than the tree.</string>
     <string name="desk_faces_window">Faces</string>
     <string name="desk_faces_menu">Faces …</string>

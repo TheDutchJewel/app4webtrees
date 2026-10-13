@@ -170,6 +170,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     val archivDa = state.archiveStatus == de.bgghome.webtrees.nativ.ui.ArchiveStatus.Ready && state.archive != null
     // Stammbaum und Archiv sichern (nur Stammbaum auf diesem PC): laufende Sicherung und Meldung
     var sicherung by remember { mutableStateOf(false) }
+    var gedcomSpeichern by remember { mutableStateOf(false) }
     // Werkzeuge (Menue Extras)
     var datumsrechner by remember { mutableStateOf(false) }
     var kirchenjahr by remember { mutableStateOf(false) }
@@ -234,6 +235,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onLokaleBaeume = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ lokaleBaeume = true }) else null,
         onArchiv = if (archivDa) ({ archiv = true }) else null,
         onSichern = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ sicherung = true }) else null,
+        onGedcom = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ gedcomSpeichern = true }) else null,
         onDatumsrechner = { datumsrechner = true }, onKirchenjahr = { kirchenjahr = true },
     )
 
@@ -410,6 +412,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         if (aenderungen && state.tree != null) AenderungenFenster(state, viewModel, openSheet, onClose = { aenderungen = false })
         if (archiv && archivDa) ArchivFenster(state, viewModel, openWeb, onClose = { archiv = false })
         if (sicherung) SicherungDialog(onClose = { sicherung = false })
+        if (gedcomSpeichern) state.tree?.name?.let { GedcomSpeichernDialog(viewModel, it, onClose = { gedcomSpeichern = false }) }
         if (datumsrechner) DatumsrechnerFenster(onClose = { datumsrechner = false })
         if (kirchenjahr) KirchenjahrFenster(onClose = { kirchenjahr = false })
         aufgabeNeu?.let { z -> state.tree?.let { t -> AufgabeDialog(z, viewModel, t.name, onClose = { ok -> aufgabeNeu = null; if (ok) viewModel.setRoot(z.xref, remember = false) }) } }
@@ -447,6 +450,7 @@ private fun FrameWindowScope.DeskMenuBar(
     onLokaleBaeume: (() -> Unit)? = null,
     onArchiv: (() -> Unit)? = null,
     onSichern: (() -> Unit)? = null,
+    onGedcom: (() -> Unit)? = null,
     onDatumsrechner: () -> Unit = {},
     onKirchenjahr: () -> Unit = {},
 ) {
@@ -459,6 +463,7 @@ private fun FrameWindowScope.DeskMenuBar(
                 if (main && (state.info?.trees?.size ?: 0) > 1) Item(stringResource(Res.string.menu_switch_tree), onClick = viewModel::showTreePicker)
                 if (main && onLokaleBaeume != null) Item(stringResource(Res.string.lokal_trees_menu), onClick = onLokaleBaeume)
                 if (main && onSichern != null) Item(stringResource(Res.string.desk_archive_backup), onClick = onSichern)
+                if (main && onGedcom != null) Item(stringResource(Res.string.desk_file_gedcom), onClick = onGedcom)
                 Item(stringResource(Res.string.action_reload), enabled = main, shortcut = KeyShortcut(Key.F5), onClick = viewModel::refresh)
                 Item(stringResource(Res.string.desk_open_browser), enabled = state.baseUrl.isNotEmpty(), onClick = { openWeb(state.detail?.person?.url ?: state.baseUrl) })
                 Separator()

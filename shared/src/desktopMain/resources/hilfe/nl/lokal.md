@@ -33,7 +33,7 @@ Het programma maakt niet automatisch een back-up. Drie manieren:
 
 - **Bestand › Stamboom en archief back-uppen …** zet de database en de mediamap, inclusief het vrije bestand, in één zip-bestand, ook terwijl het programma draait (zie [Archief](hilfe:archiv)).
 - Kopieer, terwijl wtWin gesloten is, de map `app4webtrees`, bijv. naar een USB-stick. Dat is de volledige back-up inclusief foto's.
-- **webtrees in de browser openen** en de stamboom in het configuratiescherm als GEDCOM exporteren. Dat bewaart de gegevens, niet de afbeeldingen.
+- **Bestand › Opslaan als GEDCOM …** schrijft de stamboom als GEDCOM-bestand, met alle gegevens, ook van levenden. Een bestandsnaam op `.gdz` geeft een GEDZIP met de afbeeldingen. Zo gaat de boom naar een ander programma, een online familieboek of GEDBAS.
 
 ## Alles van webtrees
 

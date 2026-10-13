@@ -920,4 +920,41 @@ internal fun SicherungDialog(onClose: () -> Unit) {
     )
 }
 
+/**
+ * Datei > Als GEDCOM speichern (nur Stammbaum auf diesem PC): webtrees' Export ueber die angemeldete Verwalter-Sitzung,
+ * ohne Browser. Endet der Dateiname auf .gdz, entsteht ein GEDZIP mit den Bildern.
+ */
+@Composable
+internal fun GedcomSpeichernDialog(viewModel: de.bgghome.webtrees.nativ.ui.AppViewModel, tree: String, onClose: () -> Unit) {
+    var ziel by remember { mutableStateOf<File?>(null) }
+    var ergebnis by remember { mutableStateOf<Result<File>?>(null) }
+    LaunchedEffect(Unit) {
+        val dialog = FileDialog(null as Frame?, de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_file_gedcom), FileDialog.SAVE).apply {
+            file = "$tree.ged"
+            isVisible = true
+        }
+        val name = dialog.file ?: run { onClose(); return@LaunchedEffect }
+        val gedzip = name.endsWith(".gdz", ignoreCase = true)
+        val f = File(dialog.directory, if (gedzip || name.endsWith(".ged", ignoreCase = true)) name else "$name.ged")
+        ziel = f
+        ergebnis = withContext(Dispatchers.IO) { runCatching { f.writeBytes(viewModel.client.exportGedcom(tree, gedzip)); f } }
+    }
+    if (ziel == null) return
+    WtAlertDialog(
+        onDismissRequest = { if (ergebnis != null) onClose() },
+        title = { Text(stringResource(Res.string.desk_file_gedcom).removeSuffix(" …")) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                val e = ergebnis
+                when {
+                    e == null -> { Text(stringResource(Res.string.desk_file_gedcom_running)); LinearProgressIndicator(Modifier.fillMaxWidth()) }
+                    e.isSuccess -> Text(stringResource(Res.string.desk_file_gedcom_done, e.getOrThrow().absolutePath))
+                    else -> Text(explainOf(e.exceptionOrNull()!!), color = MaterialTheme.colorScheme.error)
+                }
+            }
+        },
+        confirmButton = { if (ergebnis != null) TextButton(onClick = onClose) { Text(stringResource(Res.string.action_close)) } },
+    )
+}
+
 private fun explainOf(e: Throwable): String = (e as? Exception)?.let { de.bgghome.webtrees.nativ.ui.explain(it) } ?: (e.message ?: "?")
