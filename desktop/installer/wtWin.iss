@@ -26,7 +26,11 @@ AppPublisherURL=https://wtwin.bgg-home.de/
 AppSupportURL=https://github.com/thobgg/app4webtrees/issues
 AppUpdatesURL=https://github.com/thobgg/app4webtrees/releases/latest
 VersionInfoVersion={#Version}
+VersionInfoProductName=wtWin
+VersionInfoProductVersion={#Version}
+VersionInfoCompany=bgg-home.de
 VersionInfoDescription=wtWin - client for webtrees (app4webtrees)
+; Signatur (SignPath Foundation) setzt der GitHub-Workflow nach dem Bau auf die fertige exe; Inno Setup selbst signiert nichts.
 ; Pro Benutzer, ohne Adminrechte - wie der bisherige MSI. {autopf} ist dann %LOCALAPPDATA%\Programs.
 PrivilegesRequired=lowest
 DefaultDirName={autopf}\wtWin

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SignPath-Artefakt-Konfiguration "wtwin-installer": der fertige Inno-Setup-Installer. Der Workflow legt ihn unter dem
+     festen Namen wtWin-Setup.exe ab (die Versionsnummer steckt im VersionInfo) und benennt ihn nach der Signierung zurueck.
+     Die wtWin.exe darin ist bereits signiert (Konfiguration wtwin-exe); die mitgelieferten Fremdteile (Java-Laufzeit, PHP,
+     webtrees) bleiben unsigniert. Kopie der Konfiguration bei SignPath; Aenderungen dort und hier gleich halten. -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="wtWin-Setup.exe">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

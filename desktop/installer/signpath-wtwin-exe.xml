@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SignPath-Artefakt-Konfiguration "wtwin-exe": die Programmdatei aus :desktop:createDistributable, hochgeladen als
+     GitHub-Artefakt (actions/upload-artifact packt sie in ein Zip). Kopie der Konfiguration bei SignPath; Aenderungen dort
+     und hier gleich halten. Referenz: https://docs.signpath.io/artifact-configuration/syntax -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="wtWin.exe">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>
