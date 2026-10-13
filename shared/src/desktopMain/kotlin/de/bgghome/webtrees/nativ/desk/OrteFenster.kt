@@ -296,7 +296,7 @@ internal fun OrteInhalt(
     }
 }
 
-private enum class OrtReiter(val titel: StringResource) {
+internal enum class OrtReiter(val titel: StringResource) {
     Daten(Res.string.desk_place_tab_data), Personen(Res.string.desk_place_tab_people), Geschichte(Res.string.desk_place_tab_history),
     Notizen(Res.string.desk_tab_notes), Quellen(Res.string.desk_sources_window), Medien(Res.string.tab_media), Koordinaten(Res.string.desk_place_tab_coords),
 }
