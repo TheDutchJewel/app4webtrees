@@ -38,6 +38,9 @@ val commitZahl: String = runCatching {
         .standardOutput.asText.get().trim().takeIf { it.toIntOrNull() != null }
 }.getOrNull() ?: desktopBuild
 val windowsVersion = if (versionName.count { it == '.' } == 1) "$versionName.$commitZahl" else versionName
+// macOS laesst keine Hauptnummer 0 zu ("The first number in an app-version cannot be zero"): solange gedaudit 0.x heisst,
+// traegt das Bundle 1.0.<Commits>; Dateiname (Workflow) und "Ueber" zeigen weiter 0.x.<Commits>.
+val macVersion = if (versionName.startsWith("0.")) "1.0.$commitZahl" else windowsVersion
 val osName = System.getProperty("os.name").orEmpty()
 
 compose.desktop {
@@ -72,8 +75,8 @@ compose.desktop {
             macOS {
                 // NIE aendern: macOS erkennt das Programm an dieser Kennung.
                 bundleID = "de.bgghome.gedaudit"
-                packageVersion = windowsVersion
-                dmgPackageVersion = windowsVersion
+                packageVersion = macVersion
+                dmgPackageVersion = macVersion
                 appCategory = "public.app-category.productivity"
                 iconFile.set(project.file("icons/app.icns"))
             }
