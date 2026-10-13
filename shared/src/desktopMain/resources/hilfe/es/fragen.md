@@ -25,6 +25,10 @@ Una dirección `http://` solo se acepta en la red doméstica (direcciones privad
 
 Para Android existe **wtAnd**, de la misma familia y con los mismos datos: árbol, fotos, edición, aniversarios. Un código QR en la página **App** de webtrees conecta el móvil sin escribir nada. wtAnd necesita un servidor; el árbol genealógico en este PC solo es accesible en el PC.
 
+## Comprobación de actualizaciones
+
+Una vez al día, al iniciar, el programa pide a `wtwin.bgg-home.de` el número de versión actual: un pequeño archivo de texto, nada más. No se envía nada salvo esa petición: ni árbol, ni identificador, ni uso. Si hay una versión más reciente, la barra de estado muestra «La versión 1.52 está disponible – Descargar»; un clic abre la página de descarga, × omite esa versión. Sin red no pasa nada. Desactivar: **Ayuda › Buscar actualizaciones**; comprobar a mano: **Ayuda › Buscar actualizaciones ahora …**. Una actualización solo se instala encima; ajustes, sesión y el árbol en este PC se mantienen.
+
 ## Licencia
 
 wtWin se distribuye bajo la licencia GPL-3, como webtrees. El árbol genealógico en este PC contiene webtrees sin cambios respecto a la versión oficial (webtrees.net).

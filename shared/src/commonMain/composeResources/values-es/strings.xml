@@ -1506,6 +1506,14 @@
     <string name="desk_file_gedcom">Guardar como GEDCOM …</string>
     <string name="desk_file_gedcom_running">Exportando …</string>
     <string name="desk_file_gedcom_done">GEDCOM guardado: %1$s</string>
+    <string name="desk_update_check">Buscar actualizaciones</string>
+    <string name="desk_update_now">Buscar actualizaciones ahora …</string>
+    <string name="desk_update_available">La versión %1$s está disponible</string>
+    <string name="desk_update_download">Descargar</string>
+    <string name="desk_update_latest">Tienes la versión más reciente (%1$s).</string>
+    <string name="desk_update_failed">No se pudo comprobar: sin red o el sitio no responde.</string>
+    <string name="desk_update_skip">Omitir esta versión</string>
+    <string name="desk_update_tip">Una vez al día el programa pide a wtwin.bgg-home.de el número de versión actual, nada más. Se desactiva en Ayuda › Buscar actualizaciones.</string>
     <string name="desk_places_addresses_banner">%1$d direcciones en %2$d eventos pueden convertirse en lugares propios</string>
     <string name="desk_places_addresses_button">Direcciones a casas …</string>
     <string name="tipp_places_addresses">Muchos programas guardan la granja como dirección de la residencia. Aquí la dirección se convierte en un lugar propio con registro de lugar bajo el lugar actual, como lo necesitan el libro de casas y la lista de granjas.</string>

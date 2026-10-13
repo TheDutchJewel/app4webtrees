@@ -1506,6 +1506,14 @@
     <string name="desk_file_gedcom">Enregistrer en GEDCOM …</string>
     <string name="desk_file_gedcom_running">Export en cours …</string>
     <string name="desk_file_gedcom_done">GEDCOM enregistré : %1$s</string>
+    <string name="desk_update_check">Rechercher des mises à jour</string>
+    <string name="desk_update_now">Rechercher des mises à jour maintenant …</string>
+    <string name="desk_update_available">La version %1$s est disponible</string>
+    <string name="desk_update_download">Télécharger</string>
+    <string name="desk_update_latest">Vous avez la dernière version (%1$s).</string>
+    <string name="desk_update_failed">Vérification impossible – pas de réseau ou le site ne répond pas.</string>
+    <string name="desk_update_skip">Ignorer cette version</string>
+    <string name="desk_update_tip">Une fois par jour, le programme demande à wtwin.bgg-home.de le numéro de version actuel, rien d’autre. Désactivable sous Aide › Rechercher des mises à jour.</string>
     <string name="desk_places_addresses_banner">%1$d adresses à %2$d événements peuvent devenir des lieux à part entière</string>
     <string name="desk_places_addresses_button">Adresses en maisons …</string>
     <string name="tipp_places_addresses">Beaucoup de programmes gardent la ferme comme adresse du domicile. Ici l’adresse devient un lieu à part entière avec fiche de lieu sous le lieu actuel – comme le livre des maisons et la liste des fermes en ont besoin.</string>

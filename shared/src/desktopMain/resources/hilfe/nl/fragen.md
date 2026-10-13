@@ -25,6 +25,10 @@ Een `http://`-adres wordt alleen in het thuisnetwerk geaccepteerd (privéadresse
 
 Voor Android is er **wtAnd**, uit dezelfde familie met dezelfde gegevens: stamboom, foto's, bewerken, gedenkdagen. Een QR-code op de webtrees-pagina **App** verbindt de telefoon zonder typen. wtAnd heeft een server nodig; de stamboom op deze pc is alleen op de pc bereikbaar.
 
+## Updatecontrole
+
+Eén keer per dag, bij het starten, vraagt het programma bij `wtwin.bgg-home.de` het huidige versienummer op – een klein tekstbestand, verder niets. Er wordt niets verzonden behalve die aanvraag: geen stamboom, geen kenmerk, geen gebruik. Is er een nieuwere versie, dan staat in de statusbalk „Versie 1.52 is beschikbaar – Downloaden”; klikken opent de downloadpagina, × slaat deze versie over. Zonder netwerk gebeurt er niets. Uitschakelen: **Help › Op updates controleren**; handmatig controleren: **Help › Nu op updates controleren …**. Een update is alleen eroverheen installeren; instellingen, aanmelding en de stamboom op deze pc blijven.
+
 ## Licentie
 
 wtWin valt onder de GPL-3, net als webtrees. De stamboom op deze pc bevat webtrees ongewijzigd ten opzichte van de officiële uitgave (webtrees.net).

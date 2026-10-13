@@ -25,6 +25,10 @@ An `http://` address is accepted only on the home network (private addresses lik
 
 For Android there is **wtAnd**, the same family with the same data: tree, photos, editing, anniversaries. A QR code on the webtrees **App** page connects the phone without typing. wtAnd needs a server; the family tree on this PC is reachable only on the PC.
 
+## Update check
+
+Once a day, at start, the program asks `wtwin.bgg-home.de` for the current version number – a small text file, nothing else. Nothing is sent except that request: no family tree, no identifier, no usage. If a newer version exists, the status bar shows “Version 1.52 is available – Download”; a click opens the download page, × skips this version. Without network nothing happens. Switch off: **Help › Check for updates**; check by hand: **Help › Check for updates now …**. An update is only installing over the old one; settings, login and the tree on this PC stay.
+
 ## Licence
 
 wtWin is licensed under the GPL-3, like webtrees. The family tree on this PC contains webtrees unchanged from the official release (webtrees.net).

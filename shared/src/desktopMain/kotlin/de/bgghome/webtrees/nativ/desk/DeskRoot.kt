@@ -87,6 +87,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -171,6 +172,10 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     // Stammbaum und Archiv sichern (nur Stammbaum auf diesem PC): laufende Sicherung und Meldung
     var sicherung by remember { mutableStateOf(false) }
     var gedcomSpeichern by remember { mutableStateOf(false) }
+    // Update-Pruefung (UpdatePruefung.kt): einmal am Tag beim Start, von Hand ueber Hilfe > Jetzt nach Updates suchen
+    var updateErgebnis by remember { mutableStateOf<UpdatePruefung.Ergebnis?>(null) }
+    val updateScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) { UpdatePruefung.beimStart(updateScope, viewModel.versionName, viewModel.client.userAgent) }
     // Werkzeuge (Menue Extras)
     var datumsrechner by remember { mutableStateOf(false) }
     var kirchenjahr by remember { mutableStateOf(false) }
@@ -236,6 +241,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onArchiv = if (archivDa) ({ archiv = true }) else null,
         onSichern = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ sicherung = true }) else null,
         onGedcom = if (LokalBetrieb.istLokal(state.baseUrl) && LokalBetrieb.verfuegbar) ({ gedcomSpeichern = true }) else null,
+        onUpdate = { updateScope.launch { updateErgebnis = UpdatePruefung.jetzt(viewModel.versionName, viewModel.client.userAgent) } },
         onDatumsrechner = { datumsrechner = true }, onKirchenjahr = { kirchenjahr = true },
     )
 
@@ -422,6 +428,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         zusammenPaar?.let { p -> state.tree?.let { t -> ZusammenfuehrenDialog(p, viewModel, t.name, onClose = { geaendert -> zusammenPaar = null; if (geaendert) viewModel.refresh() }) } }
 
         if (about) UeberDialog(state, viewModel, appName, onClose = { about = false })
+        updateErgebnis?.let { e -> UpdateDialog(e, viewModel.versionName, onClose = { updateErgebnis = null }) }
         if (lokaleBaeume) LokaleBaeumeDialog(state, viewModel, onClose = { lokaleBaeume = false })
         if (Entwuerfe.beendenAnfrage) UngespeichertDialog(viewModel, onWeiter = { Entwuerfe.beendenAnfrage = false; onQuit() }, onAbbrechen = { Entwuerfe.beendenAnfrage = false })
     }
@@ -451,6 +458,7 @@ private fun FrameWindowScope.DeskMenuBar(
     onArchiv: (() -> Unit)? = null,
     onSichern: (() -> Unit)? = null,
     onGedcom: (() -> Unit)? = null,
+    onUpdate: () -> Unit = {},
     onDatumsrechner: () -> Unit = {},
     onKirchenjahr: () -> Unit = {},
 ) {
@@ -597,6 +605,10 @@ private fun FrameWindowScope.DeskMenuBar(
             }
             Menu(stringResource(Res.string.desk_menu_help)) {
                 Item(stringResource(Res.string.desk_help), shortcut = KeyShortcut(Key.F1), onClick = onHilfe)
+                Separator()
+                CheckboxItem(stringResource(Res.string.desk_update_check), checked = UpdatePruefung.aktiv.value, onCheckedChange = { UpdatePruefung.setzen(it) })
+                Item(stringResource(Res.string.desk_update_now), onClick = onUpdate)
+                Separator()
                 Item(stringResource(Res.string.desk_about, LocalAppName.current), onClick = onAbout)
             }
         }
@@ -1207,9 +1219,35 @@ private fun StatusBar(state: UiState, version: String, appName: String) {
     Surface(color = MaterialTheme.colorScheme.surface) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(parts.joinToString("  ·  "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1)
+            // Neuere Version (UpdatePruefung): eine Zeile, Klick oeffnet die Download-Seite, x ueberspringt diese Version
+            UpdatePruefung.neueVersion.value?.let { v ->
+                Tipp(stringResource(Res.string.desk_update_tip)) {
+                    Text(stringResource(Res.string.desk_update_available, v) + " – " + stringResource(Res.string.desk_update_download),
+                        Modifier.clickable { openBrowser(UpdatePruefung.seite) }.padding(end = 8.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+                }
+                Tipp(stringResource(Res.string.desk_update_skip)) {
+                    Text("×", Modifier.clickable { UpdatePruefung.ueberspringen(v) }.padding(end = 12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
             Text("$appName $version", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
+}
+
+/** Ergebnis von Hilfe > Jetzt nach Updates suchen. */
+@Composable
+private fun UpdateDialog(e: UpdatePruefung.Ergebnis, eigene: String, onClose: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onClose,
+        title = { Text(stringResource(Res.string.desk_update_now).removeSuffix(" …")) },
+        text = { Text(when (e) {
+            is UpdatePruefung.Ergebnis.Neuer -> stringResource(Res.string.desk_update_available, e.version)
+            UpdatePruefung.Ergebnis.Aktuell -> stringResource(Res.string.desk_update_latest, eigene)
+            UpdatePruefung.Ergebnis.Fehler -> stringResource(Res.string.desk_update_failed)
+        }) },
+        confirmButton = { if (e is UpdatePruefung.Ergebnis.Neuer) TextButton(onClick = { openBrowser(UpdatePruefung.seite); onClose() }) { Text(stringResource(Res.string.desk_update_download)) } },
+        dismissButton = { TextButton(onClick = onClose) { Text(stringResource(Res.string.action_close)) } },
+    )
 }
 
 @Composable

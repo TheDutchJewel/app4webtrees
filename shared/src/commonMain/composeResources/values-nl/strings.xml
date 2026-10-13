@@ -1487,6 +1487,14 @@
     <string name="desk_file_gedcom">Opslaan als GEDCOM …</string>
     <string name="desk_file_gedcom_running">Wordt geëxporteerd …</string>
     <string name="desk_file_gedcom_done">GEDCOM opgeslagen: %1$s</string>
+    <string name="desk_update_check">Op updates controleren</string>
+    <string name="desk_update_now">Nu op updates controleren …</string>
+    <string name="desk_update_available">Versie %1$s is beschikbaar</string>
+    <string name="desk_update_download">Downloaden</string>
+    <string name="desk_update_latest">U hebt de nieuwste versie (%1$s).</string>
+    <string name="desk_update_failed">Controle niet mogelijk – geen netwerk of de site antwoordt niet.</string>
+    <string name="desk_update_skip">Deze versie overslaan</string>
+    <string name="desk_update_tip">Eén keer per dag vraagt het programma bij wtwin.bgg-home.de het huidige versienummer op, verder niets. Uit te schakelen onder Help › Op updates controleren.</string>
     <string name="desk_places_addresses_banner">%1$d adressen bij %2$d gebeurtenissen kunnen eigen plaatsen worden</string>
     <string name="desk_places_addresses_button">Adressen naar huizen …</string>
     <string name="tipp_places_addresses">Veel programma’s houden de boerderij als adres bij de woonplaats. Hier wordt het adres een eigen plaats met locatierecord onder de huidige plaats – zoals huizenboek en boerderijenlijst het nodig hebben.</string>

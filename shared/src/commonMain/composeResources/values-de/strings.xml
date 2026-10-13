@@ -1506,6 +1506,14 @@
     <string name="desk_file_gedcom">Als GEDCOM speichern …</string>
     <string name="desk_file_gedcom_running">Wird exportiert …</string>
     <string name="desk_file_gedcom_done">GEDCOM gespeichert: %1$s</string>
+    <string name="desk_update_check">Nach Updates suchen</string>
+    <string name="desk_update_now">Jetzt nach Updates suchen …</string>
+    <string name="desk_update_available">Version %1$s ist verfügbar</string>
+    <string name="desk_update_download">Herunterladen</string>
+    <string name="desk_update_latest">Du hast die neueste Version (%1$s).</string>
+    <string name="desk_update_failed">Prüfung nicht möglich – kein Netz oder die Seite antwortet nicht.</string>
+    <string name="desk_update_skip">Diese Version überspringen</string>
+    <string name="desk_update_tip">Einmal am Tag fragt das Programm bei wtwin.bgg-home.de nach der aktuellen Versionsnummer, sonst nichts. Abschaltbar unter Hilfe › Nach Updates suchen.</string>
     <string name="desk_places_addresses_banner">%1$d Adressen an %2$d Ereignissen können eigene Orte werden</string>
     <string name="desk_places_addresses_button">Adressen zu Häusern …</string>
     <string name="tipp_places_addresses">Viele Programme führen den Hof als Adresse unter dem Wohnort. Hier wird die Adresse ein eigener Ort mit Ortsdatensatz unter dem bisherigen – so, wie Häuserbuch und Höfeliste es brauchen.</string>

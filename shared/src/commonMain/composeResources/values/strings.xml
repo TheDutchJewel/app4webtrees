@@ -1511,6 +1511,14 @@
     <string name="desk_file_gedcom">Save as GEDCOM …</string>
     <string name="desk_file_gedcom_running">Exporting …</string>
     <string name="desk_file_gedcom_done">GEDCOM saved: %1$s</string>
+    <string name="desk_update_check">Check for updates</string>
+    <string name="desk_update_now">Check for updates now …</string>
+    <string name="desk_update_available">Version %1$s is available</string>
+    <string name="desk_update_download">Download</string>
+    <string name="desk_update_latest">You have the latest version (%1$s).</string>
+    <string name="desk_update_failed">Check not possible – no network or the site does not answer.</string>
+    <string name="desk_update_skip">Skip this version</string>
+    <string name="desk_update_tip">Once a day the program asks wtwin.bgg-home.de for the current version number, nothing else. Switch it off under Help › Check for updates.</string>
     <string name="desk_places_addresses_banner">%1$d addresses at %2$d events can become places of their own</string>
     <string name="desk_places_addresses_button">Addresses to houses …</string>
     <string name="tipp_places_addresses">Many programs keep the farm as the address of a residence. Here the address becomes a place of its own with a location record under the previous place – as house books and farm lists need it.</string>

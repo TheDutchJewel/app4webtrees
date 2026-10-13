@@ -25,6 +25,10 @@ Eine `http://`-Adresse nimmt das Programm nur im Heimnetz an (private Adressen w
 
 Für Android gibt es **wtAnd**, dieselbe Familie mit denselben Daten: Stammbaum, Fotos, Bearbeiten, Jahrestage. Ein QR-Code auf der webtrees-Seite **App** verbindet das Handy ohne Tippen. wtAnd braucht einen Server; der Stammbaum auf dem PC ist nur am PC erreichbar.
 
+## Update-Prüfung
+
+Einmal am Tag fragt das Programm beim Start bei `wtwin.bgg-home.de` nach der aktuellen Versionsnummer – eine kleine Textdatei, sonst nichts. Es wird nichts gesendet außer dieser Anfrage: kein Stammbaum, keine Kennung, keine Nutzung. Gibt es eine neuere Version, steht unten in der Statuszeile „Version 1.52 ist verfügbar – Herunterladen“; Klick öffnet die Download-Seite, × überspringt diese Version. Ohne Netz passiert still nichts. Abschalten: **Hilfe › Nach Updates suchen**; von Hand prüfen: **Hilfe › Jetzt nach Updates suchen …**. Ein Update ist immer nur Drüberinstallieren, Einstellungen, Anmeldung und der Stammbaum auf diesem PC bleiben.
+
 ## Lizenz
 
 wtWin steht unter der GPL-3, wie webtrees. Der Stammbaum auf dem PC enthält webtrees unverändert aus dem offiziellen Release (webtrees.net).
