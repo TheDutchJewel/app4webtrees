@@ -1,6 +1,18 @@
 package de.bgghome.webtrees.nativ.desk
 
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import de.bgghome.webtrees.nativ.api.IndividualDetail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -92,6 +104,20 @@ object GedauditAblage {
     fun zuletzt(): List<File> = prefs.getString("zuletzt", null)?.split('\n')?.filter { it.isNotBlank() }?.map(::File).orEmpty()
     fun merken(f: File) = prefs.putString("zuletzt", (listOf(f.absolutePath) + zuletzt().map { it.absolutePath }).distinct().take(8).joinToString("\n"))
     fun vergessen(f: File) = prefs.putString("zuletzt", zuletzt().map { it.absolutePath }.filter { it != f.absolutePath }.joinToString("\n"))
+}
+
+/** Die Person des gewaehlten Treffers, fuer Strg+C im Hauptfenster (Issue #14, wie in wtWin). */
+object GedauditAuswahl {
+    var detail: IndividualDetail? = null
+}
+
+/** Strg+C ausserhalb von Eingabefeldern: Personentext der gewaehlten Person in die Zwischenablage (onKeyEvent des Fensters). */
+fun gedauditKopierTaste(e: KeyEvent): Boolean {
+    if (e.type != KeyEventType.KeyDown || e.key != Key.C) return false
+    if (!(e.isCtrlPressed || e.isMetaPressed) || e.isShiftPressed || e.isAltPressed) return false
+    val d = GedauditAuswahl.detail ?: return false
+    personentextKopieren(d)
+    return true
 }
 
 /** Hilfe von gedaudit: das eigene Kapitel und das der Pruefung. */
@@ -313,6 +339,7 @@ fun GedauditFenster(fenster: FrameWindowScope?, startDatei: File?, onQuit: () ->
                         // Die Person des Treffers und, bei Paaren (Dubletten, Eltern und Kind, Partner), die zweite daneben
                         val erste = treffer?.let { trefferPerson(it, b) }
                         val zweite = treffer?.let { t -> paarAus(t)?.geht ?: t.fakten.map { it.record }.firstOrNull { it != erste && it in b.individuals } }
+                        GedauditAuswahl.detail = erste?.let { b.detail(it) }
                         if (zweite == null || erste == null) PersonKarte(b, erste)
                         else Row(Modifier.fillMaxSize()) {
                             Box(Modifier.weight(1f).fillMaxHeight()) { PersonKarte(b, erste) }
@@ -361,6 +388,8 @@ private fun TrefferZeileDatei(t: Treffer, b: TreeExport, mitRegel: Boolean, schw
     val xref = trefferPerson(t, b)
     val p = b.person(xref)
     val blass = if (abgehakt) 0.45f else 1f
+    val kopierText = stringResource(Res.string.desk_copy_text)
+    ContextMenuArea(items = { listOfNotNull(xref?.let { x -> ContextMenuItem(kopierText) { b.detail(x)?.let(::personentextKopieren) } }) }) {
     Row(
         Modifier.fillMaxWidth().background(if (aktiv) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent)
             .fokusRahmen().clickable(onClick = onClick).padding(start = 8.dp, top = 3.dp, bottom = 3.dp),
@@ -382,6 +411,7 @@ private fun TrefferZeileDatei(t: Treffer, b: TreeExport, mitRegel: Boolean, schw
                 tint = if (abgehakt) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
         }
     }
+    }
 }
 
 /** Die Person zum gewaehlten Treffer: Ereignisse, Eltern, Partner und Kinder - aus der Datei, ohne Server. */
@@ -393,8 +423,9 @@ internal fun PersonKarte(b: TreeExport, xref: String?) {
         return
     }
     val rollen = rememberScrollState()
+    val zeileKopieren = stringResource(Res.string.desk_copy_row); val textKopieren = stringResource(Res.string.desk_copy_text)
     Box(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize().verticalScroll(rollen).padding(end = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        SelectionContainer { Column(Modifier.fillMaxSize().verticalScroll(rollen).padding(end = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(d.person.name.ifBlank { "?" }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 d.person.lifespan.takeIf(String::isNotBlank)?.let { Text("  ($it)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -402,12 +433,15 @@ internal fun PersonKarte(b: TreeExport, xref: String?) {
             }
             Ueberschrift(stringResource(Res.string.ga_person_facts))
             d.facts.filter { it.tag != "NAME" }.forEach { f ->
+                val zeile = listOfNotNull(f.label.ifBlank { f.tag }, f.date?.text?.takeIf(String::isNotBlank), f.place?.name?.takeIf(String::isNotBlank), f.value.takeIf(String::isNotBlank)).joinToString("  ")
+                ContextMenuArea(items = { listOf(ContextMenuItem(zeileKopieren) { inZwischenablage(zeile) }, ContextMenuItem(textKopieren) { personentextKopieren(d) }) }) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(f.label.ifBlank { f.tag }, Modifier.width(110.dp), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(f.date?.text.orEmpty(), Modifier.width(150.dp), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(listOfNotNull(f.place?.name?.takeIf(String::isNotBlank), f.value.takeIf(String::isNotBlank)).joinToString(" · "), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (f.sources.isNotEmpty()) Text(if (f.sources.size == 1) stringResource(Res.string.ga_person_source_one) else stringResource(Res.string.ga_person_sources, f.sources.size), Modifier.width(84.dp).padding(start = 6.dp), style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, softWrap = false)
+                }
                 }
             }
             if (d.parentFamilies.isNotEmpty()) {
@@ -422,7 +456,7 @@ internal fun PersonKarte(b: TreeExport, xref: String?) {
                     fam.children.forEach { k -> Text("     " + personText(k), style = MaterialTheme.typography.bodySmall) }
                 }
             }
-        }
+        } }
         SenkrechteLeiste(rollen)
     }
 }

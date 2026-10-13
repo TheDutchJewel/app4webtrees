@@ -18,6 +18,7 @@ import de.bgghome.webtrees.nativ.desk.GedauditAblage
 import de.bgghome.webtrees.nativ.desk.GedauditFenster
 import de.bgghome.webtrees.nativ.desk.Marke
 import de.bgghome.webtrees.nativ.desk.gedauditHilfeEinrichten
+import de.bgghome.webtrees.nativ.desk.gedauditKopierTaste
 import de.bgghome.webtrees.nativ.ui.LocalAppName
 import java.io.File
 import javax.swing.UIManager
@@ -42,6 +43,8 @@ fun main(args: Array<String>) {
             title = "gedaudit",
             icon = remember { Marke.icon()?.let { BitmapPainter(it) } },
             state = state,
+            // Strg+C kopiert den Personentext des gewaehlten Treffers, wenn kein Eingabefeld die Taste nimmt (wie wtWin)
+            onKeyEvent = ::gedauditKopierTaste,
         ) {
             CompositionLocalProvider(LocalAppName provides "gedaudit") {
                 DeskTheme { Sprache.Umgebung { GedauditFenster(this, startDatei, onQuit = { fenster.sichern(state); exitApplication() }) } }

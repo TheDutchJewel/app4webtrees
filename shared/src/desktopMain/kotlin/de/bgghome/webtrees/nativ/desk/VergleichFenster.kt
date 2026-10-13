@@ -1,5 +1,7 @@
 package de.bgghome.webtrees.nativ.desk
 
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -170,6 +172,11 @@ fun VergleichInhalt(g: GeladeneDatei, onClose: () -> Unit, vorgabeB: File? = nul
                                         items(liste) { e ->
                                             val pa = e.a?.let { a.person(it) }; val pb = e.b?.let { b.person(it) }
                                             val aktiv = gewaehlt === e
+                                            val kopierText = stringResource(Res.string.desk_copy_text)
+                                            ContextMenuArea(items = { listOfNotNull(
+                                                e.a?.let { x -> ContextMenuItem("$kopierText ($nameA)") { a.detail(x)?.let(::personentextKopieren) } },
+                                                e.b?.let { x -> ContextMenuItem("$kopierText ($nameB)") { b.detail(x)?.let(::personentextKopieren) } },
+                                            ) }) {
                                             Row(Modifier.fillMaxWidth().background(if (aktiv) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent).fokusRahmen()
                                                 .clickable { gewaehlt = e }.padding(start = 8.dp, top = 3.dp, bottom = 3.dp), verticalAlignment = Alignment.CenterVertically) {
                                                 Column(Modifier.weight(1f)) {
@@ -182,6 +189,7 @@ fun VergleichInhalt(g: GeladeneDatei, onClose: () -> Unit, vorgabeB: File? = nul
                                                         Text(ae.joinToString(", ") { feldName(it.feld) }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                                     }
                                                 }
+                                            }
                                             }
                                         }
                                     }

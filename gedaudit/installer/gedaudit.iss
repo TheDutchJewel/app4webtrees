@@ -1,9 +1,8 @@
-﻿; gedaudit - Windows-Installer mit Inno Setup, nach dem Muster von gedaudit.iss (13.10.2026).
+﻿; gedaudit - Windows-Installer mit Inno Setup, nach dem Muster von wtWin.iss (13.10.2026).
 ; Gradle baut das Programmverzeichnis (:desktop:createDistributable), dieses Skript packt daraus die Setup-exe:
 ; Sprachwahl beim Start (Deutsch, Englisch, Franzoesisch, Niederlaendisch, Spanisch, vorbelegt mit der Windows-Sprache),
-; Installation pro Benutzer ohne Adminrechte, und das Schema wtwin:// fuer "Mit gedaudit verbinden" aus dem Browser
-; wird gleich eingetragen (das Programm traegt es beim Start zusaetzlich selbst ein, Verbindungslinks.kt).
-; Aufruf durch Gradle (:desktop:packageInno): ISCC.exe /DVersion=1.42.315 /DQuelle=<app-image> /DZiel=<Ausgabeordner> gedaudit.iss
+; Installation pro Benutzer ohne Adminrechte, .ged-Dateien werden mit gedaudit verknuepft (kein URL-Schema, anders als wtWin).
+; Aufruf durch Gradle (:desktop:packageInno): ISCC.exe /DVersion=0.4.410 /DQuelle=<app-image> /DZiel=<Ausgabeordner> gedaudit.iss
 
 #ifndef Version
   #error "Version fehlt (/DVersion=x.y.z)"
