@@ -730,7 +730,7 @@ private const val TRENNER = 9f
  * ganz abschalten. Generationen und Zoom stehen im Navigator selbst.
  */
 @Composable
-private fun ClassicToolbar(
+internal fun ClassicToolbar(
     state: UiState, viewModel: AppViewModel, openWeb: (String) -> Unit, onGoTo: () -> Unit, onSheet: () -> Unit, onAbout: () -> Unit,
     nav: DeskNav, drucke: DeskDruck, symboltexte: Boolean,
     onMerkliste: () -> Unit, onListe: (ListenArt) -> Unit, onTabelle: () -> Unit, onTafel: (TafelArt) -> Unit, onPruefung: () -> Unit, onQuit: () -> Unit,

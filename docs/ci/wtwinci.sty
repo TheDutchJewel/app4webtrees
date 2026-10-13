@@ -1,0 +1,134 @@
+%% wtwinci.sty – Erscheinungsbild von wtWin fuer LaTeX-Dokumente (Handbuch, CI, Notizen).
+%% Braucht LuaLaTeX (fontspec). Schriften Inter und Source Serif Pro liegen in TeX Live bei.
+%%
+%% Optionen:  serifenlos  – auch der Lesetext in Inter (Vorgabe: Source Serif Pro)
+%%            dunkel      – Titelseite auf Petrol statt Papierweiss
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{wtwinci}[2026/10/13 wtWin Erscheinungsbild]
+
+\newif\ifwt@serifenlos \newif\ifwt@dunkel
+\DeclareOption{serifenlos}{\wt@serifenlostrue}
+\DeclareOption{dunkel}{\wt@dunkeltrue}
+\ProcessOptions\relax
+
+\RequirePackage{iftex}
+\ifLuaTeX\else\PackageError{wtwinci}{Bitte mit LuaLaTeX setzen (lualatex / latexmk -lualatex)}{}\fi
+
+\RequirePackage{fontspec}
+\RequirePackage[table]{xcolor}
+\RequirePackage{colortbl}
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{array}
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{enumitem}
+\RequirePackage{microtype}
+\RequirePackage{scrlayer-scrpage}
+\RequirePackage{hyperref}
+\RequirePackage{calc}
+
+%% ---- Farben (Quelle: Theme.kt im Programm) ---------------------------------
+\definecolor{wtPetrol}{HTML}{1F6F78}       % Hauptfarbe: Knoepfe, Ueberschriften, Zeichen
+\definecolor{wtPetrolDunkel}{HTML}{0F4F57}  % Petrol fuer dunkle Flaechen, Hover
+\definecolor{wtPetrolHell}{HTML}{CDE9EC}    % Flaechen hinter Petrol-Text, Hinweiskaesten
+\definecolor{wtRost}{HTML}{B5562F}          % Akzent: die eine Person, Warnungen, Hervorhebung
+\definecolor{wtRostHell}{HTML}{FFDBCD}      % Flaeche hinter Rost
+\definecolor{wtTinte}{HTML}{24302F}         % Text
+\definecolor{wtGrau}{HTML}{5B6665}          % Nebentext, Beschriftungen
+\definecolor{wtLinie}{HTML}{E1E5E4}         % Trennlinien, Tabellenlinien
+\definecolor{wtPapier}{HTML}{F1F3F3}        % Hintergrund (Fenster), Kaesten
+\definecolor{wtWeiss}{HTML}{FFFFFF}
+
+%% ---- Schriften -----------------------------------------------------------
+\directlua{luaotfload.add_fallback("wtersatz", { "DejaVu Sans:mode=harf;", "DejaVu Serif:mode=harf;" })}
+\ifwt@serifenlos
+  \setmainfont{Inter}[Renderer=HarfBuzz, RawFeature={fallback=wtersatz}, Numbers={Proportional}]
+\else
+  \setmainfont{Source Serif Pro}[Renderer=HarfBuzz, RawFeature={fallback=wtersatz},
+    UprightFont=*-Regular, BoldFont=*-Semibold, ItalicFont=*-It, BoldItalicFont=*-SemiboldIt]
+\fi
+\setsansfont{Inter}[Renderer=HarfBuzz, RawFeature={fallback=wtersatz}]
+\setmonofont{Source Code Pro}[Renderer=HarfBuzz, Scale=MatchLowercase, RawFeature={fallback=wtersatz}]
+
+%% KOMA: Ueberschriften serifenlos in Petrol, Beschriftungen grau
+\setkomafont{disposition}{\sffamily\bfseries\color{wtPetrol}}
+\@ifundefined{chapter}{}{\setkomafont{chapter}{\sffamily\bfseries\color{wtPetrol}\Huge}}
+\setkomafont{section}{\sffamily\bfseries\color{wtPetrol}\Large}
+\setkomafont{subsection}{\sffamily\bfseries\color{wtTinte}\large}
+\setkomafont{caption}{\sffamily\small\color{wtGrau}}
+\setkomafont{captionlabel}{\sffamily\small\bfseries\color{wtGrau}}
+\setkomafont{pageheadfoot}{\sffamily\footnotesize\color{wtGrau}}
+\setkomafont{pagenumber}{\sffamily\footnotesize\color{wtPetrol}\bfseries}
+\setkomafont{descriptionlabel}{\sffamily\bfseries\color{wtTinte}}
+\color{wtTinte}
+
+%% Kopf- und Fusszeile mit Petrol-Linie
+\pagestyle{scrheadings}
+\clearpairofpagestyles
+\ihead{\headmark}
+\ohead{\pagemark}
+\ofoot{\wt@fusszeile}
+\setkomafont{headsepline}{\color{wtPetrol}}
+\KOMAoptions{headsepline=0.6pt}
+\newcommand\wt@fusszeile{}
+\newcommand\wtFusszeile[1]{\renewcommand\wt@fusszeile{#1}}
+
+%% Verweise
+\hypersetup{colorlinks=true, linkcolor=wtPetrolDunkel, urlcolor=wtPetrol, citecolor=wtPetrol,
+  pdfcreator={wtWin}, bookmarksnumbered=true}
+
+%% Listen enger
+\setlist{nosep, leftmargin=*, itemsep=2pt}
+\setlist[itemize]{label=\textcolor{wtPetrol}{\textbullet}}
+
+%% Tabellen
+\renewcommand{\arraystretch}{1.25}
+\arrayrulecolor{wtLinie}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand\wtKopf[1]{\textcolor{wtPetrol}{\sffamily\bfseries #1}}
+
+%% ---- Bausteine -----------------------------------------------------------
+%% Taste oder Menuebefehl: \taste{Strg+F}
+\newcommand\taste[1]{\tcbox[on line, boxsep=1pt, left=3pt, right=3pt, top=0.5pt, bottom=0.5pt,
+  colback=wtPapier, colframe=wtLinie, boxrule=0.5pt, arc=2pt, fontupper=\sffamily\small\color{wtTinte}]{#1}}
+%% Menueweg: \menue{Datei › Stammbaum wechseln}
+\newcommand\menue[1]{{\sffamily\bfseries\color{wtTinte}#1}}
+%% Programmname: \wtwin → wtWin mit fester Schreibweise
+\newcommand\wtwin{\textsf{wtWin}}
+\newcommand\wttux{\textsf{wtTux}}
+\newcommand\wtmac{\textsf{wtMac}}
+\newcommand\wtand{\textsf{wtAnd}}
+%% Farbfeld fuer Paletten: \farbfeld{wtPetrol}
+\newcommand\farbfeld[1]{\tikz[baseline=-0.6ex]\fill[#1, rounded corners=1.5pt](0,-0.6em) rectangle (2.2em,0.6em);}
+
+%% Hinweis (petrol) und Achtung (rost)
+\newtcolorbox{hinweis}[1][]{enhanced, breakable, colback=wtPetrolHell!45!wtWeiss, colframe=wtPetrol,
+  boxrule=0pt, leftrule=3pt, arc=0pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  fontupper=\small, #1}
+\newtcolorbox{achtung}[1][]{enhanced, breakable, colback=wtRostHell!45!wtWeiss, colframe=wtRost,
+  boxrule=0pt, leftrule=3pt, arc=0pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  fontupper=\small, #1}
+
+%% Abbildung mit Rahmen in Linienfarbe
+\newcommand\bild[2][\linewidth]{{\setlength\fboxsep{0pt}\setlength\fboxrule{0.5pt}\color{wtLinie}\fbox{\includegraphics[width=#1-2\fboxrule]{#2}}}}
+
+%% ---- Titelseite ----------------------------------------------------------
+%% \wtTitelseite{Logo-Datei}{Titel}{Untertitel}{Zeile unten (Version, Datum)}
+\newcommand\wtTitelseite[4]{%
+  \begin{titlepage}
+  \ifwt@dunkel\pagecolor{wtPetrol}\color{wtWeiss}\else\color{wtTinte}\fi
+  \sffamily
+  \vspace*{2cm}
+  \noindent\includegraphics[width=3cm]{#1}\par
+  \vspace{1.5cm}
+  {\fontsize{40}{44}\selectfont\bfseries #2\par}
+  \vspace{0.6cm}
+  {\Large\ifwt@dunkel\color{wtPetrolHell}\else\color{wtGrau}\fi #3\par}
+  \vfill
+  {\color{\ifwt@dunkel wtPetrolHell\else wtPetrol\fi}\rule{\linewidth}{1pt}\par}
+  \vspace{0.4cm}
+  {\small #4\par}
+  \ifwt@dunkel\clearpage\pagecolor{white}\fi
+  \end{titlepage}%
+}

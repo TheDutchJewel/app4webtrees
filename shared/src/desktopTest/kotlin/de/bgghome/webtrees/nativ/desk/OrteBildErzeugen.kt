@@ -50,12 +50,12 @@ class OrteBildErzeugen {
         ImageComposeScene(width = breite, height = hoehe, density = Density(2f)) {
             DeskTheme {
                 Box(Modifier.fillMaxSize()) {
-                    OrteInhalt(Result.success(liste), Result.success(detail), ort, {}, "", {}, null, {}, reiterStart = reiter, onClose = {})
+                    OrteInhalt(Result.success(liste), Result.success(detail), ort, {}, System.getenv("WT_SUCHE").orEmpty(), {}, null, {}, reiterStart = reiter, onClose = {}, karteStart = System.getenv("WT_KARTE") != null)
                 }
             }
         }.use { scene ->
             scene.render(); (1..20).forEach { scene.render(it * 50_000_000L); Thread.sleep(50) }
-            File(ziel, "ort-${reiter}.png").writeBytes(scene.render(1_100_000_000L).encodeToData(EncodedImageFormat.PNG)!!.bytes)
+            File(ziel, if (System.getenv("WT_KARTE") != null) "ort-karte.png" else "ort-${reiter}.png").writeBytes(scene.render(1_100_000_000L).encodeToData(EncodedImageFormat.PNG)!!.bytes)
         }
     }
 }

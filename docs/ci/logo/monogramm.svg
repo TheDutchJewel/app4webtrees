@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- wtWin Monogramm "wt". Vorschlag B. Schrift Inter Bold; vor dem Veroeffentlichen in Pfade wandeln. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512">
+  <rect width="64" height="64" rx="14" fill="#1F6F78"/>
+  <text x="31" y="45" text-anchor="middle" font-family="Inter" font-weight="700" font-size="34" letter-spacing="-1" fill="#FFFFFF">wt</text>
+  <circle cx="49" cy="20" r="4.5" fill="#B5562F"/>
+</svg>

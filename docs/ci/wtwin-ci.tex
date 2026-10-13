@@ -1,0 +1,257 @@
+% Erscheinungsbild wtWin – setzen mit ./bauen.sh (LuaLaTeX)
+\documentclass[a4paper, 11pt, parskip=half, headings=small, numbers=noenddot]{scrartcl}
+\usepackage[ngerman]{babel}
+\usepackage[margin=24mm, top=22mm, bottom=24mm]{geometry}
+\usepackage{wtwinci}
+\usepackage{csquotes}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\wtFusszeile{wtWin · Erscheinungsbild · Stand 13.\,Oktober 2026}
+
+\newcommand\farbzeile[5]{\farbfeld{#1} & \texttt{#1} & \texttt{\##2} & #3 & #4 & #5 \\}
+
+\begin{document}
+\wtTitelseite{logo/ahnenzeichen.png}{Erscheinungsbild}{wtWin · wtTux · wtMac · wtAnd\\[2pt]Logo, Farben, Schrift, Sprache – und wo sie gelten}{Fassung 1 · 13.\,Oktober 2026 · Thomas Bugge · gilt ab Version 1.53}
+
+\tableofcontents
+\clearpage
+
+\section{Ausgangslage}
+
+wtWin tritt heute in drei verschiedenen Kleidern auf. Das Programm selbst ist stimmig (Petrol, Rost, Hellgrau aus \texttt{Theme.kt}), die Homepage trägt den Hausstil von bgg-home.de (Dunkelblau, Gold, Georgia), und das Icon ist ein grüner Baum auf Dunkelpetrol, der zu keinem von beiden passt und nur als Pixelbild existiert.
+
+\begin{center}\small\sffamily
+\begin{tabularx}{\linewidth}{lYYY}
+\toprule
+\wtKopf{} & \wtKopf{Programm} & \wtKopf{Homepage} & \wtKopf{Icon} \\
+\midrule
+Hauptfarbe & Petrol \texttt{\#1F6F78} & Blau \texttt{\#2E75B6} & Grün (Verlauf) \\
+Akzent & Rost \texttt{\#B5562F} & Gold \texttt{\#C8922A} & – \\
+Grund & Hellgrau \texttt{\#F1F3F3} & Dunkel \texttt{\#0D1117} & Dunkelpetrol \\
+Schrift & Systemschrift (Material~3) & Georgia + Systemschrift & – \\
+Form & flache Flächen, 8\,px Radius & Serifen, kursive Hervorhebung & Blätter, Knoten, Verlauf \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{Entscheidung dieses Dokuments:} Das Programm gibt den Ton an. Nutzer sehen es täglich, es ist in fünf Sprachen übersetzt und auf vier Plattformen gleich. Homepage, Handbuch, Icon und Installer richten sich danach – nicht umgekehrt.
+
+\section{Marke und Namen}
+
+\begin{tabularx}{\linewidth}{lY}
+\toprule
+\wtKopf{Name} & \wtKopf{So und nicht anders} \\
+\midrule
+\wtwin, \wttux, \wtmac, \wtand & Immer klein \enquote{wt}, dann ein Großbuchstabe. Nie \enquote{WTWin}, \enquote{wtwin}, \enquote{wt-Win}. Im Fließtext ohne Anführungszeichen. \\
+webtrees & Immer klein, auch am Satzanfang (so schreibt es das Projekt selbst). \\
+api4webtrees, nas4webtrees & Klein, zusammen. Modulnamen sind keine Produktnamen – sie stehen nur, wo ein Betreiber etwas installieren muss. \\
+app4webtrees & Nur der Name des Quelltext-Repos. Taucht gegenüber Nutzern nicht auf. \\
+Stammbaum auf diesem PC & Feste Bezeichnung für den Betrieb ohne Server. Nicht \enquote{lokaler Modus}, nicht \enquote{Standalone}. \\
+\bottomrule
+\end{tabularx}
+
+\textbf{Familie:} wtWin ist das Leitprodukt, wtTux und wtMac sind dasselbe Programm mit anderem Namen, wtAnd ist das Handy-Programm. In Überschriften steht \enquote{wtWin · wtTux · wtMac}; wtAnd bekommt eine eigene Zeile oder Seite.
+
+\textbf{Abgrenzung zu webtrees:} Die Namen lehnen sich bewusst an webtrees an, das Programm ist aber kein webtrees-Produkt. Darum: nie das
+webtrees-Logo (blaue, runde Wortmarke, blaues \enquote{W}) oder seine Farben übernehmen; kein Zeichen, das nur aus \enquote{wt} besteht; neben dem
+Namen immer die Rolle nennen: \enquote{wtWin für webtrees}, \enquote{a desktop program for webtrees}; der Hinweis \enquote{kein offizielles
+webtrees-Produkt} bleibt im Über-Dialog, in README und auf der Homepage. Eine eingetragene Marke \enquote{webtrees} gibt es nicht
+(TMview, 13.\,Oktober 2026: 0 Treffer; weder webtrees.net noch das GitHub-Repo nennen eine Markenregel), die Abgrenzung ist also Anstand,
+nicht Pflicht – und sie schützt umgekehrt den eigenen Namen.
+
+\textbf{Claim:} \enquote{Dein webtrees-Stammbaum als Desktop-Programm.} Englisch: \enquote{Your webtrees family tree as a desktop program.} Für wtAnd: \enquote{Dein webtrees-Stammbaum in der Hand.} Mehr Claim braucht es nicht; Begriffe wie \enquote{Lösung}, \enquote{Plattform}, \enquote{Suite} kommen nicht vor.
+
+\section{Logo}
+
+\subsection{Heutiges Icon – Bewertung}
+
+\begin{minipage}[c]{0.22\linewidth}\includegraphics[width=\linewidth]{../icon/icon-512.png}\end{minipage}\hfill
+\begin{minipage}[c]{0.74\linewidth}\small
+\begin{itemize}
+\item Es gibt es nur als Pixelbild (die SVG-Datei umhüllt ein PNG). Kein Druck, kein Favicon, keine Einfarbfassung.
+\item Grün und der Verlauf passen nicht zu Petrol und Rost im Programm.
+\item Bei 16 und 32\,px (Taskleiste, Browser-Reiter) bleibt ein grüner Fleck; Blätter und Knoten verschwinden.
+\item Das Motiv \enquote{Baum mit Knoten} ist das Standardbild der Branche – austauschbar.
+\end{itemize}
+\textbf{Antwort auf die Frage \enquote{besseres Logo?}:} Ja. Nicht weil das Bild hässlich wäre, sondern weil es nicht skaliert und nicht zum Programm gehört.
+\end{minipage}
+
+\subsection{Vorschlag A – Ahnenzeichen (empfohlen)}
+
+\begin{minipage}[c]{0.46\linewidth}
+\includegraphics[width=0.3\linewidth]{logo/ahnenzeichen.png}\hfill
+\includegraphics[width=0.3\linewidth]{logo/ahnenzeichen-hell.png}\hfill
+\includegraphics[width=0.3\linewidth]{logo/ahnenzeichen-einfarbig.png}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.5\linewidth}\small
+Eine Person, ihre Eltern, ihre Großeltern – die kleinste Ahnentafel. Die Person ist Rost, alle anderen Weiß oder Petrol. Das Zeichen ist reine Geometrie (sieben Kreise, drei Linien) und bleibt bei 16\,px lesbar. Es sagt \enquote{Genealogie} ohne Baum, Blatt oder Wurzel und zeigt, was wtWin tut: eine Person in den Mittelpunkt stellen.
+\end{minipage}
+
+\medskip
+\noindent\includegraphics[width=0.55\linewidth]{logo/logo-quer.png}
+
+\textbf{Wortmarke:} Inter SemiBold, \enquote{wt} in Petrol, der Zusatz (Win, Tux, Mac, And) in Tinte, Laufweite leicht verengt. Zeichen und Wortmarke stehen nebeneinander; der Abstand zwischen beiden und der Schutzraum rundherum entsprechen dem Radius des Rost-Kreises.
+
+\textbf{Varianten:} auf Petrol-Fläche (Icon, Installer, Store), ohne Fläche auf Weiß (Druck, Homepage hell), einfarbig Schwarz oder Weiß (Stempel, Wasserzeichen, dunkle Leisten). Keine weiteren Farben, keine Verläufe, keine Schatten.
+
+\textbf{Kleinstgrößen:} 16, 32, 48, 256 und 512\,px werden aus derselben SVG gerendert; ab 32\,px bleibt die Form vollständig, bei 16\,px zählt die Silhouette.
+
+\subsection{Vorschlag B – Monogramm (verworfen)}
+
+\begin{minipage}[c]{0.22\linewidth}\includegraphics[width=0.75\linewidth]{logo/monogramm.png}\end{minipage}\hfill
+\begin{minipage}[c]{0.74\linewidth}\small
+\enquote{wt} in Inter Bold auf Petrol, ein Rost-Punkt als Akzent. Robuster bei 16\,px als A, aber verworfen: Das Kürzel steht für webtrees,
+nicht für dieses Programm – ein \enquote{wt}-Zeichen vermarktet den fremden Namen und sieht nach einem offiziellen webtrees-Produkt aus
+(siehe Abgrenzung in Abschnitt~2). Dazu kommt die Verwechslung mit WikiTree, das in der Szene ebenfalls als \enquote{WT} abgekürzt wird.
+Die Datei bleibt nur zur Dokumentation im Ordner.
+\end{minipage}
+
+\subsection{Recherche – gibt es das schon?}
+
+Geprüft am 13.\,Oktober 2026: die Favicons und Logos von 40 Genealogie-Programmen und -Diensten (freie und kommerzielle, deutsch- und
+englischsprachig, dazu die Dienste von CompGen und webtrees selbst), die Symbolbibliotheken Material Symbols, Font Awesome, Tabler und Icons8 sowie
+das Markenregister TMview (EUIPO, DPMA, WIPO, USPTO und weitere).
+
+\begin{itemize}
+\item \textbf{Kein gleiches Zeichen.} Die Branche zeigt Bäume, Blätter und Buchstaben. Ahnentafel-Motive gibt es nur als waagrechte Kästchen-Tafeln
+  (zwei freie Programme, ein Ortsverzeichnis) oder als Organigramm aus Quadraten und Kreisen (ein Diagrammprogramm). Senkrecht, nur Kreise, eine
+  Person farbig abgesetzt: nirgends.
+\item \textbf{Nächste Verwandte sind Allgemeingut.} Die Form \enquote{ein Knoten, darüber oder darunter zwei bis drei} ist das übliche Hierarchie-Symbol
+  (Material \texttt{account\_tree}, \texttt{family\_history}, Font Awesome \texttt{sitemap}, Tabler \texttt{hierarchy}). Das Ahnenzeichen hebt sich durch
+  die dritte Ebene (1-2-4), die runden Knoten und den Rost-Punkt ab; eine Verwechslung mit einer Marke droht nicht, nur mit einem Symbol.
+\item \textbf{Farbnähe.} Ein verbreitetes kommerzielles Programm trägt einen weißen Baum auf petrolfarbenem Verlauf in einem abgerundeten Quadrat –
+  gleiche Farbfamilie, gleicher Rahmen, anderes Motiv; zwei weitere Dienste nutzen Petrol im Kreis. Da Petrol die Programmfarbe ist, bleibt es;
+  Unterscheidung über Motiv und flache Fläche ohne Verlauf.
+\item \textbf{Namen.} \enquote{wtWin}, \enquote{wtTux}, \enquote{wtMac}, \enquote{wtAnd} und \enquote{Ahnenzeichen}: keine Marke, keine Software
+  gleichen Namens gefunden (TMview nur Teiltreffer wie \enquote{FLOWtwin}; Websuche nur \enquote{wtmux}, \enquote{TWIN}). \enquote{webtrees}: keine Marke.
+\item \textbf{Grenze der Prüfung.} App-Store-Icons kleiner Apps und Bildersuchen waren nicht durchsuchbar; eine amtliche Ähnlichkeitsrecherche
+  (Bildmarken, Wiener Klassifikation) ersetzt das nicht. Für ein freies Programm ohne Markenanmeldung reicht der Stand.
+\end{itemize}
+
+\subsection{Dateien}
+
+\begin{tabularx}{\linewidth}{lY}
+\toprule
+\wtKopf{Datei (docs/ci/logo)} & \wtKopf{Zweck} \\
+\midrule
+\texttt{ahnenzeichen.svg} & Zeichen auf Petrol, Quelle für alle Icons (Android, Windows ico, macOS icns, Favicon) \\
+\texttt{ahnenzeichen-hell.svg} & Zeichen ohne Fläche für helle Hintergründe \\
+\texttt{ahnenzeichen-einfarbig.svg} & Schwarz; für Weiß die Farbe tauschen \\
+\texttt{wortmarke.svg}, \texttt{logo-quer.svg} & Wortmarke und Kombination; die Fassungen \texttt{*-pfade.svg} haben keinen Schriftbezug mehr \\
+\texttt{monogramm.svg} & Vorschlag B, verworfen (nur Dokumentation) \\
+\texttt{rendern.sh} & Erzeugt PNG in 512\,px und Proben in 16/32/48\,px \\
+\bottomrule
+\end{tabularx}
+
+\section{Farben}
+
+Die Palette stammt aus dem Programm (\texttt{ui/Theme.kt}) und wird dort gepflegt. Hier stehen die Druckwerte dazu.
+
+\begin{center}\small\sffamily
+\begin{tabularx}{\linewidth}{@{}c l l l l Y@{}}
+\toprule
+& \wtKopf{Name} & \wtKopf{Hex} & \wtKopf{RGB} & \wtKopf{CMYK (ca.)} & \wtKopf{Verwendung} \\
+\midrule
+\farbzeile{wtPetrol}{1F6F78}{31 / 111 / 120}{74 / 8 / 0 / 53}{Hauptfarbe: Knöpfe, Überschriften, Zeichen, Links}
+\farbzeile{wtPetrolDunkel}{0F4F57}{15 / 79 / 87}{83 / 9 / 0 / 66}{Hover, Flächen im Dunkelmodus, Linkfarbe im Druck}
+\farbzeile{wtPetrolHell}{CDE9EC}{205 / 233 / 236}{13 / 1 / 0 / 7}{Flächen hinter Petrol-Text, Hinweiskästen, Auswahl}
+\farbzeile{wtRost}{B5562F}{181 / 86 / 47}{0 / 52 / 74 / 29}{Akzent: die eine Person, Warnungen, Jetzt-Marke}
+\farbzeile{wtRostHell}{FFDBCD}{255 / 219 / 205}{0 / 14 / 20 / 0}{Fläche hinter Rost, Achtung-Kästen}
+\farbzeile{wtTinte}{24302F}{36 / 48 / 47}{25 / 0 / 2 / 81}{Text}
+\farbzeile{wtGrau}{5B6665}{91 / 102 / 101}{11 / 0 / 1 / 60}{Nebentext, Beschriftungen, Kopfzeilen}
+\farbzeile{wtLinie}{E1E5E4}{225 / 229 / 228}{2 / 0 / 0 / 10}{Trennlinien, Tabellenlinien, Rahmen um Bilder}
+\farbzeile{wtPapier}{F1F3F3}{241 / 243 / 243}{1 / 0 / 0 / 5}{Fensterhintergrund, Tasten-Kästchen}
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\textbf{Verhältnis:} viel Papier und Weiß, wenig Petrol, ganz wenig Rost. Als Faustregel 80 / 15 / 5. Rost markiert immer genau eine Sache (die Person, den Fehler, das Neue) – nie Flächen, nie Überschriften.
+
+\textbf{Dunkelmodus:} Petrol wird heller (\texttt{\#7FD0DA}), Rost wird heller (\texttt{\#FFB597}), Grund \texttt{\#101414}, Text \texttt{\#DFE3E3}. Die Werte stehen in \texttt{Theme.kt}; das Handbuch und die Homepage brauchen keinen Dunkelmodus.
+
+\textbf{Tafelfarben:} Für Kästen in Tafeln gibt es im Programm eine eigene Reihe von acht hellen Farben (Blau, Grün, Rosé, Gelb, Flieder, Türkis, Apricot, Grau), die der Nutzer Nachnamen, Orten oder Geschlecht zuordnet. Sie gehören zu den Daten, nicht zur Marke, und bleiben unverändert.
+
+\section{Schrift}
+
+\begin{tabularx}{\linewidth}{lYY}
+\toprule
+\wtKopf{} & \wtKopf{Schrift} & \wtKopf{Wo} \\
+\midrule
+Oberfläche & Systemschrift (Segoe UI, Roboto, SF) über Material~3 & Programm, bleibt so – native Programme nehmen die Schrift des Systems \\
+Überschriften, Marke & \textsf{Inter} (frei, SIL OFL; in TeX Live und auf der Homepage ladbar) & Wortmarke, Handbuch, Homepage-Navigation, Installer-Bilder, Release-Grafiken \\
+Lesetext & \textrm{Source Serif Pro} (frei, SIL OFL) & Handbuch, lange Texte auf der Homepage; wahlweise auch für gedruckte Bücher aus wtWin \\
+Tasten, Pfade & \texttt{Source Code Pro} nur für Dateinamen und Adressen; Tasten und Menüwege in Inter mit Kästchen: \taste{Strg+F}, \menue{Datei › Stammbaum wechseln} & Handbuch, Hilfe, Issues \\
+\bottomrule
+\end{tabularx}
+
+\textbf{Regeln:} Überschriften serifenlos, fett, Petrol. Lesetext 10,5–11\,pt mit 1,4-fachem Zeilenabstand. Menüwege mit \enquote{›} (U+203A), nicht mit \enquote{->} oder \enquote{>}. Tasten so, wie sie auf der Tastatur stehen (\taste{Strg}, \taste{Umschalt}, \taste{F1}), englisch \taste{Ctrl}, \taste{Shift}.
+
+\section{Sprache und Ton}
+
+\begin{itemize}
+\item Deutsch duzt; Französisch und Niederländisch siezen (\emph{vous}, \emph{u}/\emph{uw}); Englisch und Spanisch sprechen direkt an – so haben es die Übersetzer festgelegt.
+\item \enquote{Programm}, nicht \enquote{App} oder \enquote{Software} – am PC. Am Handy heißt wtAnd \enquote{App}.
+\item Feste Begriffe: Navigator, Personenblatt, Familienansicht, Baum im Mittelpunkt, Tafel, Liste, Buch, Plausibilitätsprüfung, Archiv, Orte, Quellen, Stammbaum auf diesem PC. Sie heißen im Menü, in der Hilfe, im Handbuch und auf der Homepage gleich.
+\item Kurz. Ein Satz pro Gedanke. Keine Superlative, kein \enquote{einfach}, \enquote{nahtlos}, \enquote{leistungsstark}. Was das Programm kann, steht als Tat: \enquote{Rahmen um ein Gesicht ziehen und einer Person zuordnen.}
+\item Keine Vergleiche mit anderen Programmen, weder namentlich noch verdeckt. Stattdessen: \enquote{wie ein klassisches Genealogie-Programm}.
+\item Fehler und Grenzen stehen dabei: \enquote{nicht signiert}, \enquote{nicht auf einem echten Mac getestet}, \enquote{braucht api4webtrees 1.20}.
+\item Fünf Sprachen sind gleichwertig; eine neue Funktion ist erst fertig, wenn alle fünf Texte da sind.
+\end{itemize}
+
+\section{Anwendungen}
+
+\subsection{Handbuch}
+
+Das Handbuch entsteht aus den Hilfetexten des Programms (\texttt{hilfe/<sprache>/*.md}) und wird mit \texttt{docs/handbuch/bauen.sh} in fünf Sprachen gesetzt. Das Paket \texttt{wtwinci.sty} liefert Farben, Schriften, Kopfzeile, Titelseite und die Bausteine \taste{Taste}, \menue{Menü › Weg}, Hinweis- und Achtung-Kasten:
+
+\begin{hinweis}
+\textbf{Hinweis} – für Dinge, die man wissen sollte. Petrol, linke Kante, kein Rahmen.
+\end{hinweis}
+\begin{achtung}
+\textbf{Achtung} – nur, wenn Daten oder Zeit verloren gehen können. Rost.
+\end{achtung}
+
+Jedes Kapitel beginnt mit einem Bildschirmfoto in 1600\,px Breite aus dem Demo-Baum Falkenrath, Rahmen in Linienfarbe, keine Schatten, keine Fensterdekoration des Betriebssystems außer bei Installer-Bildern.
+
+\subsection{Homepage}
+
+Die Homepage bleibt im Hausstil von bgg-home.de (eine Stylesheet-Datei für alle Projekte). Zwei kleine Schritte bringen sie zur Marke: das Ahnenzeichen als Favicon und in der Leiste statt des grünen Icons, und auf den wtWin-Seiten Petrol als Linkfarbe statt Blau (eine Zeile \texttt{:root} je Seite). Gold bleibt als Hausfarbe der Seite. Mehr ist nicht nötig; ein eigenes Stylesheet nur für wtWin wäre doppelte Pflege.
+
+\subsection{README, Release-Notizen, Store}
+
+\begin{itemize}
+\item README: Logo oben (Ahnenzeichen 112\,px), vier Download-Knöpfe, dann \enquote{Neu in x.y} als je ein Absatz mit fettem Einstieg. Keine Begründungen, keine Geschichte – die steht im Changelog.
+\item Release-Notiz: Überschrift \enquote{wtWin x.y}, Aufzählung mit fettem Stichwort je Punkt, am Ende die Voraussetzungen (api4webtrees-Version). Dieselbe Notiz in GitHub, F-Droid-Changelog und Homepage-Neuigkeit.
+\item Store-Einträge und fastlane: Icon aus derselben SVG, Screenshots in Handy-Hochkant 1080×2340, Beschreibung = Claim + drei Sätze.
+\end{itemize}
+
+\subsection{Bildschirmfotos}
+
+Demo-Baum Falkenrath, Zentralperson Heinrich Falkenrath oder Familie Mohwinkel; Programmsprache der Zielsprache des Textes (deutsche Seite deutsch, englische Seite englisch); Fenster 1600×900 bis 1600×1000; keine persönlichen Daten; Dateinamen \texttt{desktop-<ansicht>.jpg}, \texttt{handy-<ansicht>.png}; auf der Homepage als WebP.
+
+\section{Was wtWin selbst bekommt}
+
+Zur Frage, ob das Programm \enquote{auch noch eine CI verpasst bekommen} muss: nein, keine Neugestaltung. Das Programm ist die Quelle der CI. Es fehlen nur die Stellen, an denen die Marke sichtbar wird:
+
+\begin{enumerate}
+\item \textbf{Icon} auf allen Plattformen aus \texttt{ahnenzeichen.svg}: \texttt{desktop/icons/app.png/ico/icns}, Android \texttt{ic\_launcher} (Vordergrund Zeichen, Hintergrund Petrol), fastlane, Favicon der Homepage, Store.
+\item \textbf{Startbildschirm:} Zeichen und Wortmarke über den beiden Wegen (\enquote{Mit webtrees verbinden} / \enquote{Stammbaum auf diesem PC}), darunter der Claim.
+\item \textbf{Über-Dialog:} Zeichen, Wortmarke, Version, Claim, dann der bestehende Text.
+\item \textbf{Installer-Bilder:} Inno Setup \texttt{WizardImageFile} und \texttt{WizardSmallImageFile} mit dem Zeichen auf Petrol; dmg-Hintergrund ebenso.
+\item \textbf{Fenstertitel} bleibt \enquote{wtWin – <Stammbaum>}; Taskleisten-Icon ist das Zeichen.
+\end{enumerate}
+
+Farben, Abstände, Kästen und Schrift im Programm bleiben, wie sie sind. Was sich später im Programm ändert, wird hier nachgezogen – nicht umgekehrt.
+
+\section{Checkliste vor einer Veröffentlichung}
+
+\begin{itemize}
+\item Namen richtig geschrieben (wtWin, webtrees, api4webtrees)?
+\item Nur Petrol, Rost und die Grautöne; Rost nur für eine Sache?
+\item Überschriften Inter in Petrol, Menüwege mit ›, Tasten im Kästchen?
+\item Bildschirmfotos aus dem Demo-Baum, in der Sprache der Seite?
+\item Texte in allen fünf Sprachen, Ton wie in Abschnitt 6?
+\item Kein Vergleich mit anderen Programmen, keine Marketingwörter?
+\end{itemize}
+
+\end{document}
