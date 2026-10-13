@@ -1666,4 +1666,32 @@
     <string name="desk_church_all">Alle Sonntage und Feiertage</string>
     <string name="desk_claim">Dein webtrees-Stammbaum als Desktop-Programm</string>
     <string name="desk_connect_heading">Mit webtrees verbinden</string>
+
+    <!-- gedaudit (13.10.2026): GEDCOM-Datei pruefen, Datumsformen des Lesers -->
+    <string name="date_text_estimated">geschätzt %1$s</string>
+    <string name="date_text_calculated">berechnet %1$s</string>
+    <string name="date_text_from">ab %1$s</string>
+    <string name="date_text_to">bis %1$s</string>
+    <string name="date_text_from_to">von %1$s bis %2$s</string>
+    <string name="ga_open">GEDCOM-Datei öffnen …</string>
+    <string name="ga_recent">Zuletzt geöffnet</string>
+    <string name="ga_reload">Datei neu laden</string>
+    <string name="ga_welcome">gedaudit prüft eine GEDCOM-Datei auf Widersprüche und Auffälligkeiten: Chronologie, Altersgrenzen, Struktur, Namen, Quellen und Orte. Die Datei wird nur gelesen, nichts verlässt diesen Rechner.</string>
+    <string name="ga_loading">Datei wird gelesen …</string>
+    <string name="ga_read_error">Die Datei konnte nicht gelesen werden: %1$s</string>
+    <string name="ga_file_info">%1$d Personen, %2$d Familien · %3$s</string>
+    <string name="ga_charset">Zeichensatz %1$s</string>
+    <string name="ga_about_text">%1$s %2$s – prüft GEDCOM-Dateien mit den Plausibilitätsregeln von wtWin, wtTux und wtMac. Die Datei wird nur gelesen, nie verändert.</string>
+    <string name="ga_about_unofficial">Fragen und Fehler: github.com/thobgg/app4webtrees/issues.</string>
+    <string name="ga_no_person">Treffer anklicken, um die Person zu sehen.</string>
+    <string name="ga_person_facts">Ereignisse</string>
+    <string name="ga_person_parents">Eltern</string>
+    <string name="ga_person_families">Partner und Kinder</string>
+    <string name="ga_person_sources">%1$d Quellen</string>
+    <string name="ga_drop_hint">Zum Prüfen eine GEDCOM-Datei öffnen.</string>
+    <string name="ga_menu_language">Sprache</string>
+    <string name="ga_menu_system">Wie das System</string>
+    <string name="ga_appearance_light">Hell</string>
+    <string name="ga_appearance_dark">Dunkel</string>
+    <string name="ga_hint">Prüft die ganze Datei. Fehler sind Widersprüche in den Daten, Warnungen sind ungewöhnlich, aber möglich. Klick zeigt die Person unten, der Haken hakt einen Treffer ab – er kommt nur wieder, wenn sich die Daten ändern.</string>
 </resources>

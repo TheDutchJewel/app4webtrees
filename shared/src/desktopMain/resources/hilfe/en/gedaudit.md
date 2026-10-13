@@ -1,0 +1,29 @@
+# gedaudit
+
+**gedaudit** checks a GEDCOM file for contradictions and oddities, using the same rules as the plausibility check in wtWin, wtTux and wtMac. It needs neither webtrees nor a server: the file is only read, nothing is changed, nothing leaves your computer.
+
+## Opening a file
+
+**File › Open GEDCOM file …** (Ctrl+O) or the button on the start page. Recently opened files are listed on the start page and under **File › Recently opened**. A `.ged` file can also be opened with gedaudit by double-clicking it in the file manager.
+
+GEDCOM 5.5, 5.5.1 and 7 are read. The character set is taken from the file (UTF-8, UTF-16, ANSEL, ANSI); the one detected is shown in the line above the findings. If the file was changed in the other program, **Reload file** (F5) picks up the new state.
+
+## Checking
+
+The rules are listed in groups on the left, the findings on the right. How rules, presets, limits and ticking off work is explained in the chapter [Plausibility check](hilfe:pruefung). The difference to wtWin: there is no person sheet and no editing, because gedaudit never writes to the file. Corrections are made in the genealogy program the file came from; then export the file again and reload it in gedaudit.
+
+## Viewing a person
+
+Clicking a finding shows the **person** below: events with date, place and number of sources, the parents, the partners with marriage and the children. The identifiers (I123, F45) are those from the file, so you can find the person again in the program of origin. The divider above the card can be dragged.
+
+## Ticking off
+
+Findings you have checked and that stay as they are can be ticked off; they disappear from the list and only return when something changes at that spot. The tick list is stored on this PC, separately per file (by its path). **Save ticked …** and **Load ticked …** exchange it as a file, also with wtWin.
+
+## Printing
+
+**File › Print** (Ctrl+P) and **Save as PDF …** output the current list of findings with a summary.
+
+## Language and appearance
+
+**View › Language** switches the interface (German, English, French, Dutch, Spanish), **View › Appearance** between light and dark.

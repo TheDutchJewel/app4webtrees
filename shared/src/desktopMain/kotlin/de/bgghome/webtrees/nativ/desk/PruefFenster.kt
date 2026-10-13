@@ -97,8 +97,8 @@ import java.io.File
  * ohne weitere Anfragen, darum rechnet jede Aenderung einer Einstellung sofort neu.
  */
 
-private object PruefWahl {
-    private val prefs get() = DeskLayout.prefs
+/** Gewaehlte Regeln, Grenzwerte, Schwere, Schaetzen und Voreinstellung in einer Ablage (wtWin: "desk", gedaudit: eigene). */
+internal class PruefWahl(private val prefs: de.bgghome.webtrees.nativ.data.Ablage) {
     fun aus(): Set<String> = prefs.getString("pruef_aus2", null)?.split(',')?.filter { it.isNotBlank() && it != "-" }?.toSet() ?: Regelkatalog.standardAus
     fun aus(s: Set<String>) = prefs.putString("pruef_aus2", s.sorted().joinToString(",").ifEmpty { "-" })
     fun grenzwerte(): Map<String, Double> = Regelkatalog.alle.mapNotNull { r -> prefs.getString("pruef_g_${r.id}", null)?.toDoubleOrNull()?.let { r.id to it } }.toMap()
@@ -114,27 +114,27 @@ private object PruefWahl {
 }
 
 /** Die Abhakliste liegt als Datei bei den Einstellungen des Programms (nicht im Zwischenspeicher, der darf weg). */
-private object AbhakAblage {
+internal class AbhakAblage(private val programm: String = "app4webtrees") {
     val datei: File by lazy {
         val basis = System.getenv("APPDATA")?.takeIf { it.isNotBlank() }?.let(::File)
             ?: System.getenv("XDG_CONFIG_HOME")?.takeIf { it.isNotBlank() }?.let(::File)
             ?: File(System.getProperty("user.home"), ".config")
-        File(basis, "app4webtrees").apply { mkdirs() }.resolve("pruefung-abgehakt.json")
+        File(basis, programm).apply { mkdirs() }.resolve("pruefung-abgehakt.json")
     }
     fun laden(): Abhakliste = runCatching { Abhakliste.ausJson(datei.readText()) }.getOrElse { Abhakliste() }
     fun sichern(l: Abhakliste) { runCatching { datei.writeText(l.alsJson()) } }
 }
 
-private fun einheit(e: Einheit?, wert: Double = 2.0): String = when (e) {
+internal fun einheit(e: Einheit?, wert: Double = 2.0): String = when (e) {
     Einheit.Jahre -> Texte.t(if (wert == 1.0) Res.string.desk_check_unit_year else Res.string.desk_check_unit_years)
     Einheit.Monate -> Texte.t(if (wert == 1.0) Res.string.desk_check_unit_month else Res.string.desk_check_unit_months)
     Einheit.Kilometer -> "km"
     else -> ""
 }
 
-private fun zahl(d: Double) = if (d == d.toLong().toDouble()) d.toLong().toString() else d.toString()
+internal fun zahl(d: Double) = if (d == d.toLong().toDouble()) d.toLong().toString() else d.toString()
 
-private fun gruppenName(g: RegelGruppe) = when (g) {
+internal fun gruppenName(g: RegelGruppe) = when (g) {
     RegelGruppe.Chronologie -> Res.string.desk_check_group_chrono
     RegelGruppe.Alter -> Res.string.desk_check_group_age
     RegelGruppe.Struktur -> Res.string.desk_check_group_structure
@@ -143,17 +143,17 @@ private fun gruppenName(g: RegelGruppe) = when (g) {
     RegelGruppe.Orte -> Res.string.desk_check_group_places
 }
 
-private val WARN_FARBE = Color(0xFFB26A00)
+internal val WARN_FARBE = Color(0xFFB26A00)
 
 /** Wer zu einem Treffer gehoert: die Person, sonst der erste Partner der Familie, sonst ein Kind. */
-private fun trefferPerson(t: Treffer, b: TreeExport): String? =
+internal fun trefferPerson(t: Treffer, b: TreeExport): String? =
     t.person ?: b.families[t.familie]?.let { f -> f.husband ?: f.wife ?: f.children.firstOrNull() }
 
 /** Der Fakt aus dem Export (Person oder Familie). */
-private fun faktAus(b: TreeExport, record: String, id: String): FactJson? =
+internal fun faktAus(b: TreeExport, record: String, id: String): FactJson? =
     (b.individuals[record]?.facts ?: b.families[record]?.facts)?.firstOrNull { it.id == id }
 
-private fun schwereText(s: Schwere) = Texte.t(if (s == Schwere.Fehler) Res.string.desk_check_error else Res.string.desk_check_warning)
+internal fun schwereText(s: Schwere) = Texte.t(if (s == Schwere.Fehler) Res.string.desk_check_error else Res.string.desk_check_warning)
 
 /** Die Pruefung als Liste fuer Druck und PDF: je Regel mit offenen Treffern eine Ueberschrift, darunter eine Tabelle. */
 internal fun pruefZeilen(
@@ -179,7 +179,7 @@ internal fun pruefZeilen(
     }
 }
 
-private fun dateiWaehlen(titel: String, speichern: Boolean, vorschlag: String = ""): File? {
+internal fun dateiWaehlen(titel: String, speichern: Boolean, vorschlag: String = ""): File? {
     val dialog = FileDialog(null as Frame?, titel, if (speichern) FileDialog.SAVE else FileDialog.LOAD).apply {
         if (vorschlag.isNotEmpty()) file = vorschlag
         isVisible = true
@@ -197,6 +197,8 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
     onZusammenfuehren: ((de.bgghome.webtrees.nativ.data.Dublette) -> Unit)? = null, onAufgabe: ((AufgabeZiel) -> Unit)? = null) {
     val appName = LocalAppName.current
     val baumTitel = state.tree?.title.orEmpty()
+    val PruefWahl = remember { PruefWahl(DeskLayout.prefs) }
+    val AbhakAblage = remember { AbhakAblage() }
     var aus by remember { mutableStateOf(PruefWahl.aus()) }
     var grenzwerte by remember { mutableStateOf(PruefWahl.grenzwerte()) }
     var schwere by remember { mutableStateOf(PruefWahl.schwere()) }
@@ -387,7 +389,7 @@ fun PruefFenster(state: UiState, viewModel: AppViewModel, openSheet: (String) ->
 }
 
 @Composable
-private fun RegelZeile(r: Regel?, text: String, zahl: Int?, fehler: Boolean, aktiv: Boolean, an: Boolean, onHaken: ((Boolean) -> Unit)?, onClick: () -> Unit) {
+internal fun RegelZeile(r: Regel?, text: String, zahl: Int?, fehler: Boolean, aktiv: Boolean, an: Boolean, onHaken: ((Boolean) -> Unit)?, onClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().background(if (aktiv) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
             .fokusRahmen().clickable(onClick = onClick).padding(start = 4.dp, end = 12.dp, top = 2.dp, bottom = 2.dp),
@@ -411,7 +413,7 @@ private fun RegelZeile(r: Regel?, text: String, zahl: Int?, fehler: Boolean, akt
 
 /** Unter der gewaehlten Regel: Grenzwert (wenn es einen gibt) und Schwere. */
 @Composable
-private fun RegelEinstellung(r: Regel, wert: Double?, schwere: Schwere, onWert: (Double?) -> Unit, onSchwere: (Schwere) -> Unit) {
+internal fun RegelEinstellung(r: Regel, wert: Double?, schwere: Schwere, onWert: (Double?) -> Unit, onSchwere: (Schwere) -> Unit) {
     Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(start = 70.dp, end = 12.dp, bottom = 6.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)) {
         val vorgabe = r.grenzwert

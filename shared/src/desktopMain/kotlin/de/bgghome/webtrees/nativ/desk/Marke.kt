@@ -32,21 +32,27 @@ import de.bgghome.webtrees.nativ.res.*
  */
 object Marke {
     private var bild: ImageBitmap? = null
+    /** Eigenes Symbol eines anderen Programms auf demselben Kern (gedaudit: marke/gedaudit.png); null = wtWin. */
+    var programm: String? = null
 
-    fun icon(): ImageBitmap? = bild ?: Marke::class.java.classLoader?.getResourceAsStream("marke/icon.png")
+    fun icon(): ImageBitmap? = bild ?: (programm?.let { Marke::class.java.classLoader?.getResourceAsStream("marke/$it.png") }
+        ?: Marke::class.java.classLoader?.getResourceAsStream("marke/icon.png"))
         ?.use { Image.makeFromEncoded(it.readBytes()).toComposeImageBitmap() }?.also { bild = it }
 }
 
 @Composable
-fun Wortmarke(appName: String = LocalAppName.current, groesse: Int = 32) {
+/** [vorsatz]: so viele Buchstaben in der Hauptfarbe - "wt" bei wtWin, "ged" bei gedaudit. */
+fun Wortmarke(appName: String = LocalAppName.current, groesse: Int = 32, vorsatz: Int = vorsatzLaenge(appName)) {
     val text = buildAnnotatedString {
-        withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) { append(appName.take(2)) }
-        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface)) { append(appName.drop(2)) }
+        withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) { append(appName.take(vorsatz)) }
+        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface)) { append(appName.drop(vorsatz)) }
     }
     Text(text, fontSize = groesse.sp, lineHeight = (groesse * 1.1f).sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-0.03).em(groesse))
 }
 
 private fun Double.em(groesse: Int) = (this * groesse).sp
+
+fun vorsatzLaenge(appName: String) = if (appName.startsWith("ged")) 3 else 2
 
 @Composable
 fun Markenkopf(appName: String = LocalAppName.current, mitClaim: Boolean = true, groesse: Int = 32) {

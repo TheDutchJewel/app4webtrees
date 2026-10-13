@@ -1671,4 +1671,32 @@
     <string name="desk_church_all">All Sundays and feast days</string>
     <string name="desk_claim">Your webtrees family tree as a desktop program</string>
     <string name="desk_connect_heading">Connect to webtrees</string>
+
+    <!-- gedaudit (13.10.2026): GEDCOM-Datei pruefen, Datumsformen des Lesers -->
+    <string name="date_text_estimated">estimated %1$s</string>
+    <string name="date_text_calculated">calculated %1$s</string>
+    <string name="date_text_from">from %1$s</string>
+    <string name="date_text_to">to %1$s</string>
+    <string name="date_text_from_to">from %1$s to %2$s</string>
+    <string name="ga_open">Open GEDCOM file …</string>
+    <string name="ga_recent">Recently opened</string>
+    <string name="ga_reload">Reload file</string>
+    <string name="ga_welcome">gedaudit checks a GEDCOM file for contradictions and oddities: chronology, age limits, structure, names, sources and places. The file is only read; nothing leaves this computer.</string>
+    <string name="ga_loading">Reading file …</string>
+    <string name="ga_read_error">The file could not be read: %1$s</string>
+    <string name="ga_file_info">%1$d individuals, %2$d families · %3$s</string>
+    <string name="ga_charset">character set %1$s</string>
+    <string name="ga_about_text">%1$s %2$s – checks GEDCOM files with the plausibility rules of wtWin, wtTux and wtMac. The file is only read, never changed.</string>
+    <string name="ga_about_unofficial">Questions and bugs: github.com/thobgg/app4webtrees/issues.</string>
+    <string name="ga_no_person">Click a finding to see the person.</string>
+    <string name="ga_person_facts">Events</string>
+    <string name="ga_person_parents">Parents</string>
+    <string name="ga_person_families">Partners and children</string>
+    <string name="ga_person_sources">%1$d sources</string>
+    <string name="ga_drop_hint">Open a GEDCOM file to start checking.</string>
+    <string name="ga_menu_language">Language</string>
+    <string name="ga_menu_system">Like the system</string>
+    <string name="ga_appearance_light">Light</string>
+    <string name="ga_appearance_dark">Dark</string>
+    <string name="ga_hint">Checks the whole file. Errors are contradictions in the data, warnings are unusual but possible. Click shows the person below, the tick marks a finding as checked – it only returns when the data changes.</string>
 </resources>

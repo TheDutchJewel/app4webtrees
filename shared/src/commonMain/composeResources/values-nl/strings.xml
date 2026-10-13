@@ -1647,4 +1647,32 @@
     <string name="desk_church_all">Alle zondagen en feestdagen</string>
     <string name="desk_claim">Uw webtrees-stamboom als desktopprogramma</string>
     <string name="desk_connect_heading">Verbinden met webtrees</string>
+
+    <!-- gedaudit (13.10.2026): GEDCOM-Datei pruefen, Datumsformen des Lesers -->
+    <string name="date_text_estimated">geschat %1$s</string>
+    <string name="date_text_calculated">berekend %1$s</string>
+    <string name="date_text_from">vanaf %1$s</string>
+    <string name="date_text_to">tot %1$s</string>
+    <string name="date_text_from_to">van %1$s tot %2$s</string>
+    <string name="ga_open">GEDCOM-bestand openen …</string>
+    <string name="ga_recent">Onlangs geopend</string>
+    <string name="ga_reload">Bestand opnieuw laden</string>
+    <string name="ga_welcome">gedaudit controleert een GEDCOM-bestand op tegenstrijdigheden en opvallendheden: chronologie, leeftijdsgrenzen, structuur, namen, bronnen en plaatsen. Het bestand wordt alleen gelezen; niets verlaat deze computer.</string>
+    <string name="ga_loading">Bestand wordt gelezen …</string>
+    <string name="ga_read_error">Het bestand kon niet worden gelezen: %1$s</string>
+    <string name="ga_file_info">%1$d personen, %2$d gezinnen · %3$s</string>
+    <string name="ga_charset">tekenset %1$s</string>
+    <string name="ga_about_text">%1$s %2$s – controleert GEDCOM-bestanden met de plausibiliteitsregels van wtWin, wtTux en wtMac. Het bestand wordt alleen gelezen, nooit gewijzigd.</string>
+    <string name="ga_about_unofficial">Vragen en fouten: github.com/thobgg/app4webtrees/issues.</string>
+    <string name="ga_no_person">Klik op een bevinding om de persoon te zien.</string>
+    <string name="ga_person_facts">Gebeurtenissen</string>
+    <string name="ga_person_parents">Ouders</string>
+    <string name="ga_person_families">Partners en kinderen</string>
+    <string name="ga_person_sources">%1$d bronnen</string>
+    <string name="ga_drop_hint">Open een GEDCOM-bestand om te beginnen.</string>
+    <string name="ga_menu_language">Taal</string>
+    <string name="ga_menu_system">Zoals het systeem</string>
+    <string name="ga_appearance_light">Licht</string>
+    <string name="ga_appearance_dark">Donker</string>
+    <string name="ga_hint">Controleert het hele bestand. Fouten zijn tegenstrijdigheden in de gegevens, waarschuwingen zijn ongewoon maar mogelijk. Klik toont de persoon onderaan, het vinkje markeert een bevinding als gecontroleerd – die komt pas terug als de gegevens veranderen.</string>
 </resources>

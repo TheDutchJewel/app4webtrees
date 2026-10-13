@@ -1666,4 +1666,32 @@
     <string name="desk_church_all">Todos los domingos y fiestas</string>
     <string name="desk_claim">Tu árbol genealógico de webtrees como programa de escritorio</string>
     <string name="desk_connect_heading">Conectar con webtrees</string>
+
+    <!-- gedaudit (13.10.2026): GEDCOM-Datei pruefen, Datumsformen des Lesers -->
+    <string name="date_text_estimated">estimado %1$s</string>
+    <string name="date_text_calculated">calculado %1$s</string>
+    <string name="date_text_from">desde %1$s</string>
+    <string name="date_text_to">hasta %1$s</string>
+    <string name="date_text_from_to">de %1$s a %2$s</string>
+    <string name="ga_open">Abrir archivo GEDCOM …</string>
+    <string name="ga_recent">Abiertos recientemente</string>
+    <string name="ga_reload">Volver a cargar el archivo</string>
+    <string name="ga_welcome">gedaudit comprueba un archivo GEDCOM en busca de contradicciones y anomalías: cronología, límites de edad, estructura, nombres, fuentes y lugares. El archivo solo se lee; nada sale de este equipo.</string>
+    <string name="ga_loading">Leyendo el archivo …</string>
+    <string name="ga_read_error">No se pudo leer el archivo: %1$s</string>
+    <string name="ga_file_info">%1$d personas, %2$d familias · %3$s</string>
+    <string name="ga_charset">juego de caracteres %1$s</string>
+    <string name="ga_about_text">%1$s %2$s – comprueba archivos GEDCOM con las reglas de plausibilidad de wtWin, wtTux y wtMac. El archivo solo se lee, nunca se modifica.</string>
+    <string name="ga_about_unofficial">Preguntas y errores: github.com/thobgg/app4webtrees/issues.</string>
+    <string name="ga_no_person">Haga clic en un hallazgo para ver la persona.</string>
+    <string name="ga_person_facts">Eventos</string>
+    <string name="ga_person_parents">Padres</string>
+    <string name="ga_person_families">Cónyuges e hijos</string>
+    <string name="ga_person_sources">%1$d fuentes</string>
+    <string name="ga_drop_hint">Abra un archivo GEDCOM para empezar la comprobación.</string>
+    <string name="ga_menu_language">Idioma</string>
+    <string name="ga_menu_system">Como el sistema</string>
+    <string name="ga_appearance_light">Claro</string>
+    <string name="ga_appearance_dark">Oscuro</string>
+    <string name="ga_hint">Comprueba todo el archivo. Los errores son contradicciones en los datos, los avisos son inusuales pero posibles. Un clic muestra la persona abajo, la marca da por comprobado un hallazgo – solo vuelve si cambian los datos.</string>
 </resources>

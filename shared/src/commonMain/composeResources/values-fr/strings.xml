@@ -1666,4 +1666,32 @@
     <string name="desk_church_all">Tous les dimanches et fêtes</string>
     <string name="desk_claim">Votre arbre webtrees comme programme de bureau</string>
     <string name="desk_connect_heading">Se connecter à webtrees</string>
+
+    <!-- gedaudit (13.10.2026): GEDCOM-Datei pruefen, Datumsformen des Lesers -->
+    <string name="date_text_estimated">estimé %1$s</string>
+    <string name="date_text_calculated">calculé %1$s</string>
+    <string name="date_text_from">à partir de %1$s</string>
+    <string name="date_text_to">jusqu’à %1$s</string>
+    <string name="date_text_from_to">de %1$s à %2$s</string>
+    <string name="ga_open">Ouvrir un fichier GEDCOM …</string>
+    <string name="ga_recent">Récemment ouverts</string>
+    <string name="ga_reload">Recharger le fichier</string>
+    <string name="ga_welcome">gedaudit vérifie un fichier GEDCOM à la recherche de contradictions et d’anomalies : chronologie, limites d’âge, structure, noms, sources et lieux. Le fichier est seulement lu ; rien ne quitte cet ordinateur.</string>
+    <string name="ga_loading">Lecture du fichier …</string>
+    <string name="ga_read_error">Le fichier n’a pas pu être lu : %1$s</string>
+    <string name="ga_file_info">%1$d personnes, %2$d familles · %3$s</string>
+    <string name="ga_charset">jeu de caractères %1$s</string>
+    <string name="ga_about_text">%1$s %2$s – vérifie des fichiers GEDCOM avec les règles de plausibilité de wtWin, wtTux et wtMac. Le fichier est seulement lu, jamais modifié.</string>
+    <string name="ga_about_unofficial">Questions et erreurs : github.com/thobgg/app4webtrees/issues.</string>
+    <string name="ga_no_person">Cliquer sur un résultat pour voir la personne.</string>
+    <string name="ga_person_facts">Événements</string>
+    <string name="ga_person_parents">Parents</string>
+    <string name="ga_person_families">Conjoints et enfants</string>
+    <string name="ga_person_sources">%1$d sources</string>
+    <string name="ga_drop_hint">Ouvrir un fichier GEDCOM pour commencer la vérification.</string>
+    <string name="ga_menu_language">Langue</string>
+    <string name="ga_menu_system">Comme le système</string>
+    <string name="ga_appearance_light">Clair</string>
+    <string name="ga_appearance_dark">Sombre</string>
+    <string name="ga_hint">Vérifie tout le fichier. Les erreurs sont des contradictions dans les données, les avertissements sont inhabituels mais possibles. Un clic affiche la personne en bas, la coche marque un résultat comme vérifié – il ne revient que si les données changent.</string>
 </resources>
