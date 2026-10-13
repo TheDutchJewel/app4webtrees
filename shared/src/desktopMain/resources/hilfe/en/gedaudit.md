@@ -22,6 +22,10 @@ The **Form** group exists for files only: lines that are not GEDCOM, links to pe
 
 Clicking a finding shows the **person** below: events with date, place and number of sources, the parents, the partners with marriage and the children. If a finding concerns two persons, such as a possible duplicate or child and mother, both are shown side by side. The identifiers (I123, F45) are those from the file, so you can find the person again in the program of origin. The divider above the card can be dragged.
 
+## Comparing two files
+
+**File › Compare with another file …** (Ctrl+D) sets a second file against the open one, such as an older state, the export from another program or a fellow researcher’s file. Persons are matched by identifier, otherwise by name, birth year and sex; near matches are listed as “probably the same person”. On the left the groups: changed, probably the same, only in one file or the other, unchanged. A click on an entry shows the changed fields and both persons side by side. Relatives are compared by name, because identifiers may differ between files. Print and PDF output the list of differences. Nothing is merged and nothing is written.
+
 ## Ticking off
 
 Findings you have checked and that stay as they are can be ticked off; they disappear from the list and only return when something changes at that spot. The tick list is stored on this PC, separately per file (by its path). **Save ticked …** and **Load ticked …** exchange it as a file, also with wtWin.

@@ -1708,4 +1708,18 @@
     <string name="ga_structure_count">Aantal</string>
     <string name="ga_structure_hint">De tagboom van het bestand per recordtype, met het aantal keren dat elke tag voorkomt. Tags met een onderstrepingsteken zijn uitbreidingen van de leverancier; tags zonder dat niet in GEDCOM 5.5.1 of 7 staan, zijn gemarkeerd.</string>
     <string name="ga_person_second">Tweede persoon</string>
+    <!-- Dateien vergleichen (gedaudit 0.3, 13.10.2026) -->
+    <string name="ga_compare_menu">Met een ander bestand vergelijken …</string>
+    <string name="ga_compare">Bestanden vergelijken</string>
+    <string name="ga_compare_changed">Gewijzigd</string>
+    <string name="ga_compare_only">Alleen in %1$s</string>
+    <string name="ga_compare_likely">Waarschijnlijk dezelfde persoon</string>
+    <string name="ga_compare_same">Ongewijzigd</string>
+    <string name="ga_compare_summary">%1$d personen in %2$s, %3$d in %4$s, %5$d gekoppeld</string>
+    <string name="ga_compare_hint">Personen worden gekoppeld op kenmerk, anders op naam, geboortejaar en geslacht; bijna-treffers staan onder „waarschijnlijk dezelfde“. Verwanten worden op naam vergeleken, omdat kenmerken tussen bestanden kunnen verschillen.</string>
+    <string name="ga_compare_partner">Partners</string>
+    <string name="ga_compare_select">Klik op een regel om de personen uit beide bestanden te zien.</string>
+    <string name="ga_compare_field">Veld</string>
+    <string name="ga_compare_loading">Vergelijken …</string>
+    <string name="ga_compare_other">Tweede bestand</string>
 </resources>

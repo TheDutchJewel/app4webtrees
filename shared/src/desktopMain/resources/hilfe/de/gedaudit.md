@@ -22,6 +22,10 @@ Die Gruppe **Form** gibt es nur für Dateien: Zeilen, die kein GEDCOM sind, Verw
 
 Ein Klick auf einen Treffer zeigt unten die **Person**: Ereignisse mit Datum, Ort und Zahl der Quellen, die Eltern, die Partner mit Heirat und die Kinder. Betrifft der Treffer zwei Personen, etwa eine mögliche Dublette oder Kind und Mutter, stehen beide nebeneinander. Die Kennungen (I123, F45) sind die aus der Datei, so findest du die Person im Herkunftsprogramm wieder. Die Trennlinie über der Karte lässt sich ziehen.
 
+## Zwei Dateien vergleichen
+
+**Datei › Mit anderer Datei vergleichen …** (Strg+D) stellt der geöffneten Datei eine zweite gegenüber, etwa einen älteren Stand, den Export aus einem anderen Programm oder die Datei eines Mitforschers. Personen werden über die Kennung zugeordnet, sonst über Name, Geburtsjahr und Geschlecht; nahe Treffer stehen unter „wahrscheinlich dieselbe Person“. Links die Gruppen: geändert, wahrscheinlich dieselbe, nur in der einen oder anderen Datei, unverändert. Ein Klick auf einen Eintrag zeigt die geänderten Felder und beide Personen nebeneinander. Verwandte werden über den Namen verglichen, weil Kennungen zwischen Dateien abweichen können. Drucken und PDF geben die Liste der Unterschiede aus. Es wird nichts zusammengeführt und nichts geschrieben.
+
 ## Abhaken
 
 Treffer, die du geprüft hast und die so bleiben, hakst du ab; sie verschwinden aus der Liste und kommen erst wieder, wenn sich an der Stelle etwas ändert. Die Abhakliste liegt auf diesem PC, getrennt je Datei (nach ihrem Pfad). **Abgehakte sichern …** und **Abgehakte laden …** tauschen sie als Datei aus, auch mit wtWin.

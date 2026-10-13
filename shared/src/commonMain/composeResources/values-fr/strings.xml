@@ -1727,4 +1727,18 @@
     <string name="ga_structure_count">Nombre</string>
     <string name="ga_structure_hint">L’arbre des balises du fichier par type d’enregistrement, avec le nombre d’occurrences. Les balises avec un tiret bas sont des extensions de l’éditeur ; celles sans tiret bas qui ne figurent pas dans GEDCOM 5.5.1 ou 7 sont marquées.</string>
     <string name="ga_person_second">Deuxième personne</string>
+    <!-- Dateien vergleichen (gedaudit 0.3, 13.10.2026) -->
+    <string name="ga_compare_menu">Comparer avec un autre fichier …</string>
+    <string name="ga_compare">Comparer des fichiers</string>
+    <string name="ga_compare_changed">Modifié</string>
+    <string name="ga_compare_only">Seulement dans %1$s</string>
+    <string name="ga_compare_likely">Probablement la même personne</string>
+    <string name="ga_compare_same">Inchangé</string>
+    <string name="ga_compare_summary">%1$d personnes dans %2$s, %3$d dans %4$s, %5$d appariées</string>
+    <string name="ga_compare_hint">Les personnes sont appariées par identifiant, sinon par nom, année de naissance et sexe ; les correspondances proches figurent sous « probablement la même ». Les parents sont comparés par nom, car les identifiants peuvent différer d’un fichier à l’autre.</string>
+    <string name="ga_compare_partner">Conjoints</string>
+    <string name="ga_compare_select">Cliquer sur une entrée pour voir les personnes des deux fichiers.</string>
+    <string name="ga_compare_field">Champ</string>
+    <string name="ga_compare_loading">Comparaison …</string>
+    <string name="ga_compare_other">Deuxième fichier</string>
 </resources>

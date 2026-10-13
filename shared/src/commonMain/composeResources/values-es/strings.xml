@@ -1727,4 +1727,18 @@
     <string name="ga_structure_count">Cantidad</string>
     <string name="ga_structure_hint">El árbol de etiquetas del archivo por tipo de registro, con el número de apariciones. Las etiquetas con guion bajo son extensiones del fabricante; las que no lo llevan y no figuran en GEDCOM 5.5.1 o 7 están marcadas.</string>
     <string name="ga_person_second">Segunda persona</string>
+    <!-- Dateien vergleichen (gedaudit 0.3, 13.10.2026) -->
+    <string name="ga_compare_menu">Comparar con otro archivo …</string>
+    <string name="ga_compare">Comparar archivos</string>
+    <string name="ga_compare_changed">Modificado</string>
+    <string name="ga_compare_only">Solo en %1$s</string>
+    <string name="ga_compare_likely">Probablemente la misma persona</string>
+    <string name="ga_compare_same">Sin cambios</string>
+    <string name="ga_compare_summary">%1$d personas en %2$s, %3$d en %4$s, %5$d emparejadas</string>
+    <string name="ga_compare_hint">Las personas se emparejan por identificador y, si no, por nombre, año de nacimiento y sexo; las coincidencias cercanas aparecen como «probablemente la misma». Los parientes se comparan por nombre, porque los identificadores pueden diferir entre archivos.</string>
+    <string name="ga_compare_partner">Cónyuges</string>
+    <string name="ga_compare_select">Haga clic en una entrada para ver las personas de ambos archivos.</string>
+    <string name="ga_compare_field">Campo</string>
+    <string name="ga_compare_loading">Comparando …</string>
+    <string name="ga_compare_other">Segundo archivo</string>
 </resources>

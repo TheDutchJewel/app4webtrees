@@ -254,7 +254,8 @@ thematischen Sammlungen und dem freien Bestand; der Betrachter mit Kneifzoom und
 Seit Oktober 2026 liegt in diesem Repository auch **gedaudit**, ein eigenes Programm für Windows, Linux und macOS.
 Es liest eine GEDCOM-Datei und prüft sie mit denselben 61 Regeln wie die Plausibilitätsprüfung in wtWin und zehn weiteren zur Form der Datei, ohne webtrees
 und ohne Server. Die Datei bleibt unverändert. Treffer lassen sich abhaken, drucken und als PDF speichern; ein Klick
-auf einen Treffer zeigt die Person mit ihren Ereignissen, Eltern, Partnern und Kindern. Mehr auf
+auf einen Treffer zeigt die Person mit ihren Ereignissen, Eltern, Partnern und Kindern. Zwei Dateien lassen sich vergleichen:
+geändert, nur in der einen oder anderen, wahrscheinlich dieselbe Person. Mehr auf
 [gedaudit.bgg-home.de](https://gedaudit.bgg-home.de/de/). Die Pakete liegen in den Releases mit dem Kennzeichen
 `gedaudit-…`; Bauen mit `./gradlew :gedaudit:packageDeb` (Linux), `:gedaudit:packageInno` (Windows, Inno Setup) oder
 `:gedaudit:packageDmg` (macOS).

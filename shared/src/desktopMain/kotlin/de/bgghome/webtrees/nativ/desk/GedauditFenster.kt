@@ -99,7 +99,7 @@ fun gedauditHilfeEinrichten() { HilfeTexte.REIHENFOLGE = listOf("gedaudit", "pru
 
 class GeladeneDatei(val datei: File, val baum: TreeExport, val befund: GedcomBefund, val gedcom: GedcomDatei, val form: DateiBefund)
 
-private fun gedcomWaehlen(titel: String): File? {
+internal fun gedcomDateiWaehlen(titel: String): File? {
     val dialog = FileDialog(null as Frame?, titel, FileDialog.LOAD).apply {
         setFilenameFilter { _, name -> name.endsWith(".ged", true) || name.endsWith(".gedcom", true) }
         isVisible = true
@@ -124,6 +124,7 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
     var gewaehlt by remember { mutableStateOf<String?>(null) }
     var treffer by remember { mutableStateOf<Treffer?>(null) }
     var aufbau by remember { mutableStateOf(false) }
+    var vergleich by remember { mutableStateOf(false) }
     var abhak by remember { mutableStateOf(ablage.laden()) }
     var zeigeAbgehakt by remember { mutableStateOf(false) }
     var ueber by remember { mutableStateOf(false) }
@@ -131,7 +132,7 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
     fun schwereVon(id: String) = schwere[id] ?: Regelkatalog.nachId.getValue(id).schwere
     fun eigene() { voreinstellung = "eigene"; wahl.voreinstellung = "eigene" }
     fun oeffnen(f: File) { datei = f; treffer = null; gewaehlt = null; GedauditAblage.merken(f); zuletzt = GedauditAblage.zuletzt() }
-    fun waehlen() { gedcomWaehlen(Texte.t(Res.string.ga_open))?.let(::oeffnen) }
+    fun waehlen() { gedcomDateiWaehlen(Texte.t(Res.string.ga_open))?.let(::oeffnen) }
 
     val geladen by produceState<Result<GeladeneDatei>?>(null, datei, neu) {
         value = null
@@ -172,6 +173,7 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
                 zuletzt.forEach { f -> Item(f.name + "  –  " + f.parent.orEmpty(), onClick = { oeffnen(f) }) }
             }
             Item(stringResource(Res.string.ga_reload), enabled = datei != null, shortcut = KeyShortcut(Key.F5), onClick = { neu++ })
+            Item(stringResource(Res.string.ga_compare_menu), enabled = baum != null, shortcut = KeyShortcut(Key.D, ctrl = true), onClick = { vergleich = true })
             Separator()
             Item(stringResource(Res.string.desk_print), enabled = bereit, shortcut = KeyShortcut(Key.P, ctrl = true), onClick = { drucken(doc(), druckTitel) })
             Item(stringResource(Res.string.desk_save_pdf), enabled = bereit, onClick = { alsPdf(doc(), druckTitel) })
@@ -330,6 +332,7 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
     HilfeFenster()
     if (ueber) GedauditUeber(appName) { ueber = false }
     if (aufbau) geladen?.getOrNull()?.let { g -> AufbauFenster(g.gedcom, g.datei.name) { aufbau = false } }
+    if (vergleich) geladen?.getOrNull()?.let { g -> VergleichFenster(g) { vergleich = false } }
 }
 
 @Composable
@@ -381,7 +384,7 @@ private fun TrefferZeileDatei(t: Treffer, b: TreeExport, mitRegel: Boolean, schw
 
 /** Die Person zum gewaehlten Treffer: Ereignisse, Eltern, Partner und Kinder - aus der Datei, ohne Server. */
 @Composable
-private fun PersonKarte(b: TreeExport, xref: String?) {
+internal fun PersonKarte(b: TreeExport, xref: String?) {
     val d = xref?.let { b.detail(it) }
     if (d == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(stringResource(Res.string.ga_no_person), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -421,7 +424,7 @@ private fun PersonKarte(b: TreeExport, xref: String?) {
     }
 }
 
-private fun personText(p: Person) = p.name.ifBlank { "?" } + p.lifespan.takeIf(String::isNotBlank)?.let { " ($it)" }.orEmpty() + "  ${p.xref}"
+internal fun personText(p: Person) = p.name.ifBlank { "?" } + p.lifespan.takeIf(String::isNotBlank)?.let { " ($it)" }.orEmpty() + "  ${p.xref}"
 
 @Composable
 private fun Ueberschrift(text: String) =
