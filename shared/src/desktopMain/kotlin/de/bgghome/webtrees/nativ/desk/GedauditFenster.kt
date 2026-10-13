@@ -108,9 +108,10 @@ internal fun gedcomDateiWaehlen(titel: String): File? {
     return File(dialog.directory, name)
 }
 
+/** [fenster] null: ohne Menueleiste, fuer Bilder ohne Bildschirm (GedauditBildErzeugen); [vorgabeTreffer] waehlt dann den ersten Treffer. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
+fun GedauditFenster(fenster: FrameWindowScope?, startDatei: File?, onQuit: () -> Unit, vorgabeTreffer: Boolean = false) {
     val appName = LocalAppName.current
     val wahl = remember { PruefWahl(GedauditAblage.prefs) }
     val ablage = remember { AbhakAblage("gedaudit") }
@@ -166,7 +167,8 @@ fun FrameWindowScope.GedauditFenster(startDatei: File?, onQuit: () -> Unit) {
     fun doc() = listenPdf(pruefZeilen(e!!, baum!!, baumTitel, grenzwerte, schwere, abgehakt), appName, baumTitel)
     val druckTitel = Texte.t(Res.string.desk_check_title, baumTitel)
 
-    MenuBar {
+    if (vorgabeTreffer && treffer == null) ergebnis?.treffer?.values?.flatten()?.firstOrNull { it.person != null }?.let { treffer = it }
+    fenster?.MenuBar {
         Menu(stringResource(Res.string.desk_menu_file)) {
             Item(stringResource(Res.string.ga_open), shortcut = KeyShortcut(Key.O, ctrl = true), onClick = ::waehlen)
             if (zuletzt.isNotEmpty()) Menu(stringResource(Res.string.ga_recent)) {

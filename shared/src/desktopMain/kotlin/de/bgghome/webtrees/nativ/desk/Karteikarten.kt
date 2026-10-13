@@ -42,7 +42,7 @@ private val REIHENFOLGE = listOf("BIRT", "CHR", "BAPM")
 private val ENDE = listOf("DEAT", "BURI", "CREM")
 private val OHNE = setOf("NAME", "SEX", "NOTE", "FAMS", "FAMC", "OBJE", "SOUR", "CHAN", "_UID", "RIN", "REFN")
 
-private fun leben(p: Person) = p.lifespan.ifBlank { listOfNotNull(p.birth?.date?.year?.takeIf { it > 0 }, p.death?.date?.year?.takeIf { it > 0 }).joinToString("–") }
+private fun leben(p: Person) = p.lifespan.ifBlank { lebensjahre(p) }
 private fun mitLeben(p: Person) = p.name.ifBlank { "?" } + leben(p).takeIf(String::isNotBlank)?.let { " ($it)" }.orEmpty()
 
 /** Schreibt fortlaufend auf A4-Seiten; reicht eine Seite nicht, geht es auf der naechsten weiter. */

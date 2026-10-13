@@ -302,19 +302,19 @@ internal fun wohnortBesitz(fakten: List<FactJson>): List<List<FactJson>> {
 
 /** "von 1814 bis 1850" aus den Daten einer Gruppe: gleiche Angabe einmal, sonst fruehestes bis spaetestes Jahr. */
 /**
- * Lebensjahre des Probanden fuer das Titelblatt von Ahnen- und Nachfahrenbuch (Issue 19): "1850 – 1925", lebend "1950 –".
- * Frueher stand dort die Spanne aller Geburtsjahre im Buch, die wie die Lebensdaten des Probanden aussah.
+ * Lebensspanne in der Form von webtrees, ueberall gleich (Issue 19): "1850 – 1925", lebend "1950 –", gestorben ohne
+ * Todesdatum "1850 – …", ohne Geburtsdatum "… – 1925". Ein Jahr steht nie allein, sonst liest man ein Todesjahr als Geburt.
  */
-internal fun lebensjahre(p: Person): String {
-    val geburt = p.birth?.date?.year?.takeIf { it > 0 }
-    val tod = p.death?.date?.year?.takeIf { it > 0 }
-    return when {
-        geburt == null && tod == null -> ""
-        tod != null -> listOfNotNull(geburt?.toString(), tod.toString()).joinToString(" – ").let { if (geburt == null) "– $it" else it }
-        p.isDead -> "$geburt – ?"
-        else -> "$geburt –"
-    }
+internal fun lebensspanne(geburt: String?, tod: String?, gestorben: Boolean): String = when {
+    geburt == null && tod == null -> ""
+    tod != null -> "${geburt ?: "…"} – $tod"
+    gestorben -> "$geburt – …"
+    else -> "$geburt –"
 }
+
+/** Lebensjahre einer Person (Titelblatt von Ahnen- und Nachfahrenbuch, Ersatz, wenn webtrees keine Lebensdaten liefert). */
+internal fun lebensjahre(p: Person): String =
+    lebensspanne(p.birth?.date?.year?.takeIf { it > 0 }?.toString(), p.death?.date?.year?.takeIf { it > 0 }?.toString(), p.isDead)
 
 internal fun zeitraumText(gruppe: List<FactJson>): String {
     val daten = gruppe.mapNotNull { it.date }

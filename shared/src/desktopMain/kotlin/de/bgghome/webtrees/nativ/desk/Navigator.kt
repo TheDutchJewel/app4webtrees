@@ -374,11 +374,7 @@ internal fun lebensdaten(p: Person): String {
             .getOrDefault(d.year.toString())
     }
     val geb = kurz(p.birth?.date); val tod = kurz(p.death?.date)
-    return when {
-        geb == null && tod == null -> jahre(p)
-        tod == null -> if (p.isDead) "$geb –" else geb.orEmpty()
-        else -> "${geb.orEmpty()} – $tod"
-    }
+    return if (geb == null && tod == null) jahre(p) else lebensspanne(geb, tod, p.isDead)
 }
 
 /** Lebensjahre ohne den Platzhalter von webtrees ("…–…" bei fehlenden Daten wird leer). */

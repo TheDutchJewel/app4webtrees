@@ -40,7 +40,7 @@ private fun monatTag(d: DateJson?): Pair<Int, Int>? {
 private val EREIGNIS_NAME = mapOf("BIRT" to Res.string.desk_ev_birth, "CHR" to Res.string.desk_ev_baptism, "BAPM" to Res.string.desk_ev_baptism,
     "MARR" to Res.string.desk_ev_marriage, "DEAT" to Res.string.desk_ev_death, "BURI" to Res.string.desk_ev_burial)
 
-private fun leben(p: Person): String = p.lifespan.ifBlank { listOfNotNull(p.birth?.date?.year?.takeIf { it > 0 }, p.death?.date?.year?.takeIf { it > 0 }).joinToString("–") }
+private fun leben(p: Person): String = p.lifespan.ifBlank { lebensjahre(p) }
 
 // ── Ereignisliste ──
 
