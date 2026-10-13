@@ -149,9 +149,8 @@ fun nachfahrenbuch(d: NachfahrenDaten, o: BuchOptionen, baum: String, app: Strin
     }
 
     val titel = o.titel.ifBlank { Texte.t(Res.string.desk_book_title_descendants, wurzel.name) }
-    val jahre = eintraege.mapNotNull { d.details[it.xref]?.person?.birth?.date?.year?.takeIf { y -> y > 0 } }
     val bloecke = mutableListOf<Block>()
-    bloecke += Titelblatt(titel, if (jahre.isNotEmpty()) "${jahre.min()} – ${jahre.max()}" else "",
+    bloecke += Titelblatt(titel, lebensjahre(wurzel),
         Texte.t(Res.string.desk_book_date, LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM))),
         if (o.bilder) wurzel.thumb?.let { d.bilder[it] } else null)
     bloecke += Inhaltsverzeichnis

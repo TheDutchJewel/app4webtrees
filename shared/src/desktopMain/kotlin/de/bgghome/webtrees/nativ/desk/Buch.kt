@@ -301,6 +301,21 @@ internal fun wohnortBesitz(fakten: List<FactJson>): List<List<FactJson>> {
 }
 
 /** "von 1814 bis 1850" aus den Daten einer Gruppe: gleiche Angabe einmal, sonst fruehestes bis spaetestes Jahr. */
+/**
+ * Lebensjahre des Probanden fuer das Titelblatt von Ahnen- und Nachfahrenbuch (Issue 19): "1850 – 1925", lebend "1950 –".
+ * Frueher stand dort die Spanne aller Geburtsjahre im Buch, die wie die Lebensdaten des Probanden aussah.
+ */
+internal fun lebensjahre(p: Person): String {
+    val geburt = p.birth?.date?.year?.takeIf { it > 0 }
+    val tod = p.death?.date?.year?.takeIf { it > 0 }
+    return when {
+        geburt == null && tod == null -> ""
+        tod != null -> listOfNotNull(geburt?.toString(), tod.toString()).joinToString(" – ").let { if (geburt == null) "– $it" else it }
+        p.isDead -> "$geburt – ?"
+        else -> "$geburt –"
+    }
+}
+
 internal fun zeitraumText(gruppe: List<FactJson>): String {
     val daten = gruppe.mapNotNull { it.date }
     if (daten.isEmpty()) return ""
@@ -348,7 +363,6 @@ suspend fun vorfahrenbuchLaden(client: WtClient, tree: String, xref: String, gen
 fun vorfahrenbuch(d: BuchDaten, o: BuchOptionen, baum: String, app: String): Buch {
     val proband = d.ahnen[1L]?.person ?: return Buch("", "", emptyList(), "")
     val nummern = d.ahnen.keys.filter { reihe(it) < o.generationen }.sorted()
-    val jahre = nummern.mapNotNull { d.ahnen.getValue(it).person.birth?.date?.year?.takeIf { y -> y > 0 } }
     val titel = o.titel.ifBlank { Texte.t(Res.string.desk_book_title_ancestors, proband.name) }
     val erste = HashMap<String, Long>()
     nummern.forEach { n -> d.ahnen.getValue(n).person.xref.takeIf(String::isNotEmpty)?.let { erste.putIfAbsent(it, n) } }
@@ -412,7 +426,7 @@ fun vorfahrenbuch(d: BuchDaten, o: BuchOptionen, baum: String, app: String): Buc
 
     val bloecke = mutableListOf<Block>()
     val datum = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM))
-    bloecke += Titelblatt(titel, if (jahre.isNotEmpty()) "${jahre.min()} – ${jahre.max()}" else "", Texte.t(Res.string.desk_book_date, datum),
+    bloecke += Titelblatt(titel, lebensjahre(proband), Texte.t(Res.string.desk_book_date, datum),
         if (o.bilder) proband.thumb?.let { d.bilder[it] } else null)
     bloecke += Inhaltsverzeichnis
     if (o.vorwort.isNotBlank()) {
