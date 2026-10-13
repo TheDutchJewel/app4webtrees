@@ -14,20 +14,6 @@ Repo: https://github.com/thobgg/app4webtrees.git
 Binaries: https://github.com/thobgg/app4webtrees/releases/download/v%v/wtAnd-v%v.apk
 
 Builds:
-  - versionName: '1.50'
-    versionCode: 53
-    commit: 0235e5d23e3eb75fd628a509cf3ba7d3637bf691
-    subdir: app
-    gradle:
-      - yes
-
-  - versionName: '1.51'
-    versionCode: 54
-    commit: 65c8344598388d096cede09cfeb57e00223c4f30
-    subdir: app
-    gradle:
-      - yes
-
   - versionName: '1.52'
     versionCode: 55
     commit: 3f6d8b13875ab81319ab2a39a0c2da33a3925cdc
