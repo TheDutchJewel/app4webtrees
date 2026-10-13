@@ -175,8 +175,12 @@ def reihenfolge() -> list[str]:
 
 
 def version() -> str:
-    schluessel = "gedaudit" if PROGRAMM == "gedaudit" else "wtand"
-    m = re.search(r"^%s\.versionName=(.+)$" % schluessel, (WURZEL / "gradle.properties").read_text(), re.M)
+    if PROGRAMM == "gedaudit":
+        # eigenes Repository neben diesem (thobgg/gedaudit); dort steht die Nummer
+        datei = WURZEL.parent / "gedaudit" / "gradle.properties"
+        m = re.search(r"^gedaudit\.versionName=(.+)$", datei.read_text(), re.M)
+        return m.group(1).strip()
+    m = re.search(r"^wtand\.versionName=(.+)$", (WURZEL / "gradle.properties").read_text(), re.M)
     return m.group(1).strip()
 
 

@@ -257,8 +257,8 @@ It reads a GEDCOM file and checks it with the same 61 rules as the plausibility 
 and without a server. The file stays unchanged. Findings can be ticked off, printed and saved as PDF; a click on a
 finding shows the person with events, parents, partners and children. Two files can be compared: changed, only in one
 or the other, probably the same person. More on
-[gedaudit.bgg-home.de](https://gedaudit.bgg-home.de/). The packages are in the releases tagged `gedaudit-…`; build with
-`./gradlew :gedaudit:packageDeb` (Linux), `:gedaudit:packageInno` (Windows, Inno Setup) or `:gedaudit:packageDmg` (macOS).
+[gedaudit.bgg-home.de](https://gedaudit.bgg-home.de/). Own repository with releases: [thobgg/gedaudit](https://github.com/thobgg/gedaudit); it includes this repository as a submodule,
+the core (GEDCOM reader, rules, windows) lives here in `shared/`.
 
 <p align="center"><img src="docs/screenshots/gedaudit-pruefung.jpg" alt="gedaudit: checking the Falkenrath demo tree" width="900"><br><b>Check</b>: rules in groups on the left, findings on the right, the person below.</p>
 

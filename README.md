@@ -256,9 +256,8 @@ Es liest eine GEDCOM-Datei und prüft sie mit denselben 61 Regeln wie die Plausi
 und ohne Server. Die Datei bleibt unverändert. Treffer lassen sich abhaken, drucken und als PDF speichern; ein Klick
 auf einen Treffer zeigt die Person mit ihren Ereignissen, Eltern, Partnern und Kindern. Zwei Dateien lassen sich vergleichen:
 geändert, nur in der einen oder anderen, wahrscheinlich dieselbe Person. Mehr auf
-[gedaudit.bgg-home.de](https://gedaudit.bgg-home.de/de/). Die Pakete liegen in den Releases mit dem Kennzeichen
-`gedaudit-…`; Bauen mit `./gradlew :gedaudit:packageDeb` (Linux), `:gedaudit:packageInno` (Windows, Inno Setup) oder
-`:gedaudit:packageDmg` (macOS).
+[gedaudit.bgg-home.de](https://gedaudit.bgg-home.de/de/). Eigenes Repository mit Releases: [thobgg/gedaudit](https://github.com/thobgg/gedaudit); es bindet dieses Repository als Submodul
+ein, der Kern (GEDCOM-Leser, Regeln, Fenster) liegt hier in `shared/`.
 
 <p align="center"><img src="docs/screenshots/gedaudit-pruefung.jpg" alt="gedaudit: Prüfung des Demo-Baums Falkenrath" width="900"><br><b>Prüfung</b>: links die Regeln in Gruppen, rechts die Treffer, darunter die Person.</p>
 
@@ -279,7 +278,6 @@ mit dem Debug-Schlüssel signiert.
 | `app/` | die App |
 | `shared/` | der geteilte Kern: API-Client, Zustand, Oberfläche, Prüfung |
 | `desktop/` | die Hülle für wtWin, wtTux und wtMac |
-| `gedaudit/` | die Hülle für gedaudit (GEDCOM-Prüfung ohne webtrees) |
 | `testdaten/` | Demo-Stammbaum „Familie Falkenrath" 1.3 für die Tests; der Baum mit Bildern liegt in [falkenrath-demo-tree](https://github.com/thobgg/falkenrath-demo-tree) |
 | `docs/` | Gestaltungs-Leitfaden und Bildschirmfotos |
 | `tools/` | Hilfsskripte: Demo-Baum erzeugen, Server prüfen, UI-Tests per adb |
