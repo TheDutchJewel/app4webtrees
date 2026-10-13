@@ -37,6 +37,17 @@ import de.bgghome.webtrees.nativ.res.desk_ev_marriage
 import de.bgghome.webtrees.nativ.res.desk_ev_name
 import de.bgghome.webtrees.nativ.res.desk_ev_occupation
 import de.bgghome.webtrees.nativ.res.desk_ev_religion
+import de.bgghome.webtrees.nativ.res.desk_ev_residence
+import de.bgghome.webtrees.nativ.res.desk_ev_property
+import de.bgghome.webtrees.nativ.res.desk_ev_census
+import de.bgghome.webtrees.nativ.res.desk_ev_confirmation
+import de.bgghome.webtrees.nativ.res.desk_ev_emigration
+import de.bgghome.webtrees.nativ.res.desk_ev_immigration
+import de.bgghome.webtrees.nativ.res.desk_ev_divorce
+import de.bgghome.webtrees.nativ.res.desk_ev_engagement
+import de.bgghome.webtrees.nativ.res.desk_ev_education
+import de.bgghome.webtrees.nativ.res.desk_ev_will
+import de.bgghome.webtrees.nativ.res.desk_ev_note
 import java.io.File
 import java.text.Normalizer
 import java.time.Month
@@ -367,6 +378,17 @@ object GedcomLeser {
             "NAME" -> Res.string.desk_ev_name
             "OCCU" -> Res.string.desk_ev_occupation
             "RELI" -> Res.string.desk_ev_religion
+            "RESI" -> Res.string.desk_ev_residence
+            "PROP" -> Res.string.desk_ev_property
+            "CENS" -> Res.string.desk_ev_census
+            "CONF" -> Res.string.desk_ev_confirmation
+            "EMIG" -> Res.string.desk_ev_emigration
+            "IMMI" -> Res.string.desk_ev_immigration
+            "DIV" -> Res.string.desk_ev_divorce
+            "ENGA" -> Res.string.desk_ev_engagement
+            "EDUC" -> Res.string.desk_ev_education
+            "WILL" -> Res.string.desk_ev_will
+            "NOTE" -> Res.string.desk_ev_note
             else -> null
         }
         if (res != null) return Texte.t(res)

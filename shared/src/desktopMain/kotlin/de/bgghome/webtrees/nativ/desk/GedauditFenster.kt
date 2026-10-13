@@ -400,11 +400,12 @@ internal fun PersonKarte(b: TreeExport, xref: String?) {
             }
             Ueberschrift(stringResource(Res.string.ga_person_facts))
             d.facts.filter { it.tag != "NAME" }.forEach { f ->
-                Row(Modifier.fillMaxWidth()) {
-                    Text(f.label.ifBlank { f.tag }, Modifier.width(150.dp), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(f.date?.text.orEmpty(), Modifier.width(170.dp), style = MaterialTheme.typography.bodySmall)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(f.label.ifBlank { f.tag }, Modifier.width(110.dp), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(f.date?.text.orEmpty(), Modifier.width(150.dp), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(listOfNotNull(f.place?.name?.takeIf(String::isNotBlank), f.value.takeIf(String::isNotBlank)).joinToString(" · "), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    if (f.sources.isNotEmpty()) Text(stringResource(Res.string.ga_person_sources, f.sources.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (f.sources.isNotEmpty()) Text(if (f.sources.size == 1) stringResource(Res.string.ga_person_source_one) else stringResource(Res.string.ga_person_sources, f.sources.size), Modifier.width(84.dp).padding(start = 6.dp), style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, softWrap = false)
                 }
             }
             if (d.parentFamilies.isNotEmpty()) {

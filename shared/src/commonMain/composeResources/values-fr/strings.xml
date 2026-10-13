@@ -1741,4 +1741,17 @@
     <string name="ga_compare_field">Champ</string>
     <string name="ga_compare_loading">Comparaison …</string>
     <string name="ga_compare_other">Deuxième fichier</string>
+    <!-- Ereignisnamen fuer den GEDCOM-Leser (gedaudit 0.3) -->
+    <string name="desk_ev_residence">Résidence</string>
+    <string name="desk_ev_property">Propriété</string>
+    <string name="desk_ev_census">Recensement</string>
+    <string name="desk_ev_confirmation">Confirmation</string>
+    <string name="desk_ev_emigration">Émigration</string>
+    <string name="desk_ev_immigration">Immigration</string>
+    <string name="desk_ev_divorce">Divorce</string>
+    <string name="desk_ev_engagement">Fiançailles</string>
+    <string name="desk_ev_education">Formation</string>
+    <string name="desk_ev_will">Testament</string>
+    <string name="desk_ev_note">Note</string>
+    <string name="ga_person_source_one">1 source</string>
 </resources>

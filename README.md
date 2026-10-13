@@ -260,6 +260,8 @@ geändert, nur in der einen oder anderen, wahrscheinlich dieselbe Person. Mehr a
 `gedaudit-…`; Bauen mit `./gradlew :gedaudit:packageDeb` (Linux), `:gedaudit:packageInno` (Windows, Inno Setup) oder
 `:gedaudit:packageDmg` (macOS).
 
+<p align="center"><img src="docs/screenshots/gedaudit-vergleich.jpg" alt="gedaudit: zwei Stände des Demo-Baums im Vergleich" width="900"><br><b>Zwei Dateien vergleichen</b> (0.3): Falkenrath 1.3 gegen 1.6, zehn Personen mit neuem Wohnort und Besitz, beide Personenkarten nebeneinander.</p>
+
 ## Selbst bauen
 
 ```bash

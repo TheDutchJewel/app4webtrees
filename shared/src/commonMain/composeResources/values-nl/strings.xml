@@ -1722,4 +1722,17 @@
     <string name="ga_compare_field">Veld</string>
     <string name="ga_compare_loading">Vergelijken …</string>
     <string name="ga_compare_other">Tweede bestand</string>
+    <!-- Ereignisnamen fuer den GEDCOM-Leser (gedaudit 0.3) -->
+    <string name="desk_ev_residence">Woonplaats</string>
+    <string name="desk_ev_property">Bezit</string>
+    <string name="desk_ev_census">Volkstelling</string>
+    <string name="desk_ev_confirmation">Belijdenis</string>
+    <string name="desk_ev_emigration">Emigratie</string>
+    <string name="desk_ev_immigration">Immigratie</string>
+    <string name="desk_ev_divorce">Scheiding</string>
+    <string name="desk_ev_engagement">Verloving</string>
+    <string name="desk_ev_education">Opleiding</string>
+    <string name="desk_ev_will">Testament</string>
+    <string name="desk_ev_note">Notitie</string>
+    <string name="ga_person_source_one">1 bron</string>
 </resources>

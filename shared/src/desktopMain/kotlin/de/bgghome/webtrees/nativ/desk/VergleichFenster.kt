@@ -96,8 +96,20 @@ internal fun vergleichZeilen(v: Vergleich, a: TreeExport, b: TreeExport, nameA: 
 
 @Composable
 fun VergleichFenster(g: GeladeneDatei, onClose: () -> Unit) {
+    Window(
+        onCloseRequest = onClose, title = stringResource(Res.string.ga_compare) + " – " + g.datei.name,
+        state = arbeitsfenster("ga_vergleich", 1240, 860),
+        onPreviewKeyEvent = { e -> if (e.type == KeyEventType.KeyDown && e.key == Key.Escape) { onClose(); true } else false },
+    ) {
+        DeskTheme { VergleichInhalt(g, onClose) }
+    }
+}
+
+/** Der Inhalt des Vergleichsfensters, ohne Fensterrahmen (fuer Bilder ohne Bildschirm). [vorgabeB] oeffnet gleich eine zweite Datei und waehlt den ersten geaenderten Eintrag. */
+@Composable
+fun VergleichInhalt(g: GeladeneDatei, onClose: () -> Unit, vorgabeB: File? = null) {
     val appName = LocalAppName.current
-    var dateiB by remember { mutableStateOf<File?>(null) }
+    var dateiB by remember { mutableStateOf(vorgabeB) }
     var gruppe by remember { mutableStateOf(Gruppe.Geaendert) }
     var gewaehlt by remember { mutableStateOf<Eintrag?>(null) }
     val a = g.baum; val nameA = g.datei.name
@@ -107,13 +119,10 @@ fun VergleichFenster(g: GeladeneDatei, onClose: () -> Unit) {
         value = withContext(Dispatchers.Default) { runCatching { val b = GedcomLeser.alsExport(GedcomLeser.lesen(f), stand = f.lastModified()); b to GedcomVergleich.vergleichen(a, b) } }
     }
     val nameB = dateiB?.name.orEmpty()
-    Window(
-        onCloseRequest = onClose, title = stringResource(Res.string.ga_compare) + " – " + nameA,
-        state = arbeitsfenster("ga_vergleich", 1240, 860),
-        onPreviewKeyEvent = { e -> if (e.type == KeyEventType.KeyDown && e.key == Key.Escape) { onClose(); true } else false },
-    ) {
-        DeskTheme {
+    run {
+        run {
             val b = ergebnis?.getOrNull()?.first; val v = ergebnis?.getOrNull()?.second
+            if (vorgabeB != null && v != null && gewaehlt == null) v.geaendert.firstOrNull()?.let { gewaehlt = Eintrag(it.a, it.b, it) }
             Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(stringResource(Res.string.ga_compare), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
