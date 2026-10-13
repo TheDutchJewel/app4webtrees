@@ -21,6 +21,8 @@ permissions:
 
 jobs:
   exe:
+    # Releases mit Tag gedaudit-* gehoeren gedaudit.yml, nicht hierher (13.10.2026)
+    if: github.event_name != 'release' || !startsWith(github.event.release.tag_name, 'gedaudit-')
     runs-on: windows-latest
     env:
       SIGNIEREN: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' && vars.SIGNPATH_PROJECT_SLUG != '' && vars.SIGNPATH_POLICY_SLUG != '' }}
