@@ -21,6 +21,7 @@ class WtApp : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         plattform = AndroidPlattform(this)
         Sprache.start(plattform.settings)
+        de.bgghome.webtrees.nativ.data.Ortsanzeige.start(plattform.settings)
 
         // Karte (osmdroid): Kacheln im eigenen Cache-Ordner, ehrliche Kennung gegenueber den OSM-Servern.
         Configuration.getInstance().apply {

@@ -2,6 +2,7 @@
 
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import kotlinx.coroutines.launch
 import de.bgghome.webtrees.nativ.ui.StartpersonDialog
 import de.bgghome.webtrees.nativ.ui.startPersonSupported
@@ -147,6 +148,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
     var buch by remember { mutableStateOf(false) }
     var pruefung by remember { mutableStateOf(false) }
     var startperson by remember { mutableStateOf(false) }
+    var ortsanzeige by remember { mutableStateOf(false) }
     var tabelle by remember { mutableStateOf(false) }
     // Quellenverwaltung: null = zu, "" = offen ohne Auswahl, sonst die Quelle, mit der sie oeffnet
     var quellen by remember { mutableStateOf<String?>(null) }
@@ -222,6 +224,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         onTabelle = { tabelle = true },
         onQuellen = if (quellenApi) ({ quellen = "" }) else null,
         onStartperson = if (viewModel.startPersonSupported) ({ startperson = true }) else null,
+        onOrtsanzeige = { ortsanzeige = true },
         onOrte = if (orteApi) ({ orte = "" }) else null,
         onZusammenfuehren = if (mergeApi) ({ zusammen = "" }) else null,
         onOrteBereinigen = if (orteApi && state.tree?.canEdit == true && (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_PLACE_RENAME) ({ orteBereinigen = true; orte = "" }) else null,
@@ -392,6 +395,7 @@ fun FrameWindowScope.DeskRoot(viewModel: AppViewModel, onQuit: () -> Unit) {
         liste?.let { art -> ListenFenster(art, state, viewModel, onClose = { liste = null }) }
         HilfeFenster()
         if (startperson) StartpersonDialog(state, viewModel, onClose = { startperson = false })
+        if (ortsanzeige) OrtsanzeigeDialog(onDismiss = { ortsanzeige = false })
         if (startFrage) StartpersonFrage(state, viewModel, onClose = {
             startFrage = false; state.tree?.let { DeskLayout.prefs.putBoolean("startfrage_" + it.name, true) }
         })
@@ -439,6 +443,7 @@ private fun FrameWindowScope.DeskMenuBar(
     onAenderungen: (() -> Unit)? = null,
     onAufgabeNeu: ((AufgabeZiel) -> Unit)? = null,
     onStartperson: (() -> Unit)? = null,
+    onOrtsanzeige: () -> Unit = {},
     onLokaleBaeume: (() -> Unit)? = null,
     onArchiv: (() -> Unit)? = null,
     onSichern: (() -> Unit)? = null,
@@ -547,6 +552,7 @@ private fun FrameWindowScope.DeskMenuBar(
                         RadioButtonItem(name, selected = gewaehlt == code, onClick = { Sprache.setzen(code); viewModel.refresh() })
                     }
                 }
+                Item(stringResource(Res.string.desk_place_display), onClick = onOrtsanzeige)
                 Menu(stringResource(Res.string.desk_layout)) {
                     RadioButtonItem(stringResource(Res.string.desk_layout_navigator), selected = layout == DeskLayout.Navigator, onClick = { onLayout(DeskLayout.Navigator) })
                     RadioButtonItem(stringResource(Res.string.desk_layout_tree), selected = layout == DeskLayout.TreeCentre, onClick = { onLayout(DeskLayout.TreeCentre) })
@@ -956,9 +962,12 @@ class DeskDruck(private val state: UiState, private val viewModel: AppViewModel,
 }
 
 /** Personentext in die Zwischenablage - fuer E-Mail oder Textverarbeitung. */
-fun personentextKopieren(d: de.bgghome.webtrees.nativ.api.IndividualDetail) {
-    val text = personenblattZeilen(d).joinToString("\n") { "  ".repeat(it.einzug) + it.text }
-    java.awt.Toolkit.getDefaultToolkit().systemClipboard.setContents(java.awt.datatransfer.StringSelection(text), null)
+fun personentextKopieren(d: de.bgghome.webtrees.nativ.api.IndividualDetail) =
+    inZwischenablage(personenblattZeilen(d).joinToString("\n") { "  ".repeat(it.einzug) + it.text })
+
+/** Text in die Zwischenablage des Systems. */
+fun inZwischenablage(text: String) {
+    runCatching { java.awt.Toolkit.getDefaultToolkit().systemClipboard.setContents(java.awt.datatransfer.StringSelection(text), null) }
 }
 
 /** Personentext einer beliebigen Person (Rechtsklick, Strg+C): die gewaehlte sofort, eine andere erst abrufen. */
@@ -1113,7 +1122,7 @@ private fun IndexRow(person: Person, selected: Boolean, root: Boolean, viewModel
 @Composable
 internal fun PersonKurzinfo(person: Person) {
     fun zeile(z: String, e: de.bgghome.webtrees.nativ.api.EventJson?): String? {
-        val d = e?.date?.text.orEmpty(); val o = e?.place?.name.orEmpty()
+        val d = e?.date?.text.orEmpty(); val o = Ortsanzeige.text(e?.place?.name)
         return if (d.isBlank() && o.isBlank()) null else "$z " + listOf(d, o).filter(String::isNotBlank).joinToString(", ")
     }
     Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp, shape = MaterialTheme.shapes.small, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {

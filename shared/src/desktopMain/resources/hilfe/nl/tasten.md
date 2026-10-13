@@ -14,7 +14,7 @@
 | Alt+Links / Alt+Rechts | Terug / vooruit in de geschiedenis |
 | Ctrl+D | Bladwijzer / bladwijzer verwijderen |
 | Ctrl+B | Bladwijzers |
-| Ctrl+C, Ctrl+Shift+C | Persoonstekst kopiëren, met ID (Ctrl+C alleen buiten invoervelden; ook via rechtsklik op een persoon) |
+| Ctrl+C, Ctrl+Shift+C | Persoonstekst kopiëren, met ID (Ctrl+C alleen buiten invoervelden; ook via rechtsklik op een persoon; in het persoonsblad eveneens, daar kopieert rechtsklik op een gebeurtenis ook de regel) |
 | Ctrl+P | Persoonsblad afdrukken |
 | Ctrl+T | Parenteel |
 | Ctrl+Shift+T | Kwartierstaat |

@@ -515,6 +515,7 @@
     <string name="desk_history">Geschiedenis</string>
     <string name="desk_color_coding">Kleurcodering</string>
     <string name="desk_copy_text">Persoonstekst kopiëren</string>
+    <string name="desk_copy_row">Regel kopiëren</string>
     <string name="desk_menu_webtrees">webtrees</string>
     <string name="desk_web_export">GEDCOM exporteren</string>
     <string name="desk_web_import">GEDCOM importeren</string>
@@ -1098,6 +1099,16 @@
     <string name="assoc_role">Rol</string>
     <string name="menu_language">Taal</string>
     <string name="menu_language_ellipsis">Taal …</string>
+    <string name="desk_place_display">Plaatsweergave …</string>
+    <string name="place_display_title">Plaatsweergave</string>
+    <string name="place_display_hint">Hoe plaatsnamen in weergaven, lijsten en diagrammen verschijnen. Het land is het laatste deel van de plaatsnaam. Invoervelden, plaatsbeheer en boeken tonen de volledige naam.</string>
+    <string name="place_format_full">Volledig</string>
+    <string name="place_format_city_country">Plaats en land</string>
+    <string name="place_format_city_iso2">Plaats en landcode (NL)</string>
+    <string name="place_format_city_iso3">Plaats en landcode (NLD)</string>
+    <string name="place_home_country">Thuisland</string>
+    <string name="place_home_country_hint">Plaatsen in het thuisland tonen alleen de plaatsnaam. Landnaam of code, leeg = geen.</string>
+    <string name="place_display_example">Voorbeeld</string>
     <string name="language_system">Zoals het systeem</string>
     <string name="lokal_import_progress">„%1$s“ wordt ingelezen … %2$s records</string>
     <string name="lokal_trees_menu">Stambomen op deze pc …</string>

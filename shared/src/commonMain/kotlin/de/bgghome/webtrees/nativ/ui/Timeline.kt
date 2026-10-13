@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.ui
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -199,10 +200,10 @@ private fun TimelineItem(row: TimelineRow, onEdit: (FactJson, String?) -> Unit, 
                 // Datum als Text, der Ort anklickbar (oeffnet die Ortsverwaltung)
                 Row {
                     fact.date?.text?.let { Text("$it · ", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                    Text(ort, Modifier.clickable { ortOeffnen(ort) }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                    Text(Ortsanzeige.text(ort), Modifier.clickable { ortOeffnen(ort) }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
                 }
             } else {
-                val sub = listOfNotNull(fact.date?.text, fact.place?.name).joinToString(" · ")
+                val sub = listOfNotNull(fact.date?.text, Ortsanzeige.text(fact.place?.name).takeIf(String::isNotBlank)).joinToString(" · ")
                 if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 

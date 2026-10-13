@@ -44,4 +44,13 @@ class Settings(private val prefs: Ablage) {
     var language: String
         get() = prefs.getString("language", "").orEmpty()
         set(value) = prefs.putString("language", value)
+
+    /** Ortsanzeige (Issue 18): Form (Ortsanzeige.Form) und Heimatland als ISO-3166-Kuerzel; leer = voll bzw. keins. */
+    var placeFormat: String
+        get() = prefs.getString("placeFormat", "").orEmpty()
+        set(value) = prefs.putString("placeFormat", value)
+
+    var homeCountry: String
+        get() = prefs.getString("homeCountry", "").orEmpty()
+        set(value) = prefs.putString("homeCountry", value)
 }

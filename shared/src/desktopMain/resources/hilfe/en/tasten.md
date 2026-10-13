@@ -14,7 +14,7 @@
 | Alt+Left / Alt+Right | Back / forward in history |
 | Ctrl+D | Bookmark / remove bookmark |
 | Ctrl+B | Bookmarks |
-| Ctrl+C, Ctrl+Shift+C | Copy person text, with ID (Ctrl+C only outside input fields; also by right-clicking a person) |
+| Ctrl+C, Ctrl+Shift+C | Copy person text, with ID (Ctrl+C only outside input fields; also by right-clicking a person; the same in the person sheet, where right-clicking an event also copies the row) |
 | Ctrl+P | Print person sheet |
 | Ctrl+T | Descendant chart |
 | Ctrl+Shift+T | Ancestor chart |

@@ -98,6 +98,16 @@ private fun faecherJahre(p: Person): String {
 }
 
 /**
+ * Fuellung eines Segments (Issue 15): beim Stil "Farbig" zuerst eine passende Farbregel, dann das Schema - Geschlecht
+ * (Maenner, Frauen, unbekannt wie in den Kastentafeln) oder Grosseltern-Linie; bei den anderen Stilen die Stilfarbe.
+ */
+private fun segmentFarbe(o: TafelOptionen, f: StilFarben, p: Person, n: Long, g: Int): Color {
+    if (o.stil != TafelStil.Farbig) return f.fuellung(p.sex)
+    o.regeln.firstOrNull { it.passt(p) }?.let { return KASTEN_FARBEN[it.farbe.coerceIn(0, KASTEN_FARBEN.lastIndex)].fuellung }
+    return if (o.farbe == FarbSchema.Linie && g >= 1) linienFarbe(n, g, p.sex) else f.fuellung(p.sex)
+}
+
+/**
  * Faechertafel als PDF mit einem Blatt. [wurzel]: Ahnenbaum mit Kekule-Nummern (ahnenBaum), [generationen]
  * einschliesslich Proband. [vollkreis]: Ahnenkreis statt Halbkreis.
  */
@@ -133,7 +143,8 @@ fun faecherPdf(
     val titelH = (if (o.titel.isBlank()) 0f else titelGroesse * 1.9f) + (if (untertitel.isEmpty()) 0f else if (o.titel.isBlank()) ug * 2f else ug * 1.3f)
     val legende = if (!o.legende) emptyList() else buildList {
         // Farbig: die vier Grosseltern-Linien, benannt nach dem Grosselternteil
-        if (o.stil == TafelStil.Farbig && ringe >= 2) (4L..7L).forEach { n -> knoten[n]?.let { add(LegendenEintrag(LegendenArt.Farbe, "", Texte.t(Res.string.desk_legend_line, it.person.name), (n - 4).toInt())) } }
+        if (o.stil == TafelStil.Farbig && o.farbe == FarbSchema.Linie && ringe >= 2) (4L..7L).forEach { n -> knoten[n]?.let { add(LegendenEintrag(LegendenArt.Farbe, "", Texte.t(Res.string.desk_legend_line, it.person.name), (n - 4).toInt())) } }
+        if (o.stil == TafelStil.Farbig) o.regeln.filter { r -> knoten.values.any { r.passt(it.person) } }.distinctBy { it.farbe }.forEach { r -> add(LegendenEintrag(LegendenArt.Farbe, "", r.beschreibung(), r.farbe)) }
         add(LegendenEintrag(LegendenArt.Zeichen, "*", Texte.t(Res.string.desk_legend_born)))
         add(LegendenEintrag(LegendenArt.Zeichen, "†", Texte.t(Res.string.desk_legend_died)))
         if (o.nummern) add(LegendenEintrag(LegendenArt.Nummer, "4", Texte.t(Res.string.desk_legend_kekule)))
@@ -194,7 +205,7 @@ fun faecherPdf(
             if (g == 0 || g > ringe) return@forEach
             val p = k.person
             val (a1, a2) = winkel(n, g)
-            val fuellung = if (o.stil == TafelStil.Farbig) linienFarbe(n, g, p.sex) else f.fuellung(p.sex)
+            val fuellung = segmentFarbe(o, f, p, n, g)
             cs.setNonStrokingColor(fuellung); cs.setStrokingColor(f.linie); cs.setLineWidth(linie)
             cs.segment(cx, cy, radien[g - 1], radien[g], a1, a2); cs.fillAndStroke()
 
@@ -249,7 +260,7 @@ fun faecherPdf(
 
         // Mitte: der Proband, mit Bild im Kreis (Halbkreis: nur die obere Haelfte als Flaeche)
         val p = wurzel.person
-        cs.setNonStrokingColor(if (o.stil == TafelStil.Farbig) Color(0xDD, 0xE2, 0xE2) else f.fuellung(p.sex)); cs.setStrokingColor(f.linie); cs.setLineWidth(linie * 1.5f)
+        cs.setNonStrokingColor(if (o.stil == TafelStil.Farbig && o.farbe == FarbSchema.Linie && o.regeln.none { it.passt(p) }) Color(0xDD, 0xE2, 0xE2) else segmentFarbe(o, f, p, 1L, 0)); cs.setStrokingColor(f.linie); cs.setLineWidth(linie * 1.5f)
         if (vollkreis) cs.kreis(cx, cy, r0) else cs.segment(cx, cy, 0f, r0, PI, 0.0)
         cs.fillAndStroke()
         val foto = if (o.bilder && !p.isPrivate) bilder(p) else null

@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -114,7 +115,7 @@ private class PaarDaten(
 )
 
 private fun ereignisZeile(zeichen: String, e: EventJson?): String? {
-    val datum = e?.date?.text.orEmpty(); val ort = e?.place?.name.orEmpty()
+    val datum = e?.date?.text.orEmpty(); val ort = Ortsanzeige.text(e?.place?.name)
     return if (datum.isBlank() && ort.isBlank()) null else "$zeichen " + listOf(datum, ort).filter(String::isNotBlank).joinToString(", ")
 }
 
@@ -356,12 +357,12 @@ private fun Familie(
                         // Alle Heiraten der Familie (standesamtlich und kirchlich), nicht nur die erste; ohne MARR-Fakt die Kurzform
                         val heiraten = familie.facts.filter { it.tag == "MARR" }
                         if (heiraten.isEmpty()) {
-                            val datum = familie.marriage?.date?.text.orEmpty(); val ort = familie.marriage?.place?.name.orEmpty()
+                            val datum = familie.marriage?.date?.text.orEmpty(); val ort = Ortsanzeige.text(familie.marriage?.place?.name)
                             Text(if (datum.isBlank() && ort.isBlank()) stringResource(Res.string.desk_family_status_none)
                                 else stringResource(Res.string.desk_family_status_married) + ": " + listOf(datum, ort).filter(String::isNotBlank).joinToString(", "),
                                 style = MaterialTheme.typography.bodySmall)
                         } else heiraten.forEach { h ->
-                            val datum = h.date?.text.orEmpty(); val ort = h.place?.name.orEmpty()
+                            val datum = h.date?.text.orEmpty(); val ort = Ortsanzeige.text(h.place?.name)
                             Text(faktLabelMitArt(h) + ": " + listOf(datum, ort).filter(String::isNotBlank).joinToString(", ").ifBlank { "–" },
                                 style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
@@ -609,7 +610,7 @@ private fun PaarKarte(person: Person?, leer: String, a: KartenAktionen, ergaenze
 
 @Composable
 private fun DatenZeile(beschriftung: String, e: EventJson?) {
-    val datum = e?.date?.text.orEmpty(); val ort = e?.place?.name.orEmpty()
+    val datum = e?.date?.text.orEmpty(); val ort = Ortsanzeige.text(e?.place?.name)
     if (datum.isBlank() && ort.isBlank()) return
     DatenZeile(beschriftung, listOf(datum, ort).filter(String::isNotBlank).joinToString(", "))
 }

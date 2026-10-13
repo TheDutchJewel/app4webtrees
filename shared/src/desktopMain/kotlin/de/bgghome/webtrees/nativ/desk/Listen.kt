@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -107,7 +108,7 @@ fun listenMaxGen(art: ListenArt) = when (art) {
 
 private fun ereignisText(e: EventJson?, o: ListenOptionen): String = e?.let {
     val d = it.date?.let { d -> if (o.volleDaten) d.text.ifBlank { d.year.takeIf { y -> y > 0 }?.toString().orEmpty() } else d.year.takeIf { y -> y > 0 }?.toString().orEmpty() }.orEmpty()
-    val ort = if (o.orte) it.place?.name.orEmpty() else ""
+    val ort = if (o.orte) Ortsanzeige.text(it.place?.name) else ""
     listOf(d, ort).filter(String::isNotBlank).joinToString(", ")
 }.orEmpty()
 

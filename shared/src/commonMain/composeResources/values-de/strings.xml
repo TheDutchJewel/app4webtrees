@@ -523,6 +523,7 @@
     <string name="desk_history">Verlauf</string>
     <string name="desk_color_coding">Farbkodierung</string>
     <string name="desk_copy_text">Personentext kopieren</string>
+    <string name="desk_copy_row">Zeile kopieren</string>
     <string name="desk_menu_webtrees">webtrees</string>
     <string name="desk_web_export">GEDCOM exportieren</string>
     <string name="desk_web_import">GEDCOM importieren</string>
@@ -1113,6 +1114,16 @@
     <!-- Sprache der Oberflaeche (Menue Ansicht › Sprache; am Handy im Drei-Punkte-Menue) -->
     <string name="menu_language">Sprache</string>
     <string name="menu_language_ellipsis">Sprache …</string>
+    <string name="desk_place_display">Ortsanzeige …</string>
+    <string name="place_display_title">Ortsanzeige</string>
+    <string name="place_display_hint">Wie Ortsnamen in Ansichten, Listen und Tafeln erscheinen. Das Land ist der letzte Teil des Ortsnamens. Eingabefelder, Ortsverwaltung und Bücher zeigen weiter den vollen Namen.</string>
+    <string name="place_format_full">Vollständig</string>
+    <string name="place_format_city_country">Ort und Land</string>
+    <string name="place_format_city_iso2">Ort und Länderkürzel (NL)</string>
+    <string name="place_format_city_iso3">Ort und Länderkürzel (NLD)</string>
+    <string name="place_home_country">Heimatland</string>
+    <string name="place_home_country_hint">Orte im Heimatland nur mit dem Ortsnamen. Landesname oder Kürzel, leer = kein Heimatland.</string>
+    <string name="place_display_example">Beispiel</string>
     <string name="language_system">Wie das System</string>
     <string name="lokal_import_progress">„%1$s“ wird eingelesen … %2$s Datensätze</string>
     <string name="lokal_trees_menu">Stammbäume auf diesem PC …</string>

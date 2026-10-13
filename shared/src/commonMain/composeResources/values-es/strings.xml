@@ -523,6 +523,7 @@
     <string name="desk_history">Historial</string>
     <string name="desk_color_coding">Código de colores</string>
     <string name="desk_copy_text">Copiar texto de la persona</string>
+    <string name="desk_copy_row">Copiar fila</string>
     <string name="desk_menu_webtrees">webtrees</string>
     <string name="desk_web_export">Exportar GEDCOM</string>
     <string name="desk_web_import">Importar GEDCOM</string>
@@ -1113,6 +1114,16 @@
     <!-- Idioma de la interfaz (menú Ver › Idioma; en el móvil, en el menú de tres puntos) -->
     <string name="menu_language">Idioma</string>
     <string name="menu_language_ellipsis">Idioma …</string>
+    <string name="desk_place_display">Visualización de lugares …</string>
+    <string name="place_display_title">Visualización de lugares</string>
+    <string name="place_display_hint">Cómo aparecen los nombres de lugar en vistas, listas y gráficos. El país es la última parte del nombre. Los campos de entrada, la gestión de lugares y los libros mantienen el nombre completo.</string>
+    <string name="place_format_full">Completo</string>
+    <string name="place_format_city_country">Ciudad y país</string>
+    <string name="place_format_city_iso2">Ciudad y código de país (NL)</string>
+    <string name="place_format_city_iso3">Ciudad y código de país (NLD)</string>
+    <string name="place_home_country">País de origen</string>
+    <string name="place_home_country_hint">Los lugares del país de origen muestran solo la ciudad. Nombre o código del país, vacío = ninguno.</string>
+    <string name="place_display_example">Ejemplo</string>
     <string name="language_system">Como el sistema</string>
     <string name="lokal_import_progress">Leyendo «%1$s» … %2$s registros</string>
     <string name="lokal_trees_menu">Árboles en este PC …</string>

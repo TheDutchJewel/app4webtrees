@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.ui
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -106,7 +107,7 @@ fun PersonRow(
         person.isPrivate -> stringResource(Res.string.person_private)
         else -> person.name.ifEmpty { stringResource(Res.string.person_no_name) }
     }
-    val place = person.birth?.place?.short.orEmpty()
+    val place = Ortsanzeige.kurz(person.birth?.place?.name, person.birth?.place?.short)
 
     ListItem(
         leadingContent = { Avatar(person, 44.dp) },

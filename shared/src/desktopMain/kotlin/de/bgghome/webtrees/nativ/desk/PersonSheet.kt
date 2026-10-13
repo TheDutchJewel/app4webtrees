@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -36,6 +37,8 @@ import de.bgghome.webtrees.nativ.ui.uploadMediaFile
 import androidx.compose.ui.draganddrop.dragData
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -134,6 +137,7 @@ fun PersonSheet(state: UiState, viewModel: AppViewModel, openWeb: (String) -> Un
                 else -> false
             }
         },
+        onKeyEvent = { e -> personKopierTaste(e, viewModel) },
     ) {
         DeskTheme { androidx.compose.runtime.CompositionLocalProvider(LocalQuelleOeffnen provides onQuelle, LocalOpenWeb provides openWeb) {
             Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -647,8 +651,15 @@ private fun EreignisTabelle(
         LazyColumn(Modifier.fillMaxSize(), state = list) {
             itemsIndexed(rows) { i, row ->
                 val f = row.fact
-                val where = listOfNotNull(f.value.takeIf { it.isNotBlank() && f.tag != "NAME" }, f.place?.name?.takeIf { it.isNotBlank() }).joinToString(" · ")
+                val where = listOfNotNull(f.value.takeIf { it.isNotBlank() && f.tag != "NAME" }, Ortsanzeige.text(f.place?.name).takeIf { it.isNotBlank() }).joinToString(" · ")
                     .ifEmpty { if (f.tag == "NAME") de.bgghome.webtrees.nativ.data.GedcomName.aus(f.value).anzeige() else "" }
+                val zeileKopieren = stringResource(Res.string.desk_copy_row)
+                val textKopieren = stringResource(Res.string.desk_copy_text)
+                // Rechtsklick (Issue 14): die Zeile als Text in die Zwischenablage, oder gleich der ganze Personentext
+                ContextMenuArea(items = { listOf(
+                    ContextMenuItem(zeileKopieren) { selected = i; inZwischenablage(listOf(row.label, f.date?.text.orEmpty(), where, alterBeiEreignis(geburtJd, f)?.toString().orEmpty()).filter(String::isNotBlank).joinToString("\t")) },
+                    ContextMenuItem(textKopieren) { detail?.let(::personentextKopieren) },
+                ) }) {
                 Row(
                     Modifier.fillMaxWidth()
                         .background(if (i == selected) colors.secondaryContainer else if (i % 2 == 1) colors.surfaceContainerLow else colors.surface)
@@ -663,6 +674,7 @@ private fun EreignisTabelle(
                         color = colors.onSurfaceVariant, maxLines = 1)
                     MerkerWert(f.notizenOhnePaten().isNotEmpty())
                     MerkerWert(f.sources.isNotEmpty())
+                }
                 }
                 HorizontalDivider(color = colors.outlineVariant)
             }
@@ -712,7 +724,7 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
         }
         val scroll = rememberScrollState()
         Box(Modifier.weight(1f, fill = false).fillMaxWidth()) {
-            Column(Modifier.fillMaxWidth().verticalScroll(scroll).padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            androidx.compose.foundation.text.selection.SelectionContainer { Column(Modifier.fillMaxWidth().verticalScroll(scroll).padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (f == null) {
                     Text(stringResource(Res.string.desk_detail_choose), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
                 } else when (reiter) {
@@ -730,8 +742,8 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
                         val ort = f.place?.name.orEmpty()
                         if (ortOeffnen != null && ort.isNotBlank()) Row {
                             Text(stringResource(Res.string.fact_place), Modifier.width(130.dp), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
-                            Text(ort, Modifier.clickable { ortOeffnen(ort) }, style = MaterialTheme.typography.bodyMedium, color = colors.primary)
-                        } else Zeile(stringResource(Res.string.fact_place), ort)
+                            Text(Ortsanzeige.text(ort), Modifier.clickable { ortOeffnen(ort) }, style = MaterialTheme.typography.bodyMedium, color = colors.primary)
+                        } else Zeile(stringResource(Res.string.fact_place), Ortsanzeige.text(ort))
                         Zeile(stringResource(Res.string.desk_detail_value),
                             if (f.tag == "NAME") de.bgghome.webtrees.nativ.data.GedcomName.aus(f.value).anzeige() else f.value)
                         val civil = heiratsartText(Heiratsart.Standesamtlich); val reli = heiratsartText(Heiratsart.Kirchlich)
@@ -759,7 +771,7 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
                             }
                         }
                 }
-            }
+            } }
             SenkrechteLeiste(scroll)
         }
         if (reiter == 2 && schreiben && f != null) {

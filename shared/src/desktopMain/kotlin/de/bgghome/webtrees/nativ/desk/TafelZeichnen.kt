@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import de.bgghome.webtrees.nativ.data.vornamen
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.EventJson
@@ -233,6 +234,8 @@ private class KastenZeile(val text: String, val schrift: PDFont, val groesse: Fl
 private fun ort(e: EventJson?, teile: Int = 1): String {
     val name = e?.place?.name?.trim().orEmpty()
     if (teile <= 0) return name
+    // Eingestellte Ortsanzeige (Land, Kuerzel, Heimatland) geht vor der Zahl der Ebenen
+    Ortsanzeige.text(name).let { if (it != name) return it }
     return name.split(',').map { it.trim() }.filter(String::isNotBlank).take(teile).joinToString(", ")
 }
 

@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.ui
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -367,7 +368,7 @@ internal fun ProfileDialogs(
 
         is ProfileDialog.DeleteFact -> ConfirmDialog(
             title = stringResource(Res.string.fact_delete_title, dialog.fact.label),
-            text = listOfNotNull(dialog.fact.value.takeIf { it.isNotEmpty() }, dialog.fact.date?.text, dialog.fact.place?.name).joinToString(" · "),
+            text = listOfNotNull(dialog.fact.value.takeIf { it.isNotEmpty() }, dialog.fact.date?.text, Ortsanzeige.text(dialog.fact.place?.name).takeIf(String::isNotBlank)).joinToString(" · "),
             confirm = stringResource(Res.string.action_delete),
             onDismiss = onDismiss,
             onConfirm = { onDismiss(); viewModel.deleteFact(dialog.fact.id, dialog.record) },

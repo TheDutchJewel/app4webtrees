@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.FactJson
 import de.bgghome.webtrees.nativ.data.notizenOhnePaten
@@ -109,7 +110,7 @@ private class KartenSchreiber(val doc: PDDocument, val s: Schriften, val fuss: S
 
 private fun ereignisZeile(f: FactJson): String {
     val wert = f.value.takeIf { it.isNotBlank() && f.tag !in REIHENFOLGE && f.tag !in ENDE }
-    return listOfNotNull(wert, buchDatum(f.date).takeIf(String::isNotBlank), f.place?.name?.takeIf(String::isNotBlank)).joinToString(", ")
+    return listOfNotNull(wert, buchDatum(f.date).takeIf(String::isNotBlank), Ortsanzeige.text(f.place?.name).takeIf(String::isNotBlank)).joinToString(", ")
 }
 
 /**

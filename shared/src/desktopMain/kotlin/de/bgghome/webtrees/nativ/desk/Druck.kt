@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.api.halfSiblings
 import de.bgghome.webtrees.nativ.data.notizenOhnePaten
@@ -202,7 +203,7 @@ fun listenPdf(zeilen: List<Zeile>, appName: String, baum: String): PDDocument {
 }
 
 private fun ereignis(f: FactJson?): String = f?.let {
-    listOfNotNull(it.date?.text?.takeIf(String::isNotBlank), it.place?.name?.takeIf(String::isNotBlank), it.value.takeIf { v -> v.isNotBlank() })
+    listOfNotNull(it.date?.text?.takeIf(String::isNotBlank), Ortsanzeige.text(it.place?.name).takeIf(String::isNotBlank), it.value.takeIf { v -> v.isNotBlank() })
         .joinToString(", ")
 }.orEmpty()
 

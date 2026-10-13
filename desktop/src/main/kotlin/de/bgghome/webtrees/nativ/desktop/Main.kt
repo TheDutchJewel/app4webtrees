@@ -35,6 +35,7 @@ fun main(args: Array<String>) {
     val plattform = DesktopPlattform().also { Desktop.plattform = it }
     // Gewaehlte Sprache vor allem anderen, damit auch Startbildschirm und Meldungen schon darin erscheinen.
     Sprache.start(plattform.settings)
+    de.bgghome.webtrees.nativ.data.Ortsanzeige.start(plattform.settings)
 
     // Verbinden-Link aus webtrees als Startargument (wtwin://connect?…). Laeuft schon ein Fenster, bekommt es den Link.
     val startLink = args.firstOrNull { it.contains("://connect?") || it.contains("://connect/?") }

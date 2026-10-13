@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import de.bgghome.webtrees.nativ.Texte
 import de.bgghome.webtrees.nativ.data.vornamen
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -606,7 +607,7 @@ private fun Chart(
 private fun InfoBox(detail: IndividualDetail, gewaehlt: Int, modifier: Modifier, onOpen: () -> Unit, onPerson: (String) -> Unit) {
     val p = detail.person
     val colors = MaterialTheme.colorScheme
-    fun ort(f: FactJson?) = f?.let { listOfNotNull(it.date?.text?.takeIf(String::isNotBlank), it.place?.short?.takeIf(String::isNotBlank)).joinToString(" ") }.orEmpty()
+    fun ort(f: FactJson?) = f?.let { listOfNotNull(it.date?.text?.takeIf(String::isNotBlank), Ortsanzeige.kurz(it.place?.name, it.place?.short).takeIf(String::isNotBlank)).joinToString(" ") }.orEmpty()
     val geburt = ort(detail.facts.firstOrNull { it.tag == "BIRT" } ?: detail.facts.firstOrNull { it.tag == "CHR" })
     val tod = ort(detail.facts.firstOrNull { it.tag == "DEAT" } ?: detail.facts.firstOrNull { it.tag == "BURI" })
     val beruf = listOfNotNull(detail.facts.firstOrNull { it.tag == "TITL" }?.value, detail.facts.firstOrNull { it.tag == "OCCU" }?.value).filter(String::isNotBlank).joinToString(" · ")

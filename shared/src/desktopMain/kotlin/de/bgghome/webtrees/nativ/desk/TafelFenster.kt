@@ -154,8 +154,8 @@ private val ohneKaesten = kreise + TafelArt.Zeitleiste
 private val mitGitterArten = setOf(TafelArt.Ahnen, TafelArt.Stamm, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Verwandt, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester)
 
 /** Tafeln mit Kastenfarben (Regeln, Zweige); [linienArten] kennen Kekule-Nummern, [zweigArten] Nachfahren. */
-private val farbArten = mitGitterArten + TafelArt.AhnenSeiten + TafelArt.StammSeiten + TafelArt.Paar
-private val linienArten = setOf(TafelArt.Verwandt, TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester)
+private val farbArten = mitGitterArten + TafelArt.AhnenSeiten + TafelArt.StammSeiten + TafelArt.Paar + TafelArt.Faecher + TafelArt.Kreis
+private val linienArten = setOf(TafelArt.Verwandt, TafelArt.Ahnen, TafelArt.AhnenSeiten, TafelArt.Sanduhr, TafelArt.Paar, TafelArt.Stammlinie, TafelArt.Mutterstamm, TafelArt.Aeltester, TafelArt.Faecher, TafelArt.Kreis)
 private val zweigArten = setOf(TafelArt.Verwandt, TafelArt.Stamm, TafelArt.StammSeiten, TafelArt.Cousins, TafelArt.Sanduhr, TafelArt.Paar)
 
 /** Tafeln, deren Personen mittig, links- oder rechtsbuendig ueber den Kindern (bzw. unter den Eltern) stehen koennen. */
@@ -223,7 +223,8 @@ private object TafelWahl {
         waagerecht = art in waagerechtMoeglich && prefs.getBoolean(k(art, "waagerecht"), art == TafelArt.Sanduhr),
         geschwister = (prefs.getString(k(art, "geschw"), null)?.toIntOrNull() ?: 0).coerceIn(0, 2),
         gitter = prefs.getBoolean(k(art, "gitter"), art == TafelArt.Verwandt), verzeichnis = prefs.getBoolean(k(art, "verz"), art == TafelArt.StammSeiten), kurven = prefs.getBoolean(k(art, "kurven"), false),
-        farbe = FarbSchema.entries.firstOrNull { it.name == prefs.getString(k(art, "farbe"), null) } ?: FarbSchema.Geschlecht,
+        // Faecher und Kreis: bisher immer Grosseltern-Linien, das bleibt die Vorgabe; Geschlecht ist dort waehlbar (Issue 15)
+        farbe = FarbSchema.entries.firstOrNull { it.name == prefs.getString(k(art, "farbe"), null) } ?: if (art in kreise) FarbSchema.Linie else FarbSchema.Geschlecht,
         jeSeite = (prefs.getString(k(art, "jeseite"), null)?.toIntOrNull() ?: 3).coerceIn(2, 5),
         karteikarten = prefs.getBoolean(k(art, "karten"), false),
         legende = prefs.getBoolean(k(art, "legende"), true),

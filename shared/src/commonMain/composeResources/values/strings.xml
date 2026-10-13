@@ -528,6 +528,7 @@
     <string name="desk_history">History</string>
     <string name="desk_color_coding">Colour coding</string>
     <string name="desk_copy_text">Copy person text</string>
+    <string name="desk_copy_row">Copy row</string>
     <string name="desk_menu_webtrees">webtrees</string>
     <string name="desk_web_export">Export GEDCOM</string>
     <string name="desk_web_import">Import GEDCOM</string>
@@ -1118,6 +1119,16 @@
     <!-- Sprache der Oberflaeche (Menue Ansicht › Sprache; am Handy im Drei-Punkte-Menue) -->
     <string name="menu_language">Language</string>
     <string name="menu_language_ellipsis">Language …</string>
+    <string name="desk_place_display">Place display …</string>
+    <string name="place_display_title">Place display</string>
+    <string name="place_display_hint">How place names appear in views, lists and charts. The country is the last part of the place name. Input fields, place management and books keep the full name.</string>
+    <string name="place_format_full">Full</string>
+    <string name="place_format_city_country">City and country</string>
+    <string name="place_format_city_iso2">City and country code (NL)</string>
+    <string name="place_format_city_iso3">City and country code (NLD)</string>
+    <string name="place_home_country">Home country</string>
+    <string name="place_home_country_hint">Places in the home country show the city name only. Country name or code, empty = none.</string>
+    <string name="place_display_example">Example</string>
     <string name="language_system">Like the system</string>
     <string name="lokal_import_progress">Reading “%1$s” … %2$s records</string>
     <string name="lokal_trees_menu">Family trees on this PC …</string>

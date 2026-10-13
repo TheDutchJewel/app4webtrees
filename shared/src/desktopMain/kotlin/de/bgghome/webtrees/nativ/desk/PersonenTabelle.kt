@@ -1,5 +1,6 @@
 package de.bgghome.webtrees.nativ.desk
 
+import de.bgghome.webtrees.nativ.data.Ortsanzeige
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -99,7 +100,7 @@ private fun ereignis(haupt: EventJson?, ersatz: EventJson?, zeichen: String): Tr
     val z = if (e == null && ersatz != null && (ersatz.date != null || ersatz.place != null)) ersatz else null
     val ev = e ?: z
     val datum = ev?.date?.text.orEmpty().let { if (z != null && it.isNotEmpty()) "$zeichen $it" else it }
-    return Triple(datum, ev?.date, ev?.place?.name.orEmpty())
+    return Triple(datum, ev?.date, Ortsanzeige.text(ev?.place?.name))
 }
 
 /** Alle sichtbaren Personen des Baums als Tabellenzeilen; private fallen weg. */

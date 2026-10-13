@@ -97,6 +97,7 @@ Vereist api4webtrees 1.18 of nieuwer op de server; de stamboom op deze pc brengt
 
 - **Uiterlijk:** licht, donker of zoals het systeem.
 - **Taal:** zoals het systeem of vast op Duits, Engels, Frans, Nederlands of Spaans. Werkt meteen; teksten van de server (soorten gebeurtenissen, plaatsen) komen bij de volgende keer herladen in de nieuwe taal. Help en plausibiliteitscontrole wisselen mee.
+- **Plaatsweergave …:** hoe plaatsnamen in weergaven, lijsten en diagrammen verschijnen: volledig, plaats en land, plaats en landcode (NL of NLD). Met een thuisland tonen plaatsen daarin alleen de plaatsnaam („Amsterdam” in plaats van „Amsterdam, Noord-Holland, Nederland”), plaatsen elders volgen de gekozen vorm. Het land is het laatste deel van de plaatsnaam; landnamen in de vijf talen en de codes zelf worden herkend. Invoervelden, plaatsbeheer en boeken tonen de volledige naam.
 - **Kleurcodering:** kleurt de voorouders van de startpersoon naar de vier grootouderlijnen en hun nakomelingen in een vijfde kleur (naar Mary Hill). Vereist een startpersoon.
 - **Broers, zussen en hun partners tonen**, **Neven en nichten tonen**: voor de boomweergave.
 - **Generaties:** hoeveel generaties voorouders de boom laadt.
