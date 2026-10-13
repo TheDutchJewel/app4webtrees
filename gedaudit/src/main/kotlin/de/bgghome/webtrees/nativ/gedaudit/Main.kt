@@ -44,7 +44,7 @@ fun main(args: Array<String>) {
             state = state,
         ) {
             CompositionLocalProvider(LocalAppName provides "gedaudit") {
-                DeskTheme { Sprache.Umgebung { GedauditFenster(startDatei, onQuit = { fenster.sichern(state); exitApplication() }) } }
+                DeskTheme { Sprache.Umgebung { GedauditFenster(this, startDatei, onQuit = { fenster.sichern(state); exitApplication() }) } }
             }
         }
     }

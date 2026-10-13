@@ -260,6 +260,8 @@ or the other, probably the same person. More on
 [gedaudit.bgg-home.de](https://gedaudit.bgg-home.de/). The packages are in the releases tagged `gedaudit-…`; build with
 `./gradlew :gedaudit:packageDeb` (Linux), `:gedaudit:packageInno` (Windows, Inno Setup) or `:gedaudit:packageDmg` (macOS).
 
+<p align="center"><img src="docs/screenshots/gedaudit-pruefung.jpg" alt="gedaudit: checking the Falkenrath demo tree" width="900"><br><b>Check</b>: rules in groups on the left, findings on the right, the person below.</p>
+
 <p align="center"><img src="docs/screenshots/gedaudit-vergleich.jpg" alt="gedaudit: two states of the demo tree compared" width="900"><br><b>Comparing two files</b> (0.3): Falkenrath 1.3 against 1.6, ten persons with a new residence and property, both person cards side by side.</p>
 
 ## Build
