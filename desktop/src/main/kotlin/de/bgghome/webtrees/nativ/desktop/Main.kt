@@ -21,6 +21,8 @@ import de.bgghome.webtrees.nativ.desk.Entwuerfe
 import de.bgghome.webtrees.nativ.desk.personKopierTaste
 import de.bgghome.webtrees.nativ.lokal.LokalBetrieb
 import de.bgghome.webtrees.nativ.ui.AppViewModel
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import de.bgghome.webtrees.nativ.desk.Marke
 import de.bgghome.webtrees.nativ.ui.LocalAppName
 import de.bgghome.webtrees.nativ.ui.connectLink
 import de.bgghome.webtrees.nativ.ui.wtImageLoader
@@ -70,6 +72,8 @@ fun main(args: Array<String>) {
             // Ungespeicherte Eingaben im Personenblatt: das Hauptfenster fragt erst nach (Entwuerfe).
             onCloseRequest = { if (Entwuerfe.abschliessen(viewModel)) Entwuerfe.beendenAnfrage = true else { fenster.sichern(state); LokalBetrieb.beenden(); exitApplication() } },
             title = plattform.appName,
+            // Fenster- und Taskleisten-Symbol unter Linux und macOS; unter Windows kommt es aus der exe
+            icon = remember { Marke.icon()?.let { BitmapPainter(it) } },
             state = state,
             onKeyEvent = { e -> personKopierTaste(e, viewModel) },
         ) {
