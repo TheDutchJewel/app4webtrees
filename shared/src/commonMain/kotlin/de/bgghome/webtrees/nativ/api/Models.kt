@@ -95,6 +95,11 @@ data class Person(
     val occupation: String? = null,
     /** Nur in der Merkliste ab API-Stufe 30: die Notiz zum Favoriten. */
     val note: String = "",
+    /** Ab API-Stufe 36: wer die Person sehen darf (visitor, member, manager) und welche Lebensdaten Besucher nicht sehen duerften. */
+    val access: String? = null,
+    val restricted: List<String> = emptyList(),
+    /** Ab API-Stufe 36: wer den Namen sehen darf (bei Lebenden nach der Baumeinstellung "Namen Lebender zeigen"). */
+    val nameAccess: String? = null,
 )
 
 /** Eine Heirat eines Kindes: Partner (leer, wenn privat), Datum und Ort (beides kann fehlen). */
@@ -148,6 +153,8 @@ data class FactJson(
     val extras: List<GedcomZusatz> = emptyList(),
     /** Ab API-Stufe 35: der Wert, wie er im GEDCOM steht, wenn [value] ihn übersetzt zeigt (1 _STAT NOT MARRIED); sonst null. */
     val gedcomValue: String? = null,
+    /** Ab API-Stufe 36: wer das Ereignis sehen darf - visitor, member oder manager (RESN, Datenschutzregeln des Baums). */
+    val access: String? = null,
 )
 
 /** Eine GEDCOM-L-Angabe an einem Ereignis: [tag] als Pfad unter dem Ereignis ("PLAC:_GOV"), [date] roh wie im GEDCOM. */
@@ -159,6 +166,9 @@ const val API_GEDCOML = 34
 
 /** Ab dieser Stufe schreibt api4webtrees Familienstand (gedcomValue), Hauptbild mit _PRIM und die Aufgabenfelder. */
 const val API_GEDCOML_WRITE = 35
+
+/** Ab dieser Stufe meldet api4webtrees an Ereignis, Person, Familie und Pate, wer sie sehen darf (access). */
+const val API_ACCESS = 36
 
 /**
  * Pate, Trauzeuge oder sonst Beteiligter mit eigenem Datensatz (2 _ASSO am Ereignis, 1 ASSO an der Person).
@@ -174,6 +184,8 @@ data class Associate(
     val role: String = "other",
     val label: String = "",
     @SerialName("private") val isPrivate: Boolean = false,
+    /** Ab API-Stufe 36: wer den Paten/Zeugen sehen darf. */
+    val access: String? = null,
     val level1: Boolean = false,
     val notes: List<String> = emptyList(),
     val sources: List<SourceRef> = emptyList(),
@@ -260,6 +272,8 @@ data class FamilyJson(
     val lastChange: LastChange? = null,
     /** Ab API-Stufe 34: eindeutige Kennungen (1 _UID). */
     val uids: List<String> = emptyList(),
+    /** Ab API-Stufe 36: wer die Familie sehen darf (webtrees verbirgt sie, sobald ein Mitglied privat ist). */
+    val access: String? = null,
 )
 
 @Serializable

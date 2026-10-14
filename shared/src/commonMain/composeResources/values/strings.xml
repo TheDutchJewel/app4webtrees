@@ -1792,4 +1792,6 @@
     <string name="desk_gl_godparents">Godparents</string>
     <string name="desk_gl_witnesses">Witnesses</string>
     <string name="desk_media_make_primary">Make main image</string>
+    <string name="desk_book_public">Only what visitors may see</string>
+    <string name="tipp_book_public">Leaves out what webtrees hides from visitors: restricted events (“Show to members”, “Show to managers”), data covered by the tree’s privacy rules and living people (name only or “Private”, depending on the tree setting). For books that are passed on. The website always contains only these data.</string>
 </resources>

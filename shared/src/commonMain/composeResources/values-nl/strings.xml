@@ -1768,4 +1768,6 @@
     <string name="desk_gl_godparents">Peetouders</string>
     <string name="desk_gl_witnesses">Getuigen</string>
     <string name="desk_media_make_primary">Als hoofdafbeelding</string>
+    <string name="desk_book_public">Alleen wat bezoekers mogen zien</string>
+    <string name="tipp_book_public">Laat weg wat webtrees voor bezoekers verbergt: beperkte gebeurtenissen („Tonen aan leden”, „Tonen aan beheerders”), gegevens onder de privacyregels van de stamboom en levende personen (alleen de naam of „Privé”, afhankelijk van de instelling van de stamboom). Voor boeken die worden doorgegeven. De website bevat altijd alleen deze gegevens.</string>
 </resources>

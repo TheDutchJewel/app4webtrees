@@ -57,6 +57,8 @@ data class ExportFamily(
     val wife: String? = null,
     val children: List<String> = emptyList(),
     val marriage: EventJson? = null,
+    /** Ab API-Stufe 36: wer die Familie sehen darf. */
+    val access: String? = null,
     val facts: List<FactJson> = emptyList(),
     val media: List<MediaJson> = emptyList(),
 )

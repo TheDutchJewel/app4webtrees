@@ -114,6 +114,7 @@ private object BuchWahl {
         lebende = Lebende.entries.firstOrNull { it.name == prefs.getString("buch_lebende", null) } ?: Lebende.NurName,
         grenzjahr = (prefs.getString("buch_grenzjahr", null)?.toIntOrNull() ?: 100).coerceIn(50, 130),
         aufbau = FamilienAufbau.entries.firstOrNull { it.name == prefs.getString("buch_aufbau", null) } ?: FamilienAufbau.Familien,
+        nurOeffentlich = prefs.getBoolean("buch_oeffentlich", false),
     )
     fun art(): BuchArt = BuchArt.entries.firstOrNull { it.name == prefs.getString("buch_art", null) } ?: BuchArt.Vorfahren
     fun sichern(o: BuchOptionen) {
@@ -125,6 +126,7 @@ private object BuchWahl {
         prefs.putBoolean("buch_chrono", o.familienChronologisch); prefs.putString("buch_ort", o.ortFilter); prefs.putBoolean("buch_haeuser", o.haeuser)
         prefs.putBoolean("buch_haeuser_typ", o.haeuserNurTyp); prefs.putBoolean("buch_haeuser_ohne", o.haeuserOhneTyp)
         prefs.putString("buch_lebende", o.lebende.name); prefs.putString("buch_grenzjahr", o.grenzjahr.toString()); prefs.putString("buch_aufbau", o.aufbau.name)
+        prefs.putBoolean("buch_oeffentlich", o.nurOeffentlich)
     }
 }
 
@@ -155,14 +157,20 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
             }
         }
     }
-    val buch = remember(daten, o) {
-        when (val d = daten?.getOrNull()) {
-            is NachfahrenDaten -> nachfahrenbuch(d, o, baum, appName)
-            is FamilienDaten -> if (o.aufbau == FamilienAufbau.Personen) personenbericht(d, o, baum, appName) else familienbuch(d, o, baum, appName)
-            is BuchDaten -> vorfahrenbuch(d, o, baum, appName)
+    // Nur, was Besucher sehen duerfen (Issue 21): der Server meldet es ab API-Stufe 36
+    val zugangBekannt = (state.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_ACCESS
+    fun bauen(daten: Any?, opt: BuchOptionen): Buch? {
+        val d = if (!opt.nurOeffentlich || !zugangBekannt) daten else when (daten) {
+            is NachfahrenDaten -> daten.oeffentlich(); is FamilienDaten -> daten.oeffentlich(); is BuchDaten -> daten.oeffentlich(); else -> daten
+        }
+        return when (d) {
+            is NachfahrenDaten -> nachfahrenbuch(d, opt, baum, appName)
+            is FamilienDaten -> if (opt.aufbau == FamilienAufbau.Personen) personenbericht(d, opt, baum, appName) else familienbuch(d, opt, baum, appName)
+            is BuchDaten -> vorfahrenbuch(d, opt, baum, appName)
             else -> null
         }
     }
+    val buch = remember(daten, o) { bauen(daten?.getOrNull(), o) }
     var breitePx by remember { mutableStateOf(800) }
     val seiten by produceState<Pair<List<ImageBitmap>, Int>?>(null, buch, breitePx) {
         val b = buch ?: run { value = null; return@produceState }
@@ -277,6 +285,8 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                             d.file?.let { f -> runCatching { java.io.File(d.directory, f).readText() }.getOrNull()?.let(BuchWahl::vorlageLesen)?.let { (a, neu) -> art = a; o = neu } }
                         }) { Text(stringResource(Res.string.desk_book_template_load), style = MaterialTheme.typography.labelMedium) }
                     }
+                    // Fuer Buecher zum Weitergeben: nur, was Besucher in webtrees sehen duerfen (ab API-Stufe 36)
+                    if (zugangBekannt) Haken(stringResource(Res.string.desk_book_public), o.nurOeffentlich, stringResource(Res.string.tipp_book_public)) { o = o.copy(nurOeffentlich = it) }
                     seiten?.second?.let { Text(stringResource(Res.string.desk_list_pages, it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     val b = buch
@@ -285,7 +295,11 @@ fun BuchFenster(state: UiState, viewModel: AppViewModel, onClose: () -> Unit) {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         BuchFormat.entries.forEach { f ->
                             // Fuenf Knoepfe nebeneinander: ohne den ueblichen Innenabstand bricht "DOCX" sonst je Buchstabe um
-                            OutlinedButton(onClick = { b?.let { buchSpeichern(it, f, it.titel) } }, enabled = b != null, shape = MaterialTheme.shapes.small,
+                            // Die Website ist zum Veroeffentlichen: sie zeigt immer nur, was Besucher sehen duerfen
+                            OutlinedButton(onClick = {
+                                val zuSpeichern = if (f == BuchFormat.WEBSITE && !o.nurOeffentlich && zugangBekannt) bauen(daten?.getOrNull(), o.copy(nurOeffentlich = true)) else b
+                                zuSpeichern?.let { buchSpeichern(it, f, it.titel) }
+                            }, enabled = b != null, shape = MaterialTheme.shapes.small,
                                 contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp), modifier = Modifier.weight(1f)) {
                                 Text(if (f == BuchFormat.WEBSITE) stringResource(Res.string.desk_book_website) else f.name, maxLines = 1, softWrap = false)
                             }

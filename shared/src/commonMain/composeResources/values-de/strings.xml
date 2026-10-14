@@ -1787,4 +1787,6 @@
     <string name="desk_gl_godparents">Paten</string>
     <string name="desk_gl_witnesses">Zeugen</string>
     <string name="desk_media_make_primary">Als Hauptbild</string>
+    <string name="desk_book_public">Nur, was Besucher sehen dürfen</string>
+    <string name="tipp_book_public">Lässt weg, was webtrees vor Besuchern verbirgt: Ereignisse mit Einschränkung („Für Mitglieder“, „Für Verwalter“), Angaben nach den Datenschutzregeln des Stammbaums und lebende Personen (je nach Einstellung des Stammbaums nur mit Namen oder als „Privat“). Für Bücher, die weitergegeben werden. Die Website enthält immer nur diese Angaben.</string>
 </resources>

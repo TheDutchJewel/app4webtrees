@@ -1787,4 +1787,6 @@
     <string name="desk_gl_godparents">Parrains</string>
     <string name="desk_gl_witnesses">Témoins</string>
     <string name="desk_media_make_primary">Image principale</string>
+    <string name="desk_book_public">Seulement ce que les visiteurs peuvent voir</string>
+    <string name="tipp_book_public">Omet ce que webtrees cache aux visiteurs : événements restreints (« Visible par les membres », « Visible par les gestionnaires »), données soumises aux règles de confidentialité de l’arbre et personnes vivantes (seulement le nom ou « Privé », selon le réglage de l’arbre). Pour les livres destinés à être diffusés. Le site web ne contient toujours que ces données.</string>
 </resources>
