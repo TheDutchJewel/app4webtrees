@@ -1706,7 +1706,7 @@
     <string name="ga_structure_foreign">niet in de standaard</string>
     <string name="ga_structure_head">Kop: %1$s</string>
     <string name="ga_structure_count">Aantal</string>
-    <string name="ga_structure_hint">De tagboom van het bestand per recordtype, met het aantal keren dat elke tag voorkomt. Tags met een onderstrepingsteken zijn uitbreidingen van de leverancier; tags zonder dat niet in GEDCOM 5.5.1 of 7 staan, zijn gemarkeerd.</string>
+    <string name="ga_structure_hint">De tagboom van het bestand per recordtype, met het aantal keren dat elke tag voorkomt. Tags met een onderstrepingsteken zijn uitbreidingen van de leverancier; tags zonder dat niet in GEDCOM 5.5.1 of 7 staan, zijn gemarkeerd. Tags uit het GEDCOM-L-addendum (bijv. _LOC, _GODP, _UID) zijn gemarkeerd als GEDCOM-L, andere met een liggend streepje als leverancierstag.</string>
     <string name="ga_person_second">Tweede persoon</string>
     <!-- Dateien vergleichen (gedaudit 0.3, 13.10.2026) -->
     <string name="ga_compare_menu">Met een ander bestand vergelijken …</string>
@@ -1735,4 +1735,36 @@
     <string name="desk_ev_will">Testament</string>
     <string name="desk_ev_note">Notitie</string>
     <string name="ga_person_source_one">1 bron</string>
+    <string name="desk_gl_maidenhead">Maidenhead-locator</string>
+    <string name="desk_gl_addressee">Geadresseerde</string>
+    <string name="desk_gl_uid">Unieke identificatie</string>
+    <string name="desk_gl_highlighted">Uitgelichte afbeelding</string>
+    <string name="desk_gl_place_details">Plaatsgegevens</string>
+    <string name="desk_place_names">Namen</string>
+    <string name="desk_place_types">Soorten door de tijd</string>
+    <string name="desk_place_admin_id">Officiële code</string>
+    <string name="desk_place_population">Bevolking</string>
+    <string name="desk_place_religion">Religie</string>
+    <string name="desk_task_description">Beschrijving</string>
+    <string name="desk_task_category">Categorie</string>
+    <string name="desk_task_priority">Prioriteit</string>
+    <string name="desk_task_type">Soort</string>
+    <string name="desk_task_type_0">Onderzoek</string>
+    <string name="desk_task_type_1">Correspondentie</string>
+    <string name="desk_task_type_2">Overig</string>
+    <string name="desk_task_status">Status</string>
+    <string name="desk_task_status_open">open</string>
+    <string name="desk_task_status_completed">afgerond</string>
+    <string name="desk_task_status_auto">automatisch</string>
+    <string name="desk_task_reminder">Herinnering</string>
+    <string name="desk_task_completed">Afgerond op</string>
+    <string name="desk_task_solution">Oplossing</string>
+    <string name="desk_task_repository">Archief</string>
+    <string name="desk_detail_address">Adres</string>
+    <string name="desk_gl_family_status">Gezinsstatus</string>
+    <string name="desk_gl_status_not_married">niet gehuwd</string>
+    <string name="desk_gl_status_never_married">nooit gehuwd</string>
+    <string name="desk_gl_status_unknown">onbekend</string>
+    <string name="desk_gl_godparents">Peetouders</string>
+    <string name="desk_gl_witnesses">Getuigen</string>
 </resources>

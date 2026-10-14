@@ -1725,7 +1725,7 @@
     <string name="ga_structure_foreign">hors standard</string>
     <string name="ga_structure_head">En-tête : %1$s</string>
     <string name="ga_structure_count">Nombre</string>
-    <string name="ga_structure_hint">L’arbre des balises du fichier par type d’enregistrement, avec le nombre d’occurrences. Les balises avec un tiret bas sont des extensions de l’éditeur ; celles sans tiret bas qui ne figurent pas dans GEDCOM 5.5.1 ou 7 sont marquées.</string>
+    <string name="ga_structure_hint">L’arbre des balises du fichier par type d’enregistrement, avec le nombre d’occurrences. Les balises avec un tiret bas sont des extensions de l’éditeur ; celles sans tiret bas qui ne figurent pas dans GEDCOM 5.5.1 ou 7 sont marquées. Les tags de l’addendum GEDCOM-L (p. ex. _LOC, _GODP, _UID) sont marqués GEDCOM-L, les autres tags avec tiret bas comme tags d’éditeur.</string>
     <string name="ga_person_second">Deuxième personne</string>
     <!-- Dateien vergleichen (gedaudit 0.3, 13.10.2026) -->
     <string name="ga_compare_menu">Comparer avec un autre fichier …</string>
@@ -1754,4 +1754,36 @@
     <string name="desk_ev_will">Testament</string>
     <string name="desk_ev_note">Note</string>
     <string name="ga_person_source_one">1 source</string>
+    <string name="desk_gl_maidenhead">Locator Maidenhead</string>
+    <string name="desk_gl_addressee">Destinataire</string>
+    <string name="desk_gl_uid">Identifiant unique</string>
+    <string name="desk_gl_highlighted">Image mise en avant</string>
+    <string name="desk_gl_place_details">Détails du lieu</string>
+    <string name="desk_place_names">Noms</string>
+    <string name="desk_place_types">Types au fil du temps</string>
+    <string name="desk_place_admin_id">Identifiant administratif</string>
+    <string name="desk_place_population">Population</string>
+    <string name="desk_place_religion">Religion</string>
+    <string name="desk_task_description">Description</string>
+    <string name="desk_task_category">Catégorie</string>
+    <string name="desk_task_priority">Priorité</string>
+    <string name="desk_task_type">Type</string>
+    <string name="desk_task_type_0">Recherche</string>
+    <string name="desk_task_type_1">Correspondance</string>
+    <string name="desk_task_type_2">Autre</string>
+    <string name="desk_task_status">Statut</string>
+    <string name="desk_task_status_open">ouverte</string>
+    <string name="desk_task_status_completed">terminée</string>
+    <string name="desk_task_status_auto">automatique</string>
+    <string name="desk_task_reminder">Rappel</string>
+    <string name="desk_task_completed">Terminée le</string>
+    <string name="desk_task_solution">Solution</string>
+    <string name="desk_task_repository">Dépôt d’archives</string>
+    <string name="desk_detail_address">Adresse</string>
+    <string name="desk_gl_family_status">Situation familiale</string>
+    <string name="desk_gl_status_not_married">non marié</string>
+    <string name="desk_gl_status_never_married">jamais marié</string>
+    <string name="desk_gl_status_unknown">inconnue</string>
+    <string name="desk_gl_godparents">Parrains</string>
+    <string name="desk_gl_witnesses">Témoins</string>
 </resources>

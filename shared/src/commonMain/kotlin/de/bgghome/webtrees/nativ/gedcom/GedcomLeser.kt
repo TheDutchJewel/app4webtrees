@@ -7,6 +7,8 @@ import de.bgghome.webtrees.nativ.api.EventJson
 import de.bgghome.webtrees.nativ.api.ExportFamily
 import de.bgghome.webtrees.nativ.api.ExportIndividual
 import de.bgghome.webtrees.nativ.api.FactJson
+import de.bgghome.webtrees.nativ.api.FreeAssociate
+import de.bgghome.webtrees.nativ.api.GedcomZusatz
 import de.bgghome.webtrees.nativ.api.Person
 import de.bgghome.webtrees.nativ.api.PlaceJson
 import de.bgghome.webtrees.nativ.api.SourceRef
@@ -17,6 +19,10 @@ import de.bgghome.webtrees.nativ.pruefung.Rueckverweis
 import de.bgghome.webtrees.nativ.pruefung.TagVorkommen
 import de.bgghome.webtrees.nativ.pruefung.Verweis
 import de.bgghome.webtrees.nativ.res.Res
+import de.bgghome.webtrees.nativ.res.desk_gl_family_status
+import de.bgghome.webtrees.nativ.res.desk_gl_status_never_married
+import de.bgghome.webtrees.nativ.res.desk_gl_status_not_married
+import de.bgghome.webtrees.nativ.res.desk_gl_status_unknown
 import de.bgghome.webtrees.nativ.res.date_text_about
 import de.bgghome.webtrees.nativ.res.date_text_after
 import de.bgghome.webtrees.nativ.res.date_text_before
@@ -170,6 +176,8 @@ object GedcomLeser {
         val fams = d.saetze.filter { it.art == "FAM" && it.xref.isNotEmpty() }
         val famIds = fams.map { it.xref }.toSet()
         val indiIds = indis.map { it.xref }.toSet()
+        /** Ortsdatensaetze (GEDCOM-L _LOC): Verweise darauf (3 _LOC am Ort, 1 _LOC im Ortsdatensatz) muessen ankommen. */
+        val locIds = d.saetze.filter { it.art == "_LOC" && it.xref.isNotEmpty() }.map { it.xref }.toSet()
         /** Name und Geschlecht je Person, vorab fuer Beteiligte (ASSO). */
         val namen: Map<String, Pair<String, String>> = indis.associate { s ->
             val (vn, fn) = nameTeile(s.knoten.erstes("NAME")?.wert.orEmpty())
@@ -185,6 +193,8 @@ object GedcomLeser {
             val familien = LinkedHashMap<String, ExportFamily>()
             indis.forEach { s -> aktuell = s.xref; personen[s.xref] = person(s) }
             fams.forEach { s -> aktuell = s.xref; familien[s.xref] = familie(s) }
+            // Uebergeordnete Orte im Ortsdatensatz (1 _LOC @L1@): auch sie muessen auf einen vorhandenen Ortsdatensatz zeigen
+            d.saetze.filter { it.art == "_LOC" }.forEach { s -> aktuell = s.xref; s.knoten.alle("_LOC").forEach { verweis(it.wert.trim('@'), locIds, "_LOC") } }
             return TreeExport(stand, personen, familien)
         }
 
@@ -274,7 +284,7 @@ object GedcomLeser {
         fun fakten(xref: String, k: GedcomKnoten, person: Boolean): List<FactJson> {
             val out = ArrayList<FactJson>()
             k.kinder.forEach { n ->
-                if (n.tag in KEIN_FAKT || n.tag.startsWith("_")) return@forEach
+                if (n.tag in KEIN_FAKT || (n.tag.startsWith("_") && n.tag != "_STAT")) return@forEach
                 if (n.tag == "SOUR") {
                     // Quelle an der Person selbst: als Fakt mit sich selbst als Beleg, damit "ohne Quelle" nicht greift
                     val q = quelle(n) ?: return@forEach
@@ -284,11 +294,14 @@ object GedcomLeser {
                 val datum = n.erstes("DATE")?.wert?.trim()?.takeIf { it.isNotEmpty() }
                 val ort = n.erstes("PLAC")
                 val art = n.wert("TYPE").orEmpty()
+                // Verweis auf den Ortsdatensatz (GEDCOM-L 3 _LOC) wie FAMC/FAMS pruefen
+                ort?.alle("_LOC")?.forEach { verweis(it.wert.trim('@'), locIds, "_LOC") }
+                val adresse = n.erstes("ADDR")
                 out += FactJson(
                     id = "$xref:${out.size}",
                     tag = n.tag,
                     label = label(n.tag, art),
-                    value = if (n.wert == "Y") "" else n.wert,
+                    value = if (n.wert == "Y") "" else if (n.tag == "_STAT") familienstand(n.wert) else n.wert,
                     type = art,
                     date = datum?.let { DateJson(text = GedcomDatum.anzeige(it), year = GedcomDatum.jahr(it), gedcom = it) },
                     place = ort?.let { o ->
@@ -300,7 +313,15 @@ object GedcomLeser {
                     },
                     notes = n.alle("NOTE").map { notiz(it) }.filter { it.isNotBlank() },
                     sources = n.alle("SOUR").mapNotNull { quelle(it) },
-                    associates = n.alle("ASSO").mapNotNull { beteiligter(it, level1 = false) },
+                    // GEDCOM 5.5.1 kennt ASSO, GEDCOM-L _ASSO am Ereignis; Paten und Zeugen ohne Datensatz als _GODP/_WITN
+                    associates = (n.alle("ASSO") + n.alle("_ASSO")).mapNotNull { beteiligter(it, level1 = false) },
+                    freeAssociates = n.alle("_GODP").map { FreeAssociate(role = "godparent", name = it.wert.trim(), text = it.wert.trim()) } +
+                        n.alle("_WITN").map { FreeAssociate(role = "witness", name = it.wert.trim(), text = it.wert.trim()) },
+                    address = adresse?.let { a -> (listOf(a.wert) + a.alle("CONT").map { it.wert }).joinToString("\n").trim().ifBlank { a.wert("ADR1") } },
+                    extras = buildList {
+                        ort?.let { o -> listOf("_GOV", "_POST", "_MAIDENHEAD").forEach { t -> o.alle(t).forEach { z -> if (z.wert.isNotBlank()) add(GedcomZusatz("PLAC:$t", z.wert.trim(), z.wert("DATE"))) } } }
+                        adresse?.alle("_NAME")?.forEach { z -> if (z.wert.isNotBlank()) add(GedcomZusatz("ADDR:_NAME", z.wert.trim(), null)) }
+                    },
                 )
             }
             return out
@@ -389,10 +410,23 @@ object GedcomLeser {
             "EDUC" -> Res.string.desk_ev_education
             "WILL" -> Res.string.desk_ev_will
             "NOTE" -> Res.string.desk_ev_note
+            "_STAT" -> Res.string.desk_gl_family_status
             else -> null
         }
         if (res != null) return Texte.t(res)
         return TAG_NAMEN[tag] ?: (if (tag == "EVEN" || tag == "FACT") art.ifBlank { tag } else tag)
+    }
+
+    /** Die Tags des GEDCOM-L-Addendums zu GEDCOM 5.5.1 (Liste wie in webtrees, CustomTags/GedcomL). */
+    val GEDCOML_TAGS: Set<String> = setOf("_ADDENDUM", "_SCHEMA", "_DEFN", "_UID", "_RUFNAME", "_GOV", "_GOVTYPE", "_POST", "_MAIDENHEAD", "_LOC",
+        "_NAME", "_GODP", "_WITN", "_ASSO", "_PRIM", "_TODO", "_CAT", "_CDATE", "_RDATE", "_PRTY", "_STAT", "_AIDN", "_DMGD")
+
+    /** Familienstand nach GEDCOM-L (1 _STAT) als Text; andere Werte roh. */
+    fun familienstand(wert: String): String = when (wert.trim().uppercase()) {
+        "NOT MARRIED" -> Texte.t(Res.string.desk_gl_status_not_married)
+        "NEVER MARRIED" -> Texte.t(Res.string.desk_gl_status_never_married)
+        "UNKNOWN" -> Texte.t(Res.string.desk_gl_status_unknown)
+        else -> wert
     }
 
     /** Alle Tags aus GEDCOM 5.5.1 und 7.0 (Datensaetze, Ereignisse, Attribute, Strukturen). */

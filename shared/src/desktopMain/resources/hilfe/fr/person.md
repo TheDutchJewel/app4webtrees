@@ -64,3 +64,7 @@ Les personnes en double apparaissent quand on réunit deux fichiers ou lors de l
 - **Fichier › Imprimer la fiche individuelle …** (Ctrl+P) et **Fiche individuelle en PDF …**
 - **Personne › Copier le texte de la personne** (Ctrl+Shift+C) place tous les détails sous forme de texte dans le presse-papiers, p. ex. pour un e-mail ou un traitement de texte.
 - Autres sorties : [Listes](hilfe:listen) (fiche individuelle sous forme de liste), [Tableaux](hilfe:tafeln), [Livres](hilfe:buecher).
+
+## GEDCOM-L
+
+wtWin affiche toutes les données de l’addendum GEDCOM-L que contient un arbre (à partir d’api4webtrees 1.21) : dans la zone de détail d’un événement l’adresse, l’identifiant GOV, le code postal (avec date) et le locator Maidenhead du lieu ainsi que le destinataire ; dans l’en-tête de la fiche, au survol de l’identifiant, l’identifiant unique (_UID) ; dans l’onglet **Médias** une étoile sur l’image mise en avant (_PRIM) ; dans la fenêtre des tâches description, catégorie, priorité, type, statut, rappel, date de fin, solution et dépôt d’une tâche de recherche ; dans la gestion des lieux sous **Données** les noms et types antérieurs avec date, les codes postaux avec date, l’identifiant administratif (p. ex. code communal), la population, le locator Maidenhead, la religion et l’identifiant unique. La modification conserve toutes les données GEDCOM-L.

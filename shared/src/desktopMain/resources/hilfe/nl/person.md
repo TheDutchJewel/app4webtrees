@@ -64,3 +64,7 @@ Dubbele personen ontstaan bij het samenvoegen van twee bestanden of bij het invo
 - **Bestand › Persoonsblad afdrukken …** (Ctrl+P) en **Persoonsblad als PDF …**
 - **Persoon › Persoonstekst kopiëren** (Ctrl+Shift+C) zet alle gegevens als tekst op het klembord, bijv. voor een e-mail of een tekstverwerker.
 - Meer uitvoer: [Lijsten](hilfe:listen) (persoonsblad als lijst), [Schema's](hilfe:tafeln), [Boeken](hilfe:buecher).
+
+## GEDCOM-L
+
+wtWin toont alle gegevens uit het GEDCOM-L-addendum die een stamboom bevat (vanaf api4webtrees 1.21): in het detailgedeelte van een gebeurtenis het adres, de GOV-code, de postcode (met datum) en de Maidenhead-locator van de plaats en de geadresseerde; in de kop van het persoonsblad, bij aanwijzen van de ID, de unieke identificatie (_UID); op het tabblad **Media** een ster bij de uitgelichte afbeelding (_PRIM); in het takenvenster beschrijving, categorie, prioriteit, soort, status, herinnering, afrondingsdatum, oplossing en archief van een onderzoekstaak; in het plaatsbeheer onder **Gegevens** eerdere namen en soorten met datum, postcodes met datum, officiële code (bijv. gemeentecode), bevolkingsaantallen, Maidenhead-locator, religie en unieke identificatie. Bij bewerken blijven alle GEDCOM-L-gegevens behouden.

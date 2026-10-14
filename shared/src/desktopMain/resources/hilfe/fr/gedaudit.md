@@ -37,3 +37,7 @@ Les résultats que vous avez examinés et qui restent tels quels se pointent ; i
 ## Langue et apparence
 
 **Affichage › Langue** change l’interface (allemand, anglais, français, néerlandais, espagnol), **Affichage › Apparence** passe du clair au sombre.
+
+## GEDCOM-L
+
+gedaudit connaît l’addendum GEDCOM-L à GEDCOM 5.5.1. Dans la fenêtre **Structure du fichier**, ses tags (_LOC, _GODP, _UID …) sont marqués « GEDCOM-L » et non comme tags d’éditeur ; la ligne d’en-tête indique la version de l’addendum si le fichier la donne. La fiche de la personne montre les parrains et témoins sans enregistrement propre (_GODP, _WITN), l’adresse ainsi que l’identifiant GOV, le code postal et le locator Maidenhead du lieu. Les renvois vers des enregistrements de lieu (`3 _LOC` au lieu, `1 _LOC` dans l’enregistrement) dont la cible manque sont signalés comme tout autre renvoi dans le vide.

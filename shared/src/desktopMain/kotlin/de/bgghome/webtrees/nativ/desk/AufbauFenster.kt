@@ -42,7 +42,7 @@ import org.jetbrains.compose.resources.stringResource
 
 /** Eine Zeile des Baums: Pfad (INDI > BIRT > DATE), Einrueckung, Anzahl, Art. */
 internal class AufbauZeile(val tag: String, val tiefe: Int, val anzahl: Int, val art: Art) {
-    enum class Art { Standard, Hersteller, Fremd }
+    enum class Art { Standard, GedcomL, Hersteller, Fremd }
 }
 
 internal fun aufbauZeilen(d: GedcomDatei): List<Pair<String, List<AufbauZeile>>> {
@@ -51,7 +51,12 @@ internal fun aufbauZeilen(d: GedcomDatei): List<Pair<String, List<AufbauZeile>>>
     val wurzeln = LinkedHashMap<String, Knoten>()
     fun zaehle(k: GedcomKnoten, ziel: Knoten) { k.kinder.forEach { n -> val z = ziel.kinder.getOrPut(n.tag) { Knoten() }; z.anzahl++; zaehle(n, z) } }
     d.saetze.forEach { s -> val w = wurzeln.getOrPut(s.art) { Knoten() }; w.anzahl++; zaehle(s.knoten, w) }
-    fun art(tag: String) = when { tag.startsWith("_") -> AufbauZeile.Art.Hersteller; tag in GedcomLeser.STANDARD_TAGS -> AufbauZeile.Art.Standard; else -> AufbauZeile.Art.Fremd }
+    fun art(tag: String) = when {
+        tag in GedcomLeser.GEDCOML_TAGS -> AufbauZeile.Art.GedcomL
+        tag.startsWith("_") -> AufbauZeile.Art.Hersteller
+        tag in GedcomLeser.STANDARD_TAGS -> AufbauZeile.Art.Standard
+        else -> AufbauZeile.Art.Fremd
+    }
     fun flach(k: Knoten, tiefe: Int, out: MutableList<AufbauZeile>) {
         k.kinder.entries.sortedByDescending { it.value.anzahl }.forEach { (tag, z) -> out += AufbauZeile(tag, tiefe, z.anzahl, art(tag)); flach(z, tiefe + 1, out) }
     }
@@ -66,7 +71,9 @@ fun AufbauFenster(d: GedcomDatei, dateiName: String, onClose: () -> Unit) {
     val zeilen = remember(d) { aufbauZeilen(d) }
     val kopf = remember(d) {
         val k = d.kopf
-        if (k == null) null else listOfNotNull(k.wert("SOUR")?.let { s -> s + (k.erstes("SOUR")?.wert("VERS")?.let { " $it" } ?: "") }, k.erstes("GEDC")?.wert("VERS")?.let { "GEDCOM $it" }, k.wert("CHAR")).joinToString(" · ")
+        // GEDCOM-L-Angabe im Kopf: 1 GEDC / 2 VERS 5.5.1 / 3 _ADDENDUM GEDCOM-L / 4 VERS 2.0
+        val addendum = k?.erstes("GEDC")?.erstes("VERS")?.erstes("_ADDENDUM")?.let { a -> listOf(a.wert.ifBlank { "GEDCOM-L" }, a.wert("VERS").orEmpty()).filter(String::isNotBlank).joinToString(" ") }
+        if (k == null) null else listOfNotNull(k.wert("SOUR")?.let { s -> s + (k.erstes("SOUR")?.wert("VERS")?.let { " $it" } ?: "") }, k.erstes("GEDC")?.wert("VERS")?.let { "GEDCOM $it" }, addendum, k.wert("CHAR")).joinToString(" · ")
     }
     Window(
         onCloseRequest = onClose, title = stringResource(Res.string.ga_structure) + " – " + dateiName,
@@ -91,8 +98,10 @@ fun AufbauFenster(d: GedcomDatei, dateiName: String, onClose: () -> Unit) {
                                     Spacer(Modifier.width((z.tiefe * 22).dp))
                                     Text(z.tag, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace,
                                         fontWeight = if (z.tiefe == 0) FontWeight.Bold else FontWeight.Normal,
-                                        color = when (z.art) { AufbauZeile.Art.Fremd -> MaterialTheme.colorScheme.error; AufbauZeile.Art.Hersteller -> WARN_FARBE; else -> MaterialTheme.colorScheme.onSurface })
-                                    Text(when (z.art) { AufbauZeile.Art.Fremd -> stringResource(Res.string.ga_structure_foreign); AufbauZeile.Art.Hersteller -> stringResource(Res.string.ga_structure_vendor); else -> "" },
+                                        color = when (z.art) { AufbauZeile.Art.Fremd -> MaterialTheme.colorScheme.error; AufbauZeile.Art.Hersteller -> WARN_FARBE
+                                            AufbauZeile.Art.GedcomL -> MaterialTheme.colorScheme.primary; else -> MaterialTheme.colorScheme.onSurface })
+                                    Text(when (z.art) { AufbauZeile.Art.Fremd -> stringResource(Res.string.ga_structure_foreign); AufbauZeile.Art.Hersteller -> stringResource(Res.string.ga_structure_vendor)
+                                            AufbauZeile.Art.GedcomL -> "GEDCOM-L"; else -> "" },
                                         Modifier.width(150.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Text(z.anzahl.toString(), Modifier.width(70.dp), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.End)
                                 }

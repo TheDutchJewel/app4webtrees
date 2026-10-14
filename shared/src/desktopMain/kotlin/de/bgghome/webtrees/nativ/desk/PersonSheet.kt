@@ -169,9 +169,11 @@ private fun SheetHeader(detail: IndividualDetail) {
         Portrait(person, Modifier.size(56.dp).clip(MaterialTheme.shapes.small))
         Spacer(Modifier.width(12.dp))
         Text(person.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
-        // Kennung des Datensatzes (Issue 13): klein, markierbar zum Kopieren
-        androidx.compose.foundation.text.selection.SelectionContainer {
-            Text(person.xref, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 12.dp))
+        // Kennung des Datensatzes (Issue 13): klein, markierbar zum Kopieren; die eindeutige Kennung (GEDCOM-L _UID) als Tooltip
+        Tipp(detail.uids.takeIf { it.isNotEmpty() }?.let { stringResource(Res.string.desk_gl_uid) + ": " + it.joinToString(", ") }) {
+            androidx.compose.foundation.text.selection.SelectionContainer {
+                Text(person.xref, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 12.dp))
+            }
         }
         age?.let { Text(stringResource(Res.string.desk_age, it), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }
     }
@@ -746,6 +748,9 @@ private fun EreignisDetail(row: FactRow?, geburtJd: Int, modifier: Modifier, can
                         } else Zeile(stringResource(Res.string.fact_place), Ortsanzeige.text(ort))
                         Zeile(stringResource(Res.string.desk_detail_value),
                             if (f.tag == "NAME") de.bgghome.webtrees.nativ.data.GedcomName.aus(f.value).anzeige() else f.value)
+                        // Adresse (ab API-Stufe 33) und GEDCOM-L-Angaben am Ort und an der Adresse (ab Stufe 34)
+                        Zeile(stringResource(Res.string.desk_detail_address), f.address.orEmpty())
+                        f.extras.forEach { z -> Zeile(gedcomLLabel(z.tag), gedcomLWert(z.value, z.date)) }
                         val civil = heiratsartText(Heiratsart.Standesamtlich); val reli = heiratsartText(Heiratsart.Kirchlich)
                         val partners = heiratsartText(Heiratsart.Partnerschaft); val common = heiratsartText(Heiratsart.OhneTrauschein)
                         f.artZusatz { when (it) { Heiratsart.Standesamtlich -> civil; Heiratsart.Kirchlich -> reli; Heiratsart.Partnerschaft -> partners; Heiratsart.OhneTrauschein -> common } }

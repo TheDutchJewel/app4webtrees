@@ -144,7 +144,16 @@ data class FactJson(
     val noteXref: String? = null,
     /** Ab API-Stufe 33: Adresse am Ereignis (2 ADDR, Zeilen mit \n), null ohne. */
     val address: String? = null,
+    /** Ab API-Stufe 34: GEDCOM-L-Angaben ohne eigenes Feld (PLAC:_GOV, PLAC:_POST, PLAC:_MAIDENHEAD, ADDR:_NAME). */
+    val extras: List<GedcomZusatz> = emptyList(),
 )
+
+/** Eine GEDCOM-L-Angabe an einem Ereignis: [tag] als Pfad unter dem Ereignis ("PLAC:_GOV"), [date] roh wie im GEDCOM. */
+@Serializable
+data class GedcomZusatz(val tag: String, val value: String = "", val date: String? = null)
+
+/** Ab dieser API-Stufe liefert api4webtrees das GEDCOM-L-Addendum vollständig (extras, uids, Aufgaben- und Ortsfelder). */
+const val API_GEDCOML = 34
 
 /**
  * Pate, Trauzeuge oder sonst Beteiligter mit eigenem Datensatz (2 _ASSO am Ereignis, 1 ASSO an der Person).
@@ -217,6 +226,8 @@ data class MediaJson(
     val format: String? = null,
     /** Nur bei Medien eines Orts: Dateigroesse und Bildmasse, wie webtrees sie zeigt. */
     val info: List<String> = emptyList(),
+    /** Ab API-Stufe 34: GEDCOM-L "_PRIM Y" - das Bild, das andere Programme als Hauptbild zeigen. */
+    val highlighted: Boolean = false,
 )
 
 @Serializable
@@ -242,6 +253,8 @@ data class FamilyJson(
     /** Ab API-Stufe 30 (nur in der Family-Antwort): Forschungsaufgaben und letzte Aenderung. */
     val tasks: List<TaskJson> = emptyList(),
     val lastChange: LastChange? = null,
+    /** Ab API-Stufe 34: eindeutige Kennungen (1 _UID). */
+    val uids: List<String> = emptyList(),
 )
 
 @Serializable
@@ -261,6 +274,8 @@ data class IndividualDetail(
     /** Ab API-Stufe 30: Forschungsaufgaben und letzte Aenderung. */
     val tasks: List<TaskJson> = emptyList(),
     val lastChange: LastChange? = null,
+    /** Ab API-Stufe 34: eindeutige Kennungen (1 _UID). */
+    val uids: List<String> = emptyList(),
 )
 
 /** Ein Halbgeschwister und ob es ueber den Vater verwandt ist (sonst ueber die Mutter). */
@@ -499,7 +514,21 @@ data class LocationJson(
     val media: List<MediaJson> = emptyList(),
     val canEdit: Boolean = false,
     val url: String = "",
+    /** Ab API-Stufe 34 (GEDCOM-L): alle Namen und Arten mit Datum, Postleitzahlen, amtliche Kennungen (_AIDN), Bevölkerung (_DMGD). */
+    val names: List<LocWert> = emptyList(),
+    val types: List<LocWert> = emptyList(),
+    val postalCodes: List<LocWert> = emptyList(),
+    val adminIds: List<LocWert> = emptyList(),
+    val demographics: List<LocWert> = emptyList(),
+    val maidenhead: String? = null,
+    val religion: String? = null,
+    val uids: List<String> = emptyList(),
 )
+
+/** Ein datierter Wert am Ortsdatensatz: Name (mit [lang], [abbr]), Art (mit [govType]), Kennung oder Zahl (mit [type]). */
+@Serializable
+data class LocWert(val value: String = "", val date: String? = null, val type: String? = null, val govType: String? = null,
+    val lang: String? = null, val abbr: String? = null)
 
 /** Ereignisse am Ort nach Art (Kacheln der Ortsansicht). */
 @Serializable
@@ -577,7 +606,15 @@ const val API_TASKS = 30
 /** Eine Forschungsaufgabe an Person oder Familie. */
 @Serializable
 data class TaskJson(val record: String, val recordType: String = "INDI", val name: String = "", val factId: String = "", val text: String = "",
-    val date: DateJson? = null, val jd: Int? = null, val user: String = "", val note: String = "", val pending: Boolean = false)
+    val date: DateJson? = null, val jd: Int? = null, val user: String = "", val note: String = "", val pending: Boolean = false,
+    /** Ab API-Stufe 34 (GEDCOM-L): DESC, _CAT, _PRTY (0-8), TYPE (0 Recherche, 1 Schriftverkehr, 2 Sonstiges), STAT, _RDATE, _CDATE, DATA, REPO. */
+    val description: String? = null, val category: String? = null, val priority: String? = null, val taskType: String? = null,
+    val status: String? = null, val reminder: DateJson? = null, val completed: DateJson? = null, val solution: String? = null,
+    val repository: TaskRepo? = null)
+
+/** Das Archiv einer Aufgabe (REPO); [name] null, wenn der Benutzer es nicht sehen darf. */
+@Serializable
+data class TaskRepo(val xref: String, val name: String? = null)
 
 @Serializable
 data class TaskList(val ok: Boolean = false, val today: Int = 0, val tasks: List<TaskJson> = emptyList())

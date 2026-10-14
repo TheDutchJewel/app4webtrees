@@ -37,3 +37,7 @@ Findings you have checked and that stay as they are can be ticked off; they disa
 ## Language and appearance
 
 **View › Language** switches the interface (German, English, French, Dutch, Spanish), **View › Appearance** between light and dark.
+
+## GEDCOM-L
+
+gedaudit knows the GEDCOM-L addendum to GEDCOM 5.5.1. In the **file structure** window its tags (_LOC, _GODP, _UID …) are marked “GEDCOM-L”, not as vendor tags; the header line names the addendum version if the file states it. The person card shows godparents and witnesses without a record of their own (_GODP, _WITN), the address and the GOV identifier, postal code and Maidenhead locator of the place. Pointers to location records (`3 _LOC` at a place, `1 _LOC` in a location record) whose target is missing are reported like any other broken pointer.

@@ -424,6 +424,8 @@ internal fun PersonKarte(b: TreeExport, xref: String?) {
     }
     val rollen = rememberScrollState()
     val zeileKopieren = stringResource(Res.string.desk_copy_row); val textKopieren = stringResource(Res.string.desk_copy_text)
+    val godparentText = stringResource(Res.string.desk_gl_godparents); val witnessText = stringResource(Res.string.desk_gl_witnesses)
+    val adresseText = stringResource(Res.string.desk_detail_address)
     Box(Modifier.fillMaxSize()) {
         SelectionContainer { Column(Modifier.fillMaxSize().verticalScroll(rollen).padding(end = 12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -443,6 +445,12 @@ internal fun PersonKarte(b: TreeExport, xref: String?) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, softWrap = false)
                 }
                 }
+                // Darunter eingerueckt: Paten und Zeugen, Adresse und die GEDCOM-L-Angaben am Ort und an der Adresse
+                val beteiligte = f.associates.map { a -> (a.label.ifBlank { a.rela }.takeIf(String::isNotBlank)?.let { "$it: " } ?: "") + (a.name ?: a.xref) } +
+                    f.freeAssociates.map { a -> (if (a.role == "witness") witnessText else godparentText) + ": " + a.text }
+                val zusatz = beteiligte + listOfNotNull(f.address?.takeIf(String::isNotBlank)?.let { adresseText + ": " + it.replace('\n', ' ') }) +
+                    f.extras.map { z -> gedcomLLabel(z.tag) + ": " + gedcomLWert(z.value, z.date) }
+                zusatz.forEach { Text(it, Modifier.padding(start = 110.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis) }
             }
             if (d.parentFamilies.isNotEmpty()) {
                 Ueberschrift(stringResource(Res.string.ga_person_parents))

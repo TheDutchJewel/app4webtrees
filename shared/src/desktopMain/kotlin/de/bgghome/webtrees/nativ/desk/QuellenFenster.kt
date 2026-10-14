@@ -306,13 +306,17 @@ fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((M
         media.forEach { m ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 // Beim Darueberfahren: Titel, Dateiname, Format und Art, bei Orten auch Groesse und Bildmasse
-                val tipp = (listOf(m.title, m.path?.substringAfterLast('/').orEmpty(), listOfNotNull(m.format?.uppercase(), m.type).joinToString(" · ")) + m.info)
+                val hervor = if (m.highlighted) stringResource(Res.string.desk_gl_highlighted) else ""
+                val tipp = (listOf(m.title, m.path?.substringAfterLast('/').orEmpty(), listOfNotNull(m.format?.uppercase(), m.type).joinToString(" · ")) + m.info + hervor)
                     .filter(String::isNotBlank).distinct().joinToString("\n")
                 Tipp(tipp) {
                     Box(Modifier.size(96.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant).clickable { if (onOeffnen != null) onOeffnen(m) else openWeb(m.file.ifBlank { m.url }) },
                         contentAlignment = Alignment.Center) {
                         if (m.thumb != null) AsyncImage(model = m.thumb, contentDescription = m.title, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                         else Text(m.title, Modifier.padding(6.dp), style = MaterialTheme.typography.labelSmall, maxLines = 4, overflow = TextOverflow.Ellipsis)
+                        // GEDCOM-L "_PRIM Y": das Bild, das andere Programme als Hauptbild zeigen
+                        if (m.highlighted) Text("★", Modifier.align(Alignment.TopEnd).background(MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)).padding(horizontal = 3.dp),
+                            style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 // Nur die Verknuepfung loesen - Medium und Datei bleiben, wie beim Loesen in webtrees

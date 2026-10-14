@@ -1725,7 +1725,7 @@
     <string name="ga_structure_foreign">fuera del estándar</string>
     <string name="ga_structure_head">Cabecera: %1$s</string>
     <string name="ga_structure_count">Cantidad</string>
-    <string name="ga_structure_hint">El árbol de etiquetas del archivo por tipo de registro, con el número de apariciones. Las etiquetas con guion bajo son extensiones del fabricante; las que no lo llevan y no figuran en GEDCOM 5.5.1 o 7 están marcadas.</string>
+    <string name="ga_structure_hint">El árbol de etiquetas del archivo por tipo de registro, con el número de apariciones. Las etiquetas con guion bajo son extensiones del fabricante; las que no lo llevan y no figuran en GEDCOM 5.5.1 o 7 están marcadas. Las etiquetas del addendum GEDCOM-L (p. ej. _LOC, _GODP, _UID) se marcan como GEDCOM-L, las demás con guion bajo como etiquetas de fabricante.</string>
     <string name="ga_person_second">Segunda persona</string>
     <!-- Dateien vergleichen (gedaudit 0.3, 13.10.2026) -->
     <string name="ga_compare_menu">Comparar con otro archivo …</string>
@@ -1754,4 +1754,36 @@
     <string name="desk_ev_will">Testamento</string>
     <string name="desk_ev_note">Nota</string>
     <string name="ga_person_source_one">1 fuente</string>
+    <string name="desk_gl_maidenhead">Localizador Maidenhead</string>
+    <string name="desk_gl_addressee">Destinatario</string>
+    <string name="desk_gl_uid">Identificador único</string>
+    <string name="desk_gl_highlighted">Imagen destacada</string>
+    <string name="desk_gl_place_details">Datos del lugar</string>
+    <string name="desk_place_names">Nombres</string>
+    <string name="desk_place_types">Tipos a lo largo del tiempo</string>
+    <string name="desk_place_admin_id">Código oficial</string>
+    <string name="desk_place_population">Población</string>
+    <string name="desk_place_religion">Religión</string>
+    <string name="desk_task_description">Descripción</string>
+    <string name="desk_task_category">Categoría</string>
+    <string name="desk_task_priority">Prioridad</string>
+    <string name="desk_task_type">Tipo</string>
+    <string name="desk_task_type_0">Investigación</string>
+    <string name="desk_task_type_1">Correspondencia</string>
+    <string name="desk_task_type_2">Otro</string>
+    <string name="desk_task_status">Estado</string>
+    <string name="desk_task_status_open">abierta</string>
+    <string name="desk_task_status_completed">terminada</string>
+    <string name="desk_task_status_auto">automática</string>
+    <string name="desk_task_reminder">Recordatorio</string>
+    <string name="desk_task_completed">Terminada el</string>
+    <string name="desk_task_solution">Solución</string>
+    <string name="desk_task_repository">Archivo</string>
+    <string name="desk_detail_address">Dirección</string>
+    <string name="desk_gl_family_status">Estado familiar</string>
+    <string name="desk_gl_status_not_married">no casados</string>
+    <string name="desk_gl_status_never_married">nunca casados</string>
+    <string name="desk_gl_status_unknown">desconocido</string>
+    <string name="desk_gl_godparents">Padrinos</string>
+    <string name="desk_gl_witnesses">Testigos</string>
 </resources>

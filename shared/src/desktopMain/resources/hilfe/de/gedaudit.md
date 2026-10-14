@@ -37,3 +37,7 @@ Treffer, die du geprüft hast und die so bleiben, hakst du ab; sie verschwinden 
 ## Sprache und Aussehen
 
 **Ansicht › Sprache** schaltet die Oberfläche um (Deutsch, Englisch, Französisch, Niederländisch, Spanisch), **Ansicht › Erscheinungsbild** zwischen hell und dunkel.
+
+## GEDCOM-L
+
+gedaudit kennt das GEDCOM-L-Addendum zu GEDCOM 5.5.1. Im Fenster **Aufbau der Datei** stehen seine Tags (_LOC, _GODP, _UID …) als „GEDCOM-L“ und nicht als Hersteller-Tag; die Kopfzeile nennt die Addendum-Version, wenn die Datei sie angibt. Die Personenkarte zeigt Paten und Zeugen ohne eigenen Datensatz (_GODP, _WITN), die Adresse sowie GOV-Kennung, Postleitzahl und Maidenhead-Locator am Ort. Verweise auf Ortsdatensätze (`3 _LOC` am Ort, `1 _LOC` im Ortsdatensatz), deren Ziel fehlt, meldet die Prüfung wie jeden anderen Verweis ins Leere.

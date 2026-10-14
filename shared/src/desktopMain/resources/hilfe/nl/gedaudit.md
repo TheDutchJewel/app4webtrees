@@ -37,3 +37,7 @@ Bevindingen die u bekeken hebt en die zo blijven, vinkt u af; ze verdwijnen uit 
 ## Taal en weergave
 
 **Beeld › Taal** schakelt de interface om (Duits, Engels, Frans, Nederlands, Spaans), **Beeld › Weergave** tussen licht en donker.
+
+## GEDCOM-L
+
+gedaudit kent het GEDCOM-L-addendum bij GEDCOM 5.5.1. In het venster **Opbouw van het bestand** staan de tags ervan (_LOC, _GODP, _UID …) als „GEDCOM-L” en niet als leverancierstag; de kopregel noemt de addendumversie als het bestand die vermeldt. De persoonskaart toont peetouders en getuigen zonder eigen record (_GODP, _WITN), het adres en de GOV-code, postcode en Maidenhead-locator van de plaats. Verwijzingen naar plaatsrecords (`3 _LOC` bij een plaats, `1 _LOC` in een plaatsrecord) waarvan het doel ontbreekt, meldt de controle zoals elke andere verwijzing in het niets.

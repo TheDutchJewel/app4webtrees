@@ -64,3 +64,7 @@ Las personas duplicadas surgen al unir dos archivos o al introducir datos: el mi
 - **Archivo › Imprimir ficha personal …** (Ctrl+P) y **Ficha personal como PDF …**
 - **Persona › Copiar texto de la persona** (Ctrl+Shift+C) copia todos los datos como texto al portapapeles, p. ej. para un correo electrónico o un procesador de textos.
 - Más salidas: [Listas](hilfe:listen) (ficha personal como lista), [Gráficos](hilfe:tafeln), [Libros](hilfe:buecher).
+
+## GEDCOM-L
+
+wtWin muestra todos los datos del addendum GEDCOM-L que contiene un árbol (desde api4webtrees 1.21): en el área de detalle de un evento la dirección, el identificador GOV, el código postal (con fecha) y el localizador Maidenhead del lugar, además del destinatario; en la cabecera de la ficha, al pasar sobre el identificador, el identificador único (_UID); en la pestaña **Medios** una estrella en la imagen destacada (_PRIM); en la ventana de tareas descripción, categoría, prioridad, tipo, estado, recordatorio, fecha de finalización, solución y archivo de una tarea de investigación; en la gestión de lugares, en **Datos**, nombres y tipos anteriores con fecha, códigos postales con fecha, código oficial (p. ej. código municipal), población, localizador Maidenhead, religión e identificador único. Al editar se conservan todos los datos GEDCOM-L.

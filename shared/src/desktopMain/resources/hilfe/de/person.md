@@ -64,3 +64,7 @@ Doppelte Personen entstehen beim Zusammenführen zweier Dateien oder beim Eingeb
 - **Datei › Personenblatt drucken …** (Strg+P) und **Personenblatt als PDF …**
 - **Person › Personentext kopieren** (Strg+Umschalt+C) legt alle Angaben als Text in die Zwischenablage, etwa für eine E-Mail oder die Textverarbeitung.
 - Mehr Ausgaben: [Listen](hilfe:listen) (Personenblatt als Liste), [Tafeln](hilfe:tafeln), [Bücher](hilfe:buecher).
+
+## GEDCOM-L
+
+wtWin zeigt alle Angaben des GEDCOM-L-Addendums, die ein Stammbaum enthält (ab api4webtrees 1.21): im Detailbereich eines Ereignisses die Adresse, die GOV-Kennung, die Postleitzahl (mit Datum) und den Maidenhead-Locator des Orts sowie den Empfänger an der Adresse; im Kopf des Personenblatts beim Darüberfahren über die Kennung die eindeutige Kennung (_UID); im Reiter **Medien** einen Stern am hervorgehobenen Bild (_PRIM); im Aufgabenfenster Beschreibung, Kategorie, Priorität, Art, Status, Erinnerung, Erledigt-Datum, Lösung und Archiv einer Forschungsaufgabe; in der Ortsverwaltung unter **Daten** frühere Namen und Arten mit Datum, Postleitzahlen mit Datum, amtliche Kennung (z. B. Gemeindeschlüssel), Bevölkerungszahlen, Maidenhead-Locator, Religion und eindeutige Kennung. Beim Bearbeiten bleiben alle GEDCOM-L-Angaben erhalten.

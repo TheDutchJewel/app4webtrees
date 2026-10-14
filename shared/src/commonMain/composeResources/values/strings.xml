@@ -1730,7 +1730,7 @@
     <string name="ga_structure_foreign">not in the standard</string>
     <string name="ga_structure_head">Header: %1$s</string>
     <string name="ga_structure_count">Count</string>
-    <string name="ga_structure_hint">The tag tree of the file by record type, with the number of occurrences. Tags with an underscore are vendor extensions; tags without one that are not in GEDCOM 5.5.1 or 7 are marked.</string>
+    <string name="ga_structure_hint">The tag tree of the file by record type, with the number of occurrences. Tags with an underscore are vendor extensions; tags without one that are not in GEDCOM 5.5.1 or 7 are marked. Tags from the GEDCOM-L addendum (e.g. _LOC, _GODP, _UID) are marked GEDCOM-L, other underscore tags as vendor tags.</string>
     <string name="ga_person_second">Second person</string>
     <!-- Dateien vergleichen (gedaudit 0.3, 13.10.2026) -->
     <string name="ga_compare_menu">Compare with another file …</string>
@@ -1759,4 +1759,36 @@
     <string name="desk_ev_will">Will</string>
     <string name="desk_ev_note">Note</string>
     <string name="ga_person_source_one">1 source</string>
+    <string name="desk_gl_maidenhead">Maidenhead locator</string>
+    <string name="desk_gl_addressee">Addressee</string>
+    <string name="desk_gl_uid">Unique identifier</string>
+    <string name="desk_gl_highlighted">Highlighted image</string>
+    <string name="desk_gl_place_details">Place details</string>
+    <string name="desk_place_names">Names</string>
+    <string name="desk_place_types">Types over time</string>
+    <string name="desk_place_admin_id">Administrative ID</string>
+    <string name="desk_place_population">Population</string>
+    <string name="desk_place_religion">Religion</string>
+    <string name="desk_task_description">Description</string>
+    <string name="desk_task_category">Category</string>
+    <string name="desk_task_priority">Priority</string>
+    <string name="desk_task_type">Type</string>
+    <string name="desk_task_type_0">Research</string>
+    <string name="desk_task_type_1">Correspondence</string>
+    <string name="desk_task_type_2">Other</string>
+    <string name="desk_task_status">Status</string>
+    <string name="desk_task_status_open">open</string>
+    <string name="desk_task_status_completed">completed</string>
+    <string name="desk_task_status_auto">automatic</string>
+    <string name="desk_task_reminder">Reminder</string>
+    <string name="desk_task_completed">Completed on</string>
+    <string name="desk_task_solution">Solution</string>
+    <string name="desk_task_repository">Repository</string>
+    <string name="desk_detail_address">Address</string>
+    <string name="desk_gl_family_status">Family status</string>
+    <string name="desk_gl_status_not_married">not married</string>
+    <string name="desk_gl_status_never_married">never married</string>
+    <string name="desk_gl_status_unknown">unknown</string>
+    <string name="desk_gl_godparents">Godparents</string>
+    <string name="desk_gl_witnesses">Witnesses</string>
 </resources>

@@ -64,3 +64,7 @@ Duplicate individuals arise when two files are combined or while entering data �
 - **File › Print person sheet …** (Ctrl+P) and **Person sheet as PDF …**
 - **Person › Copy person text** (Ctrl+Shift+C) puts all details as text on the clipboard, e.g. for an e-mail or a word processor.
 - More output: [Lists](hilfe:listen) (person sheet as a list), [Charts](hilfe:tafeln), [Books](hilfe:buecher).
+
+## GEDCOM-L
+
+wtWin shows every item of the GEDCOM-L addendum a family tree contains (from api4webtrees 1.21): in the detail area of an event the address, the GOV identifier, the postal code (with date) and the Maidenhead locator of the place as well as the addressee; in the header of the person sheet, when hovering over the ID, the unique identifier (_UID); in the **Media** tab a star on the highlighted image (_PRIM); in the task window description, category, priority, type, status, reminder, completion date, solution and repository of a research task; in the place manager under **Data** earlier names and types with dates, postal codes with dates, administrative ID (e.g. municipality key), population figures, Maidenhead locator, religion and unique identifier. Editing keeps every GEDCOM-L item.

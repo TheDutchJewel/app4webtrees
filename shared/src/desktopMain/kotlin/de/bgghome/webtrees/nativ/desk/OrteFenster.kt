@@ -562,7 +562,10 @@ private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) ->
             else Text(listOf(loc.name, loc.xref).filter(String::isNotBlank).joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
         }
         // Kurzname, Postleitzahl, Region, Land - so wie andere Programme sie am Ortsdatensatz ablegen
-        listOf(Res.string.desk_place_short to loc?.shortName, Res.string.desk_place_postal to loc?.postalCode, Res.string.desk_place_region to loc?.region, Res.string.desk_place_country to loc?.country)
+        // Mehrere datierte Postleitzahlen (GEDCOM-L, ab API-Stufe 34) stehen weiter unten als Verlauf
+        val plzVerlauf = (loc?.postalCodes?.size ?: 0) > 1
+        listOf(Res.string.desk_place_short to loc?.shortName, Res.string.desk_place_postal to loc?.postalCode?.takeUnless { plzVerlauf },
+            Res.string.desk_place_region to loc?.region, Res.string.desk_place_country to loc?.country)
             .forEach { (label, wert) -> if (!wert.isNullOrBlank()) Zeile(label) { SelectionContainer { Text(wert, style = MaterialTheme.typography.bodyMedium) } } }
         loc?.gov?.let { gov ->
             Zeile(Res.string.desk_place_gov) {
@@ -571,6 +574,24 @@ private fun Daten(o: PlaceDetail, onWahl: (String) -> Unit, openWeb: (String) ->
                     Verweis(stringResource(Res.string.desk_place_gov_show)) { openWeb("https://gov.genealogy.net/item/show/$gov") }
                 }
             }
+        }
+        // Weitere Angaben des Ortsdatensatzes nach GEDCOM-L (ab API-Stufe 34): Verlaeufe mit Datum, Kennungen, Zahlen
+        if (loc != null) {
+            @Composable
+            fun Liste(label: StringResource, zeilen: List<String>) {
+                if (zeilen.isNotEmpty()) Zeile(label) { SelectionContainer { Text(zeilen.joinToString("\n"), style = MaterialTheme.typography.bodyMedium) } }
+            }
+            if (loc.names.size > 1) Liste(Res.string.desk_place_names, loc.names.map { gedcomLWert(it.value, it.date, listOf(it.abbr, it.lang)) })
+            if (loc.types.size > 1) Liste(Res.string.desk_place_types, loc.types.map { w ->
+                gedcomLWert(w.value, w.date, listOf(w.govType?.let { nr -> de.bgghome.webtrees.nativ.Texte.t(Res.string.desk_place_gov_type, nr) +
+                    (de.bgghome.webtrees.nativ.data.GovTypen.name(nr, de.bgghome.webtrees.nativ.Sprache.aktiv)?.let { " ($it)" } ?: "") }))
+            })
+            if (plzVerlauf) Liste(Res.string.desk_place_postal, loc.postalCodes.map { gedcomLWert(it.value, it.date) })
+            Liste(Res.string.desk_place_admin_id, loc.adminIds.map { gedcomLWert(it.value, it.date, listOf(it.type)) })
+            Liste(Res.string.desk_place_population, loc.demographics.map { gedcomLWert(it.value, it.date, listOf(it.type)) })
+            Liste(Res.string.desk_gl_maidenhead, listOfNotNull(loc.maidenhead))
+            Liste(Res.string.desk_place_religion, listOfNotNull(loc.religion))
+            Liste(Res.string.desk_gl_uid, loc.uids)
         }
     }
 }

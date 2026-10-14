@@ -37,3 +37,7 @@ Los hallazgos que ha revisado y que se quedan así se marcan; desaparecen de la 
 ## Idioma y apariencia
 
 **Ver › Idioma** cambia la interfaz (alemán, inglés, francés, neerlandés, español), **Ver › Apariencia** alterna entre claro y oscuro.
+
+## GEDCOM-L
+
+gedaudit conoce el addendum GEDCOM-L de GEDCOM 5.5.1. En la ventana **Estructura del archivo** sus etiquetas (_LOC, _GODP, _UID …) aparecen como «GEDCOM-L» y no como etiquetas de fabricante; la línea de cabecera indica la versión del addendum si el archivo la declara. La ficha de la persona muestra padrinos y testigos sin registro propio (_GODP, _WITN), la dirección y el identificador GOV, el código postal y el localizador Maidenhead del lugar. Las referencias a registros de lugar (`3 _LOC` en un lugar, `1 _LOC` en un registro de lugar) cuyo destino falta se señalan como cualquier otra referencia rota.

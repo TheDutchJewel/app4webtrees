@@ -153,6 +153,8 @@ private fun AufgabeZeile(t: TaskJson, root: String?, onKlick: () -> Unit, onDopp
             Text(t.text + if (t.pending) "  (" + stringResource(Res.string.desk_change_pending) + ")" else "", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(listOf(t.name + " (" + t.record + ")", t.user).filter { it.isNotBlank() }.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (t.note.isNotBlank()) Text(t.note, style = MaterialTheme.typography.bodySmall, color = farben.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            // GEDCOM-L (ab API-Stufe 34): Beschreibung, Einordnung, Termine, Archiv und Loesung
+            AufgabeGedcomL(t)
         }
         TextButton(onClick = onBearbeiten) { Text(stringResource(Res.string.desk_task_edit)) }
         TextButton(onClick = onErledigt) { Text(stringResource(Res.string.desk_task_done)) }
@@ -196,4 +198,23 @@ fun AufgabeDialog(ziel: AufgabeZiel, viewModel: AppViewModel, tree: String, onCl
         },
         dismissButton = { TextButton(onClick = { onClose(false) }) { Text(stringResource(Res.string.action_cancel)) } },
     )
+}
+
+/** Die GEDCOM-L-Felder einer Aufgabe in zwei, drei kleinen Zeilen; ohne diese Felder nichts. */
+@Composable
+internal fun AufgabeGedcomL(t: TaskJson) {
+    val farben = MaterialTheme.colorScheme
+    val klein = MaterialTheme.typography.bodySmall
+    t.description?.takeIf { it.isNotBlank() && it != t.text }?.let { Text(it, style = klein, maxLines = 3, overflow = TextOverflow.Ellipsis) }
+    val teile = listOfNotNull(
+        t.category?.takeIf(String::isNotBlank)?.let { stringResource(Res.string.desk_task_category) + ": " + it },
+        t.priority?.takeIf(String::isNotBlank)?.let { stringResource(Res.string.desk_task_priority) + ": " + it },
+        aufgabenArt(t.taskType)?.let { stringResource(Res.string.desk_task_type) + ": " + it },
+        aufgabenStatus(t.status)?.let { stringResource(Res.string.desk_task_status) + ": " + it },
+        t.reminder?.text?.takeIf(String::isNotBlank)?.let { stringResource(Res.string.desk_task_reminder) + ": " + it },
+        t.completed?.text?.takeIf(String::isNotBlank)?.let { stringResource(Res.string.desk_task_completed) + " " + it },
+        t.repository?.let { r -> stringResource(Res.string.desk_task_repository) + ": " + (r.name ?: r.xref) },
+    )
+    if (teile.isNotEmpty()) Text(teile.joinToString(" · "), style = klein, color = farben.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+    t.solution?.takeIf(String::isNotBlank)?.let { Text(stringResource(Res.string.desk_task_solution) + ": " + it, style = klein, color = farben.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis) }
 }
