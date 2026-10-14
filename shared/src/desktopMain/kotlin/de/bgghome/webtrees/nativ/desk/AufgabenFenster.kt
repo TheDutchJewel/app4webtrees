@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -168,6 +171,21 @@ fun AufgabeDialog(ziel: AufgabeZiel, viewModel: AppViewModel, tree: String, onCl
     var datum by remember { mutableStateOf(ziel.vorhanden?.date?.gedcom?.ifBlank { null } ?: ziel.vorhanden?.date?.text.orEmpty()) }
     var bearbeiter by remember { mutableStateOf(ziel.vorhanden?.user.orEmpty()) }
     var notiz by remember { mutableStateOf(ziel.vorhanden?.note.orEmpty()) }
+    // GEDCOM-L (ab API-Stufe 35): gesendet wird nur, was sich gegenueber der vorhandenen Aufgabe aendert
+    val v = ziel.vorhanden
+    val glFelder = (viewModel.state.value.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_GEDCOML_WRITE
+    var beschreibung by remember { mutableStateOf(v?.description.orEmpty()) }
+    var kategorie by remember { mutableStateOf(v?.category.orEmpty()) }
+    var prioritaet by remember { mutableStateOf(v?.priority.orEmpty()) }
+    var art by remember { mutableStateOf(v?.taskType.orEmpty()) }
+    var status by remember { mutableStateOf(v?.status.orEmpty()) }
+    var erinnerung by remember { mutableStateOf(v?.reminder?.gedcom?.ifBlank { null } ?: v?.reminder?.text.orEmpty()) }
+    var erledigt by remember { mutableStateOf(v?.completed?.gedcom?.ifBlank { null } ?: v?.completed?.text.orEmpty()) }
+    var loesung by remember { mutableStateOf(v?.solution.orEmpty()) }
+    var archiv by remember { mutableStateOf(v?.repository?.xref.orEmpty()) }
+    val archive by produceState(emptyList<de.bgghome.webtrees.nativ.api.RepositorySummary>(), glFelder) {
+        if (glFelder) value = withContext(Dispatchers.IO) { runCatching { viewModel.client.repositories(tree).repositories }.getOrDefault(emptyList()) }
+    }
     var fehler by remember { mutableStateOf<String?>(null) }
     var laeuft by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -182,6 +200,26 @@ fun AufgabeDialog(ziel: AufgabeZiel, viewModel: AppViewModel, tree: String, onCl
                     OutlinedTextField(bearbeiter, { bearbeiter = it }, Modifier.weight(1f), label = { Text(stringResource(Res.string.desk_task_user)) }, singleLine = true)
                 }
                 OutlinedTextField(notiz, { notiz = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(Res.string.desk_task_note)) }, minLines = 3)
+                if (glFelder) {
+                    OutlinedTextField(beschreibung, { beschreibung = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(Res.string.desk_task_description)) }, minLines = 2)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(kategorie, { kategorie = it }, Modifier.weight(1f), label = { Text(stringResource(Res.string.desk_task_category)) }, singleLine = true)
+                        Wahl(stringResource(Res.string.desk_task_priority), prioritaet, listOf("") + (0..8).map(Int::toString), { it.ifBlank { "–" } }) { prioritaet = it }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        val artText = listOf("0", "1", "2").associateWith { aufgabenArt(it).orEmpty() }
+                        val statusText = listOf("open", "completed", "auto").associateWith { aufgabenStatus(it).orEmpty() }
+                        Wahl(stringResource(Res.string.desk_task_type), art, listOf("", "0", "1", "2"), { artText[it] ?: it.ifBlank { "–" } }) { art = it }
+                        Wahl(stringResource(Res.string.desk_task_status), status, listOf("", "open", "completed", "auto"), { statusText[it] ?: it.ifBlank { "–" } }) { status = it }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(erinnerung, { erinnerung = it }, Modifier.weight(1f), label = { Text(stringResource(Res.string.desk_task_reminder)) }, singleLine = true)
+                        OutlinedTextField(erledigt, { erledigt = it }, Modifier.weight(1f), label = { Text(stringResource(Res.string.desk_task_completed)) }, singleLine = true)
+                    }
+                    OutlinedTextField(loesung, { loesung = it }, Modifier.fillMaxWidth(), label = { Text(stringResource(Res.string.desk_task_solution)) }, minLines = 2)
+                    Wahl(stringResource(Res.string.desk_task_repository), archiv, listOf("") + archive.map { it.xref } + listOfNotNull(archiv.takeIf { a -> a.isNotBlank() && archive.none { it.xref == a } }),
+                        { x -> if (x.isBlank()) "–" else archive.firstOrNull { it.xref == x }?.name?.ifBlank { null } ?: v?.repository?.name ?: x }) { archiv = it }
+                }
                 fehler?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
         },
@@ -190,7 +228,15 @@ fun AufgabeDialog(ziel: AufgabeZiel, viewModel: AppViewModel, tree: String, onCl
                 laeuft = true; fehler = null
                 scope.launch {
                     withContext(Dispatchers.IO) {
-                        runCatching { viewModel.client.saveTask(tree, ziel.xref, TaskRequest(ziel.vorhanden?.factId, text.trim(), datum.trim().ifBlank { null }, bearbeiter.trim().ifBlank { null }, notiz.trim())) }
+                        // Nur Geaendertes senden (null = nicht anfassen, "" = entfernen)
+                        fun neu(jetzt: String, vorher: String?) = jetzt.trim().takeIf { glFelder && it != vorher.orEmpty().trim() }
+                        val anfrage = TaskRequest(ziel.vorhanden?.factId, text.trim(), datum.trim().ifBlank { null }, bearbeiter.trim().ifBlank { null }, notiz.trim(),
+                            description = neu(beschreibung, v?.description), category = neu(kategorie, v?.category), priority = neu(prioritaet, v?.priority),
+                            taskType = neu(art, v?.taskType), status = neu(status, v?.status),
+                            reminder = neu(erinnerung, v?.reminder?.gedcom?.ifBlank { null } ?: v?.reminder?.text),
+                            completed = neu(erledigt, v?.completed?.gedcom?.ifBlank { null } ?: v?.completed?.text),
+                            solution = neu(loesung, v?.solution), repository = neu(archiv, v?.repository?.xref))
+                        runCatching { viewModel.client.saveTask(tree, ziel.xref, anfrage) }
                     }.onSuccess { onClose(true) }.onFailure { fehler = it.message }
                     laeuft = false
                 }
@@ -198,6 +244,21 @@ fun AufgabeDialog(ziel: AufgabeZiel, viewModel: AppViewModel, tree: String, onCl
         },
         dismissButton = { TextButton(onClick = { onClose(false) }) { Text(stringResource(Res.string.action_cancel)) } },
     )
+}
+
+/** Eine kleine Auswahl mit Beschriftung: Knopf mit dem aktuellen Wert, Klick klappt die Werte auf. */
+@Composable
+private fun Wahl(label: String, wert: String, werte: List<String>, text: @Composable (String) -> String, onWahl: (String) -> Unit) {
+    var offen by remember { mutableStateOf(false) }
+    Column {
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box {
+            OutlinedButton(onClick = { offen = true }, shape = MaterialTheme.shapes.small) { Text(text(wert)) }
+            DropdownMenu(expanded = offen, onDismissRequest = { offen = false }) {
+                werte.forEach { w -> DropdownMenuItem(text = { Text(text(w)) }, onClick = { onWahl(w); offen = false }) }
+            }
+        }
+    }
 }
 
 /** Die GEDCOM-L-Felder einer Aufgabe in zwei, drei kleinen Zeilen; ohne diese Felder nichts. */

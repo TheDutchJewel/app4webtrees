@@ -301,7 +301,7 @@ private fun Abschnitt(titel: StringResource) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((MediaJson) -> Unit)? = null, onBearbeiten: ((MediaJson) -> Unit)? = null,
-                onOeffnen: ((MediaJson) -> Unit)? = null) {
+                onOeffnen: ((MediaJson) -> Unit)? = null, onHauptbild: ((MediaJson) -> Unit)? = null) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         media.forEach { m ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -325,6 +325,8 @@ fun MedienReihe(media: List<MediaJson>, openWeb: (String) -> Unit, onLoesen: ((M
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     if (onLoesen != null) Text(stringResource(Res.string.desk_media_unlink), Modifier.clickable { onLoesen(m) }.padding(2.dp),
                         style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (onHauptbild != null && m.isImage && !m.highlighted) Text(stringResource(Res.string.desk_media_make_primary), Modifier.clickable { onHauptbild(m) }.padding(2.dp),
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
         }

@@ -146,6 +146,8 @@ data class FactJson(
     val address: String? = null,
     /** Ab API-Stufe 34: GEDCOM-L-Angaben ohne eigenes Feld (PLAC:_GOV, PLAC:_POST, PLAC:_MAIDENHEAD, ADDR:_NAME). */
     val extras: List<GedcomZusatz> = emptyList(),
+    /** Ab API-Stufe 35: der Wert, wie er im GEDCOM steht, wenn [value] ihn übersetzt zeigt (1 _STAT NOT MARRIED); sonst null. */
+    val gedcomValue: String? = null,
 )
 
 /** Eine GEDCOM-L-Angabe an einem Ereignis: [tag] als Pfad unter dem Ereignis ("PLAC:_GOV"), [date] roh wie im GEDCOM. */
@@ -154,6 +156,9 @@ data class GedcomZusatz(val tag: String, val value: String = "", val date: Strin
 
 /** Ab dieser API-Stufe liefert api4webtrees das GEDCOM-L-Addendum vollständig (extras, uids, Aufgaben- und Ortsfelder). */
 const val API_GEDCOML = 34
+
+/** Ab dieser Stufe schreibt api4webtrees Familienstand (gedcomValue), Hauptbild mit _PRIM und die Aufgabenfelder. */
+const val API_GEDCOML_WRITE = 35
 
 /**
  * Pate, Trauzeuge oder sonst Beteiligter mit eigenem Datensatz (2 _ASSO am Ereignis, 1 ASSO an der Person).
@@ -620,7 +625,11 @@ data class TaskRepo(val xref: String, val name: String? = null)
 data class TaskList(val ok: Boolean = false, val today: Int = 0, val tasks: List<TaskJson> = emptyList())
 
 @Serializable
-data class TaskRequest(val factId: String? = null, val text: String, val date: String? = null, val user: String? = null, val note: String? = null)
+data class TaskRequest(val factId: String? = null, val text: String, val date: String? = null, val user: String? = null, val note: String? = null,
+    /** Ab API-Stufe 35 (GEDCOM-L): null = nicht anfassen, "" = Zeile entfernen. */
+    val description: String? = null, val category: String? = null, val priority: String? = null, val taskType: String? = null,
+    val status: String? = null, val reminder: String? = null, val completed: String? = null, val solution: String? = null,
+    val repository: String? = null)
 
 @Serializable
 data class ReorderRequest(val type: String, val order: List<String>)

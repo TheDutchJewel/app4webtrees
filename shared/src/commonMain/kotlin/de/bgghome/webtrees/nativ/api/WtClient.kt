@@ -548,6 +548,11 @@ class WtClient(private val prefs: Ablage, cookies: Ablage, val userAgent: String
         post("Media", tree, mapOf("xref" to xref), kotlinx.serialization.json.buildJsonObject { put("media", kotlinx.serialization.json.JsonPrimitive(media)) }
             .toString().toRequestBody("application/json".toMediaType()))
 
+    /** Medium zum Hauptbild machen: an die erste Stelle, ab Stufe 35 auch mit GEDCOM-L "_PRIM Y". */
+    suspend fun primaryMedia(tree: String, xref: String, media: String): WriteResult =
+        post("PrimaryMedia", tree, mapOf("xref" to xref), kotlinx.serialization.json.buildJsonObject { put("media", kotlinx.serialization.json.JsonPrimitive(media)) }
+            .toString().toRequestBody("application/json".toMediaType()))
+
     /** Verknuepfung loesen - Medienobjekt und Datei bleiben. */
     suspend fun unlinkMedia(tree: String, xref: String, media: String): WriteResult =
         post("UnlinkMedia", tree, mapOf("xref" to xref), kotlinx.serialization.json.buildJsonObject { put("media", kotlinx.serialization.json.JsonPrimitive(media)) }

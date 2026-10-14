@@ -1767,4 +1767,5 @@
     <string name="desk_gl_status_unknown">onbekend</string>
     <string name="desk_gl_godparents">Peetouders</string>
     <string name="desk_gl_witnesses">Getuigen</string>
+    <string name="desk_media_make_primary">Als hoofdafbeelding</string>
 </resources>

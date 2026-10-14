@@ -1786,4 +1786,5 @@
     <string name="desk_gl_status_unknown">unbekannt</string>
     <string name="desk_gl_godparents">Paten</string>
     <string name="desk_gl_witnesses">Zeugen</string>
+    <string name="desk_media_make_primary">Als Hauptbild</string>
 </resources>

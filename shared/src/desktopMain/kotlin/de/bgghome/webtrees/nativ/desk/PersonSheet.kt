@@ -57,6 +57,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -370,11 +372,35 @@ private fun PartnersTab(
         }
         TrennerWaagrecht(partnerHoehe, "blatt_partner_hoehe", 110f, 600f)
         // ── Ereignisse der Partnerschaft ──
+        // Familienstand nach GEDCOM-L (1 _STAT) als Auswahl, ab API-Stufe 35 mit Bearbeitungsrecht; dann nicht noch einmal in der Tabelle
+        val standWaehlbar = familie != null && canEdit && (viewModel.state.value.info?.api ?: 0) >= de.bgghome.webtrees.nativ.api.API_GEDCOML_WRITE
+        if (familie != null && standWaehlbar) Familienstand(familie, viewModel)
         if (familie != null) {
-            val rows = familie.facts.filter { it.known }.map { FactRow(it, familie.xref, faktLabelMitArt(it)) }
+            val rows = familie.facts.filter { it.known && !(standWaehlbar && it.tag == "_STAT") }.map { FactRow(it, familie.xref, faktLabelMitArt(it)) }
             EreignisTabelle(rows, familie.xref, canEdit, onEdit, onDelete, onNew = { onNewFact(familie.xref) }, Modifier.weight(1f).fillMaxWidth(), geburtJd(detail), detail, viewModel)
         } else {
             Text(stringResource(Res.string.desk_partner_none), Modifier.padding(12.dp), color = colors.onSurfaceVariant)
+        }
+    }
+}
+
+/** Familienstand einer Partnerschaft (GEDCOM-L 1 _STAT): nicht verheiratet, nie verheiratet, unbekannt oder keine Angabe. */
+@Composable
+private fun Familienstand(familie: de.bgghome.webtrees.nativ.api.FamilyJson, viewModel: AppViewModel) {
+    val alt = familie.facts.firstOrNull { it.tag == "_STAT" }
+    val roh = (alt?.gedcomValue ?: alt?.value).orEmpty().trim().uppercase()
+    val texte = mapOf("" to "–", "NOT MARRIED" to stringResource(Res.string.desk_gl_status_not_married),
+        "NEVER MARRIED" to stringResource(Res.string.desk_gl_status_never_married), "UNKNOWN" to stringResource(Res.string.desk_gl_status_unknown))
+    var offen by remember { mutableStateOf(false) }
+    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(Res.string.desk_gl_family_status), Modifier.width(130.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box {
+            OutlinedButton(onClick = { offen = true }, shape = MaterialTheme.shapes.small) { Text(texte[roh] ?: roh) }
+            DropdownMenu(expanded = offen, onDismissRequest = { offen = false }) {
+                texte.forEach { (wert, text) ->
+                    DropdownMenuItem(text = { Text(text) }, onClick = { offen = false; if (wert != roh) viewModel.familyStatus(familie, wert) })
+                }
+            }
         }
     }
 }
@@ -518,6 +544,8 @@ private fun PersonMedien(detail: IndividualDetail, viewModel: AppViewModel, stat
             if (m.isEmpty()) Text(stringResource(Res.string.desk_place_nothing), color = MaterialTheme.colorScheme.onSurfaceVariant)
             else MedienReihe(m, openWeb,
                 onLoesen = if (darfSchreiben) ({ x -> viewModel.unlinkMedia(x.xref) }) else null,
+                // Hauptbild festlegen: an die erste Stelle, ab API-Stufe 35 auch mit GEDCOM-L "_PRIM Y"
+                onHauptbild = if (darfSchreiben) ({ x -> viewModel.primaryMedia(x.xref) }) else null,
                 onBearbeiten = if (darfSchreiben) ({ x -> bearbeiten = x }) else null,
                 onOeffnen = { item ->
                     when {
